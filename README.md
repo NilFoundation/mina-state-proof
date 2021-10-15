@@ -1,6 +1,6 @@
 # In-EVM Mina State Verification
 
-This repository contains In-EVM Mina State verification. In particular:
+This repository contains In-EVM Mina State verification project. In particular:
 
 1. A program `aux-proof-gen` that takes as input a Mina blockchain-state and associated Pickles SNARK and produces an auxiliary proof. 
 2. An in-EVM application logic `aux-proof-verify` that has an internal state corresponding to the Mina protocol state, and which can be set to a new state only if one provides an auxiliary proof that verifies.
@@ -32,3 +32,10 @@ Compiler/environment requirements are as follows:
 ### Usage
 
 ## In-EVM Verification Logic (aux-proof-verify)
+
+## Community
+
+Issue reports are preferred to be done with Github Issues in here:
+https://github.com/nilfoundation/evm-mina-verification.git.
+
+Usage and development questions a preferred to be asked in a Telegram chat: https:/t.me/nil_crypto3
