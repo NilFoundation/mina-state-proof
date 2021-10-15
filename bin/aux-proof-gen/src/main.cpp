@@ -21,8 +21,6 @@
 #include <boost/optional.hpp>
 #include <boost/program_options.hpp>
 
-using namespace nil::crypto3;
-
 int main(int argc, char *argv[]) {
 
     boost::program_options::options_description options("Mina State Auxiliary Proof Generator");
