@@ -29,14 +29,6 @@ Compiler/environment requirements are as follows:
 
 `mkdir build && cd build && cmake .. && make aux-proof-gen`
 
-### Usage
-
-It is, first of all, required to generated the Mina Protocol state.
-
-This can be done with the O1Labs' protocol implementation:
-
-`git clone --recurse-submodules https://github.com/o1labs/mina.git`
-
 ## In-EVM Verification Logic (aux-proof-verify)
 
 ## Community
