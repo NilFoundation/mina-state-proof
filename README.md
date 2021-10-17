@@ -34,8 +34,6 @@ Compiler/environment requirements are as follows:
 
 `mkdir build && cd build && cmake .. && make aux-proof-gen`
 
-#### WebAssembly
-
 ### Usage
 
 `bin/aux-proof-gen/aux-proof-gen ../share/mina/genesis_proof_*`
