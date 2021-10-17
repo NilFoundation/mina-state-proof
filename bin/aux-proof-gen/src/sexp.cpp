@@ -1,4 +1,19 @@
-// Author: Isak Andersson 2016 bitpuffin dot com
+//---------------------------------------------------------------------------//
+// Copyright (c) 2018-2021 Mikhail Komarov <nemo@nil.foundation>
+// Copyright (c) 2016 Isak Andersson <bitpuffin.co>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//---------------------------------------------------------------------------//
 
 #include <nil/mina/auxproof/sexp.hpp>
 
@@ -9,100 +24,100 @@
 #include <array>
 #include <iostream>
 
-namespace sexpresso {
-    Sexp::Sexp() {
-        this->kind = SexpValueKind::SEXP;
+namespace nil {
+    sexp::sexp() {
+        this->kind = sexp_value_kind::SEXP;
     }
-    Sexp::Sexp(std::string const &strval) {
-        this->kind = SexpValueKind::STRING;
+    sexp::sexp(std::string const &strval) {
+        this->kind = sexp_value_kind::STRING;
         this->value.str = escape(strval);
     }
-    Sexp::Sexp(std::vector<Sexp> const &sexpval) {
-        this->kind = SexpValueKind::SEXP;
-        this->value.sexp = sexpval;
+    sexp::sexp(std::vector<sexp> const &sexpval) {
+        this->kind = sexp_value_kind::SEXP;
+        this->value.e = sexpval;
     }
 
-    auto Sexp::addChild(Sexp sexp) -> void {
-        if (this->kind == SexpValueKind::STRING) {
-            this->kind = SexpValueKind::SEXP;
-            this->value.sexp.push_back(Sexp {std::move(this->value.str)});
+    auto sexp::add_child(sexp sexp) -> void {
+        if (this->kind == sexp_value_kind::STRING) {
+            this->kind = sexp_value_kind::SEXP;
+            this->value.e.emplace_back(this->value.str);
         }
-        this->value.sexp.push_back(std::move(sexp));
+        this->value.e.push_back(std::move(sexp));
     }
 
-    auto Sexp::addChild(std::string str) -> void {
-        this->addChild(Sexp {std::move(str)});
+    auto sexp::add_child(const std::string &str) -> void {
+        this->add_child(sexp {str});
     }
 
-    auto Sexp::addChildUnescaped(std::string str) -> void {
-        this->addChild(Sexp::unescaped(std::move(str)));
+    auto sexp::add_child_unescaped(std::string str) -> void {
+        this->add_child(sexp::unescaped(std::move(str)));
     }
 
-    auto Sexp::addExpression(std::string const &str) -> void {
+    auto sexp::add_expression(std::string const &str) -> void {
         auto err = std::string {};
         auto sexp = parse(str, err);
         if (!err.empty())
             return;
-        for (auto &&c : sexp.value.sexp)
-            this->addChild(std::move(c));
+        for (auto &&c : sexp.value.e)
+            this->add_child(std::move(c));
     }
 
-    auto Sexp::childCount() const -> size_t {
+    auto sexp::child_count() const -> size_t {
         switch (this->kind) {
-            case SexpValueKind::SEXP:
-                return this->value.sexp.size();
-            case SexpValueKind::STRING:
+            case sexp_value_kind::SEXP:
+                return this->value.e.size();
+            case sexp_value_kind::STRING:
                 return 1;
         }
-        printShouldNeverReachHere();
+        print_should_never_reach_here();
         return 0;
     }
 
-    static auto splitPathString(std::string const &path) -> std::vector<std::string> {
+    static auto split_path_string(std::string const &path) -> std::vector<std::string> {
         auto paths = std::vector<std::string> {};
-        if (path.size() == 0)
+        if (path.empty())
             return paths;
         auto start = path.begin();
         for (auto i = path.begin() + 1; i != path.end(); ++i) {
             if (*i == '/') {
-                paths.push_back(std::string {start, i});
+                paths.emplace_back(start, i);
                 start = i + 1;
             }
         }
-        paths.push_back(std::string {start, path.end()});
+        paths.emplace_back(start, path.end());
         return paths;
     }
 
-    auto Sexp::getChildByPath(std::string const &path) -> Sexp * {
-        if (this->kind == SexpValueKind::STRING)
+    auto sexp::get_child_by_path(std::string const &path) -> sexp * {
+        if (this->kind == sexp_value_kind::STRING)
             return nullptr;
 
-        auto paths = splitPathString(path);
+        auto paths = split_path_string(path);
 
         auto *cur = this;
         for (auto i = paths.begin(); i != paths.end();) {
             auto start = i;
-            for (auto &child : cur->value.sexp) {
+            for (auto &child : cur->value.e) {
                 auto brk = false;
                 switch (child.kind) {
-                    case SexpValueKind::STRING:
+                    case sexp_value_kind::STRING:
                         if (i == paths.end() - 1 && child.value.str == *i)
                             return &child;
                         else
                             continue;
-                    case SexpValueKind::SEXP:
-                        if (child.value.sexp.size() == 0)
+                    case sexp_value_kind::SEXP:
+                        if (child.value.e.empty())
                             continue;
-                        auto &fst = child.value.sexp[0];
+                        auto &fst = child.value.e[0];
                         switch (fst.kind) {
-                            case SexpValueKind::STRING:
+                            case sexp_value_kind::STRING:
                                 if (fst.value.str == *i) {
                                     cur = &child;
                                     ++i;
                                     brk = true;
                                 }
                                 break;
-                            case SexpValueKind::SEXP:
+                            case sexp_value_kind::SEXP:
                                 continue;
                         }
                 }
@@ -117,103 +132,103 @@ namespace sexpresso {
         return nullptr;
     }
 
-    static auto findChild(Sexp &sexp, std::string name) -> Sexp * {
-        auto findPred = [&name](Sexp &s) {
+    static sexp *find_child(sexp &sexp, std::string name) {
+        auto findPred = [&name](struct sexp &s) {
             switch (s.kind) {
-                case SexpValueKind::SEXP: {
-                    if (s.childCount() == 0)
+                case sexp_value_kind::SEXP: {
+                    if (s.child_count() == 0)
                         return false;
-                    auto &hd = s.getChild(0);
+                    auto &hd = s.get_child(0);
                     switch (hd.kind) {
-                        case SexpValueKind::SEXP:
+                        case sexp_value_kind::SEXP:
                             return false;
-                        case SexpValueKind::STRING:
-                            return hd.getString() == name;
+                        case sexp_value_kind::STRING:
+                            return hd.get_string() == name;
                     }
                     break;
                 }
-                case SexpValueKind::STRING:
-                    return s.getString() == name;
+                case sexp_value_kind::STRING:
+                    return s.get_string() == name;
             }
-            printShouldNeverReachHere();
+            print_should_never_reach_here();
             return false;
         };
-        auto loc = std::find_if(sexp.value.sexp.begin(), sexp.value.sexp.end(), findPred);
-        if (loc == sexp.value.sexp.end())
+        auto loc = std::find_if(sexp.value.e.begin(), sexp.value.e.end(), findPred);
+        if (loc == sexp.value.e.end())
             return nullptr;
         else
             return &(*loc);
     }
 
-    auto Sexp::createPath(std::vector<std::string> const &path) -> Sexp & {
+    sexp &sexp::create_path(std::vector<std::string> const &path) {
         auto el = this;
         auto nxt = el;
         auto pc = path.begin();
         for (; pc != path.end(); ++pc) {
-            nxt = findChild(*el, *pc);
+            nxt = find_child(*el, *pc);
             if (nxt == nullptr)
                 break;
             else
                 el = nxt;
         }
         for (; pc != path.end(); ++pc) {
-            el->addChild(Sexp {std::vector<Sexp> {Sexp {*pc}}});
-            el = &(el->getChild(el->childCount() - 1));
+            el->add_child(sexp {std::vector<sexp> {sexp {*pc}}});
+            el = &(el->get_child(el->child_count() - 1));
         }
         return *el;
     }
 
-    auto Sexp::createPath(std::string const &path) -> Sexp & {
-        return this->createPath(splitPathString(path));
+    sexp &sexp::create_path(std::string const &path) {
+        return this->create_path(split_path_string(path));
     }
 
-    auto Sexp::getChild(size_t idx) -> Sexp & {
-        return this->value.sexp[idx];
+    auto sexp::get_child(size_t idx) -> sexp & {
+        return this->value.e[idx];
     }
 
-    auto Sexp::getString() -> std::string & {
+    auto sexp::get_string() -> std::string & {
         return this->value.str;
     }
 
     static const std::array<char, 11> escape_chars = {'\'', '"', '?', '\\', 'a', 'b', 'f', 'n', 'r', 't', 'v'};
     static const std::array<char, 11> escape_vals = {'\'', '"', '\?', '\\', '\a', '\b', '\f', '\n', '\r', '\t', '\v'};
 
-    static auto isEscapeValue(char c) -> bool {
+    static auto is_escape_value(char c) -> bool {
         return std::find(escape_vals.begin(), escape_vals.end(), c) != escape_vals.end();
     }
 
-    static auto countEscapeValues(std::string const &str) -> size_t {
-        return std::count_if(str.begin(), str.end(), isEscapeValue);
+    static auto count_escape_values(std::string const &str) -> size_t {
+        return std::count_if(str.begin(), str.end(), is_escape_value);
     }
 
-    static auto stringValToString(std::string const &s) -> std::string {
+    static auto string_val_to_string(std::string const &s) -> std::string {
         if (s.size() == 0)
             return std::string {"\"\""};
-        if ((std::find(s.begin(), s.end(), ' ') == s.end()) && countEscapeValues(s) == 0)
+        if ((std::find(s.begin(), s.end(), ' ') == s.end()) && count_escape_values(s) == 0)
             return s;
         return ('"' + escape(s) + '"');
     }
 
-    static auto toStringImpl(Sexp const &sexp, std::ostringstream &ostream) -> void {
+    static auto to_string_impl(sexp const &sexp, std::ostringstream &ostream) -> void {
         switch (sexp.kind) {
-            case SexpValueKind::STRING:
-                ostream << stringValToString(sexp.value.str);
+            case sexp_value_kind::STRING:
+                ostream << string_val_to_string(sexp.value.str);
                 break;
-            case SexpValueKind::SEXP:
-                switch (sexp.value.sexp.size()) {
+            case sexp_value_kind::SEXP:
+                switch (sexp.value.e.size()) {
                     case 0:
                         ostream << "()";
                         break;
                     case 1:
                         ostream << '(';
-                        toStringImpl(sexp.value.sexp[0], ostream);
+                        to_string_impl(sexp.value.e[0], ostream);
                         ostream << ')';
                         break;
                     default:
                         ostream << '(';
-                        for (auto i = sexp.value.sexp.begin(); i != sexp.value.sexp.end(); ++i) {
-                            toStringImpl(*i, ostream);
-                            if (i != sexp.value.sexp.end() - 1)
+                        for (auto i = sexp.value.e.begin(); i != sexp.value.e.end(); ++i) {
+                            to_string_impl(*i, ostream);
+                            if (i != sexp.value.e.end() - 1)
                                 ostream << ' ';
                         }
                         ostream << ')';
@@ -221,36 +236,36 @@ namespace sexpresso {
         }
     }
 
-    auto Sexp::toString() const -> std::string {
+    auto sexp::to_string() const -> std::string {
         auto ostream = std::ostringstream {};
-        // outer sexp does not get surrounded by ()
+        // outer expr does not get surrounded by ()
         switch (this->kind) {
-            case SexpValueKind::STRING:
-                ostream << stringValToString(this->value.str);
+            case sexp_value_kind::STRING:
+                ostream << string_val_to_string(this->value.str);
                 break;
-            case SexpValueKind::SEXP:
-                for (auto i = this->value.sexp.begin(); i != this->value.sexp.end(); ++i) {
-                    toStringImpl(*i, ostream);
-                    if (i != this->value.sexp.end() - 1)
+            case sexp_value_kind::SEXP:
+                for (auto i = this->value.e.begin(); i != this->value.e.end(); ++i) {
+                    to_string_impl(*i, ostream);
+                    if (i != this->value.e.end() - 1)
                         ostream << ' ';
                 }
         }
         return ostream.str();
     }
 
-    auto Sexp::isString() const -> bool {
-        return this->kind == SexpValueKind::STRING;
+    auto sexp::is_string() const -> bool {
+        return this->kind == sexp_value_kind::STRING;
     }
 
-    auto Sexp::isSexp() const -> bool {
-        return this->kind == SexpValueKind::SEXP;
+    auto sexp::is_sexp() const -> bool {
+        return this->kind == sexp_value_kind::SEXP;
     }
 
-    auto Sexp::isNil() const -> bool {
-        return this->kind == SexpValueKind::SEXP && this->childCount() == 0;
+    auto sexp::is_nil() const -> bool {
+        return this->kind == sexp_value_kind::SEXP && this->child_count() == 0;
     }
 
-    static auto childrenEqual(std::vector<Sexp> const &a, std::vector<Sexp> const &b) -> bool {
+    static auto children_equal(std::vector<sexp> const &a, std::vector<sexp> const &b) -> bool {
         if (a.size() != b.size())
             return false;
 
@@ -261,34 +276,34 @@ namespace sexpresso {
         return true;
     }
 
-    auto Sexp::equal(Sexp const &other) const -> bool {
+    auto sexp::equal(sexp const &other) const -> bool {
         if (this->kind != other.kind)
             return false;
         switch (this->kind) {
-            case SexpValueKind::SEXP:
-                return childrenEqual(this->value.sexp, other.value.sexp);
+            case sexp_value_kind::SEXP:
+                return children_equal(this->value.e, other.value.e);
                 break;
-            case SexpValueKind::STRING:
+            case sexp_value_kind::STRING:
                 return this->value.str == other.value.str;
         }
-        printShouldNeverReachHere();
+        print_should_never_reach_here();
         return false;
     }
 
-    auto Sexp::arguments() -> SexpArgumentIterator {
-        return SexpArgumentIterator {*this};
+    auto sexp::arguments() -> sexp_argument_iterator {
+        return sexp_argument_iterator {*this};
     }
 
-    auto Sexp::unescaped(std::string strval) -> Sexp {
-        auto s = Sexp {};
-        s.kind = SexpValueKind::STRING;
+    auto sexp::unescaped(std::string strval) -> sexp {
+        auto s = sexp {};
+        s.kind = sexp_value_kind::STRING;
         s.value.str = std::move(strval);
         return s;
     }
 
-    auto parse(std::string const &str, std::string &err) -> Sexp {
-        auto sexprstack = std::stack<Sexp> {};
-        sexprstack.push(Sexp {});    // root
+    auto parse(std::string const &str, std::string &err) -> sexp {
+        auto sexprstack = std::stack<sexp> {};
+        sexprstack.push(sexp {});    // root
         auto nextiter = str.begin();
         for (auto iter = nextiter; iter != str.end(); iter = nextiter) {
             nextiter = iter + 1;
@@ -296,18 +311,18 @@ namespace sexpresso {
                 continue;
             switch (*iter) {
                 case '(':
-                    sexprstack.push(Sexp {});
+                    sexprstack.push(sexp {});
                     break;
                 case ')': {
                     auto topsexp = std::move(sexprstack.top());
                     sexprstack.pop();
-                    if (sexprstack.size() == 0) {
+                    if (sexprstack.empty()) {
                         err =
                             std::string {"too many ')' characters detected, closing sexprs that don't exist, no good."};
-                        return Sexp {};
+                        return sexp {};
                     }
                     auto &top = sexprstack.top();
-                    top.addChild(std::move(topsexp));
+                    top.add_child(std::move(topsexp));
                     break;
                 }
                 case '"': {
@@ -322,12 +337,12 @@ namespace sexpresso {
                             break;
                         if (*i == '\n') {
                             err = std::string {"Unexpected newline in string literal"};
-                            return Sexp {};
+                            return sexp {};
                         }
                     }
                     if (i == str.end()) {
                         err = std::string {"Unterminated string literal"};
-                        return Sexp {};
+                        return sexp {};
                     }
                     auto resultstr = std::string {};
                     resultstr.reserve(i - start);
@@ -337,12 +352,12 @@ namespace sexpresso {
                                 ++it;
                                 if (it == i) {
                                     err = std::string {"Unfinished escape sequence at the end of the string"};
-                                    return Sexp {};
+                                    return sexp {};
                                 }
                                 auto pos = std::find(escape_chars.begin(), escape_chars.end(), *it);
                                 if (pos == escape_chars.end()) {
                                     err = std::string {"invalid escape char '"} + *it + '\'';
-                                    return Sexp {};
+                                    return sexp {};
                                 }
                                 resultstr.push_back(escape_vals[pos - escape_chars.begin()]);
                                 break;
@@ -351,7 +366,7 @@ namespace sexpresso {
                                 resultstr.push_back(*it);
                         }
                     }
-                    sexprstack.top().addChildUnescaped(std::move(resultstr));
+                    sexprstack.top().add_child_unescaped(std::move(resultstr));
                     nextiter = i + 1;
                     break;
                 }
@@ -365,24 +380,24 @@ namespace sexpresso {
                     auto symend = std::find_if(iter, str.end(),
                                                [](char const &c) { return std::isspace(c) || c == ')' || c == '('; });
                     auto &top = sexprstack.top();
-                    top.addChild(Sexp {std::string {iter, symend}});
+                    top.add_child(sexp {std::string {iter, symend}});
                     nextiter = symend;
             }
         }
         if (sexprstack.size() != 1) {
             err = std::string {"not enough s-expressions were closed by the end of parsing"};
-            return Sexp {};
+            return sexp {};
         }
         return std::move(sexprstack.top());
     }
 
-    auto parse(std::string const &str) -> Sexp {
+    auto parse(std::string const &str) -> sexp {
         auto ignored_error = std::string {};
         return parse(str, ignored_error);
     }
 
     auto escape(std::string const &str) -> std::string {
-        auto escape_count = countEscapeValues(str);
+        auto escape_count = count_escape_values(str);
         if (escape_count == 0)
             return str;
         auto result_str = std::string {};
@@ -399,44 +414,44 @@ namespace sexpresso {
         return result_str;
     }
 
-    auto printShouldNeverReachHere() -> void {
+    auto print_should_never_reach_here() -> void {
         std::cerr << "Error: Should never reach here " << __FILE__ << ": " << __LINE__ << std::endl;
     }
 
-    SexpArgumentIterator::SexpArgumentIterator(Sexp &sexp) : sexp(sexp) {
+    sexp_argument_iterator::sexp_argument_iterator(sexp &sexp) : expr(sexp) {
     }
 
-    auto SexpArgumentIterator::begin() -> iterator {
+    sexp_argument_iterator::iterator sexp_argument_iterator::begin() {
         if (this->size() == 0)
             return this->end();
         else
-            return ++(this->sexp.value.sexp.begin());
+            return ++(this->expr.value.e.begin());
     }
 
-    auto SexpArgumentIterator::end() -> iterator {
-        return this->sexp.value.sexp.end();
+    sexp_argument_iterator::iterator sexp_argument_iterator::end() {
+        return this->expr.value.e.end();
     }
 
-    auto SexpArgumentIterator::begin() const -> const_iterator {
+    sexp_argument_iterator::const_iterator sexp_argument_iterator::begin() const {
         if (this->size() == 0)
             return this->end();
         else
-            return ++(this->sexp.value.sexp.begin());
+            return ++(this->expr.value.e.begin());
     }
 
-    auto SexpArgumentIterator::end() const -> const_iterator {
-        return this->sexp.value.sexp.end();
+    sexp_argument_iterator::const_iterator sexp_argument_iterator::end() const {
+        return this->expr.value.e.end();
     }
 
-    auto SexpArgumentIterator::empty() const -> bool {
+    auto sexp_argument_iterator::empty() const -> bool {
         return this->size() == 0;
     }
 
-    auto SexpArgumentIterator::size() const -> size_t {
-        auto sz = this->sexp.value.sexp.size();
+    auto sexp_argument_iterator::size() const -> size_t {
+        auto sz = this->expr.value.e.size();
         if (sz == 0)
             return 0;
         else
             return sz - 1;
     }
-}    // namespace sexpresso
+}    // namespace nil

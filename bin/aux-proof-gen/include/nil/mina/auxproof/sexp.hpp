@@ -1,60 +1,75 @@
-// Author: Isak Andersson 2016 bitpuffin dot com
+//---------------------------------------------------------------------------//
+// Copyright (c) 2018-2021 Mikhail Komarov <nemo@nil.foundation>
+// Copyright (c) 2016 Isak Andersson <bitpuffin.com>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//---------------------------------------------------------------------------//
 
 #include <vector>
 #include <string>
 #include <cstdint>
 
-namespace sexpresso {
-    enum class SexpValueKind : uint8_t { SEXP, STRING };
+namespace nil {
+    enum class sexp_value_kind : uint8_t { SEXP, STRING };
 
-    struct SexpArgumentIterator;
+    struct sexp_argument_iterator;
 
-    struct Sexp {
-        Sexp();
-        Sexp(std::string const &strval);
-        Sexp(std::vector<Sexp> const &sexpval);
-        SexpValueKind kind;
+    struct sexp {
+        sexp();
+        sexp(std::string const &strval);
+        sexp(std::vector<sexp> const &sexpval);
+        sexp_value_kind kind;
         struct {
-            std::vector<Sexp> sexp;
+            std::vector<sexp> e;
             std::string str;
         } value;
-        auto addChild(Sexp sexp) -> void;
-        auto addChild(std::string str) -> void;
-        auto addChildUnescaped(std::string str) -> void;
-        auto addExpression(std::string const &str) -> void;
-        auto childCount() const -> size_t;
-        auto getChild(size_t idx) -> Sexp &;    // Call only if Sexp is a Sexp
-        auto getString() -> std::string &;
-        auto getChildByPath(std::string const &path)
-            -> Sexp *;    // unsafe! careful to not have the result pointer outlive the scope of the Sexp object
-        auto createPath(std::vector<std::string> const &path) -> Sexp &;
-        auto createPath(std::string const &path) -> Sexp &;
-        auto toString() const -> std::string;
-        auto isString() const -> bool;
-        auto isSexp() const -> bool;
-        auto isNil() const -> bool;
-        auto equal(Sexp const &other) const -> bool;
-        auto arguments() -> SexpArgumentIterator;
-        static auto unescaped(std::string strval) -> Sexp;
+        auto add_child(sexp sexp) -> void;
+        auto add_child(const std::string &str) -> void;
+        auto add_child_unescaped(std::string str) -> void;
+        auto add_expression(std::string const &str) -> void;
+        auto child_count() const -> size_t;
+        auto get_child(size_t idx) -> sexp &;    // Call only if expr is a expr
+        auto get_string() -> std::string &;
+        auto get_child_by_path(std::string const &path)
+            -> sexp *;    // unsafe! careful to not have the result pointer outlive the scope of the expr object
+        auto create_path(std::vector<std::string> const &path) -> sexp &;
+        auto create_path(std::string const &path) -> sexp &;
+        auto to_string() const -> std::string;
+        auto is_string() const -> bool;
+        auto is_sexp() const -> bool;
+        auto is_nil() const -> bool;
+        auto equal(sexp const &other) const -> bool;
+        auto arguments() -> sexp_argument_iterator;
+        static auto unescaped(std::string strval) -> sexp;
     };
 
-    auto parse(std::string const &str, std::string &err) -> Sexp;
-    auto parse(std::string const &str) -> Sexp;
+    auto parse(std::string const &str, std::string &err) -> sexp;
+    auto parse(std::string const &str) -> sexp;
     auto escape(std::string const &str) -> std::string;
-    auto printShouldNeverReachHere() -> void;
+    auto print_should_never_reach_here() -> void;
 
-    struct SexpArgumentIterator {
-        SexpArgumentIterator(Sexp &sexp);
-        Sexp &sexp;
+    struct sexp_argument_iterator {
+        sexp_argument_iterator(sexp &sexp);
+        sexp &expr;
 
-        using iterator = std::vector<Sexp>::iterator;
-        using const_iterator = std::vector<Sexp>::const_iterator;
+        typedef typename std::vector<sexp>::iterator iterator;
+        typedef typename std::vector<sexp>::const_iterator const_iterator;
 
-        auto begin() -> iterator;
-        auto end() -> iterator;
-        auto begin() const -> const_iterator;
-        auto end() const -> const_iterator;
-        auto size() const -> size_t;
-        auto empty() const -> bool;
+        iterator begin();
+        iterator end();
+        const_iterator begin() const;
+        const_iterator end() const;
+        size_t size() const;
+        bool empty() const;
     };
-}    // namespace sexpresso
+}    // namespace nil

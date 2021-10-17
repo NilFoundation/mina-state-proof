@@ -232,7 +232,7 @@ acs-*.bib
 *.t[1-9][0-9]
 *.tfm
 
-#(r)(e)ledmac/(r)(e)ledpar
+#(r)(expr)ledmac/(r)(expr)ledpar
 *.end
 *.?end
 *.[1-9]

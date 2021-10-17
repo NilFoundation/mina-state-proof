@@ -36,6 +36,10 @@ Compiler/environment requirements are as follows:
 
 #### WebAssembly
 
+### Usage
+
+`bin/aux-proof-gen/aux-proof-gen ../share/mina/genesis_proof_*`
+
 ## In-EVM Verification Logic (aux-proof-verify)
 
 ## Community
