@@ -40,4 +40,4 @@ Compiler/environment requirements are as follows:
 Issue reports are preferred to be done with Github Issues in here:
 https://github.com/nilfoundation/evm-mina-verification.git.
 
-Usage and development questions a preferred to be asked in a Telegram chat: https:/t.me/nil_crypto3
+Usage and development questions a preferred to be asked in a Telegram chat: https://t.me/nil_crypto3
