@@ -14,7 +14,7 @@ Project documentation, circuit definitions, API references etc can be found at h
 
 Auxiliary proof generator is UNIX-style application taking Mina Protocol state as an input and producing auxiliary proof as an output. 
 
-The generator implemented in C++ and uses =nil; Crypto3 C++ Cryptography Suite (https://github.com/nilfoundation/crypto3) for cryptographic primitives definition.
+The generator prototype is implemented in C++ and uses =nil; Crypto3 C++ Cryptography Suite (https://github.com/nilfoundation/crypto3) for cryptographic primitives definition.
 
 ### Dependencies
 
