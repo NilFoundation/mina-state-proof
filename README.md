@@ -38,8 +38,6 @@ Compiler/environment requirements are as follows:
 
 `bin/aux-proof-gen/aux-proof-gen ../share/mina/genesis_proof_*`
 
-## In-EVM Verification Logic (aux-proof-verify)
-
 ## Community
 
 Issue reports are preferred to be done with Github Issues in here:
