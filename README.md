@@ -13,7 +13,10 @@ https://mina.nil.foundation/projects/verification.
 
 ## Auxiliary Proof Generator (`aux-proof-gen`)
 
-Auxiliary proof generator is implemented in C++ and uses =nil; Crypto3 C++ Cryptography Suite 
+Auxiliary proof generator is UNIX-style application taking Mina Protocol state as an input and producing 
+auxiliary proof as an output. 
+
+The generator implemented in C++ and uses =nil; Crypto3 C++ Cryptography Suite 
 (https://github.com/nilfoundation/crypto3) for cryptographic primitives definition.
 
 ### Dependencies
@@ -27,7 +30,11 @@ Compiler/environment requirements are as follows:
 
 ### Building
 
+#### Native
+
 `mkdir build && cd build && cmake .. && make aux-proof-gen`
+
+#### WebAssembly
 
 ## In-EVM Verification Logic (aux-proof-verify)
 

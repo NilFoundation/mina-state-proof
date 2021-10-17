@@ -21,22 +21,31 @@
 #include <boost/optional.hpp>
 #include <boost/program_options.hpp>
 
+#include <nil/mina/auxproof/sexp.hpp>
+
 int main(int argc, char *argv[]) {
 
     boost::program_options::options_description options("Mina State Auxiliary Proof Generator");
     // clang-format off
     options.add_options()("help,h", "Display help message")
-    ("version,v", "Display version")
-    ("generate", "Generate");
+    ("version,v", "Display version");
     // clang-format on
+
+    boost::program_options::positional_options_description p;
+    p.add("proof", -1);
 
     boost::program_options::variables_map vm;
     boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(options).run(), vm);
+    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).positional(p).run(), vm);
     boost::program_options::notify(vm);
 
     if (vm.count("help") || argc < 2) {
         std::cout << options << std::endl;
         return 0;
+    }
+
+    if (vm.count("proof")) {
+        sexpresso::Sexp s = sexpresso::parse(vm["proof"].as<std::string>());
     }
 
     return 0;
