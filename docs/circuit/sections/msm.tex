@@ -1,3 +1,19 @@
 \section{Multi-Scalar Multiplication Circuit}
 \label{section:msm}
-WIP
+\textbf{WIP}
+
+
+Input: $G_0, ..., G_{n - 1} \in \mathbb{G}, s_0, ..., s_{n - 1} \in \mathbb{F}_r$, where $\mathbb{F}_r$ is scalar field of $\mathbb{G}$.
+
+
+Output: $S = \sum\limits_{i = 0}^{n}s_i \cdot G_i$
+
+
+Options:
+\begin{itemize}
+	\item Straightforward Sum: $\text{rows} \approx n \cdot (k + 2)$, where $k$ is the number of rows in a scalar multiplication circuit. 
+	\item Pippenger's Algorithm: ??
+\end{itemize}
+
+
+
