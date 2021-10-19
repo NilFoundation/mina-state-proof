@@ -1,0 +1,45 @@
+\section{Elliptic Curve Arithmetic}
+\label{section:ec}
+\textbf{WIP}
+
+\subsection{Variable Base Scalar Multiplication}
+For $S  = [r]T$, where $r = 2^n + k$ and $k = [k_n ... k_0]$, $k_i \in \{0, 1\}$:
+\footnote{Using the results of \url{https://arxiv.org/pdf/math/0208038.pdf}}
+\begin{enumerate}
+	\item $S = [2]T$
+	\item for $i$ from $n - 1$ to $0$:
+	\begin{enumerate}
+		\item $Q = k_{i + 1} \: ? \: T : -T$
+		\item $S = (S + Q) + S$
+	\end{enumerate}
+	\item $S = k_0 \: ? \: S - T : S$
+\end{enumerate}
+
+\begin{center}
+\begin{table}[H]
+\begin{tabular}{llllllllllllllll}
+ Row 		& 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
+ $i$ 			& $x_T$ & $y_T$ & $x_S$ & $y_S$ & $x_P$ & $y_P$ & $n=0$ & $x_R$ & $y_R$ & $s_1$ & $s_2$ & $b_1$ & $s_3$ & $s_4$ & $b_2$ \\
+ $i + 1$	& $s_5$ & $b_3$ & $x_S$ & $y_S$ & $x_P$ & $y_P$ & $n$ & $x_R$ & $y_R$ & $x_V$ & $y_V$ & $s_1$ & $b_1$ & $s_3$ & $b_2$ \\
+ $\vdots$	& $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+ $i + 100$	& $x_T$ & $y_T$ & $x_S$ & $y_S$ & $x_P$ & $y_P$ & $n$ & $x_R$ & $y_R$ & $s_1$ & $s_2$ & $b_1$ & $s_3$ & $s_4$ & $b_2$ \\
+ $i + 101$	& $s_5$ & $b_3$ & $x_S$ & $y_S$ & $x_P$ & $y_P$ & $n$ & $x_R$ & $y_R$ & $x_V$ & $y_V$ & $s_1$ & $b_1$ & $s_3$ & $b_2$ \\
+\end{tabular}
+\end{table}
+\end{center}
+
+Constraints:
+\begin{itemize}
+	\item $b_1 \cdot (b_1 - 1) = 0$
+	\item $b_2 \cdot (b_2 - 1) = 0$
+	\item $(x_P - x_T) \cdot s_1 = y_P - (2b_1 - 1) \cdot y_T$
+	\item $s_1^2 - s_2^2 = x_T - x_R$
+	\item $(2 \cdot x_P + x_T - s_1^2) \cdot (s_1 + s_2) = 2y_P$
+	\item $(x_P - x_R) \cdot s_2 = y_R + y_P$
+	\item $(x_R - x_T) \cdot s_3 = y_R - (2b_2 - 1) \cdot y_T$
+	\item $s_3^2 - s_4^2 = x_T - x_S$
+	\item $(2 \cdot x_R + x_T - s_3^2) \cdot (s_3 + s_4) = 2 \cdot y_R$
+	\item $(x_R - x_S) \cdot s_4 = y_S + y_R$
+	\item $n = 32 \cdot \texttt{next}(n) + 16 \cdot b_1 + 8 \cdot b_2 + 4 \cdot \texttt{next}(b_1) + 2 \cdot \texttt{next}(b_2) + \texttt{next}(b_3)$
+\end{itemize}
+
