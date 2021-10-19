@@ -1,0 +1,105 @@
+\section{Preliminaries}
+\label{section:preliminaries}
+
+\subsection{Pasta Curves}
+
+Let $n_1 = 17$, $n_2 = 16$.
+Pasta curves parameters:
+\begin{itemize}
+	\item $p = 2^254 + 45560315531419706090280762371685220353$
+	\item $q = 2^254 + 45560315531506369815346746415080538113$
+	\item Pallas:
+		\begin{center}
+			$\mathbb{G}_1 = \{ (x, y) \in \mathbb{F}_p | y^2 = x^3 + 5 \}$ \\
+			$|\mathbb{G}_1| = q$
+		\end{center}
+	\item Vesta:
+		\begin{center}
+			$\mathbb{G}_2 = \{ (x, y) \in \mathbb{F}_q | y^2 = x^3 + 5 \}$ \\
+			$|\mathbb{G}_2| = p$
+		\end{center}
+\end{itemize}
+
+\subsection{Verification Algorithm}
+
+Proof state (here $\mathbb{F}_r$ is a scalar field for $\mathbb{G}$):
+\begin{itemize}
+	\item DLog Commitments:
+	\begin{itemize}
+		\item $l_{comm}, r_{comm}, o_{comm}, z_{comm} \in \mathbb{G}$ // could each commit contains multiple points?
+		\item $t_{comm} = (t_{comm, 1}, t_{comm, 2}) \in (\mathbb{G}^5 \times \mathbb{G})$
+	\end{itemize}
+	\item Openings:
+	\begin{itemize}
+		\item $(L_i, R_i) \in \mathbb{G} \times \mathbb{G}$ for $0 \leq i < \texttt{lr\_rounds}$ // vector of rounds of L and R commitments
+		\item $\delta, SG \in \mathbb{G}$
+		\item $z_1, z_2 \in \mathbb{F}_{r}$
+	\end{itemize}
+	\item Polynomial Evaluations $a$, $b$, for $i = \{1, 2\}$:
+	\begin{itemize}
+		\item $l_i, r_i, o_i, z_i, f_i \in \mathbb{F}_r$ // could each eval contains multiple points irl?
+		\item $t_i \in \mathbb{F}_r^5$
+		\item $\sigma_{1_i}, \sigma_{2_i} \in \mathbb{F}_r$
+	\end{itemize}
+	\item $w \in \mathbb{F}_r^{s_w}$ - witness
+	\item previous challenges:
+	\begin{itemize}
+		\item $(c_i, p_i) \in (\mathbb{F}_r \times \mathbb{G})$ for $0 \leq i < \texttt{prev}$
+	\end{itemize}
+\end{itemize}
+
+Let $g_r$, $g_q$ are generators of $\mathbb{F}_r$ and $\mathbb{F}_q$ accordingly.
+
+Verification algorithm:
+\begin{enumerate}
+	\item for each $\mathcal{P}$:
+	\begin{enumerate}
+		\item $p_{comm} = \text{MSM(lgr\_comm, proof.public)} \in \mathbb{G}$ // public input verification
+		\item $ORACLES \rightarrow \{\text{digest}, 
+			(\beta, \gamma, \alpha', \alpha, \zeta, v, u, \zeta', v', u'), \\
+			\alpha_2, (pub_1, pub_2), \texttt{evlp}, \texttt{polys}, \zeta_1, \text{combined inner product} \}$:
+		\begin{enumerate}
+			\item $H_{\mathbb{F}_q}.absorb(p_{comm} || l_{comm} || r_{comm} || o_{comm})$
+			\item $\beta = H_{\mathbb{F}_q}.squeeze()$
+			\item $\gamma = H_{\mathbb{F}_q}.squeeze()$
+			\item $H_{\mathbb{F}_q}.absorb(z_{comm})$
+			\item $\alpha' = H_{\mathbb{F}_q}.squeeze()$
+			\item $\alpha = \phi(\alpha', endo\_r)$
+			\item $H_{\mathbb{F}_q}.absorb(t_{comm, 1} || \infty || ... || \infty || t_{comm, 2})$  // input size? 
+			\item $\zeta' = H_{\mathbb{F}_q}.squeeze()$
+			\item $\zeta = \phi(\zeta', endo\_r)$
+			\item $\text{digest} = H_{\mathbb{F}_q}.digest()$
+			\item $\zeta_1 = \zeta^n$
+			\item $\zeta_{\omega} = \zeta * g_r$
+			\item $\alpha_2 = [\alpha^2, ..., \alpha^19]$ %145
+			\item compute Lagrange base evaluation denominators
+			\item evaluate public input polynomials (return $pub_1$, $pub_2$)
+			\item $H_{\mathbb{F}_r}.absorb(pub_1 || pub_2)$
+			\item $v' = H_{\mathbb{F}_r}.squeeze()$
+			\item $v = \phi(v', endo\_r)$
+			\item $u' = H_{\mathbb{F}_r}.squeeze()$
+			\item $u = \phi(u', endo\_r)$
+			\item $\texttt{elvp} = {\zeta^{\texttt{mpl}}, \zeta_{\omega}^{\texttt{mpl}}}$
+			\item $\texttt{prev\_chal\_evals}$
+			\item inner product calculations
+		\end{enumerate}
+		\item arithmetic operations:
+		\begin{enumerate}
+			\item polynomial evaluation over $a, b$ (proof evaluations)
+			\item polynomial evaluation over \texttt{zkpm} at $\zeta$
+			\item $\texttt{perm\_scalars}$
+		\end{enumerate}
+		\item $f_{comm} = \text{MSM}(p, s)$ % 359
+		\item linearization polynomial evaluation consistency:  %361
+	\end{enumerate} 
+	\item srs.verify: % 458
+	\begin{enumerate}
+		\item ...
+		\item MSM:
+		\begin{center}
+			$\sum\limits_i r^i (c_i Q_i + delta_i - ( z_{1, i} (G_i + b_i U_i) + z_{2, i} H ))$
+		\end{center}
+	\end{enumerate}
+\end{enumerate}
+
+WIP
