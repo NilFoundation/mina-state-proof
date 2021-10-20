@@ -6,20 +6,18 @@ include(CMSetupVersion)
 
 cm_project(aux-proof-gen WORKSPACE_NAME ${CMAKE_WORKSPACE_NAME} LANGUAGES ASM C CXX)
 
-if(NOT Boost_FOUND)
-    cm_find_package(Boost COMPONENTS filesystem
-                    log log_setup program_options thread system)
-endif()
+cm_find_package(Boost COMPONENTS filesystem log log_setup program_options thread system)
 
 cm_setup_version(VERSION 0.1.0)
 
 # get header files; only needed by CMake generators,
-# e.g., for creating proper Xcode projects
+# expr.g., for creating proper Xcode projects
 set(${CURRENT_PROJECT_NAME}_HEADERS)
 
 # list cpp files excluding platform-dependent files
 list(APPEND ${CURRENT_PROJECT_NAME}_SOURCES
-     src/main.cpp)
+     src/main.cpp
+     src/sexp.cpp)
 
 add_executable(${CURRENT_PROJECT_NAME}
                ${${CURRENT_PROJECT_NAME}_HEADERS}

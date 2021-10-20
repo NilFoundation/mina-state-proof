@@ -1,0 +1,642 @@
+h1, .h1, h2, .h2, h3, .h3 {
+    font-weight: 200 !important;
+}
+
+.sm-dox a span.sub-arrow {
+    position: absolute;
+    top: 50%;
+    margin-top: -14px;
+    left: auto;
+    right: 3px;
+    width: 28px;
+    height: 28px;
+    overflow: hidden;
+    font: bold 12px / 28px monospace !important;
+    text-align: center;
+    text-shadow: none;
+    background: rgba(255, 255, 255, 0.5);
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px
+}
+
+/* Handing of arrow-carets in the smart menus */
+.sm-dox a.highlighted span.sub-arrow:before {
+    display: block;
+    content: '-'
+}
+
+.sm-dox a span.sub-arrow {
+    top: 50%;
+    margin-top: -2px;
+    right: 12px;
+    width: 0;
+    height: 0;
+    border-width: 4px;
+    border-style: solid dashed dashed dashed;
+    border-color: #725C70 transparent transparent transparent;
+    background: transparent;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    border-radius: 0
+}
+
+.sm-dox a:hover span.sub-arrow {
+    border-color: red transparent transparent transparent
+}
+
+
+.sm-dox.sm-rtl a.has-submenu {
+    padding-right: 12px;
+    padding-left: 24px
+}
+
+.sm-dox.sm-rtl a span.sub-arrow {
+    right: auto;
+    left: 12px
+}
+
+.sm-dox.sm-rtl.sm-vertical a.has-submenu {
+    padding: 10px 20px
+}
+
+.sm-dox.sm-rtl.sm-vertical a span.sub-arrow {
+    right: auto;
+    left: 8px;
+    border-style: dashed solid dashed dashed;
+    border-color: transparent #555 transparent transparent
+}
+
+.sm-dox.sm-rtl ul a.has-submenu {
+    padding: 10px 20px !important
+}
+
+.sm-dox.sm-rtl ul a span.sub-arrow {
+    right: auto;
+    left: 8px;
+    border-style: dashed solid dashed dashed;
+    border-color: transparent #555 transparent transparent
+}
+
+.sm-dox.sm-vertical a.disabled {
+}
+
+.sm-dox.sm-vertical a span.sub-arrow {
+    right: 8px;
+    top: 50%;
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: dashed dashed dashed solid;
+    border-color: transparent transparent transparent #555
+}
+
+.sm-dox ul a span.sub-arrow {
+    right: 8px;
+    top: 50%;
+    margin-top: -5px;
+    border-width: 5px;
+    border-color: transparent transparent transparent #555;
+    border-style: dashed dashed dashed solid
+}
+
+#navrow1, #navrow2, #navrow3, #navrow4, #navrow5 {
+    border-bottom: 1px solid #EEEEEE;
+}
+
+.adjust-right {
+    margin-left: 30px !important;
+    font-size: 1.15em !important;
+}
+
+.navbar {
+    border-top: 0px solid #222 !important;
+    border-left: 0px solid #222 !important;
+    border-right: 0px solid #222 !important;
+    border-bottom: 1px solid #3c3c3c !important;
+    padding: 10px;
+    font-size: 1.5em;
+}
+
+table {
+    white-space: pre-line !important;
+}
+
+/*
+ ===========================
+ */
+
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html,
+body {
+    height: 100%;
+    /* The html and body elements cannot have any padding or margin. */
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+    min-height: 100%;
+    height: auto;
+    /* Negative indent footer by its height */
+    margin: 0 auto -60px;
+    /* Pad bottom by footer height */
+    padding: 0 0 60px;
+}
+
+/* Set the fixed height of the footer here */
+#footer {
+    font-size: 0.9em;
+    padding: 8px 0px;
+    background-color: #f5f5f5;
+}
+
+.footer-row {
+    line-height: 44px;
+}
+
+#footer > .container {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.footer-follow-icon {
+    margin-left: 3px;
+    text-decoration: none !important;
+}
+
+.footer-follow-icon img {
+    width: 20px;
+}
+
+.footer-link {
+    padding-top: 5px;
+    display: inline-block;
+    color: #999999;
+    text-decoration: none;
+}
+
+.footer-copyright {
+    text-align: center;
+}
+
+
+@media (min-width: 992px) {
+    .footer-row {
+        text-align: left;
+    }
+
+    .footer-icons {
+        text-align: right;
+    }
+}
+
+@media (max-width: 991px) {
+    .footer-row {
+        text-align: center;
+    }
+
+    .footer-icons {
+        text-align: center;
+    }
+}
+
+/* DOXYGEN Code Styles
+----------------------------------- */
+
+
+a.qindex {
+    font-weight: bold;
+}
+
+a.qindexHL {
+    font-weight: bold;
+    background-color: #9CAFD4;
+    color: #F5F2F1;
+    border: 1px double #869DCA;
+}
+
+.contents a.qindexHL:visited {
+    color: #F5F2F1;
+}
+
+a.code, a.code:visited, a.line, a.line:visited {
+    color: #725C70;
+}
+
+a.codeRef, a.codeRef:visited, a.lineRef, a.lineRef:visited {
+    color: #725C70;
+}
+
+/* @end */
+
+dl.el {
+    margin-left: -1cm;
+}
+
+p.fragment {
+    border: 1px solid #2d2d2d;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    background-color: #222222;
+    padding: 4px 6px;
+    margin: 4px 8px 4px 2px;
+    overflow: auto;
+    word-wrap: break-word;
+    font-size: 10pt;
+    line-height: 125%;
+    font-family: monospace, fixed;
+}
+
+div.fragment {
+    border: 1px solid #2d2d2d;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    background-color: #222222;
+    padding: 4px 6px;
+    margin: 4px 8px 4px 2px;
+    overflow: auto;
+    word-wrap: break-word;
+    font-size: 10pt;
+    line-height: 125%;
+    font-family: monospace, fixed;
+}
+
+div.line {
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 14px;
+    min-height: 13px;
+    line-height: 1.0;
+    text-wrap: unrestricted;
+    white-space: -moz-pre-wrap; /* Moz */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    white-space: pre-wrap; /* CSS3  */
+    word-wrap: normal; /* IE 5.5+ */
+    text-indent: -53px;
+    padding-left: 53px;
+    padding-bottom: 0px;
+    margin: 0px;
+    -webkit-transition-property: background-color, box-shadow;
+    -webkit-transition-duration: 0.5s;
+    -moz-transition-property: background-color, box-shadow;
+    -moz-transition-duration: 0.5s;
+    -ms-transition-property: background-color, box-shadow;
+    -ms-transition-duration: 0.5s;
+    -o-transition-property: background-color, box-shadow;
+    -o-transition-duration: 0.5s;
+    transition-property: background-color, box-shadow;
+    transition-duration: 0.5s;
+}
+
+div.fragment.well div.line:first {
+    margin-top: 2px;
+}
+
+div.fragment.well div.line:last {
+    margin-bottom: 2px;
+}
+
+span.lineno {
+    padding-right: 4px;
+    text-align: right;
+    color: rgba(0, 0, 0, 0.3);
+    border-right: 1px solid #EEE;
+    border-left: 1px solid #EEE;
+    background-color: #FFF;
+    white-space: pre;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+span.lineno a {
+    background-color: #FAFAFA;
+    cursor: pointer;
+}
+
+div.groupHeader {
+    margin-left: 16px;
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+div.groupText {
+    margin-left: 16px;
+    font-style: italic;
+}
+
+/* Code Colorization */
+
+span.keyword {
+    color: #008000
+}
+
+span.keywordtype {
+    color: #604020
+}
+
+span.keywordflow {
+    color: #e08000
+}
+
+span.comment {
+    color: #800000
+}
+
+span.preprocessor {
+    color: #806020
+}
+
+span.stringliteral {
+    color: #002080
+}
+
+span.charliteral {
+    color: #008080
+}
+
+span.vhdldigit {
+    color: #ff00ff
+}
+
+span.vhdlchar {
+    color: #000000
+}
+
+span.vhdlkeyword {
+    color: #700070
+}
+
+span.vhdllogic {
+    color: #ff0000
+}
+
+blockquote {
+    background-color: #F7F8FB;
+    border-left: 2px solid #9CAFD4;
+    margin: 0 24px 0 4px;
+    padding: 0 12px 0 16px;
+}
+
+/* Search Box */
+
+#search-box {
+    margin: 10px 0px;
+}
+
+#search-box .close {
+    color: #222;
+    display: none;
+    position: absolute;
+    right: 0px;
+    padding: 6px 12px;
+    z-index: 5;
+}
+
+#search-box .form-control {
+    color: #222;
+    background-color: #F5F2F1;
+}
+
+/* Search results window */
+
+#search-results-window {
+    display: none;
+}
+
+iframe#MSearchResults {
+    width: 100%;
+    height: 15em;
+}
+
+.SRChildren {
+    padding-left: 3ex;
+    padding-bottom: .5em;
+    color: #F5F2F1;
+    font-size: 1em;
+}
+
+.SRPage .SRChildren {
+    display: none;
+}
+
+.SRPage .SRStatus {
+    color: #F5F2F1;
+    font-size: 0.5em;
+    font-style: none;
+    font-family: Helvetica Nueue, sans-serif;
+}
+
+a.SRScope {
+    display: block;
+}
+
+a.SRSymbol:focus, a.SRSymbol:active,
+a.SRScope:focus, a.SRScope:active {
+    text-decoration: underline;
+}
+
+span.SRScope {
+    padding-left: 4px;
+}
+
+.SRResult {
+    display: none;
+}
+
+/* Class & File List */
+
+.directory .icona,
+.directory .arrow {
+    height: auto;
+}
+
+.directory .icona .icon {
+    height: 16px;
+}
+
+.directory .icondoc {
+    background-position: 0px 0px;
+    height: 20px;
+}
+
+.directory .iconfopen {
+    background-position: 0px 0px;
+}
+
+.directory td.entry {
+    padding: 7px 8px 6px 8px;
+}
+
+.directory tr.even {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.table > tbody > tr > td.memSeparator {
+    line-height: 0;
+}
+
+.memtitle {
+    display: none;
+}
+
+.memItemLeft, .memTemplItemLeft {
+    white-space: normal;
+}
+
+/* enumerations */
+.panel-body thead > tr {
+    background-color: #725C70;
+}
+
+/* todo lists */
+.todoname,
+.todoname a {
+    font-weight: bold;
+}
+
+/* Class title */
+.summary {
+    margin-top: 25px;
+}
+
+.page-header {
+    margin: 20px 0px !important;
+}
+
+.page-header .title {
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.page-header .pull-right {
+    margin-top: 0.3em;
+    margin-left: 0.5em;
+}
+
+.page-header .label {
+    font-size: 50%;
+}
+
+.label-info {
+    background-color: #725C70;
+}
+
+@media print {
+    #top {
+        display: none;
+    }
+
+    #side-nav {
+        display: none;
+    }
+
+    #nav-path {
+        display: none;
+    }
+
+    body {
+        overflow: visible;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+    }
+
+    .summary {
+        display: none;
+    }
+
+    .memitem {
+        page-break-inside: avoid;
+    }
+
+    #doc-content {
+        margin-left: 0 !important;
+        height: auto !important;
+        width: auto !important;
+        overflow: inherit;
+        display: inline;
+    }
+}
+
+/* Markdown Table */
+
+table.markdownTable > tr.markdownTableHead, th.markdownTableHeadNone {
+    background-color: #725C70;
+}
+
+table.markdownTable > tr, th {
+    border-color: #725C70;
+}
+
+/* Function & Template Parameters */
+
+td.paramname {
+    color: #F5F2F1;
+}
+
+/* Markdown Pages */
+
+.PageDoc .contents {
+    font-size: 1.7rem;
+}
+
+.PageDoc .contents p {
+    font-size: 1.7rem;
+}
+
+.PageDoc .contents ol {
+    font-size: 1.7rem;
+}
+
+.PageDoc .contents h1 {
+    font-size: 6rem;
+}
+
+.PageDoc .contents h2 {
+    font-size: 4.5rem;
+}
+
+.PageDoc .contents h3 {
+    font-size: 3rem;
+}
+
+.PageDoc .contents .textblock h1 {
+    margin-top: 60px;
+    margin-bottom: 20px;
+}
+
+.PageDoc .contents .textblock h2 {
+    margin-top: 60px;
+    margin-bottom: 20px;
+}
+
+.PageDoc .contents .textblock h3 {
+    margin-top: 60px;
+    margin-bottom: 20px;
+}
+
+.PageDoc .contents a {
+    color: #725C70;
+}
+
+/* Pagination */
+
+div.directory > div.levels span {
+    color: #F5F2F1;
+}
+
+/* Table of Contents */
+
+div.contents-table {
+    float: right;
+    margin: 10px;
+}
+
+div.contents-table div.panel-body a {
+    color: #F5F2F1;
+}
