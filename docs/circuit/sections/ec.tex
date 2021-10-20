@@ -2,6 +2,52 @@
 \label{section:ec}
 \textbf{WIP}
 
+\subsection{Addition}
+
+\begin{center}
+\begin{table}[H]
+\begin{tabular}{llllllllllllllll}
+ Row  & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
+ $i$ 	  & $x_1$ & $y_1$ & $x_2$ & $y_2$ & $x_3$ & $y_3$ & $r$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+\end{tabular}
+\end{table}
+\end{center}
+
+Constraints:
+\begin{itemize}
+	\item $(x_2 - x_1) \cdot (y_3 + y_1) - (y_1 - y_2) \cdot (x_1 - x_3)$
+	\item $(x_1 + x_2 + x_3) \cdot (x_1 - x_3) \cdot (x_1 - x_3) - (y_3 + y_1) \cdot (y_3 + y_1)$
+	\item $(x_2 - x_1) \cdot r = 1$
+\end{itemize}
+
+\subsection{Doubling and Tripling}
+
+\begin{center}
+\begin{table}[H]
+\begin{tabular}{llllllllllllllll}
+ Row  & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
+ $i$ 	  & $x_1$ & $y_1$ & $x_2$ & $y_2$ & $x_3$ & $y_3$ & $r_1$ & $r_2$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+\end{tabular}
+\end{table}
+\end{center}
+
+Constraints:
+\begin{itemize}
+	\item Doubling:
+	\begin{itemize}
+		\item $4 \cdot y_1^2 \cdot (x_2 + 2 \cdot x_1) = 9 \cdot x_1^4$
+		\item $2 \cdot y_1 \cdot (y_2 + y_1) = (3 \cdot x_1^2) \cdot (x_1 – x_2)$
+		\item $y_1 \cdot r_1 = 1$
+	\end{itemize}
+	\item Addition (for tripling):
+	\begin{itemize}
+		\item $(x_2 - x_1) \cdot (y_3 + y_1) - (y_1 - y_2) \cdot (x_1 - x_3)$
+		\item $(x_1 + x_2 + x_3) \cdot (x_1 - x_3) \cdot (x_1 - x_3) - (y_3 + y_1) \cdot (y_3 + y_1)$
+		\item $(x_2 - x_1) \cdot r_2 = 1$
+	\end{itemize}
+\end{itemize}
+
+
 \subsection{Variable Base Scalar Multiplication}
 For $S  = [r]T$, where $r = 2^n + k$ and $k = [k_n ... k_0]$, $k_i \in \{0, 1\}$:
 \footnote{Using the results of \url{https://arxiv.org/pdf/math/0208038.pdf}}
