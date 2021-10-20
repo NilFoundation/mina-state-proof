@@ -22,22 +22,22 @@ Pasta curves parameters:
 
 \subsection{Verification Algorithm}
 
-Proof state (here $\mathbb{F}_r$ is a scalar field for $\mathbb{G}$):
+Proof state (here $\mathbb{F}_r$ is a scalar field of $\mathbb{G}$):
 \begin{itemize}
 	\item DLog Commitments:
 	\begin{itemize}
-		\item $l_{comm}, r_{comm}, o_{comm}, z_{comm} \in \mathbb{G}$ // could each commit contains multiple points?
+		\item $l_{comm}, r_{comm}, o_{comm}, z_{comm} \in \mathbb{G}$ % could each commit contains multiple points?
 		\item $t_{comm} = (t_{comm, 1}, t_{comm, 2}) \in (\mathbb{G}^5 \times \mathbb{G})$
 	\end{itemize}
 	\item Openings:
 	\begin{itemize}
-		\item $(L_i, R_i) \in \mathbb{G} \times \mathbb{G}$ for $0 \leq i < \texttt{lr\_rounds}$ // vector of rounds of L and R commitments
+		\item $(L_i, R_i) \in \mathbb{G} \times \mathbb{G}$ for $0 \leq i < \texttt{lr\_rounds}$ % vector of rounds of L and R commitments
 		\item $\delta, SG \in \mathbb{G}$
 		\item $z_1, z_2 \in \mathbb{F}_{r}$
 	\end{itemize}
 	\item Polynomial Evaluations $a$, $b$, for $i = \{1, 2\}$:
 	\begin{itemize}
-		\item $l_i, r_i, o_i, z_i, f_i \in \mathbb{F}_r$ // could each eval contains multiple points irl?
+		\item $l_i, r_i, o_i, z_i, f_i \in \mathbb{F}_r$ %could each eval contains multiple points?
 		\item $t_i \in \mathbb{F}_r^5$
 		\item $\sigma_{1_i}, \sigma_{2_i} \in \mathbb{F}_r$
 	\end{itemize}
@@ -65,7 +65,7 @@ Verification algorithm:
 			\item $H_{\mathbb{F}_q}.absorb(z_{comm})$
 			\item $\alpha' = H_{\mathbb{F}_q}.squeeze()$
 			\item $\alpha = \phi(\alpha', endo\_r)$
-			\item $H_{\mathbb{F}_q}.absorb(t_{comm, 1} || \infty || ... || \infty || t_{comm, 2})$  // input size? 
+			\item $H_{\mathbb{F}_q}.absorb(t_{comm, 1} || \infty || ... || \infty || t_{comm, 2})$  % input size? 
 			\item $\zeta' = H_{\mathbb{F}_q}.squeeze()$
 			\item $\zeta = \phi(\zeta', endo\_r)$
 			\item $\text{digest} = H_{\mathbb{F}_q}.digest()$
