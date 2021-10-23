@@ -8,7 +8,7 @@ Input: $G_0, ..., G_{k - 1} \in \mathbb{G}, s_0, ..., s_{k - 1} \in \mathbb{F}_r
 Output: $S = \sum\limits_{i = 0}^{k}s_i \cdot G_i$
 
 \subsection{Naive Algorithm}
-Using endomorphism: 
+\paragraph{Using endomorphism:} 
 
 \begin{enumerate}
 	\item $A = \infty$
@@ -16,7 +16,7 @@ Using endomorphism:
 	\begin{enumerate}
 		\item $r \coloneqq s_j$, $T \coloneqq G_j$
 		\item $S = [2](\phi(T) + T)$
-		\item for $i$ from $\frac{n}{2} - 1$ to $0$:
+		\item for $i$ from $\frac{\lambda}{2} - 1$ to $0$:
 		\begin{enumerate}
 			\item $Q = r_{2i + 1} \: ? \: \phi([2r_{2i} - 1]T) : [2r_{2i} - 1]T$
 			\item $R = S + Q$
@@ -26,19 +26,42 @@ Using endomorphism:
 	\end{enumerate}
 \end{enumerate}
 
-Without endomorphism: 
+\begin{center}
+	$\text{rows} \approx k \cdot (\texttt{sm\_rows} + 1 + 2) \approx 67k$,
+\end{center}
+where \texttt{sm\_rows} is the number of rows in the scalar multiplication circuit. 
 
-...
+\paragraph{Without endomorphism:}
+
+\begin{enumerate}
+	\item $A = \infty$
+	\item for $j$ from $0$ to $k-1$:
+	\begin{enumerate}
+		\item $r \coloneqq s_j$, $T \coloneqq G_j$
+		\item $S = [2]T$
+		\item for $i$ from $n - 1$ to $0$:
+		\begin{enumerate}
+			\item $Q = k_{i + 1} \: ? \: T : -T$
+			\item $R = S + Q$
+			\item $S = R + S$
+		\end{enumerate}
+		\item $S = k_0 \: ? \: S - T : S$
+		\item $A = A + S$
+	\end{enumerate}
+\end{enumerate}
 
 
-$\text{rows} \approx k \cdot (\texttt{sm\_rows} + 2)$, where \texttt{sm\_rows} is the number of rows in the scalar multiplication circuit. 
+\begin{center}
+	$\text{rows} \approx k \cdot (\texttt{sm\_rows} + 1 + 1) \approx 104k$,
+\end{center}
+where \texttt{sm\_rows} is the number of rows in the scalar multiplication circuit. 
 
 \subsection{Simultanious Doubling}
-Using endomorphism: 
+\paragraph{Using endomorphism:} 
 
 \begin{enumerate}
 	\item $A = \sum\limits_{j = 0}^{k} [2](\phi(G_j) + G_j)$
-	\item for $i$ from $\frac{n}{2} - 1$ to $0$:
+	\item for $i$ from $\frac{\lambda}{2} - 1$ to $0$:
 	\begin{enumerate}
 		\item for $j$ from $0$ to $k-1$:
 		\begin{enumerate}
@@ -53,12 +76,31 @@ Using endomorphism:
 	\end{enumerate}
 \end{enumerate}
 
-Without endomorphism: 
-
-...
-
-$\text{rows} \approx \frac{n}{2} \cdot (k \cdot \texttt{add\_rows} + \texttt{dbl\_rows})$, where:
+\begin{center}
+	$\text{rows} \approx \frac{\lambda}{2} \cdot (k \cdot \texttt{add\_rows} + \texttt{dbl\_rows}) + 2k \approx 64 \cdot (k + 1) \approx 66k + 64$,
+\end{center}
+where
 \begin{itemize}
 	\item \texttt{add\_rows} is the number of rows in the addition circuit. 
 	\item \texttt{dbl\_rows} is the number of rows in the doubling circuit. 
 \end{itemize}
+
+\paragraph{Without endomorphism:} 
+
+\begin{enumerate}
+	\item $A = \sum\limits_{j = 0}^{k} [2]G_j$
+	\item for $i$ from $n - 1$ to $0$:
+	\begin{enumerate}
+		\item for $j$ from $0$ to $k-1$:
+		\begin{enumerate}
+			\item $r \coloneqq s_j$, $T \coloneqq G_j$
+			\item $Q = k_{i + 1} \: ? \: T : -T$
+			\item $A = A + Q$
+		\end{enumerate}
+		\item if $i \neq 0$:
+		\begin{enumerate}
+			\item $A = 2 \cdot A$
+		\end{enumerate}
+	\end{enumerate}
+	\item $A = A + \sum\limits_{j = 0}^{k} [1 - s_{j, 0}]G_j$ 
+\end{enumerate}
