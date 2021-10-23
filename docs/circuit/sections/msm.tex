@@ -2,18 +2,63 @@
 \label{section:msm}
 \textbf{WIP}
 
-
-Input: $G_0, ..., G_{n - 1} \in \mathbb{G}, s_0, ..., s_{n - 1} \in \mathbb{F}_r$, where $\mathbb{F}_r$ is scalar field of $\mathbb{G}$.
-
-
-Output: $S = \sum\limits_{i = 0}^{n}s_i \cdot G_i$
+Input: $G_0, ..., G_{k - 1} \in \mathbb{G}, s_0, ..., s_{k - 1} \in \mathbb{F}_r$, where $\mathbb{F}_r$ is scalar field of $\mathbb{G}$.
 
 
-Options:
+Output: $S = \sum\limits_{i = 0}^{k}s_i \cdot G_i$
+
+\subsection{Naive Algorithm}
+Using endomorphism: 
+
+\begin{enumerate}
+	\item $A = \infty$
+	\item for $j$ from $0$ to $k-1$:
+	\begin{enumerate}
+		\item $r \coloneqq s_j$, $T \coloneqq G_j$
+		\item $S = [2](\phi(T) + T)$
+		\item for $i$ from $\frac{n}{2} - 1$ to $0$:
+		\begin{enumerate}
+			\item $Q = r_{2i + 1} \: ? \: \phi([2r_{2i} - 1]T) : [2r_{2i} - 1]T$
+			\item $R = S + Q$
+			\item $S = R + S$
+		\end{enumerate}
+		\item $A = A + S$
+	\end{enumerate}
+\end{enumerate}
+
+Without endomorphism: 
+
+...
+
+
+$\text{rows} \approx k \cdot (\texttt{sm\_rows} + 2)$, where \texttt{sm\_rows} is the number of rows in the scalar multiplication circuit. 
+
+\subsection{Simultanious Doubling}
+Using endomorphism: 
+
+\begin{enumerate}
+	\item $A = \sum\limits_{j = 0}^{k} [2](\phi(G_j) + G_j)$
+	\item for $i$ from $\frac{n}{2} - 1$ to $0$:
+	\begin{enumerate}
+		\item for $j$ from $0$ to $k-1$:
+		\begin{enumerate}
+			\item $r \coloneqq s_j$, $T \coloneqq G_j$
+			\item $Q = r_{2i + 1} \: ? \: \phi([2r_{2i} - 1]T) : [2r_{2i} - 1]T$
+			\item $A = A + Q$
+		\end{enumerate}
+		\item if $i \neq 0$:
+		\begin{enumerate}
+			\item $A = 2 \cdot A$
+		\end{enumerate}
+	\end{enumerate}
+\end{enumerate}
+
+Without endomorphism: 
+
+...
+
+$\text{rows} \approx \frac{n}{2} \cdot (k \cdot \texttt{add\_rows} + \texttt{dbl\_rows})$, where:
 \begin{itemize}
-	\item Straightforward Sum: $\text{rows} \approx n \cdot (k + 2)$, where $k$ is the number of rows in a scalar multiplication circuit. 
-	\item Pippenger's Algorithm: ??
+	\item \texttt{add\_rows} is the number of rows in the addition circuit. 
+	\item \texttt{dbl\_rows} is the number of rows in the doubling circuit. 
 \end{itemize}
-
-
-
