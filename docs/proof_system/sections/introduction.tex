@@ -2,3 +2,13 @@
 \label{section:introduction}
 \textbf{WIP}
 
+To prove Mina blockchain's state on the Ethereum Virtual Machine, we use Redshift SNARK\cite{cryptoeprint:2019:1400}.
+RedShift is a transparent SNARK that uses PLONK\cite{cryptoeprint:2019:953} proof system but replaces the commitment scheme.
+The authors utilize FRI\cite{ben2018fast} protocol to obtain transparency for the PLONK system.
+
+However, FRI cannot be straightforwardly used with the PLONK system.
+To achieve the required security level without huge overheads, the authors introduce \textit{list polynomial commitment} scheme as a part of the protocol.
+For more details, we refer the reader to \cite{cryptoeprint:2019:1400}.
+
+The original RedShift protocol utilizes the classic PLONK\cite{cryptoeprint:2019:953} system.
+To provide better performance, we generilize the original protocol for use with PLONK with custom gates \cite{turbo}, \cite{plonkhalo2} and lookup arguments \cite{cryptoeprint:2020:315}, \cite{lookuphalo2}.
