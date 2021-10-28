@@ -20,7 +20,7 @@ Notations:
 	\hline
 	$\textbf{f}_{c_i}$ & Constant-related polynomials, $0 \leq i < N_{\texttt{const}}$  \\
 	\hline
-	$\textbf{gate}_i$ & Gate polynomial, $0 \leq i < N_{\texttt{sel}}$  \\
+	$\textbf{gate}_i$ & Gate polynomials, $0 \leq i < N_{\texttt{sel}}$  \\
 	\hline
 	$\sigma(\text{col : } i, \text{row : } j) = (\text{col : } i', \text{row : } j')$ & Permutation over the table \\
 	\hline
@@ -53,8 +53,9 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
 	\begin{center}
 		$f_i(x) = \textbf{f}_{i}(x) + h_i(x)Z(x)$ for $0 \leq i < N_{\texttt{wires}}$
 	\end{center}
+	\item Send commitments to $f_i$ to $\textbf{V}$
 	\item Get $\beta, \gamma \leftarrow \mathbb{F}$ from \textbf{V}
-	\item Compute for $0 \leq j < N_{\texttt{perm}}$
+	\item For $0 \leq j < N_{\texttt{perm}}$
 	\begin{center}
 		$p_j = f_j + \beta \cdot S_{id_j} + \gamma$ \\
 		$q_j = f_j + \beta \cdot S_{\sigma_j} + \gamma$
@@ -88,11 +89,45 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
 		$T(x) = \frac{F(x)}{Z(x)}$
 	\end{center}
 	\item Split $T(x)$ into seprate polynomials $T_0(x), ..., T_{N_{\texttt{perm}} + 1}$
-	\item Send commitment to $T_0(x), ..., T_{N_{\texttt{perm}} + 1}$ to \textbf{V}
+	\item Send commitments to $T_0(x), ..., T_{N_{\texttt{perm}} + 1}$ to \textbf{V}
 	\item Get \textbf{P} $y \leftarrow \mathbb{F}/H$ from \textbf{V}
-	\item Run evaluation scheme over committed polynomials and $y$
+	\item Run evaluation scheme with the committed polynomials and $y$
 	\item \textbf{V} checks the identity:
 		\begin{center}
 			$\sum\limits_{i = 1}^6a_iF_i(y) = Z(y)T(y)$
 		\end{center}
+\end{enumerate}
+
+\subsection{Non-Interactive Verification}
+
+\begin{enumerate}
+	\item Let $f_{0, \texttt{comm}}, \dots, f_{N_{\texttt{wires}}, \texttt{comm}}$ be commitments to $f_{0}, \dots, f_{N_{\texttt{wires}}}$
+	\item $\text{transcript} = \text{setup\_values} || f_{0, \texttt{comm}} || \dots || f_{N_{\texttt{wires}}, \texttt{comm}}$
+	\item $\beta, \gamma = H(\text{transcript})$
+	\item Let $P_{\texttt{comm}}, Q_{\texttt{comm}}$ be commitments to $P(X), Q(X)$
+	\item $\text{transcript} = \text{transcript} || P_{\texttt{comm}} || Q_{\texttt{comm}}$
+	\item $a_1, \dots, a_6 = H(\text{transcript})$
+	\item Let $T_{0, \texttt{comm}}(x), ..., T_{N_{\texttt{perm}, \texttt{comm}} + 1}$ be commitments to $T_0(x), ..., T_{N_{\texttt{perm}} + 1}$ 
+	\item $\text{transcript} = \text{transcript} || T_{0, \texttt{comm}}(x) || ... || T_{N_{\texttt{perm}, \texttt{comm}} + 1}$
+	\item $y = H_{\mathbb{F}/H}(\text{transcript})$
+	\item Run evaluation scheme verification with the committed polynomials and $y$ to get values 
+		$f_i(y), P(y), P(y\omega), Q(y), Q(y\omega), T_j(y)$.  \\
+		\textbf{Remark}: Depending on the circuit, evaluation can be done also on $f_i(y\omega), f_i(y\omega^{-1})$ for some $i$.
+	\item Calculate:
+	\begin{center}
+		$F_1(y) = L_1(y)(P(y) - 1)$ \\
+		$F_2(y) = L_1(y)(Q(y) - 1)$ \\
+		$p'(y) = \prod p_i(y) = \prod f_i(y) + \beta \cdot S_{id_i}(y) + \gamma$ \\
+		$F_3(y) = P(y)p'(y) - P(y\omega)$ \\
+		$q'(y) = \prod q_i(y) = \prod f_i(y) + \beta \cdot S_{\sigma_i}(y) + \gamma$ \\
+		$F_4(y) = Q(y)q'(y) - Q(y\omega)$ \\
+		$F_5(y) = L_n(y)(P(y\omega) - Q(y\omega))$ \\
+		$F_6(y) = \sum\limits_{0 \leq i < N_{\texttt{sel}}} (\textbf{q}_{i}(y) \cdot \texttt{gate}_i(y))
+			+ (\sum\limits_{0 \leq i < N_{\texttt{const}}}(\textbf{f}_{c_i}(y)) + PI(y))$ \\
+		$T(y) = \sum\limits_{0 \leq j < N_{\texttt{perm}}}y^{n \cdot j}T_j(y)$
+	\end{center}
+	\item Check the identity:
+	\begin{center}
+		$\sum\limits_{i = 1}^6a_iF_i(y) = Z(y)T(y)$
+	\end{center}
 \end{enumerate}
