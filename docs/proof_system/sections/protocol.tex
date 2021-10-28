@@ -3,23 +3,37 @@
 \textbf{WIP}
 
 Notations:
-\begin{itemize}
-	\item $N_{\texttt{wires}}$ is the number of wires (`advice columns`).
-	\item $N_{\texttt{perm}}$ is the number of wires that are included in the permutation argument
-	\item $N_{\texttt{sel}}$ is the number of selectors used in the circuit
-	\item $N_{\texttt{const}}$ is the number of constant columns 
-	\item Permutation over the table: $\sigma(\text{column : } i, \text{row : } j) = (\text{column : } i', \text{row : } j')$
-	\item $\textbf{f}_i$ is witness polynomial for $0 \leq i < N_{\texttt{wires}}$
-	\item $\textbf{f}_{c_i}$ is constant-related polynomial for $0 \leq i < N_{\texttt{wires}}$
-	\item $\textbf{gate}_i$ is gate polynomial for $0 \leq i < N_{\texttt{const}}$
-\end{itemize}
 
- $\texttt{adv}$ be the number of advice columns, $\tau$ be the number the fixed columns. 
-Let . 
+\begin{center}
+\begin{table}[H]
+\begin{tabular}{| l | l |}
+ 	\hline
+	$N_{\texttt{wires}}$ & Number of wires (`advice columns`) \\
+	\hline
+	$N_{\texttt{perm}}$ & Number of wires that are included in the permutation argument \\
+	\hline
+	$N_{\texttt{sel}}$ & Number of selectors used in the circuit \\
+	\hline
+	$N_{\texttt{const}}$ & Number of constant columns  \\
+	\hline
+	$\textbf{f}_i$ & Witness polynomials, $0 \leq i < N_{\texttt{wires}}$  \\
+	\hline
+	$\textbf{f}_{c_i}$ & Constant-related polynomials, $0 \leq i < N_{\texttt{const}}$  \\
+	\hline
+	$\textbf{gate}_i$ & Gate polynomial, $0 \leq i < N_{\texttt{sel}}$  \\
+	\hline
+	$\sigma(\text{col : } i, \text{row : } j) = (\text{col : } i', \text{row : } j')$ & Permutation over the table \\
+	\hline
+\end{tabular}
+\end{table}
+\end{center}
 
 For details on polynomial commitment scheme and polynomial evaluation scheme, we refer the reader to \cite{cryptoeprint:2019:1400}.
 
-Preprocessing:
+\paragraph{Preprocessing:}
+
+
+\begin{algorithm}[h]
 \begin{enumerate}
 	\item $\mathcal{L}' = (\textbf{q}_{0}, ..., \textbf{q}_{N_{\texttt{sel}}})$
 	\item Let $\omega$ be a $2^k$ root of unity
@@ -27,79 +41,58 @@ Preprocessing:
 	\item Compute $N_{\texttt{perm}}$ permutation polynomials $S_{\sigma_i}(X)$ such that $S_{\sigma_i}(\omega^j) = \delta^{i'} \cdot \omega^{j'}$
 	\item Compute $N_{\texttt{perm}}$ identity permutation polynomials: $S_{id_i}(X)$ such that $S_{id_i}(\omega^j) = \delta^i \cdot \omega^j$
 \end{enumerate}
+\end{algorithm}
 
-Protocol:
+\paragraph{Protocol (Prover):}
 \begin{enumerate}
-	\item \textbf{P}:
-	\begin{enumerate}
-		\item Choose masking polynomials: 
-		\begin{center}
-			$h_i(x) \leftarrow \mathbb{F}_{<k}[x]$ for $0 \leq i < N_{\texttt{wires}}$
-		\end{center}
-		\item Define new witness polynomials:
-		\begin{center}
-			$f_i(x) = \textbf{f}_{i}(x) + h_i(x)Z(x)$ for $0 \leq i < N_{\texttt{wires}}$
-		\end{center}
-	\end{enumerate}
-	\item \textbf{V}:
-	\begin{enumerate}
-		\item Send to \textbf{P}: $\beta, \gamma \leftarrow \mathbb{F}$
-	\end{enumerate}
-	\item \textbf{P}:
-	\begin{enumerate}
-		\item Compute for $0 \leq j < N_{\texttt{perm}}$
-		\begin{center}
-			$p_j = f_j + \beta \cdot S_{id_j} + \gamma$ \\
-			$q_j = f_j + \beta \cdot S_{\sigma_j} + \gamma$
-		\end{center}
-		\item Define:
-		\begin{center}
-			$p'(X) = \prod\limits_{0 \leq j < N_{\texttt{perm}}} p_j(X) \in \mathbb{F}_{<N_{\texttt{perm}} \cdot n}[X]$ \\
-			$q'(X) = \prod\limits_{0 \leq j < N_{\texttt{perm}}} q_j(X) \in \mathbb{F}_{<N_{\texttt{perm}} \cdot n}[X]$
-		\end{center}
-		\item Compute $P(X), Q(X) \in \mathbb{F}_{<n+1}[X]$, such that:
-		\begin{center}
-			$P(g) = Q(g) = 1$ \\
-			$P(g^i) = \prod\limits_{1 \leq j < i}p'(g^i)$ for $i \in {2, \dots, n + 1}$ \\
-			$Q(g^i) = \prod\limits_{1 \leq j < i}q'(g^i)$ for $i \in {2, \dots, n + 1}$ \\
-		\end{center}
-		\item Compute and send commitments to $P$ and $Q$ to \textbf{V}
-	\end{enumerate}
-	\item \textbf{V}:
-	\begin{enumerate}
-		\item Send to \textbf{P}: $a_1, \dots, a_6 \leftarrow \mathbb{F}$
-	\end{enumerate}
-	\item \textbf{P}:
-	\begin{enumerate}
-		\item Define polynomials ($F_1, \dots, F_5$ - copy-satisfability):
-		\begin{center}
-			$F_1(x) = L_1(x)(P(x) - 1)$\\
-			$F_2(x) = L_1(x)(Q(x) - 1)$ \\
-			$F_3(x) = P(x)p'(x) - P(xg)$ \\
-			$F_4(x) = Q(x)q'(x) - Q(xg)$ \\
-			$F_5(x) = L_n(x)(P(xg) - Q(xg))$ \\
-			$F_6(x) = \sum\limits_{0 \leq i < N_{\texttt{sel}}} (\textbf{q}_{i}(x) \cdot \texttt{gate}_i(x))
-				+ (\sum\limits_{0 \leq i < N_{\texttt{const}}}(\textbf{f}_{c_i}(x)) + PI(x))$
-		\end{center}
-		\item Compute:
-		\begin{center}
-			$F(x) = \sum\limits_{i = 1}^6 a_iF_i(x)$ \\
-			$T(x) = \frac{F(x)}{Z(x)}$
-		\end{center}
-		\item Split $T(x)$ into seprate polynomials $T_0(x), ..., T_{N_{\texttt{perm}} + 1}$
-		\item Send commitment to $T_0(x), ..., T_{N_{\texttt{perm}} + 1}$ to \textbf{V}
-	\end{enumerate}
-	\item \textbf{V}:
-	\begin{enumerate}
-		\item Send to \textbf{P}: $y \leftarrow \mathbb{F}/H$
-	\end{enumerate}
-	\item \textbf{P}:
-		\item Run evaluation scheme over committed polynomials and $y$
-	\item \textbf{V}
-	\begin{enumerate}
-		\item Checks the identity:
+	\item Choose masking polynomials: 
+	\begin{center}
+		$h_i(x) \leftarrow \mathbb{F}_{<k}[x]$ for $0 \leq i < N_{\texttt{wires}}$
+	\end{center}
+	\item Define new witness polynomials:
+	\begin{center}
+		$f_i(x) = \textbf{f}_{i}(x) + h_i(x)Z(x)$ for $0 \leq i < N_{\texttt{wires}}$
+	\end{center}
+	\item Get $\beta, \gamma \leftarrow \mathbb{F}$ from \textbf{V}
+	\item Compute for $0 \leq j < N_{\texttt{perm}}$
+	\begin{center}
+		$p_j = f_j + \beta \cdot S_{id_j} + \gamma$ \\
+		$q_j = f_j + \beta \cdot S_{\sigma_j} + \gamma$
+	\end{center}
+	\item Define:
+	\begin{center}
+		$p'(X) = \prod\limits_{0 \leq j < N_{\texttt{perm}}} p_j(X) \in \mathbb{F}_{<N_{\texttt{perm}} \cdot n}[X]$ \\
+		$q'(X) = \prod\limits_{0 \leq j < N_{\texttt{perm}}} q_j(X) \in \mathbb{F}_{<N_{\texttt{perm}} \cdot n}[X]$
+	\end{center}
+	\item Compute $P(X), Q(X) \in \mathbb{F}_{<n+1}[X]$, such that:
+	\begin{center}
+		$P(g) = Q(g) = 1$ \\
+		$P(g^i) = \prod\limits_{1 \leq j < i}p'(g^i)$ for $i \in {2, \dots, n + 1}$ \\
+		$Q(g^i) = \prod\limits_{1 \leq j < i}q'(g^i)$ for $i \in {2, \dots, n + 1}$ \\
+	\end{center}
+	\item Compute and send commitments to $P$ and $Q$ to \textbf{V}
+	\item Get $a_1, \dots, a_6 \leftarrow \mathbb{F}$ from \textbf{V}
+	\item Define polynomials ($F_1, \dots, F_5$ - copy-satisfability):
+	\begin{center}
+		$F_1(x) = L_1(x)(P(x) - 1)$\\
+		$F_2(x) = L_1(x)(Q(x) - 1)$ \\
+		$F_3(x) = P(x)p'(x) - P(xg)$ \\
+		$F_4(x) = Q(x)q'(x) - Q(xg)$ \\
+		$F_5(x) = L_n(x)(P(xg) - Q(xg))$ \\
+		$F_6(x) = \sum\limits_{0 \leq i < N_{\texttt{sel}}} (\textbf{q}_{i}(x) \cdot \texttt{gate}_i(x))
+			+ (\sum\limits_{0 \leq i < N_{\texttt{const}}}(\textbf{f}_{c_i}(x)) + PI(x))$
+	\end{center}
+	\item Compute:
+	\begin{center}
+		$F(x) = \sum\limits_{i = 1}^6 a_iF_i(x)$ \\
+		$T(x) = \frac{F(x)}{Z(x)}$
+	\end{center}
+	\item Split $T(x)$ into seprate polynomials $T_0(x), ..., T_{N_{\texttt{perm}} + 1}$
+	\item Send commitment to $T_0(x), ..., T_{N_{\texttt{perm}} + 1}$ to \textbf{V}
+	\item Get \textbf{P} $y \leftarrow \mathbb{F}/H$ from \textbf{V}
+	\item Run evaluation scheme over committed polynomials and $y$
+	\item \textbf{V} checks the identity:
 		\begin{center}
 			$\sum\limits_{i = 1}^6a_iF_i(y) = Z(y)T(y)$
 		\end{center}
-	\end{enumerate}
 \end{enumerate}
