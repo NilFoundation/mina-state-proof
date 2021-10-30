@@ -40,6 +40,8 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
 	\item Let $\delta$ be a $T$ root of unity, where $T \cdot 2^S + 1 = p$ with $T$ odd and $k \leq S$
 	\item Compute $N_{\texttt{perm}}$ permutation polynomials $S_{\sigma_i}(X)$ such that $S_{\sigma_i}(\omega^j) = \delta^{i'} \cdot \omega^{j'}$
 	\item Compute $N_{\texttt{perm}}$ identity permutation polynomials: $S_{id_i}(X)$ such that $S_{id_i}(\omega^j) = \delta^i \cdot \omega^j$
+	\item Let $H = \{\omega^0, ..., \omega^n\}$ be a cyclic subgroup of $\mathbb{F}^*$
+	\item Let $Z(X) = \prod\limits{a \in H^*}(X - a)$
 \end{enumerate}
 \end{algorithm}
 
@@ -47,87 +49,85 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
 \begin{enumerate}
 	\item Choose masking polynomials: 
 	\begin{center}
-		$h_i(x) \leftarrow \mathbb{F}_{<k}[x]$ for $0 \leq i < N_{\texttt{wires}}$
+		$h_i(X) \leftarrow \mathbb{F}_{<k}[X]$ for $0 \leq i < N_{\texttt{wires}}$
 	\end{center}
+	\textbf{Remark}: For details on choice of $k$, we refer the reader to \cite{cryptoeprint:2019:1400}.
 	\item Define new witness polynomials:
 	\begin{center}
-		$f_i(x) = \textbf{f}_{i}(x) + h_i(x)Z(x)$ for $0 \leq i < N_{\texttt{wires}}$
+		$f_i(X) = \textbf{f}_{i}(X) + h_i(X)Z(X)$ for $0 \leq i < N_{\texttt{wires}}$
 	\end{center}
 	\item Send commitments to $f_i$ to $\textbf{V}$
 	\item Get $\beta, \gamma \leftarrow \mathbb{F}$ from \textbf{V}
-	\item For $0 \leq j < N_{\texttt{perm}}$
+	\item For $0 \leq i < N_{\texttt{perm}}$
 	\begin{center}
-		$p_j = f_j + \beta \cdot S_{id_j} + \gamma$ \\
-		$q_j = f_j + \beta \cdot S_{\sigma_j} + \gamma$
+		$p_i = f_i + \beta \cdot S_{id_i} + \gamma$ \\
+		$q_i = f_i + \beta \cdot S_{\sigma_i} + \gamma$
 	\end{center}
 	\item Define:
 	\begin{center}
-		$p'(X) = \prod\limits_{0 \leq j < N_{\texttt{perm}}} p_j(X) \in \mathbb{F}_{<N_{\texttt{perm}} \cdot n}[X]$ \\
-		$q'(X) = \prod\limits_{0 \leq j < N_{\texttt{perm}}} q_j(X) \in \mathbb{F}_{<N_{\texttt{perm}} \cdot n}[X]$
+		$p'(X) = \prod\limits_{0 \leq i < N_{\texttt{perm}}} p_i(X) \in \mathbb{F}_{<N_{\texttt{perm}} \cdot n}[X]$ \\
+		$q'(X) = \prod\limits_{0 \leq i < N_{\texttt{perm}}} q_i(X) \in \mathbb{F}_{<N_{\texttt{perm}} \cdot n}[X]$
 	\end{center}
 	\item Compute $P(X), Q(X) \in \mathbb{F}_{<n+1}[X]$, such that:
 	\begin{center}
-		$P(g) = Q(g) = 1$ \\
-		$P(g^i) = \prod\limits_{1 \leq j < i}p'(g^i)$ for $i \in {2, \dots, n + 1}$ \\
-		$Q(g^i) = \prod\limits_{1 \leq j < i}q'(g^i)$ for $i \in {2, \dots, n + 1}$ \\
+		$P(\omega) = Q(\omega) = 1$ \\
+		$P(\omega^i) = \prod\limits_{1 \leq j < i}p'(\omega^i)$ for $i \in {2, \dots, n + 1}$ \\
+		$Q(\omega^i) = \prod\limits_{1 \leq j < i}q'(\omega^i)$ for $i \in {2, \dots, n + 1}$ \\
 	\end{center}
 	\item Compute and send commitments to $P$ and $Q$ to \textbf{V}
-	\item Get $a_1, \dots, a_6 \leftarrow \mathbb{F}$ from \textbf{V}
-	\item Define polynomials ($F_1, \dots, F_5$ - copy-satisfability):
+	\item Get $\alpha_0, \dots, \alpha_5 \leftarrow \mathbb{F}$ from \textbf{V}
+	\item Define polynomials ($F_0, \dots, F_4$ - copy-satisfability):
 	\begin{center}
-		$F_1(x) = L_1(x)(P(x) - 1)$\\
-		$F_2(x) = L_1(x)(Q(x) - 1)$ \\
-		$F_3(x) = P(x)p'(x) - P(xg)$ \\
-		$F_4(x) = Q(x)q'(x) - Q(xg)$ \\
-		$F_5(x) = L_n(x)(P(xg) - Q(xg))$ \\
-		$F_6(x) = \sum\limits_{0 \leq i < N_{\texttt{sel}}} (\textbf{q}_{i}(x) \cdot \texttt{gate}_i(x))
-			+ (\sum\limits_{0 \leq i < N_{\texttt{const}}}(\textbf{f}_{c_i}(x)) + PI(x))$
+		$F_0(X) = L_1(X)(P(X) - 1)$\\
+		$F_1(X) = L_1(X)(Q(X) - 1)$ \\
+		$F_2(X) = P(X)p'(X) - P(X\omega)$ \\
+		$F_3(X) = Q(X)q'(X) - Q(X\omega)$ \\
+		$F_4(X) = L_n(X)(P(X\omega) - Q(X\omega))$ \\
+		$F_5(X) = \sum\limits_{0 \leq i < N_{\texttt{sel}}} (\textbf{q}_{i}(X) \cdot \texttt{gate}_i(X))
+			+ \sum\limits_{0 \leq i < N_{\texttt{const}}}(\textbf{f}_{c_i}(X)) + PI(X)$
 	\end{center}
 	\item Compute:
 	\begin{center}
-		$F(x) = \sum\limits_{i = 1}^6 a_iF_i(x)$ \\
-		$T(x) = \frac{F(x)}{Z(x)}$
+		$F(X) = \sum\limits_{i = 0}^5 \alpha_iF_i(X)$ \\
+		$T(X) = \frac{F(X)}{Z(X)}$
 	\end{center}
-	\item Split $T(x)$ into seprate polynomials $T_0(x), ..., T_{N_{\texttt{perm}} + 1}$
-	\item Send commitments to $T_0(x), ..., T_{N_{\texttt{perm}} + 1}$ to \textbf{V}
-	\item Get \textbf{P} $y \leftarrow \mathbb{F}/H$ from \textbf{V}
+	\item Split $T(X)$ into separate polynomials $T_0(X), ..., T_{N_{\texttt{perm}}}(X)$
+	\item Send commitments to $T_0(X), ..., T_{N_{\texttt{perm}}}(X)$ to \textbf{V}
+	\item Get $y \leftarrow \mathbb{F}/H$ from \textbf{V}
 	\item Run evaluation scheme with the committed polynomials and $y$
-	\item \textbf{V} checks the identity:
-		\begin{center}
-			$\sum\limits_{i = 1}^6a_iF_i(y) = Z(y)T(y)$
-		\end{center}
+	\item Send proof $\pi$ to $\textbf{V}$
 \end{enumerate}
 
 \subsection{Non-Interactive Verification}
 
 \begin{enumerate}
-	\item Let $f_{0, \texttt{comm}}, \dots, f_{N_{\texttt{wires}}, \texttt{comm}}$ be commitments to $f_{0}, \dots, f_{N_{\texttt{wires}}}$
+	\item Let $f_{0, \texttt{comm}}, \dots, f_{N_{\texttt{wires}}, \texttt{comm}}$ be commitments to $f_{0}(X), \dots, f_{N_{\texttt{wires}}}(X)$
 	\item $\text{transcript} = \text{setup\_values} || f_{0, \texttt{comm}} || \dots || f_{N_{\texttt{wires}}, \texttt{comm}}$
 	\item $\beta, \gamma = H(\text{transcript})$
 	\item Let $P_{\texttt{comm}}, Q_{\texttt{comm}}$ be commitments to $P(X), Q(X)$
 	\item $\text{transcript} = \text{transcript} || P_{\texttt{comm}} || Q_{\texttt{comm}}$
-	\item $a_1, \dots, a_6 = H(\text{transcript})$
-	\item Let $T_{0, \texttt{comm}}(x), ..., T_{N_{\texttt{perm}, \texttt{comm}} + 1}$ be commitments to $T_0(x), ..., T_{N_{\texttt{perm}} + 1}$ 
-	\item $\text{transcript} = \text{transcript} || T_{0, \texttt{comm}}(x) || ... || T_{N_{\texttt{perm}, \texttt{comm}} + 1}$
+	\item $\alpha_0, \dots, \alpha_5 = H(\text{transcript})$
+	\item Let $T_{0, \texttt{comm}}, ..., T_{N_{\texttt{perm}, \texttt{comm}}}$ be commitments to $T_0(X), ..., T_{N_{\texttt{perm}}}(X)$ 
+	\item $\text{transcript} = \text{transcript} || T_{0, \texttt{comm}} || ... || T_{N_{\texttt{perm}, \texttt{comm}}}$
 	\item $y = H_{\mathbb{F}/H}(\text{transcript})$
 	\item Run evaluation scheme verification with the committed polynomials and $y$ to get values 
 		$f_i(y), P(y), P(y\omega), Q(y), Q(y\omega), T_j(y)$.  \\
 		\textbf{Remark}: Depending on the circuit, evaluation can be done also on $f_i(y\omega), f_i(y\omega^{-1})$ for some $i$.
 	\item Calculate:
 	\begin{center}
-		$F_1(y) = L_1(y)(P(y) - 1)$ \\
-		$F_2(y) = L_1(y)(Q(y) - 1)$ \\
+		$F_0(y) = L_1(y)(P(y) - 1)$ \\
+		$F_1(y) = L_1(y)(Q(y) - 1)$ \\
 		$p'(y) = \prod p_i(y) = \prod f_i(y) + \beta \cdot S_{id_i}(y) + \gamma$ \\
-		$F_3(y) = P(y)p'(y) - P(y\omega)$ \\
+		$F_2(y) = P(y)p'(y) - P(y\omega)$ \\
 		$q'(y) = \prod q_i(y) = \prod f_i(y) + \beta \cdot S_{\sigma_i}(y) + \gamma$ \\
-		$F_4(y) = Q(y)q'(y) - Q(y\omega)$ \\
-		$F_5(y) = L_n(y)(P(y\omega) - Q(y\omega))$ \\
-		$F_6(y) = \sum\limits_{0 \leq i < N_{\texttt{sel}}} (\textbf{q}_{i}(y) \cdot \texttt{gate}_i(y))
-			+ (\sum\limits_{0 \leq i < N_{\texttt{const}}}(\textbf{f}_{c_i}(y)) + PI(y))$ \\
-		$T(y) = \sum\limits_{0 \leq j < N_{\texttt{perm}}}y^{n \cdot j}T_j(y)$
+		$F_3(y) = Q(y)q'(y) - Q(y\omega)$ \\
+		$F_4(y) = L_n(y)(P(y\omega) - Q(y\omega))$ \\
+		$F_5(y) = \sum\limits_{0 \leq i < N_{\texttt{sel}}} (\textbf{q}_{i}(y) \cdot \texttt{gate}_i(y))
+			+ \sum\limits_{0 \leq i < N_{\texttt{const}}}(\textbf{f}_{c_i}(y)) + PI(y)$ \\
+		$T(y) = \sum\limits_{0 \leq j < N_{\texttt{perm} + 1}}y^{n \cdot j}T_j(y)$
 	\end{center}
 	\item Check the identity:
 	\begin{center}
-		$\sum\limits_{i = 1}^6a_iF_i(y) = Z(y)T(y)$
+		$\sum\limits_{i = 0}^5\alpha_iF_i(y) = Z(y)T(y)$
 	\end{center}
 \end{enumerate}
