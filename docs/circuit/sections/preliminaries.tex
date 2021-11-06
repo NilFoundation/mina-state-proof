@@ -40,6 +40,8 @@ Notations:
 	\hline
 	$w_i(X)$ & Witness polynomials for $0 \leq i < N_{\texttt{wires}}$\\
 	\hline
+	$\eta_i(X)$ & Previous challenges polynomials for $0 \leq i < N_{\texttt{prev}}$\\
+	\hline
 	$\omega$ & $n$-th root of unity \\
 	\hline
 \end{tabular}
@@ -63,15 +65,15 @@ Proof $\pi$ constains (here $\mathbb{F}_r$ is a scalar field of $\mathbb{G}$):
 		\item $S_{\sigma_0}(\zeta\omega), \dots S_{\sigma_{N_{\texttt{perm}}}}(\zeta\omega) \in \mathbb{F}_r$
 		\item $\bar{L}(\zeta\omega) \in \mathbb{F}_r$
 	\end{itemize}
-	\item Opening proof $\Pi_o$:
+	\item Opening proof $o_\pi$:
 	\begin{itemize}
 		\item $(L_i, R_i) \in \mathbb{G} \times \mathbb{G}$ for $0 \leq i < \texttt{lr\_rounds}$ % vector of rounds of L and R commitments
-		\item $\delta, \bar{G} \in \mathbb{G}$
+		\item $\delta, \hat{G} \in \mathbb{G}$
 		\item $z_1, z_2 \in \mathbb{F}_{r}$
 	\end{itemize}
 	\item previous challenges:
 	\begin{itemize}
-		\item $(\xi_i, p_{\xi_i}) \in (\mathbb{F}_r \times \mathbb{G})$ for $0 \leq i < \texttt{prev}$
+		\item $\{\eta_i(\xi_j)\}_{j}, \eta_{i, \texttt{comm}}$, for $0 \leq i < \texttt{prev}$
 	\end{itemize}
 \end{itemize}
 
@@ -79,88 +81,8 @@ Proof $\pi$ constains (here $\mathbb{F}_r$ is a scalar field of $\mathbb{G}$):
 Denote multi-scalar multiplication $\sum\limits_{s_i \in \textbf{s}, G_i \in \textbf{G}}[s_i]G_i$ by $\texttt{MSM}(\textbf{s}, \textbf{G})$ for $l_{\textbf{s}} = l_{\textbf{G}}$ where $l_{\textbf{s}} = |\textbf{s}|$, $l_{\textbf{G}} = |\textbf{G}|$. 
 If $l_{\textbf{s}} < l_{\textbf{G}}$, then we use only first $l_{\textbf{s}}$ elements of $\textbf{G}$
 
-\begin{algorithm}[H]
-\caption{Inner Product Argument Verification}
-\textbf{Input}: $\zeta_1, \zeta_2, \xi, r, \{f_0(\zeta_1), \dots, f_k(\zeta_1) \}, \{f_0(\zeta_2), \dots, f_k(\zeta_2) \}$ %xi = v, r = u
-\textbf{Output }
-\begin{enumerate}
-	\item $s = \sum\limits_{i = 0}^{k - 1} \xi^i \cdot (f_i(\zeta_1) + r \cdot f_i(\zeta_2))$
-	\item for 5-wires: $s = s + \xi^k \cdot (\zeta_1^{n - m \% n} \cdot f_k(\zeta_1) + r \cdot \zeta_2^{n - m \% n} \cdot f_k(\zeta_2))$
-	\item for 15-wires: $s = s + \xi^k \cdot (f_k(\zeta_1) + r \cdot f_k(\zeta_2))$
-\end{enumerate}
-\end{algorithm}
-
-
-\begin{algorithm}[H]
-\caption{Random Oracle}
-\textbf{Input}: $pub_{\texttt{comm}}, \pi$ \\
-\textbf{Output}: $\{\text{digest}, (\beta, \gamma, \alpha', \alpha, \zeta, v, u, \zeta', v', u'), \\
-			\alpha_2, (pub_1, pub_2), \texttt{evlp}, \texttt{polys}, \zeta_1, \text{combined inner product} \}$
-\begin{enumerate}
-	\item $H_{\mathbb{F}_q}.\texttt{absorb}(p_{comm})$
-	\item $H_{\mathbb{F}_q}.\texttt{absorb}(w_{0, \texttt{comm}} || ... || w_{N_{\text{wires}}, \texttt{comm}})$
-	\item $\beta = H_{\mathbb{F}_q}.\texttt{squeeze}()$
-	\item $\gamma = H_{\mathbb{F}_q}.\texttt{squeeze}()$
-	\item $H_{\mathbb{F}_q}.\texttt{absorb}(z_{\texttt{comm}})$
-	\item $\alpha' = H_{\mathbb{F}_q}.\texttt{squeeze}()$
-	\item $\alpha = \phi(\alpha')$
-	\item $H_{\mathbb{F}_q}.\texttt{absorb}(t_{1, \texttt{comm}} || \infty || ... || \infty || t_{2, \texttt{comm}})$
-	\item $\zeta' = H_{\mathbb{F}_q}.\texttt{squeeze}()$
-	\item $\zeta = \phi(\zeta')$
-	\item Transfrorm $H_{\mathbb{F}_q}$ to $H_{\mathbb{F}_r}$
-	\item $\zeta_1 = \zeta^n$
-	\item $\zeta_{\omega} = \zeta \cdot \omega$
-	\item $\alpha_s = [\alpha^2, ..., \alpha^59]$
-	\item Evaluate public polynomial $p$ in two points: $p_{\text{eval}, \zeta} = p(\zeta)$, $p_{\text{eval}, \zeta_\omega} = p(\zeta_\omega)$
-	\item $H_{\mathbb{F}_r}.\texttt{absorb}(p_{\text{eval}, \zeta} || w_{0}(\zeta) || ... || w_{N_{\text{wires}}}(\zeta) 
-		|| S_0(\zeta) || ... || S_{N_{\text{perm}}}(\zeta))$
-	\item $H_{\mathbb{F}_r}.\texttt{absorb}(p_{\text{eval}, \zeta_\omega} || w_{0}(\zeta\omega) || ... || w_{N_{\text{wires}}}(\zeta\omega) 
-		|| S_0(\zeta\omega) || ... || S_{N_{\text{perm}}}(\zeta\omega))$
-	\item $H_{\mathbb{F}_r}.\texttt{absorb}(\bar{L}(\zeta\omega))$
-	\item $v' = H_{\mathbb{F}_r}.\texttt{squeeze}()$
-	\item $v = \phi(v')$
-	\item $u' = H_{\mathbb{F}_r}.\texttt{squeeze}()$
-	\item $u = \phi(u')$
-	\item Compute evaluation of $\text{prev\_chal}_i(\zeta), \text{prev\_chal}_i(\zeta\omega)$
-	\item Compute evaluation of $ft(\zeta)$
-\end{enumerate}
-\end{algorithm}
-
-\begin{algorithm}[H]
-\caption{Final Check}
-\textbf{Input}: $\pi_0, \dots, \pi_{\texttt{batch\_size}}$, where $\pi_i = \{H_{\mathbb{F}_q}, \zeta, \zeta\omega, v, u,$ \\ %
-		\textbf{PE},
-		$\pi_{o, i}$ for $0 \leq i < bl$, \\
-		where \textbf{PE} is a set of elements of the form $(f_{\texttt{comm}}, f(\zeta), f(\zeta\omega))$ for the following polynomials:
-		$\eta_0, \dots, \eta_{N_{\texttt{prev}}}, p, w_0, \dots, w_{N_{\texttt{wires}}}, z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
-\textbf{Output}: \texttt{acc} or \texttt{rej}
-\begin{enumerate}
-	\item $\rho_1 \rightarrow \mathbb{F}_r$
-	\item $\rho_2 \rightarrow \mathbb{F}_r$
-	\item $r_0 = r'_0 = 1$
-	\item for $0 \leq i < \texttt{batch\_size}$:
-	\begin{enumerate}
-		\item $cip_i = \text{inner\_product}(\zeta, \zeta\omega, v, u, \textbf{PE}_i, n)$
-		\item $H_{\mathbb{F}_q, i}.\texttt{absorb}(cip - 2^255)$
-		\item $u'_i = H_{\mathbb{F}_q, i}.\texttt{squeeze}()$
-		\item $U_i = u'_i.\texttt{to\_group}() \in \mathbb{G}$
-		\item Calculate opening challenges $\xi_{i, j}$ from $\pi_{o, i}$
-		\item $c_i = \phi(H_{\mathbb{F}_q}.\texttt{squeeze}())$
-		\item $h(X) \coloneqq \prod_{k=0}^{\log(d+1) - 1}(1 + \xi_{\log(d+1)-k}X^{2^k})$, where $d = \texttt{lr\_rounds}$
-		\item $b_i = h(\zeta) + u \cdot h(\zeta\omega)$
-		\item $C_i = \sum\limits_{j}(\sum\limits_{k}\xi^k f_{k, \texttt{comm}}))$, where $f_{k, \texttt{comm}}$ from $\textbf{PE}$.
-		\item $Q_i = \sum (\xi_{i, j} \cdot L_{i, j} + \xi_{i, j}^{-1} \cdot R_j) + cip \cdot U_i + C_i$
-		\item $r_i = r_{i - 1} \cdot \rho_1$
-		\item $r'_i = r'_{i - 1} \cdot \rho_2$
-		\item Check $\bar{G}_i = <s, G>$, where $s$ is set of $h(X)$ coefficients. \\
-		\textbf{Remark}: This check can be done inside the \texttt{MSM} below using additional random $r'_i$.
-	\end{enumerate}
-	\item $\texttt{res} = \sum\limits_i r^i (c_i Q_i + delta_i - ( z_{1, i} (\bar{G}_i + b_i U_i) + z_{2, i} H ))$
-	\item $\texttt{return res } == 0$
-\end{enumerate}
-\end{algorithm}
-
-Verification algorithm:
+\textbf{Remark}: For simplicity, we do not use distinct proofs index $i$ for each element in the algorithm below.
+For instance, we write $pub_{\texttt{comm}}$ instead of $pub_{i, \texttt{comm}}$.
 \begin{algorithm}[H]
 \caption{Verification}
 \textbf{Input}: $\pi_0, \dots, \pi_{\texttt{batch\_size}}$ (see \ref{proof-state}) \\
@@ -211,7 +133,49 @@ Verification algorithm:
 				\}$
 		\item $f_{\texttt{comm}} = \text{MSM}(\textbf{f}_{\text{base}}, \textbf{f}_{\text{scalars}})$
 		\item $\bar{L}_{\texttt{comm}} = f_{\texttt{comm}} - t_{\texttt{comm}} \cdot (\zeta^n - 1)$
+		\item $\textbf{PE}$ is a set of elements of the form $(f_{\texttt{comm}}, f(\zeta), f(\zeta\omega))$ for the following polynomials:
+			$\eta_0, \dots, \eta_{N_{\texttt{prev}}}, pub, w_0, \dots, w_{N_{\texttt{wires}}}, z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
+		\item $\mathcal{P}_i = \{H_{\mathbb{F}_q}, \zeta, v, u, \textbf{PE}, o_{\pi_i} \}$
 	\end{enumerate} 
-	\item $\texttt{final\_check}()$
+	\item $\texttt{final\_check}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
+\end{enumerate}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Final Check}
+\textbf{Input}: $\pi_0, \dots, \pi_{\texttt{batch\_size}}$, where $\pi_i = \{H_{i, \mathbb{F}_q}, \zeta_i, \zeta_i\omega, v_i, u_i,
+		\textbf{PE}_i, o_{\pi_i} \}$ \\
+\textbf{Output}: \texttt{acc} or \texttt{rej}
+\begin{enumerate}
+	\item $\rho_1 \rightarrow \mathbb{F}_r$
+	\item $\rho_2 \rightarrow \mathbb{F}_r$
+	\item $r_0 = r'_0 = 1$
+	\item for $0 \leq i < \texttt{batch\_size}$:
+	\begin{enumerate}
+		\item $cip_i = \texttt{inner\_product}(\zeta_i, \zeta_i\omega, v_i, u_i, \textbf{PE}_i)$
+		\item $H_{i, \mathbb{F}_q}.\texttt{absorb}(cip_i - 2^{255})$
+		\item $U_i = (H_{i, \mathbb{F}_q}.\texttt{squeeze}()).\texttt{to\_group}()$
+		\item Calculate opening challenges $\xi_{i, j}$ from $o_{\pi_i}$
+		\item $h_i(X) \coloneqq \prod_{k=0}^{\log(d+1) - 1}(1 + \xi_{\log(d+1)-k}X^{2^k})$, where $d = \texttt{lr\_rounds}$
+		\item $b_i = h_i(\zeta) + u_i \cdot h_i(\zeta\omega)$
+		\item $C_i = \sum\limits_{j}(\sum\limits_{k}v_i^k f_{k, \texttt{comm}}))$, where $f_{k, \texttt{comm}}$ from $\textbf{PE}_i$.
+		\item $Q_i = \sum (\xi_{i, j} \cdot L_{i, j} + \xi_{i, j}^{-1} \cdot R_j) + cip_i \cdot U_i + C_i$
+		\item $c_i = \phi(H_{i, \mathbb{F}_q}.\texttt{squeeze}())$
+		\item $r_i = r_{i - 1} \cdot \rho_1$
+		\item $r'_i = r'_{i - 1} \cdot \rho_2$
+		\item Check $\hat{G}_i = <s, G>$, where $s$ is set of $h(X)$ coefficients. \\
+		\textbf{Remark}: This check can be done inside the \texttt{MSM} below using $r'_i$.
+	\end{enumerate}
+	\item $\texttt{res} = \sum\limits_i r^i (c_i Q_i + delta_i - ( z_{i, 1} (\hat{G}_i + b_i U_i) + z_{i, 2} H ))$
+	\item $\texttt{return res } == 0$
+\end{enumerate}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Inner Product}
+\textbf{Input}: $\zeta_1, \zeta_2, \xi, r, \{f_0(\zeta_1), \dots, f_k(\zeta_1) \}, \{f_0(\zeta_2), \dots, f_k(\zeta_2) \}$ \\ %xi = v, r = u
+\textbf{Output}: $s$
+\begin{enumerate}
+	\item $s = \sum\limits_{i = 0}^{k} \xi^i \cdot (f_i(\zeta_1) + r \cdot f_i(\zeta_2))$
 \end{enumerate}
 \end{algorithm}
