@@ -151,7 +151,7 @@ For instance, we write $pub_{\texttt{comm}}$ instead of $pub_{i, \texttt{comm}}$
 	\item $r_0 = r'_0 = 1$
 	\item for $0 \leq i < \texttt{batch\_size}$:
 	\begin{enumerate}
-		\item $cip_i = \texttt{inner\_product}(\zeta_i, \zeta_i\omega, v_i, u_i, \textbf{PE}_i)$
+		\item $cip_i = \texttt{combined\_inner\_product}(\zeta_i, \zeta_i\omega, v_i, u_i, \textbf{PE}_i)$
 		\item $H_{i, \mathbb{F}_q}.\texttt{absorb}(cip_i - 2^{255})$
 		\item $U_i = (H_{i, \mathbb{F}_q}.\texttt{squeeze}()).\texttt{to\_group}()$
 		\item Calculate opening challenges $\xi_{i, j}$ from $o_{\pi_i}$
@@ -171,8 +171,8 @@ For instance, we write $pub_{\texttt{comm}}$ instead of $pub_{i, \texttt{comm}}$
 \end{algorithm}
 
 \begin{algorithm}[H]
-\caption{Inner Product}
-\textbf{Input}: $\zeta_1, \zeta_2, \xi, r, \{f_0(\zeta_1), \dots, f_k(\zeta_1) \}, \{f_0(\zeta_2), \dots, f_k(\zeta_2) \}$ \\ %xi = v, r = u
+\caption{Combined Inner Product}
+\textbf{Input}: $\xi, r, f_0(\zeta_1), \dots, f_k(\zeta_1), f_0(\zeta_2), \dots, f_k(\zeta_2)$ \\ %xi = v, r = u
 \textbf{Output}: $s$
 \begin{enumerate}
 	\item $s = \sum\limits_{i = 0}^{k} \xi^i \cdot (f_i(\zeta_1) + r \cdot f_i(\zeta_2))$
