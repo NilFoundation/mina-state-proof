@@ -17,15 +17,19 @@
 #include <iostream>
 
 #include <boost/circular_buffer.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
+
+#ifndef __EMSCRIPTEN__
+#include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
+#endif
 
 #include <nil/mina/auxproof/sexp.hpp>
 
 using namespace nil;
 
 int main(int argc, char *argv[]) {
+#ifndef __EMSCRIPTEN__
     boost::program_options::options_description options("Mina State Auxiliary Proof Generator");
     // clang-format off
     options.add_options()("help,h", "Display help message")
@@ -55,6 +59,6 @@ int main(int argc, char *argv[]) {
             sexp s = parse(vm["proof"].as<std::string>());
         }
     }
-
+#endif
     return 0;
 }
