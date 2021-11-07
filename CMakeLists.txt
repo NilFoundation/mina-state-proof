@@ -39,10 +39,6 @@ endmacro()
 
 option(BUILD_TESTS "Build unit tests" TRUE)
 
-if(NOT Boost_FOUND AND NOT CMAKE_CROSSCOMPILING)
-    cm_find_package(Boost REQUIRED COMPONENTS program_options system)
-endif()
-
 add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/libs"
                    SUBMODULE_DEFINITION_HEADER "cm_project\\(")
 add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/bin")
