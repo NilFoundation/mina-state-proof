@@ -110,7 +110,7 @@ For instance, we write $pub_{\texttt{comm}}$ instead of $pub_{i, \texttt{comm}}$
 			\item Compute evaluation of $\eta_i(\zeta), \eta_i(\zeta\omega)$ for $0 \leq i < N_{\texttt{prev}}$
 			\item Compute evaluation of $\bar{L}(\zeta)$
 		\end{enumerate}
-		\item $\textbf{f}_{\text{base}} =
+		\item $\textbf{f}_{\text{base}} \coloneqq
 				\{S_{\sigma_{N_{\texttt{perm}} - 1}, \texttt{comm}}, % permutation
 				\texttt{gate}_{\text{mult}, \texttt{comm}}, w_{0, \texttt{comm}}, w_{1, \texttt{comm}}, w_{2, \texttt{comm}}, q_{\text{const}, \texttt{comm}}, % generic constraint
 				\texttt{gate}_{\text{psdn}, \texttt{comm}}, \texttt{gate}_{\text{rc}, \texttt{comm}},$\\ % poseidon 
@@ -121,10 +121,10 @@ For instance, we write $pub_{\texttt{comm}}$ instead of $pub_{i, \texttt{comm}}$
 				\}$
 		\item $s_{\text{perm}} \coloneqq (w_0(\zeta) + \gamma + \beta \cdot S_{\sigma_0}(\zeta)) \cdot ... 
 			\cdot (w_5(\zeta) + \gamma + \beta \cdot S_{\sigma_{N_{\texttt{perm}}}}(\zeta))$
-		\item $\textbf{f}_{\text{scalars}} =
+		\item $\textbf{f}_{\text{scalars}} \coloneqq
 				 \{-z(\zeta\omega) \cdot \beta \cdot \alpha_0 \cdot zkp(\zeta) \cdot s_{\text{perm}}, % permutation  
 				w_0(\zeta) \cdot w_1(\zeta), w_0(\zeta), w_1(\zeta), 1$ \\ % generic constraint
-				$s_{\text{psdn},} \alpha^0, \dots, \alpha^{14}, % poseidon 
+				$s_{\text{psdn},} s_{\text{rc}}, % poseidon 
 				s_{\text{ec\_add}}, % ec add
 				s_{\text{ec\_dbl}}, % ec double
 				s_{\text{ec\_endo}}, % ec endoscalar multiplication
@@ -157,7 +157,7 @@ For instance, we write $pub_{\texttt{comm}}$ instead of $pub_{i, \texttt{comm}}$
 		\item Calculate opening challenges $\xi_{i, j}$ from $o_{\pi_i}$
 		\item $h_i(X) \coloneqq \prod_{k=0}^{\log(d+1) - 1}(1 + \xi_{\log(d+1)-k}X^{2^k})$, where $d = \texttt{lr\_rounds}$
 		\item $b_i = h_i(\zeta) + u_i \cdot h_i(\zeta\omega)$
-		\item $C_i = \sum\limits_{j}(\sum\limits_{k}v_i^k f_{k, \texttt{comm}}))$, where $f_{k, \texttt{comm}}$ from $\textbf{PE}_i$.
+		\item $C_i = \sum\limits_{j}v_i^j(\sum\limits_{k}r_i^k f_{j, \texttt{comm}}))$, where $f_{j, \texttt{comm}}$ from $\textbf{PE}_i$.
 		\item $Q_i = \sum (\xi_{i, j} \cdot L_{i, j} + \xi_{i, j}^{-1} \cdot R_j) + cip_i \cdot U_i + C_i$
 		\item $c_i = \phi(H_{i, \mathbb{F}_q}.\texttt{squeeze}())$
 		\item $r_i = r_{i - 1} \cdot \rho_1$
