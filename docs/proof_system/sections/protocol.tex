@@ -94,7 +94,8 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
 	\item Split $T(X)$ into separate polynomials $T_0(X), ..., T_{N_{\texttt{perm}}}(X)$
 	\item Send commitments to $T_0(X), ..., T_{N_{\texttt{perm}}}(X)$ to \textbf{V}
 	\item Get $y \leftarrow \mathbb{F}/H$ from \textbf{V}
-	\item Run evaluation scheme with the committed polynomials and $y$
+	\item Run evaluation scheme with the committed polynomials and $y$. \\
+	\textbf{Remark}: Depending on the circuit, evaluation can be done also on $y\omega, y\omega^{-1}$.
 	\item Send proof $\pi$ to $\textbf{V}$
 \end{enumerate}
 
