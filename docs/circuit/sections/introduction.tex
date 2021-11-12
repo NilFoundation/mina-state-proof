@@ -5,7 +5,7 @@
 High level description according to RfP\footnote{\url{https://hackmd.io/u_2Ygx8XS5Ss1aObgOFjkA}}
 \begin{enumerate}
 	\item Computing several hash values from the data of the proof. 
-This involves using the Poseidon hash function with 63 full rounds both over $\mathbb{F}_p$ and $\mathbb{F}_q$ 
+This involves using the Poseidon hash function with 55 full rounds both over $\mathbb{F}_p$ and $\mathbb{F}_q$ 
 with round constants and MDS matrix specified for $\mathbb{F}_p$\footnote{\url{https://github.com/o1-labs/proof-systems/blob/master/oracle/src/pasta/fp.rs}} 
 and for $\mathbb{F}_q$\footnote{\url{https://github.com/o1-labs/proof-systems/blob/master/oracle/src/pasta/fq.rs}}.
 	\item Checking arithmetic equations.

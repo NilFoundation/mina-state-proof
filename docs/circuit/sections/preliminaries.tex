@@ -6,8 +6,8 @@
 Let $n_1 = 17$, $n_2 = 16$.
 Pasta curves parameters:
 \begin{itemize}
-	\item $p = 2^254 + 45560315531419706090280762371685220353$
-	\item $q = 2^254 + 45560315531506369815346746415080538113$
+	\item $p = 2^{254} + 45560315531419706090280762371685220353$
+	\item $q = 2^{254} + 45560315531506369815346746415080538113$
 	\item Pallas:
 		\begin{center}
 			$\mathbb{G}_1 = \{ (x, y) \in \mathbb{F}_p | y^2 = x^3 + 5 \}$ \\
@@ -52,17 +52,17 @@ Proof $\pi$ constains (here $\mathbb{F}_r$ is a scalar field of $\mathbb{G}$):
 \begin{itemize}\label{proof-state}
 	\item Commitments:
 	\begin{itemize}
-		\item Witness polynomials: $w_{0, \texttt{comm}}, \dots, w_{N_{\texttt{wires}}, \texttt{comm}} \in \mathbb{G}$
+		\item Witness polynomials: $w_{0, \texttt{comm}}, ..., w_{N_{\texttt{wires}}, \texttt{comm}} \in \mathbb{G}$
 		\item Permutation polynomial: $z_{\texttt{comm}} \in \mathbb{G}$
-		\item Quotinent polynomial: $t_{\texttt{comm}} = (t_{\texttt{comm}, 1}, t_{\texttt{comm}, 2}) \in (\mathbb{G}^{N_{\texttt{perm}}} \times \mathbb{G})$
+		\item Quotinent polynomial: $t_{\texttt{comm}} = (t_{1, \texttt{comm}}, t_{2, \texttt{comm}}, ...,  t_{N_{\texttt{perm}}, \texttt{comm}}) \in (\mathbb{G}^{N_{\texttt{perm}}} \times \mathbb{G})$
 	\end{itemize}
 	\item Evaluations:
 	\begin{itemize}
 		\item $w_0(\zeta), ..., w_{N_{\texttt{wires}}}(\zeta) \in \mathbb{F}_r$
 		\item $w_0(\zeta\omega), ..., w_{N_{\texttt{wires}}}(\zeta\omega) \in \mathbb{F}_r$
 		\item $z(\zeta), z(\zeta\omega) \in \mathbb{F}_r$
-		\item $S_{\sigma_0}(\zeta), \dots S_{\sigma_{N_{\texttt{perm}}}}(\zeta) \in \mathbb{F}_r$
-		\item $S_{\sigma_0}(\zeta\omega), \dots S_{\sigma_{N_{\texttt{perm}}}}(\zeta\omega) \in \mathbb{F}_r$
+		\item $S_{\sigma_0}(\zeta), ...,S_{\sigma_{N_{\texttt{perm}}}}(\zeta) \in \mathbb{F}_r$
+		\item $S_{\sigma_0}(\zeta\omega), ..., S_{\sigma_{N_{\texttt{perm}}}}(\zeta\omega) \in \mathbb{F}_r$
 		\item $\bar{L}(\zeta\omega) \in \mathbb{F}_r$
 	\end{itemize}
 	\item Opening proof $o_\pi$:
@@ -97,7 +97,7 @@ For instance, we write $pub_{\texttt{comm}}$ instead of $pub_{i, \texttt{comm}}$
 			\item $\beta, \gamma = H_{\mathbb{F}_q}.\texttt{squeeze}()$
 			\item $H_{\mathbb{F}_q}.\texttt{absorb}(z_{\texttt{comm}})$
 			\item $\alpha = \phi(H_{\mathbb{F}_q}.\texttt{squeeze}())$
-			\item $H_{\mathbb{F}_q}.\texttt{absorb}(t_{1, \texttt{comm}} || \infty || ... || \infty || t_{2, \texttt{comm}})$
+			\item $H_{\mathbb{F}_q}.\texttt{absorb}(t_{1, \texttt{comm}} ||  ... || t_{N_{\texttt{perm}}, \texttt{comm}} ||  ... || \infty ||)$
 			\item $\zeta = \phi(H_{\mathbb{F}_q}.\texttt{squeeze}())$
 			\item Transfrorm $H_{\mathbb{F}_q}$ to $H_{\mathbb{F}_r}$
 			\item $H_{\mathbb{F}_r}.\texttt{absorb}(pub(\zeta) || w_{0}(\zeta) || ... || w_{N_{\text{wires}}}(\zeta) 
