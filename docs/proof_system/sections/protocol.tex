@@ -45,7 +45,8 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
 \end{enumerate}
 \end{algorithm}
 
-\paragraph{Non-Interactive Proof}
+\subsection{Prover View}
+
 \begin{enumerate}
 	\item Choose masking polynomials: 
 	\begin{center}
@@ -96,7 +97,7 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
 	\item Get $y \in \mathbb{F}/H$ from $hash(\text{transcript})$
 	\item Run evaluation scheme with the committed polynomials and $y$. \\
 	\textbf{Remark}: Depending on the circuit, evaluation can be done also on $y\omega, y\omega^{-1}$.
-	\item The proof is $\pi_{\texttt{comm}}$ end $\pi_{\texttt{eval}}$, where:
+	\item The proof is $\pi_{\texttt{comm}}$ and $\pi_{\texttt{eval}}$, where:
 		\begin{itemize}
 			\item $\pi_{\texttt{comm}} = \{f_{0, \texttt{comm}}, \dots, f_{N_{\texttt{wires}}, \texttt{comm}},
 			 P_{\texttt{comm}}, Q_{\texttt{comm}}, T_{0, \texttt{comm}}, ..., T_{N_{\texttt{perm}, \texttt{comm}}} \}$
@@ -104,7 +105,7 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
 		\end{itemize}
 \end{enumerate}
 
-\subsection{Non-Interactive Verification}
+\subsection{Verifier View}
 
 \begin{enumerate}
 	\item Let $f_{0, \texttt{comm}}, \dots, f_{N_{\texttt{wires}}, \texttt{comm}}$ be commitments to $f_{0}(X), \dots, f_{N_{\texttt{wires}}}(X)$
