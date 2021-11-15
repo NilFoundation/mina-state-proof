@@ -39,7 +39,7 @@
 	url = git@github.com:nilfoundation/marshalling.git
 [submodule "libs/marshalling/zk"]
 	path = libs/marshalling/zk
-	url = git@github.com:NilFoundation/crypto3-zk-marshalling.git
+	url = git@github.com:nilfoundation/crypto3-zk-marshalling.git
 [submodule "libs/marshalling/algebra"]
 	path = libs/marshalling/algebra
 	url = git@github.com:nilfoundation/crypto3-algebra-marshalling.git
