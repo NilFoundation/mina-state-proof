@@ -45,7 +45,8 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
 \end{enumerate}
 \end{algorithm}
 
-\paragraph{Protocol (Prover):}
+\subsection{Prover View}
+
 \begin{enumerate}
 	\item Choose masking polynomials: 
 	\begin{center}
@@ -56,8 +57,8 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
 	\begin{center}
 		$f_i(X) = \textbf{f}_{i}(X) + h_i(X)Z(X)$ for $0 \leq i < N_{\texttt{wires}}$
 	\end{center}
-	\item Send commitments to $f_i$ to $\textbf{V}$
-	\item Get $\beta, \gamma \leftarrow \mathbb{F}$ from \textbf{V}
+	\item Add commitments to $f_i$ to $\text{transcript}$
+	\item Get $\beta, \gamma \in \mathbb{F}$ from $hash(\text{transcript})$
 	\item For $0 \leq i < N_{\texttt{perm}}$
 	\begin{center}
 		$p_i = f_i + \beta \cdot S_{id_i} + \gamma$ \\
@@ -74,8 +75,8 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
 		$P(\omega^i) = \prod\limits_{1 \leq j < i}p'(\omega^i)$ for $i \in {2, \dots, n + 1}$ \\
 		$Q(\omega^i) = \prod\limits_{1 \leq j < i}q'(\omega^i)$ for $i \in {2, \dots, n + 1}$ \\
 	\end{center}
-	\item Compute and send commitments to $P$ and $Q$ to \textbf{V}
-	\item Get $\alpha_0, \dots, \alpha_5 \leftarrow \mathbb{F}$ from \textbf{V}
+	\item Compute commitments to $P$, $Q$ and add them to $\text{transcript}$.
+	\item Get $\alpha_0, \dots, \alpha_5 \in \mathbb{F}$ from $hash(\text{transcript})$
 	\item Define polynomials ($F_0, \dots, F_4$ - copy-satisfability):
 	\begin{center}
 		$F_0(X) = L_1(X)(P(X) - 1)$\\
@@ -92,26 +93,31 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
 		$T(X) = \frac{F(X)}{Z(X)}$
 	\end{center}
 	\item Split $T(X)$ into separate polynomials $T_0(X), ..., T_{N_{\texttt{perm}}}(X)$
-	\item Send commitments to $T_0(X), ..., T_{N_{\texttt{perm}}}(X)$ to \textbf{V}
-	\item Get $y \leftarrow \mathbb{F}/H$ from \textbf{V}
+	\item Add commitments to $T_0(X), ..., T_{N_{\texttt{perm}}}(X)$ to $\text{transcript}$.
+	\item Get $y \in \mathbb{F}/H$ from $hash(\text{transcript})$
 	\item Run evaluation scheme with the committed polynomials and $y$. \\
 	\textbf{Remark}: Depending on the circuit, evaluation can be done also on $y\omega, y\omega^{-1}$.
-	\item Send proof $\pi$ to $\textbf{V}$
+	\item The proof is $\pi_{\texttt{comm}}$ and $\pi_{\texttt{eval}}$, where:
+		\begin{itemize}
+			\item $\pi_{\texttt{comm}} = \{f_{0, \texttt{comm}}, \dots, f_{N_{\texttt{wires}}, \texttt{comm}},
+			 P_{\texttt{comm}}, Q_{\texttt{comm}}, T_{0, \texttt{comm}}, ..., T_{N_{\texttt{perm}, \texttt{comm}}} \}$
+			 \item  $\pi_{\texttt{eval}}$ is evaluation proofs for $f_0(y), \dots, f_{N_{\texttt{wires}}}(y), P(y), P(y\omega), Q(y), Q(y\omega), T_0(y), \dots, T_{N_{\texttt{perm}}}(y)$
+		\end{itemize}
 \end{enumerate}
 
-\subsection{Non-Interactive Verification}
+\subsection{Verifier View}
 
 \begin{enumerate}
 	\item Let $f_{0, \texttt{comm}}, \dots, f_{N_{\texttt{wires}}, \texttt{comm}}$ be commitments to $f_{0}(X), \dots, f_{N_{\texttt{wires}}}(X)$
 	\item $\text{transcript} = \text{setup\_values} || f_{0, \texttt{comm}} || \dots || f_{N_{\texttt{wires}}, \texttt{comm}}$
-	\item $\beta, \gamma = H(\text{transcript})$
+	\item $\beta, \gamma = hash(\text{transcript})$
 	\item Let $P_{\texttt{comm}}, Q_{\texttt{comm}}$ be commitments to $P(X), Q(X)$
 	\item $\text{transcript} = \text{transcript} || P_{\texttt{comm}} || Q_{\texttt{comm}}$
-	\item $\alpha_0, \dots, \alpha_5 = H(\text{transcript})$
+	\item $\alpha_0, \dots, \alpha_5 = hash(\text{transcript})$
 	\item Let $T_{0, \texttt{comm}}, ..., T_{N_{\texttt{perm}, \texttt{comm}}}$ be commitments to $T_0(X), ..., T_{N_{\texttt{perm}}}(X)$ 
 	\item $\text{transcript} = \text{transcript} || T_{0, \texttt{comm}} || ... || T_{N_{\texttt{perm}, \texttt{comm}}}$
-	\item $y = H_{\mathbb{F}/H}(\text{transcript})$
-	\item Run evaluation scheme verification with the committed polynomials and $y$ to get values 
+	\item $y = hash|_{\mathbb{F}/H}(\text{transcript})$
+	\item Run evaluation scheme verification with the committed polynomials and $y$ to check values 
 		$f_i(y), P(y), P(y\omega), Q(y), Q(y\omega), T_j(y)$.  \\
 		\textbf{Remark}: Depending on the circuit, evaluation can be done also on $f_i(y\omega), f_i(y\omega^{-1})$ for some $i$.
 	\item Calculate:

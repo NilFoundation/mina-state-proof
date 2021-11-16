@@ -22,7 +22,7 @@ Pasta curves parameters:
 
 \subsection{Verification Algorithm}
 
-Notations:
+\paragraph{Notations}
 
 \begin{center}
 \begin{table}[H]
@@ -48,7 +48,11 @@ Notations:
 \end{table}
 \end{center}
 
-Proof $\pi$ constains (here $\mathbb{F}_r$ is a scalar field of $\mathbb{G}$):
+Denote multi-scalar multiplication $\sum_{s_i \in \textbf{s}, G_i \in \textbf{G}}[s_i]G_i$ by $\texttt{MSM}(\textbf{s}, \textbf{G})$ for $l_{\textbf{s}} = l_{\textbf{G}}$ where $l_{\textbf{s}} = |\textbf{s}|$, $l_{\textbf{G}} = |\textbf{G}|$. 
+If $l_{\textbf{s}} < l_{\textbf{G}}$, then we use only first $l_{\textbf{s}}$ elements of $\textbf{G}$
+
+\paragraph{Proof}
+$\pi$ constains (here $\mathbb{F}_r$ is a scalar field of $\mathbb{G}$):
 \begin{itemize}\label{proof-state}
 	\item Commitments:
 	\begin{itemize}
@@ -63,9 +67,9 @@ Proof $\pi$ constains (here $\mathbb{F}_r$ is a scalar field of $\mathbb{G}$):
 		\item $z(\zeta), z(\zeta\omega) \in \mathbb{F}_r$
 		\item $S_{\sigma_0}(\zeta), ...,S_{\sigma_{N_{\texttt{perm}}}}(\zeta) \in \mathbb{F}_r$
 		\item $S_{\sigma_0}(\zeta\omega), ..., S_{\sigma_{N_{\texttt{perm}}}}(\zeta\omega) \in \mathbb{F}_r$
-		\item $\bar{L}(\zeta\omega) \in \mathbb{F}_r$
+		\item $\bar{L}(\zeta\omega) \in \mathbb{F}_r$\footnote{See \url{https://o1-labs.github.io/mina-book/crypto/plonk/maller_15.html}}
 	\end{itemize}
-	\item Opening proof $o_\pi$:
+	\item Opening proof $o_\pi$ for inner product argument:
 	\begin{itemize}
 		\item $(L_i, R_i) \in \mathbb{G} \times \mathbb{G}$ for $0 \leq i < \texttt{lr\_rounds}$ % vector of rounds of L and R commitments
 		\item $\delta, \hat{G} \in \mathbb{G}$
@@ -76,10 +80,6 @@ Proof $\pi$ constains (here $\mathbb{F}_r$ is a scalar field of $\mathbb{G}$):
 		\item $\{\eta_i(\xi_j)\}_{j}, \eta_{i, \texttt{comm}}$, for $0 \leq i < \texttt{prev}$
 	\end{itemize}
 \end{itemize}
-
-
-Denote multi-scalar multiplication $\sum\limits_{s_i \in \textbf{s}, G_i \in \textbf{G}}[s_i]G_i$ by $\texttt{MSM}(\textbf{s}, \textbf{G})$ for $l_{\textbf{s}} = l_{\textbf{G}}$ where $l_{\textbf{s}} = |\textbf{s}|$, $l_{\textbf{G}} = |\textbf{G}|$. 
-If $l_{\textbf{s}} < l_{\textbf{G}}$, then we use only first $l_{\textbf{s}}$ elements of $\textbf{G}$
 
 \textbf{Remark}: For simplicity, we do not use distinct proofs index $i$ for each element in the algorithm below.
 For instance, we write $pub_{\texttt{comm}}$ instead of $pub_{i, \texttt{comm}}$.
