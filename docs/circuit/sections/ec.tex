@@ -147,3 +147,72 @@ Constraints:
 	\item $(y_S + y_R)^2 = (x_R - x_S)^2 \cdot (s_3^2 - (1 + (\texttt{endo} - 1) \cdot b_4) \cdot x_T + x_S)$
 	\item $n = 16 \cdot \texttt{next}(n) + 8 \cdot b_1 + 4 \cdot b_2 + 2 \cdot b_3 + b_4$
 \end{itemize}
+
+\subsection{Fixed-base scalar multiplication circuit}
+We precompute all values $w(B,s,k) = (k_i + 2) \cdot 8^s B$, where $k_i \in \{ 0,..7 \}$, $s \in \{0,.., 83\}$ and  $w(B,s,k) = (k_i \cdot 8^s - \sum_{j = 0}^{84} 8^{j + 1}) \cdot B$, where $k_i \in \{ 0,..7 \}$, $s = 84$.
+\begin{center}
+\begin{table}[H]
+\begin{tabular}{llllllllllllllll}
+ Row  & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
+ $i$ 	  & $b_0$ & $b_1$ & $b_2$ & $b_3$ & $b_4$ & $b_5$ & $u_0$ & $u_1$ & $v_0$ & $v_1$ & $x_1$ & $y_1$ & $x_2$ & $y_2$ & $acc$ \\
+  $\vdots$	& $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+  $i + 42$ 	  & $b_0$ & $b_1$ & $b_2$ & $u_0$ & $v_0$ & $x_w$ & $y_w$ & $\alpha$ & $\beta$ & $\gamma$ & $\delta$ & $\lambda$ & $-$ & $-$ & $b$ \\ 
+\end{tabular}
+\end{table}
+\end{center}
+
+Define the following functions:
+\begin{enumerate}
+	\item $\phi_1: (x_1, x_2, x_3, x_4) \mapsto $ \\
+				$x_3 \cdot (-u'_0 \cdot x_2 \cdot x_1 + u'_0 \cdot x_1 + u'_0 \cdot x_2
+				- u'_0 + u'_2 \cdot x_1 \cdot x_2 - u'_2\cdot x_2 + u'_4 \cdot x_1 \cdot x_2
+				- u'_4\cdot x_2 -u'_6 \cdot x_1 \cdot x_2 + u'_1 \cdot x_2 \cdot x_1
+				- u'_1 \cdot x_1 - u'_1 \cdot x_2 + u'_1  - u'_3 \cdot x_1 \cdot x_2 + u'_3\cdot x_2
+				- u'_5 \cdot x_1 \cdot x_2 + u'_5\cdot x_2 + u'_7 \cdot x_1 \cdot x_2) -
+				(x_4 - u'_0 \cdot x_2 \cdot x_1 + u'_0 \cdot x_1 + u'_0 \cdot x_2
+				- u'_0 + u'_2 \cdot x_1 \cdot x_2 - u'_2\cdot x_2 + u'_4 \cdot x_1 \cdot x_2
+				- u'_4\cdot x_2 -u'_6 \cdot x_1 \cdot x_2)$
+	\item $\phi_2: (x_1, x_2, x_3, x_4) \mapsto $ \\
+				$x_3 \cdot (-v'_0 \cdot x_2 \cdot x_1 + v'_0 \cdot x_1 + v'_0 \cdot x_2
+				- v'_0 + v'_2 \cdot x_1 \cdot x_2 -v'_2 \cdot x_2 + v'_4 \cdot x_1 \cdot x_2
+				- v'_4 \cdot x_2 - v'_6 \cdot x_1 \cdot x_2 + v'_1 \cdot x_2 \cdot x_1
+				- v'_1 \cdot x_1 - v'_1 \cdot x_2 + v'_1  - v'_3 \cdot x_1 \cdot x_2
+				+ v'_3 \cdot x_2 - v'_5 \cdot x_1 \cdot x_2 + v'_5 \cdot x_2
+				+ v'_7 \cdot x_1 \cdot x_2) - (x_4 - v'_0 \cdot x_2 \cdot x_1
+				+ v'_0 \cdot x_1 + v'_0 \cdot x_2 - v'_0 + v'_2 \cdot x_1 \cdot x_2
+				- v'_2 \cdot x_2 + v'_4 \cdot x_1 \cdot x_2 - v'_4 \cdot x_2 - v'_6 \cdot x_1 \cdot x_2) $
+\end{enumerate}
+
+Constraints:
+\begin{itemize}
+	\item For $i + 0$:
+	\begin{itemize}
+		\item $b_i \cdot (b_i - 1) = 0$, where $i \in\{0,.., 5\}$ 
+		\item $\phi_1(b_0, b_1, b_2, u_0) = 0$, where $(u'_{i}, v'_{i}) = w(B, 0, i)$
+		\item $\phi_1(b_3, b_4, b_5, u_1) = 0$, where $(u'_{i}, v'_{i}) = w(B, 1, i)$
+		\item $\phi_2(b_0, b_1, b_2, v_0) = 0$, where $(u'_{i}, v'_{i}) = w(B, 0, i)$
+		\item $\phi_2(b_3, b_4, b_5, v_1) = 0$, where $(u'_{i}, v'_{i}) = w(B, 1, i)$
+		\item $acc = b_0 + b_1 \cdot 2 + b_2 \cdot 2^2 + b_3 \cdot 2^3 + b_4 \cdot 2^4 + b_5 \cdot 2^5 $
+		\item $(x_1, y_1) = (u_0, v_0)$
+		\item $(x_2, y_2) = (x_1, y_1) + (u_1, v_1)$ incomplete addition, where $x_1 \neq u_1$
+	\end{itemize}
+	\item For $i + z$, $z \in{1, ..., 41}$:
+		\begin{itemize}
+		\item $b_i \cdot (b_i - 1) = 0$, where $i \in\{0,.., 5\}$ 
+		\item $\phi_1(b_0, b_1, b_2, u_0) = 0$, where $(u'_{i}, v'_{i}) = w(B, z \cdot 2, i)$
+		\item $\phi_1(b_3, b_4, b_5, u_1) = 0$, where $(u'_{i}, v'_{i}) = w(B, z \cdot 2 + 1, i)$
+		\item $\phi_2(b_0, b_1, b_2, v_0) = 0$, where $(u'_{i}, v'_{i}) = w(B, z \cdot 2, i)$
+		\item $\phi_2(b_3, b_4, b_5, v_1) = 0$, where $(u'_{i}, v'_{i}) = w(B, z \cdot 2 + 1, i)$
+		\item $acc = b_0 + b_1 \cdot 2 + b_2 \cdot 2^2 + b_3 \cdot 2^3 + b_4 \cdot 2^4 + b_5 \cdot 2^5 + acc_{prev} \cdot 2^6$
+		\item $(x_1, y_1) = (u_0, v_0) + (x_2, y_2)_{prev}$  incomplete addition, where $u_0 \neq x_2$
+		\item $(x_2, y_2) = (x_1, y_1) + (u_1, v_1)$ incomplete addition, where $x_1 \neq u_1$
+	\end{itemize}
+	\item For $i + 42$:
+		\begin{itemize}
+		\item $b_i \cdot (b_i - 1) = 0$, where $i \in\{0,.., 2\}$ 
+		\item $\phi_1(b_0, b_1, b_2, u_0) = 0$, where $(u'_{i}, v'_{i}) = w(B, 84, i)$
+		\item $\phi_2(b_0, b_1, b_2, v_0) = 0$, where $(u'_{i}, v'_{i}) = w(B, 84, i)$
+		\item $b = b_0 + b_1 \cdot 2 + b_2 \cdot 2^2 + acc_{prev} \cdot 2^3$
+		\item $(x_w, y_w) = (u_0, v_0) + (x_2, y_2)_{prev}$  complete addition from \href{https://zcash.github.io/orchard/design/circuit/gadgets/ecc/addition.html} {Orchard}
+	\end{itemize}
+\end{itemize}
