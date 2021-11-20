@@ -1,0 +1,25 @@
+\chapter{Introduction}
+
+This document is a technical reference to the in-EVM Mina state verification project.
+
+\section{Overview}
+
+The project's purpose is to provide Ethereum users with reliable Mina Protocol's state proof.
+
+The project UX consists of several steps:
+\begin{enumerate}
+    \item Retrieve Mina Protocol's state proof.
+    \item Preprocess it by generating an auxiliary proof.
+    \item Submit the preprocessed proof to EVM-enabled cluster.
+    \item Verify the proof with EVM.
+\end{enumerate}
+
+Such a UX defines projects parts:
+\begin{enumerate}
+    \item Mina Protocol's state retriever (O1Labs' or Chainsafe's protocol implementation).
+    \item State proof generator.
+    \item Ethereum RPC proof submitter.
+    \item EVM-based proof verificator.
+\end{enumerate}
+
+Each of these parts will be considered independently.

@@ -1,0 +1,36 @@
+\section{Other Circuits}
+\label{section:other}
+\textbf{WIP}
+
+\subsection{Combined Inner Product}
+
+$\sum\limits_{i = 0}^{k} \xi^i \cdot (f_i(\zeta_1) + r \cdot f_i(\zeta_2))$
+
+\begin{center}
+    \begin{table}[H]
+        \begin{tabular}{llllllllllllllll}
+            Row                                   & 0           & 1            & 2           & 3            & 4              & 5        & 6                    & 7        & 8        & 9                     & 10       & 11       & 12       & 13       & 14       \\
+            $i + 0$                             & $f_1$       & $f_1'$       & $f_2$       & $f_2'$       & $\texttt{acc}$ & $\xi$    & $\xi_{\texttt{acc}}$ & $s_1$ & $s_2$ & $\xi'_{\texttt{acc}}$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ \\
+            $i + 1$                             & $f_3$       & $f_3'$       & $f_4$       & $f_4'$       & $\texttt{acc}$ & $r$      & $\xi_{\texttt{acc}}$ & $s_1$ & $s_2$ & $\xi'_{\texttt{acc}}$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ \\
+            $\vdots$                             & $\vdots$    & $\vdots$     & $\vdots$    & $\vdots$     & $\vdots$       & $\vdots$ & $\vdots$             & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+            $i + \lceil \frac{k}{2} \rceil - 1$ & $f_{k - 3}$ & $f_{k - 3}'$ & $f_{k - 2}$ & $f_{k - 2}'$ & $\texttt{acc}$ & $\xi$ & $\xi_{\texttt{acc}}$ & $s_1$ & $s_2$ & $\xi'_{\texttt{acc}}$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ \\
+            $i + \lceil \frac{k}{2} \rceil$     & $f_{k - 1}$ & $f_{k - 1}'$ & $f_k$       & $f_k'$       & $\texttt{acc}$ & $r$ & $\xi_{\texttt{acc}}$ & $s_1$ & $s_2$ & $\xi'_{\texttt{acc}}$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ \\
+        \end{tabular}
+    \end{table}
+\end{center}
+
+Constraints for $i + z$, where $z\mod 2 = 0$:
+\begin{itemize}
+    \item $(w_0 + w_1 \cdot \texttt{next}(w_5)) \cdot w_6 = w_7$
+    \item $(w_2 + w_3 \cdot \texttt{next}(w_5)) \cdot w_9 = w_8$
+    \item $w_5 \cdot w_6 = w_9$
+    \item $w_5 \cdot w_9 = \texttt{next}(w_9)$
+    \item $w_5 \cdot \texttt{next}(w_9) = \texttt{next}(w_5)$
+    \item $w_4 + w_7 + w_8 + \texttt{next}(w_7) + \texttt{next}(w_8) = \texttt{next}(w_4)$
+\end{itemize}
+
+Constraints for $i + z$, where $z\mod 2 = 1$:
+\begin{itemize}
+    \item $(w_0 + w_1 \cdot w_5) \cdot w_9 = w_7$
+    \item $(w_2 + w_3 \cdot w_5) \cdot w_6 = w_8$
+\end{itemize}

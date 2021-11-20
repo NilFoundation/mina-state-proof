@@ -1,0 +1,21 @@
+\chapter{State Proof Generator}
+
+This introduces a description for Mina Protocol's state auxiliary proof generator.
+
+Crucial components which define this part design and performance are:
+\begin{enumerate}
+    \item Input data format (Pickles proof data structure: \ref{paragraph:proof})
+    \item Proof system used for the proof generation.
+    \item Circuit definition used for the proof system.
+\end{enumerate}
+
+\input{chapters/generator/proof/introduction}
+\input{chapters/generator/proof/optimizations}
+\input{chapters/generator/proof/protocol}
+
+\input{chapters/generator/circuit/introduction}
+\input{chapters/generator/circuit/preliminaries}
+\input{chapters/generator/circuit/ec}
+\input{chapters/generator/circuit/msm}
+\input{chapters/generator/circuit/poseidon}
+\input{chapters/generator/circuit/other}
