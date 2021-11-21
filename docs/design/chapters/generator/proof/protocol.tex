@@ -77,6 +77,7 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
     \end{center}
     \item Compute commitments to $P$, $Q$ and add them to $\text{transcript}$.
     \item Get $\alpha_0, \dots, \alpha_5 \in \mathbb{F}$ from $hash(\text{transcript})$
+    \item Get $\tau$ from $hash(\text{transcript})$
     \item Define polynomials ($F_0, \dots, F_4$ - copy-satisfability):
     \begin{center}
         $F_0(X) = L_1(X)(P(X) - 1)$\\
@@ -84,7 +85,7 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
         $F_2(X) = P(X)p'(X) - P(X\omega)$ \\
         $F_3(X) = Q(X)q'(X) - Q(X\omega)$ \\
         $F_4(X) = L_n(X)(P(X\omega) - Q(X\omega))$ \\
-        $F_5(X) = \sum\limits_{0 \leq i < N_{\texttt{sel}}} (\textbf{q}_{i}(X) \cdot \texttt{gate}_i(X))
+        $F_5(X) = \sum\limits_{0 \leq i < N_{\texttt{sel}}} (\tau^i \cdot \textbf{q}_{i}(X) \cdot \texttt{gate}_i(X))
         + \sum\limits_{0 \leq i < N_{\texttt{const}}}(\textbf{f}_{c_i}(X)) + PI(X)$
     \end{center}
     \item Compute:
@@ -114,6 +115,7 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
     \item Let $P_{\texttt{comm}}, Q_{\texttt{comm}}$ be commitments to $P(X), Q(X)$
     \item $\text{transcript} = \text{transcript} || P_{\texttt{comm}} || Q_{\texttt{comm}}$
     \item $\alpha_0, \dots, \alpha_5 = hash(\text{transcript})$
+    \item $\tau = hash(\text{transcript})$
     \item Let $T_{0, \texttt{comm}}, ..., T_{N_{\texttt{perm}} - 1, \texttt{comm}}$ be commitments to $T_0(X), ..., T_{N_{\texttt{perm}} - 1}(X)$
     \item $\text{transcript} = \text{transcript} || T_{0, \texttt{comm}} || ... || T_{N_{\texttt{perm}} - 1, \texttt{comm}}$
     \item $y = hash|_{\mathbb{F}/H}(\text{transcript})$
@@ -129,7 +131,7 @@ For details on polynomial commitment scheme and polynomial evaluation scheme, we
         $q'(y) = \prod q_i(y) = \prod f_i(y) + \beta \cdot S_{\sigma_i}(y) + \gamma$ \\
         $F_3(y) = Q(y)q'(y) - Q(y\omega)$ \\
         $F_4(y) = L_n(y)(P(y\omega) - Q(y\omega))$ \\
-        $F_5(y) = \sum\limits_{0 \leq i < N_{\texttt{sel}}} (\textbf{q}_{i}(y) \cdot \texttt{gate}_i(y))
+        $F_5(y) = \sum\limits_{0 \leq i < N_{\texttt{sel}}} (\tau^i \cdot \textbf{q}_{i}(y) \cdot \texttt{gate}_i(y))
         + \sum\limits_{0 \leq i < N_{\texttt{const}}}(\textbf{f}_{c_i}(y)) + PI(y)$ \\
         $T(y) = \sum\limits_{0 \leq j < N_{\texttt{perm} + 1}}y^{n \cdot j}T_j(y)$
     \end{center}
