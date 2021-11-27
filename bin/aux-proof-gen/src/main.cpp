@@ -59,6 +59,8 @@ int main(int argc, char *argv[]) {
             sexp s = parse(vm["proof"].as<std::string>());
         }
     }
+#else
+
 #endif
     return 0;
 }

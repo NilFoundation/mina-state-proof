@@ -34,12 +34,19 @@ set_target_properties(${CURRENT_PROJECT_NAME} PROPERTIES
 target_link_libraries(${CURRENT_PROJECT_NAME}
 
                       crypto3::algebra
+                      crypto3::block
+                      crypto3::blueprint
+                      crypto3::codec
+                      crypto3::math
                       crypto3::multiprecision
                       crypto3::pubkey
+                      crypto3::random
+                      crypto3::zk
 
                       marshalling::core
-                      marshalling::crypto3_multiprecision
                       marshalling::crypto3_algebra
+                      marshalling::crypto3_multiprecision
+                      marshalling::crypto3_zk
 
                       $<$<BOOL:${Boost_FOUND}>:${Boost_LIBRARIES}>)
 
