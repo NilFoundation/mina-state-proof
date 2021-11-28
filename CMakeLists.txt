@@ -39,8 +39,7 @@ endmacro()
 
 option(BUILD_TESTS "Build unit tests" TRUE)
 
-add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/libs"
-                   SUBMODULE_DEFINITION_HEADER "cm_project\\(")
+add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/libs")
 add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/bin")
 add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/libs/marshalling")
 
