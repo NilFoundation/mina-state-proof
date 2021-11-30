@@ -2,7 +2,7 @@
 \label{section:ec}
 \textbf{WIP}
 
-\subsection{Addition}
+\subsection{Incomplete Addition}
 
 \begin{center}
     \begin{table}[H]
@@ -15,8 +15,8 @@
 
 Constraints:
 \begin{itemize}
-    \item $(x_2 - x_1) \cdot (y_3 + y_1) - (y_1 - y_2) \cdot (x_1 - x_3)$
-    \item $(x_1 + x_2 + x_3) \cdot (x_1 - x_3) \cdot (x_1 - x_3) - (y_3 + y_1) \cdot (y_3 + y_1)$
+    \item $(x_2 - x_1) \cdot (y_3 + y_1) - (y_1 - y_2) \cdot (x_1 - x_3) = 0$
+    \item $(x_1 + x_2 + x_3) \cdot (x_1 - x_3) \cdot (x_1 - x_3) - (y_3 + y_1) \cdot (y_3 + y_1) = 0$
     \item $(x_2 - x_1) \cdot r = 1$
 \end{itemize}
 
@@ -41,10 +41,83 @@ Constraints:
     \end{itemize}
     \item Addition (for tripling):
     \begin{itemize}
-        \item $(x_2 - x_1) \cdot (y_3 + y_1) - (y_1 - y_2) \cdot (x_1 - x_3)$
-        \item $(x_1 + x_2 + x_3) \cdot (x_1 - x_3) \cdot (x_1 - x_3) - (y_3 + y_1) \cdot (y_3 + y_1)$
+        \item $(x_2 - x_1) \cdot (y_3 + y_1) - (y_1 - y_2) \cdot (x_1 - x_3) = 0$
+        \item $(x_1 + x_2 + x_3) \cdot (x_1 - x_3) \cdot (x_1 - x_3) - (y_3 + y_1) \cdot (y_3 + y_1) = 0$
         \item $(x_2 - x_1) \cdot r_2 = 1$
     \end{itemize}
+\end{itemize}
+
+\subsection{Unified Incomplete Addition and Squaring}
+
+\begin{center}
+    \begin{table}[H]
+        \begin{tabular}{llllllllllllllll}
+            Row   & 0     & 1     & 2     & 3     & 4     & 5     & 6   & 7       & 8       & 9       & 10      & 11      & 12      & 13      & 14      \\
+            $i$ & $x_1$ & $y_1$ & $x_2$ & $y_2$ & $x_3$ & $y_3$ & $\texttt{inf}$ & $\texttt{same\_x}$ & $s$ & $\texttt{inv}_y$ & $\texttt{inv}_x$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ \\
+        \end{tabular}
+    \end{table}
+\end{center}
+
+Constraints ($\textbf{max degree} = 3$):
+\begin{enumerate}
+	 \item $w_7 \cdot (w_2 - w_0) = 0$
+    \item $(w_2 - w_0) \cdot w_{10} - (1 - w_7) = 0$
+    \item $w_7 \cdot (2w_8 \cdot w_1 - 3w_0^2) + (1 - w_7) \cdot (w_2 - w_0 \cdot w_8 - (w_3 - w_1))$
+    \item $w_8^2 = w_0 + w_2 + w_4$
+    \item $w_5 = w_8 \cdot (w_0 - w_4) - w_1$
+    \item $(w_3 - w_1) \cdot (w_7 - w_6) = 0$
+    \item $(w_3 - w_1) \cdot w_9 - w_6 = 0$
+\end{enumerate}
+
+\paragraph{Details.}
+
+The gate uses basic group law formulae. 
+Let $P = (x_1, y_1), Q = (x_2, y_2), R = (x_3, y_3)$ and $R = P + Q$. Then: 
+\begin{itemize}
+    \item $(x_2 - x_1) \cdot s = y_2 - y_1$
+    \item $s^2 = x_1 + x_2 + x_3$
+    \item $y_3 = s \cdot (x_1 - x_3) - y_1$
+\end{itemize}
+For point doubling $R = P + P = 2P$:
+\begin{itemize}
+    \item $2s \cdot y_1 = 3x_1^2$
+    \item $s^2 = 2x_1 + x_3$
+    \item $y_3 = s \cdot (x_1 - x_3) - y_1$
+\end{itemize}
+
+\begin{itemize}
+	 \item $x_2 - x_1$ zero check:
+	 \begin{enumerate}
+		 	\item $w_7 \cdot (w_2 - w_0) = 0 \longleftrightarrow 
+		 			\texttt{same\_x} \cdot (x_2 -x_1)$ \\
+		 		If $x_1 \neq x_2$, then $\texttt{same\_x} = 0$
+		    \item $(w_2 - w_0) \cdot w_{10} - (1 - w_7) = 0 \longleftrightarrow 
+		    		(x_2 - x_1) \cdot \texttt{inv}_x - (1 - \texttt{same\_x})$ \\
+		    	If $x_1 \neq x_2$, then $\texttt{inv}_x = (x_2 - x_1)^{-1}$
+	 \end{enumerate}
+	 \item Group law constraints:
+	 \begin{enumerate}
+	 	\item $w_7 \cdot (2w_8 \cdot w_1 - 3w_0^2) + (1 - w_7) \cdot ((w_2 - w_0 \cdot w_8 - (w_3 - w_1)) \longleftrightarrow$ \\
+			  $\texttt{same\_x} \cdot (2s \cdot y_1 - 3x_1^2) + (1 - \texttt{same\_x}) \cdot (x_2 - x_1 \cdot s - (y_2 - y_1))$ \\
+			If $x_1 = x_2$ then use doubling $2s \cdot y_1 = 3x_1^2$. Otherwise use addition $(x_2 - x_1) \cdot s = y_2 - y_1$.
+	 	\item $w_8^2 = w_0 + w_2 + w_4 \longleftrightarrow 
+	 			s^2 = x_1 + x_2 + x_3$ \\
+	 		Constrains $x_3$. It does not depend on $x_1, x_2$ equality.
+	 	\item $w_5 = w_8 \cdot (w_0 - w_4) - w_1 \longleftrightarrow 
+	 			y_3 = s \cdot (x_1 - x_3) - y_1$ \\
+	 		Constrains $y_3$. It does not depend on $x_1, x_2$ equality.
+	 \end{enumerate}
+	 \item $P + (-P)$ constraints:
+	 \begin{enumerate}
+		 \item $(w_3 - w_1) \cdot (w_7 - w_6) = 0 \longleftrightarrow 
+	    			(y_2 - y_1) \cdot (\texttt{same\_x} - \texttt{inf}) = 0$ \\ 
+	    	We can get inifinity point iff $x_1 = x_2$ and $y_1 \neq y_2$. \\
+	    	If $y_1 \neq y_2$ then $\texttt{inf} = \texttt{same\_x}$.
+	    \item $(w_3 - w_1) \cdot w_9 - w_6 = 0 \longleftrightarrow 
+	    			(y_2 - y_1) \cdot \texttt{inv}_y - \texttt{inf}$ \\
+	    	The prover sets $\texttt{inv}_y = 0$ for $y_1 = y_2$. \\
+	    	If $y_1 \neq y_2$ then $\texttt{inv}_y = (y_2 - y_1)^{-1}$
+	 \end{enumerate}
 \end{itemize}
 
 \subsection{Variable Base Scalar Multiplication}
