@@ -69,6 +69,11 @@ Constraints ($\textbf{max degree} = 3$):
     \item $(w_3 - w_1) \cdot w_9 - w_6 = 0$
 \end{enumerate}
 
+Copy constraints:
+\begin{enumerate}
+	\item $w_6 = 0$
+\end{enumerate}
+
 \paragraph{Details.}
 
 The gate uses basic group law formulae. 
@@ -85,6 +90,10 @@ For point doubling $R = P + P = 2P$:
     \item $y_3 = s \cdot (x_1 - x_3) - y_1$
 \end{itemize}
 
+The gate does not handle cases $\mathcal{O} + P$ or $\mathcal{O} + \mathcal{O}$.
+To ensure that operations with point-at-infinity are not included in the circuit's trace, copy constraint $w_6 = 0$ ($\texttt{inf} = 0$) was introduced. 
+
+Constraints details:
 \begin{itemize}
 	 \item $x_2 - x_1$ zero check:
 	 \begin{enumerate}
