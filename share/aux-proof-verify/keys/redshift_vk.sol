@@ -18,15 +18,15 @@
 pragma solidity >=0.6.0 <0.8.0;
 pragma experimental ABIEncoderV2;
 
-import {types} from '../cryptography/types.sol';
-import {Bn254Crypto} from '../cryptography/bn254.sol';
+import '../cryptography/types.sol';
+import '../cryptography/bn254.sol';
 
 library EscapeHatchVk {
-    using Bn254Crypto for Types.G1Point;
-    using Bn254Crypto for Types.G2Point;
+    using Bn254Crypto for types.g1_point;
+    using Bn254Crypto for types.g2_point;
 
-    function get_verification_key() internal pure returns (Types.VerificationKey memory) {
-        Types.VerificationKey memory vk;
+    function get_verification_key() internal pure returns (types.verification_key memory) {
+        types.verification_key memory vk;
 
         assembly {
             mstore(add(vk, 0x00), 524288) // vk.circuit_size

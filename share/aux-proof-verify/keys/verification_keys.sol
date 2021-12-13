@@ -31,32 +31,12 @@ library verification_keys {
      * @param _keyId - verification key identifier used to select the appropriate proof's key
      * @return Verification key
      */
-    function getKeyById(uint256 _keyId) external pure returns (Types.VerificationKey memory) {
+    function getKeyById(uint256 _keyId) external pure returns (types.verification_key memory) {
         // added in order: qL, qR, qO, qC, qM. x coord first, followed by y coord
-        Types.VerificationKey memory vk;
+        types.verification_key memory vk;
 
         if (_keyId == 0) {
             vk = EscapeHatchVk.get_verification_key();
-        } else if (_keyId == 1) {
-            vk = Rollup1x1Vk.get_verification_key();
-        } else if (_keyId == 2) {
-            vk = Rollup1x2Vk.get_verification_key();
-        } else if (_keyId == 4) {
-            vk = Rollup1x4Vk.get_verification_key();
-        } else if (_keyId == 32) {
-            vk = Rollup28x1Vk.get_verification_key();
-        } else if (_keyId == 64) {
-            vk = Rollup28x2Vk.get_verification_key();
-        } else if (_keyId == 128) {
-            vk = Rollup28x4Vk.get_verification_key();
-        } else if (_keyId == 256) {
-            vk = Rollup28x8Vk.get_verification_key();
-        } else if (_keyId == 512) {
-            vk = Rollup28x16Vk.get_verification_key();
-        } else if (_keyId == 1024) {
-            vk = Rollup28x32Vk.get_verification_key();
-        } else {
-            require(false, 'UNKNOWN_KEY_ID');
         }
         return vk;
     }
