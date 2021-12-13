@@ -58,3 +58,6 @@
 [submodule "libs/pkpad"]
 	path = libs/pkpad
 	url = git@github.com:nilfoundation/crypto3-pkpad.git
+[submodule "libs/container"]
+	path = libs/container
+	url = git@github.com:nilfoundation/crypto3-containers.git
