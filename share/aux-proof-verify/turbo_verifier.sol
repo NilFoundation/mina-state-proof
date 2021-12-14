@@ -30,8 +30,8 @@ import "./fri_verifier.sol";
  * @dev Top level Plonk proof verification contract, which allows Plonk proof to be verified
  */
 contract TurboVerifier is FriVerifier {
-    using Bn254Crypto for Types.G1Point;
-    using Bn254Crypto for Types.G2Point;
+    using bn254_crypto for types.g1_point;
+    using bn254_crypto for types.g2_point;
     using transcript for Transcript.TranscriptData;
 
     function verify(bytes calldata, uint256 size) external override {
@@ -67,14 +67,14 @@ contract TurboVerifier is FriVerifier {
         //reset 'alpha base'
         challenges.alpha_base = challenges.alpha;
 
-        Types.G1Point memory linearised_contribution = PolynomialEval.compute_linearised_opening_terms(
+        types.g1_point memory linearised_contribution = PolynomialEval.compute_linearised_opening_terms(
             challenges,
             L1,
             vk,
             decoded_proof
         );
 
-        Types.G1Point memory batch_opening_commitment = PolynomialEval.compute_batch_opening_commitment(
+        types.g1_point memory batch_opening_commitment = PolynomialEval.compute_batch_opening_commitment(
             challenges,
             vk,
             linearised_contribution,
@@ -176,7 +176,7 @@ contract TurboVerifier is FriVerifier {
      * @return bool specifying whether the pairing check was successful
      */
     function perform_pairing(
-        Types.G1Point memory batch_opening_commitment,
+        types.g1_point memory batch_opening_commitment,
         uint256 batch_evaluation_g1_scalar,
         Types.ChallengeTranscript memory challenges,
         Types.Proof memory decoded_proof,
@@ -185,10 +185,10 @@ contract TurboVerifier is FriVerifier {
 
         uint256 u = challenges.u;
         bool success;
-        uint256 p = Bn254Crypto.r_mod;
-        Types.G1Point memory rhs;
-        Types.G1Point memory PI_Z_OMEGA = decoded_proof.PI_Z_OMEGA;
-        Types.G1Point memory PI_Z = decoded_proof.PI_Z;
+        uint256 p = bn254_crypto.r_mod;
+        types.g1_point memory rhs;
+        types.g1_point memory PI_Z_OMEGA = decoded_proof.PI_Z_OMEGA;
+        types.g1_point memory PI_Z = decoded_proof.PI_Z;
         PI_Z.validateG1Point();
         PI_Z_OMEGA.validateG1Point();
 
@@ -234,7 +234,7 @@ contract TurboVerifier is FriVerifier {
             }
         }
 
-        Types.G1Point memory lhs;
+        types.g1_point memory lhs;
         assembly {
         // store accumulator point at mptr
             let mPtr := mload(0x40)
@@ -254,7 +254,7 @@ contract TurboVerifier is FriVerifier {
         }
 
         // negate lhs y-coordinate
-        uint256 q = Bn254Crypto.p_mod;
+        uint256 q = bn254_crypto.p_mod;
         assembly {
             mstore(add(lhs, 0x20), sub(q, mload(add(lhs, 0x20))))
         }
@@ -273,8 +273,8 @@ contract TurboVerifier is FriVerifier {
 
             // i.e. [lhs] = [lhs] + u.u.[recursive_P1]
             //      [rhs] = [rhs] + u.u.[recursive_P2]
-            Types.G1Point memory recursive_P1 = decoded_proof.recursive_P1;
-            Types.G1Point memory recursive_P2 = decoded_proof.recursive_P2;
+            types.g1_point memory recursive_P1 = decoded_proof.recursive_P1;
+            types.g1_point memory recursive_P2 = decoded_proof.recursive_P2;
             recursive_P1.validateG1Point();
             recursive_P2.validateG1Point();
             assembly {
@@ -305,7 +305,7 @@ contract TurboVerifier is FriVerifier {
 
         require(success, "perform_pairing G1 operations preamble fail");
 
-        return Bn254Crypto.pairingProd2(rhs, Bn254Crypto.P2(), lhs, vk.g2_x);
+        return bn254_crypto.pairingProd2(rhs, bn254_crypto.P2(), lhs, vk.g2_x);
     }
 
     /**
@@ -318,8 +318,8 @@ contract TurboVerifier is FriVerifier {
     pure
     returns (Types.Proof memory proof)
     {
-        uint256 p = Bn254Crypto.r_mod;
-        uint256 q = Bn254Crypto.p_mod;
+        uint256 p = bn254_crypto.r_mod;
+        uint256 q = bn254_crypto.p_mod;
         uint256 data_ptr;
         uint256 proof_ptr;
         // first 32 bytes of bytes array contains length, skip it
@@ -354,8 +354,8 @@ contract TurboVerifier is FriVerifier {
                 y1 := add(y1, shl(204, calldataload(add(index_counter, 0x1e0))))
             }
 
-            proof.recursive_P1 = Bn254Crypto.new_g1(x0, y0);
-            proof.recursive_P2 = Bn254Crypto.new_g1(x1, y1);
+            proof.recursive_P1 = bn254_crypto.new_g1(x0, y0);
+            proof.recursive_P2 = bn254_crypto.new_g1(x1, y1);
         }
 
         assembly {

@@ -67,7 +67,7 @@ library transcript {
     ) internal pure {
         bytes32 challenge;
         bytes32 old_challenge = self.current_challenge;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         uint256 reduced_challenge;
         assembly {
             let m_ptr := mload(0x40)
@@ -107,7 +107,7 @@ library transcript {
     ) internal pure {
         bytes32 challenge;
         bytes32 old_challenge = self.current_challenge;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         uint256 reduced_challenge;
         assembly {
             let m_ptr := mload(0x40)
@@ -132,7 +132,7 @@ library transcript {
     ) internal pure {
         bytes32 challenge;
         bytes32 old_challenge = self.current_challenge;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         uint256 reduced_challenge;
         assembly {
             let m_ptr := mload(0x40)
@@ -163,7 +163,7 @@ library transcript {
      */
     function generate_nu_challenges(transcript_data memory self, types.challenge_transcript memory challenges, uint256 quotient_poly_eval, uint256 num_public_inputs) internal pure
     {
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         bytes32 current_challenge = self.current_challenge;
         uint256 base_v_challenge;
         uint256 updated_v;
@@ -258,7 +258,7 @@ library transcript {
     ) internal pure {
         bytes32 challenge;
         bytes32 old_challenge = self.current_challenge;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         uint256 reduced_challenge;
         assembly {
             let m_ptr := mload(0x40)

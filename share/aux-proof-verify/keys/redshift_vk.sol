@@ -21,9 +21,9 @@ pragma experimental ABIEncoderV2;
 import '../cryptography/types.sol';
 import '../cryptography/bn254.sol';
 
-library EscapeHatchVk {
-    using Bn254Crypto for types.g1_point;
-    using Bn254Crypto for types.g2_point;
+library redshift_vk {
+    using bn254_crypto for types.g1_point;
+    using bn254_crypto for types.g2_point;
 
     function get_verification_key() internal pure returns (types.verification_key memory) {
         types.verification_key memory vk;

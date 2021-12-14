@@ -28,8 +28,8 @@ import './types.sol';
  * Expected to be inherited by `TurboPlonk.sol`
  */
 library PolynomialEval {
-    using Bn254Crypto for types.g1_point;
-    using Bn254Crypto for types.g2_point;
+    using bn254_crypto for types.g1_point;
+    using bn254_crypto for types.g2_point;
 
     /**
      * @dev Use batch inversion (so called Montgomery's trick). Circuit size is the domain
@@ -56,7 +56,7 @@ library PolynomialEval {
     )
     {
         uint256 mPtr;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         uint256 accumulator = 1;
         assembly {
             mPtr := mload(0x40)
@@ -81,7 +81,7 @@ library PolynomialEval {
             accumulator := mulmod(accumulator, mload(add(mPtr, 0x60)), p)
         }
 
-        accumulator = Bn254Crypto.invert(accumulator);
+        accumulator = bn254_crypto.invert(accumulator);
         assembly {
             let intermediate := mulmod(accumulator, mload(add(mPtr, 0xe0)), p)
             accumulator := mulmod(accumulator, mload(add(mPtr, 0x60)), p)
@@ -127,7 +127,7 @@ library PolynomialEval {
 
         // perform this computation in assembly to improve efficiency. We are sensitive to the cost of this loop as
         // it scales with the number of public inputs
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         assembly {
             public_inputs := add(calldataload(0x04), 0x24)
 
@@ -189,8 +189,8 @@ library PolynomialEval {
     function compute_lagrange_and_vanishing_fractions(types.verification_key memory vk, uint256 zeta
     ) internal pure returns (uint256, uint256, uint256, uint256, uint256) {
 
-        uint256 p = Bn254Crypto.r_mod;
-        uint256 vanishing_numerator = Bn254Crypto.pow_small(zeta, vk.circuit_size, p);
+        uint256 p = bn254_crypto.r_mod;
+        uint256 vanishing_numerator = bn254_crypto.pow_small(zeta, vk.circuit_size, p);
         vk.zeta_pow_n = vanishing_numerator;
         assembly {
             vanishing_numerator := addmod(vanishing_numerator, sub(p, 1), p)
@@ -247,7 +247,7 @@ library PolynomialEval {
         uint256 alpha_base = challenges.alpha_base;
         uint256 alpha = challenges.alpha;
         uint256 t1;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         assembly {
             t1 := addmod(mulmod(q_arith, q_arith, p), sub(p, q_arith), p)
 
@@ -283,7 +283,7 @@ library PolynomialEval {
         uint256 alpha_base = challenges.alpha_base;
 
         {
-            uint256 p = Bn254Crypto.r_mod;
+            uint256 p = bn254_crypto.r_mod;
             uint256 delta = 0;
 
             uint256 wire_t0 = proof.w4;
@@ -457,7 +457,7 @@ library PolynomialEval {
         uint256 numerator_collector;
         uint256 alpha = challenges.alpha;
         uint256 beta = challenges.beta;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         uint256 grand_product = proof.grand_product_at_z_omega;
         {
             uint256 gamma = challenges.gamma;
@@ -558,7 +558,7 @@ library PolynomialEval {
         uint256 t2 = compute_pedersen_gate_quotient_contribution(challenges, proof);
 
         uint256 quotient_eval;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         assembly {
             quotient_eval := addmod(t0, addmod(t1, t2, p), p)
             quotient_eval := mulmod(quotient_eval, zero_poly_inverse, p)
@@ -628,14 +628,14 @@ library PolynomialEval {
         bool success;
         // Reserve 0xa0 bytes of memory to perform group operations
         uint256 accumulator_ptr;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         assembly {
             accumulator_ptr := mload(0x40)
             mstore(0x40, add(accumulator_ptr, 0xa0))
         }
 
         // first term
-        Types.G1Point memory work_point = proof.T1;
+        types.g1_point memory work_point = proof.T1;
         work_point.validateG1Point();
         assembly {
             mstore(accumulator_ptr, mload(work_point))
@@ -846,7 +846,7 @@ library PolynomialEval {
             success := and(success, staticcall(gas(), 6, accumulator_ptr, 0x80, accumulator_ptr, 0x40))
         }
 
-        Types.G1Point memory output;
+        types.g1_point memory output;
         // QECC
         scalar_multiplier = challenges.v8;
         work_point = vk.QECC;
@@ -873,7 +873,7 @@ library PolynomialEval {
     pure
     returns (uint256)
     {
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         uint256 opening_scalar;
         uint256 lhs;
         uint256 rhs;
@@ -995,7 +995,7 @@ library PolynomialEval {
         Types.Proof memory proof,
         Types.VerificationKey memory vk,
         Types.ChallengeTranscript memory challenges
-    ) internal view returns (Types.G1Point memory) {
+    ) internal view returns (types.g1_point memory) {
 
         uint256 q_arith = proof.q_arith;
         uint256 q_ecc = proof.q_ecc;
@@ -1003,7 +1003,7 @@ library PolynomialEval {
         uint256 alpha_base = challenges.alpha_base;
         uint256 scaling_alpha = challenges.alpha_base;
         uint256 alpha = challenges.alpha;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         uint256 scalar_multiplier;
         uint256 accumulator_ptr;
         // reserve 0xa0 bytes of memory to multiply and add points
@@ -1038,7 +1038,7 @@ library PolynomialEval {
 
                     scalar_multiplier := addmod(scalar_multiplier, mulmod(t0, linear_challenge, p), p)
                 }
-                Types.G1Point memory Q1 = vk.Q1;
+                types.g1_point memory Q1 = vk.Q1;
                 Q1.validateG1Point();
                 bool success;
                 assembly {
@@ -1063,7 +1063,7 @@ library PolynomialEval {
                     scalar_multiplier := addmod(scalar_multiplier, mulmod(t0, linear_challenge, p), p)
                 }
 
-                Types.G1Point memory Q2 = vk.Q2;
+                types.g1_point memory Q2 = vk.Q2;
                 Q2.validateG1Point();
                 bool success;
                 assembly {
@@ -1134,7 +1134,7 @@ library PolynomialEval {
                 }
             }
 
-            Types.G1Point memory Q3 = vk.Q3;
+            types.g1_point memory Q3 = vk.Q3;
             Q3.validateG1Point();
             bool success;
             assembly {
@@ -1170,7 +1170,7 @@ library PolynomialEval {
                 scalar_multiplier := addmod(scalar_multiplier, mulmod(t0, linear_challenge, p), p)
             }
 
-            Types.G1Point memory Q4 = vk.Q4;
+            types.g1_point memory Q4 = vk.Q4;
             Q4.validateG1Point();
             bool success;
             assembly {
@@ -1210,7 +1210,7 @@ library PolynomialEval {
                 scalar_multiplier := addmod(scalar_multiplier, mulmod(t0, linear_challenge, p), p)
             }
 
-            Types.G1Point memory Q5 = vk.Q5;
+            types.g1_point memory Q5 = vk.Q5;
             Q5.validateG1Point();
             bool success;
             assembly {
@@ -1253,7 +1253,7 @@ library PolynomialEval {
                 scalar_multiplier := addmod(scalar_multiplier, mulmod(t0, linear_challenge, p), p)
             }
 
-            Types.G1Point memory QM = vk.QM;
+            types.g1_point memory QM = vk.QM;
             QM.validateG1Point();
             bool success;
             assembly {
@@ -1271,7 +1271,7 @@ library PolynomialEval {
             require(success, "G1 point multiplication failed!");
         }
 
-        Types.G1Point memory output;
+        types.g1_point memory output;
         // QC Selector
         {
             uint256 q_c_challenge = challenges.v9;
@@ -1285,7 +1285,7 @@ library PolynomialEval {
                 alpha_base := mulmod(scaling_alpha, alpha, p)
             }
 
-            Types.G1Point memory QC = vk.QC;
+            types.g1_point memory QC = vk.QC;
             QC.validateG1Point();
             bool success;
             assembly {
@@ -1317,7 +1317,7 @@ library PolynomialEval {
         Types.ChallengeTranscript memory challenges
     ) internal pure returns (uint256) {
         uint256 identity = 0;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         {
             uint256 delta_sum = 0;
             uint256 delta_squared_sum = 0;
@@ -1476,7 +1476,7 @@ library PolynomialEval {
         uint256 alpha = challenges.alpha;
         uint256 alpha_base = challenges.alpha_base;
         uint256 range_acc;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
         uint256 linear_challenge = challenges.v10;
         assembly {
             let delta_1 := addmod(wire3, sub(p, mulmod(wire4, 0x04, p)), p)
@@ -1539,11 +1539,11 @@ library PolynomialEval {
         Types.VerificationKey memory vk,
         Types.ChallengeTranscript memory challenges,
         uint256 L1_fr
-    ) internal view returns (Types.G1Point memory) {
+    ) internal view returns (types.g1_point memory) {
         uint256 beta = challenges.beta;
         uint256 zeta = challenges.zeta;
         uint256 gamma = challenges.gamma;
-        uint256 p = Bn254Crypto.r_mod;
+        uint256 p = bn254_crypto.r_mod;
 
         uint256 partial_grand_product;
         uint256 sigma_multiplier;
@@ -1603,9 +1603,9 @@ library PolynomialEval {
             challenges.alpha_base = alpha_base;
         }
 
-        Types.G1Point memory Z = proof.Z;
-        Types.G1Point memory SIGMA4 = vk.SIGMA4;
-        Types.G1Point memory accumulator;
+        types.g1_point memory Z = proof.Z;
+        types.g1_point memory SIGMA4 = vk.SIGMA4;
+        types.g1_point memory accumulator;
         Z.validateG1Point();
         SIGMA4.validateG1Point();
         bool success;

@@ -23,7 +23,7 @@ import {types} from "./types.sol";
  * @title Bn254 elliptic curve crypto
  * @dev Provides some basic methods to compute bilinear pairings, construct group elements and misc numerical methods
  */
-library Bn254Crypto {
+library bn254_crypto {
     uint256 constant p_mod = 21888242871839275222246405745257275088696311157297823662689037894645226208583;
     uint256 constant r_mod = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
 
@@ -75,7 +75,7 @@ library Bn254Crypto {
     function new_g1(uint256 x, uint256 y)
     internal
     pure
-    returns (Types.G1Point memory)
+    returns (types.g1_point memory)
     {
         uint256 xValue;
         uint256 yValue;
@@ -83,23 +83,23 @@ library Bn254Crypto {
             xValue := mod(x, r_mod)
             yValue := mod(y, r_mod)
         }
-        return types.G1Point(xValue, yValue);
+        return types.g1_point(xValue, yValue);
     }
 
     function new_g2(uint256 x0, uint256 x1, uint256 y0, uint256 y1)
     internal
     pure
-    returns (Types.G2Point memory)
+    returns (types.g2_point memory)
     {
-        return types.G2Point(x0, x1, y0, y1);
+        return types.g2_point(x0, x1, y0, y1);
     }
 
-    function P1() internal pure returns (Types.G1Point memory) {
-        return types.G1Point(1, 2);
+    function P1() internal pure returns (types.g1_point memory) {
+        return types.g1_point(1, 2);
     }
 
-    function P2() internal pure returns (Types.G2Point memory) {
-        return types.G2Point({
+    function P2() internal pure returns (types.g2_point memory) {
+        return types.g2_point({
         x0 : 0x198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c2,
         x1 : 0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed,
         y0 : 0x090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b,
@@ -111,10 +111,10 @@ library Bn254Crypto {
     /// Evaluate the following pairing product:
     /// e(a1, a2).e(-b1, b2) == 1
     function pairingProd2(
-        Types.G1Point memory a1,
-        Types.G2Point memory a2,
-        Types.G1Point memory b1,
-        Types.G2Point memory b2
+        types.g1_point memory a1,
+        types.g2_point memory a2,
+        types.g1_point memory b1,
+        types.g2_point memory b2
     ) internal view returns (bool) {
         validateG1Point(a1);
         validateG1Point(b1);
@@ -157,7 +157,7 @@ library Bn254Crypto {
     *   y < p
     *   y^2 = x^3 + 3 mod p
     */
-    function validateG1Point(Types.G1Point memory point) internal pure {
+    function validateG1Point(types.g1_point memory point) internal pure {
         bool is_well_formed;
         uint256 p = p_mod;
         assembly {
