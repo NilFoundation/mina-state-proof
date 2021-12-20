@@ -53,10 +53,10 @@ namespace nil {
         static auto unescaped(std::string strval) -> sexp;
     };
 
-    auto parse(std::string const &str, std::string &err) -> sexp;
-    auto parse(std::string const &str) -> sexp;
-    auto escape(std::string const &str) -> std::string;
-    auto print_should_never_reach_here() -> void;
+    sexp parse(std::string const &str, std::string &err);
+    sexp parse(std::string const &str);
+    std::string escape(std::string const &str);
+    void print_should_never_reach_here();
 
     struct sexp_argument_iterator {
         sexp_argument_iterator(sexp &sexp);

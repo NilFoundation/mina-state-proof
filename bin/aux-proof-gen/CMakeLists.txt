@@ -6,7 +6,7 @@ include(CMSetupVersion)
 
 cm_project(aux-proof-gen WORKSPACE_NAME ${CMAKE_WORKSPACE_NAME} LANGUAGES ASM C CXX)
 
-if(NOT Boost_FOUND AND NOT CMAKE_CROSSCOMPILING)
+if(NOT CMAKE_CROSSCOMPILING)
     cm_find_package(Boost REQUIRED COMPONENTS filesystem log log_setup program_options thread system)
 endif()
 
@@ -48,7 +48,7 @@ target_link_libraries(${CURRENT_PROJECT_NAME}
                       marshalling::crypto3_multiprecision
                       marshalling::crypto3_zk
 
-                      $<$<BOOL:${Boost_FOUND}>:${Boost_LIBRARIES}>)
+                      ${Boost_LIBRARIES})
 
 target_include_directories(${CURRENT_PROJECT_NAME} PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>

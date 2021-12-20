@@ -301,7 +301,7 @@ namespace nil {
         return s;
     }
 
-    auto parse(std::string const &str, std::string &err) -> sexp {
+    sexp parse(std::string const &str, std::string &err) {
         auto sexprstack = std::stack<sexp> {};
         sexprstack.push(sexp {});    // root
         auto nextiter = str.begin();
@@ -391,12 +391,12 @@ namespace nil {
         return std::move(sexprstack.top());
     }
 
-    auto parse(std::string const &str) -> sexp {
+    sexp parse(std::string const &str) {
         auto ignored_error = std::string {};
         return parse(str, ignored_error);
     }
 
-    auto escape(std::string const &str) -> std::string {
+    std::string escape(std::string const &str) {
         auto escape_count = count_escape_values(str);
         if (escape_count == 0)
             return str;
