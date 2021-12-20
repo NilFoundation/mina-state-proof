@@ -63,9 +63,6 @@ int main(int argc, char *argv[]) {
     std::string string;
     std::cin >> string;
     sexp s = parse(string);
-    if (s == nil::sexp()) {
-        return 1;
-    }
 #endif
     return 0;
 }
