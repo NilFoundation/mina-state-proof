@@ -24,6 +24,8 @@
 #include <boost/program_options.hpp>
 #endif
 
+#include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
+
 #include <nil/mina/auxproof/sexp.hpp>
 
 using namespace nil;
