@@ -24,11 +24,30 @@
 #include <boost/program_options.hpp>
 #endif
 
+#include <nil/crypto3/algebra/curves/alt_bn128.hpp>
+#include <nil/crypto3/algebra/fields/arithmetic_params/alt_bn128.hpp>
+#include <nil/crypto3/algebra/curves/params/multiexp/alt_bn128.hpp>
+#include <nil/crypto3/algebra/curves/params/wnaf/alt_bn128.hpp>
+
+#include <nil/crypto3/zk/components/blueprint.hpp>
+#include <nil/crypto3/zk/components/algebra/curves/plonk/fixed_base_scalar_mul_5_wires.hpp>
+#include <nil/crypto3/zk/components/algebra/curves/plonk/variable_base_scalar_mul_5_wires.hpp>
+
+#include <nil/crypto3/hash/algorithm/hash.hpp>
+#include <nil/crypto3/hash/sha2.hpp>
+
+#include <nil/crypto3/pubkey/algorithm/sign.hpp>
+#include <nil/crypto3/pubkey/eddsa.hpp>
+
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/redshift/prover.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/redshift/preprocessor.hpp>
+#include <nil/crypto3/zk/snark/relations/non_linear_combination.hpp>
 
 #include <nil/mina/auxproof/sexp.hpp>
 
 using namespace nil;
+using namespace nil::crypto3;
 
 int main(int argc, char *argv[]) {
 #ifndef __EMSCRIPTEN__
@@ -66,5 +85,18 @@ int main(int argc, char *argv[]) {
     std::cin >> string;
     sexp s = parse(string);
 #endif
+
+    typedef algebra::curves::alt_bn128<254> curve_type;
+    using TBlueprintField = typename curve_type::base_field_type;
+    constexpr std::size_t WiresAmount = 5;
+    using TArithmetization = zk::snark::plonk_constraint_system<TBlueprintField, WiresAmount>;
+
+    zk::components::blueprint<TArithmetization> bp;
+    zk::components::element_g1_variable_base_scalar_mul_plonk<TBlueprintField, curve_type> scalar_mul(bp);
+
+    zk::snark::redshift_preprocessor<typename curve_type::base_field_type, 5, 2> preprocess;
+
+    // auto preprocessed_data = preprocess::process(cs, assignments);
+    zk::snark::redshift_prover<typename curve_type::base_field_type, 5, 2, 2, 2> prove;
     return 0;
 }
