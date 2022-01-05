@@ -31,7 +31,7 @@ library verification_keys {
      * @param _keyId - verification key identifier used to select the appropriate proof's key
      * @return Verification key
      */
-    function getKeyById(uint256 _keyId) external pure returns (types.verification_key memory) {
+    function make_vk(uint256 _keyId) external pure returns (types.verification_key memory) {
         // added in order: qL, qR, qO, qC, qM. x coord first, followed by y coord
         types.verification_key memory vk;
 

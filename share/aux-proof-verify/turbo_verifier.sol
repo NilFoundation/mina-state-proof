@@ -35,7 +35,7 @@ contract TurboVerifier is FriVerifier {
     using transcript for Transcript.TranscriptData;
 
     function verify(bytes calldata, uint256 size) external override {
-        Types.VerificationKey memory vk = verification_keys.getKeyById(size);
+        Types.VerificationKey memory vk = verification_keys.make_vk(size);
         uint256 num_public_inputs = vk.num_inputs;
 
         // parse the input calldata and construct a Proof object

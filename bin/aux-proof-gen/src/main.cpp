@@ -32,6 +32,7 @@
 #include <nil/crypto3/zk/components/blueprint.hpp>
 #include <nil/crypto3/zk/components/algebra/curves/plonk/fixed_base_scalar_mul_5_wires.hpp>
 #include <nil/crypto3/zk/components/algebra/curves/plonk/variable_base_scalar_mul_5_wires.hpp>
+#include <nil/crypto3/zk/components/algebra/curves/plonk/variable_base_endo_scalar_mul_15_wires.hpp>
 
 #include <nil/crypto3/hash/algorithm/hash.hpp>
 #include <nil/crypto3/hash/sha2.hpp>
@@ -92,7 +93,8 @@ int main(int argc, char *argv[]) {
     using TArithmetization = zk::snark::plonk_constraint_system<TBlueprintField, WiresAmount>;
 
     zk::components::blueprint<TArithmetization> bp;
-    zk::components::element_g1_variable_base_scalar_mul_plonk<TBlueprintField, curve_type> scalar_mul(bp);
+    zk::components::element_g1_variable_base_scalar_mul_plonk<TBlueprintField, curve_type> variable_base_scalar_mul(bp);
+//    zk::components::element_g1_fixed_base_scalar_mul<TBlueprintField, curve_type> fixed_base_scalar_mul(bp);
 
     zk::snark::redshift_preprocessor<typename curve_type::base_field_type, 5, 2> preprocess;
 
