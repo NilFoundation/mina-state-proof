@@ -39,6 +39,7 @@ target_link_libraries(${CURRENT_PROJECT_NAME}
                       crypto3::codec
                       crypto3::math
                       crypto3::multiprecision
+                      crypto3::pkpad
                       crypto3::pubkey
                       crypto3::random
                       crypto3::zk
