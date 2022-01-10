@@ -37,7 +37,8 @@ Compiler/environment requirements are as follows:
 
 ## Community
 
-Issue reports are preferred to be done with Github Issues in here:
-https://github.com/nilfoundation/evm-mina-verification.git.
+Issue reports are preferred to be done with Github Issues in here: https://github.com/nilfoundation/evm-mina-verification/issues.
+
+Forum-alike discussion topics are better to be done with Discussions section in here: https://github.com/NilFoundation/evm-mina-verification/discussions
 
 Usage and development questions a preferred to be asked in a Telegram chat: https://t.me/nilcrypto3
