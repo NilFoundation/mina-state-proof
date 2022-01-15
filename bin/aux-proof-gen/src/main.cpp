@@ -30,9 +30,8 @@
 #include <nil/crypto3/algebra/curves/params/wnaf/alt_bn128.hpp>
 
 #include <nil/crypto3/zk/components/blueprint.hpp>
-#include <nil/crypto3/zk/components/hashes/plonk/poseidon_5_wires.hpp>
-#include <nil/crypto3/zk/components/algebra/curves/plonk/fixed_base_scalar_mul_5_wires.hpp>
-#include <nil/crypto3/zk/components/algebra/curves/plonk/variable_base_scalar_mul_5_wires.hpp>
+#include <nil/crypto3/zk/components/hashes/plonk/poseidon_15_wires.hpp>
+#include <nil/crypto3/zk/components/algebra/curves/plonk/variable_base_endo_scalar_mul_15_wires.hpp>
 
 #include <nil/crypto3/hash/algorithm/hash.hpp>
 #include <nil/crypto3/hash/sha2.hpp>
@@ -91,13 +90,13 @@ int main(int argc, char *argv[]) {
 
     typedef algebra::curves::alt_bn128<254> curve_type;
     using TBlueprintField = typename curve_type::base_field_type;
-    constexpr std::size_t WiresAmount = 5;
+    constexpr std::size_t WiresAmount = 15;
     constexpr typename curve_type::template g1_type<>::value_type B = curve_type::template g1_type<>::value_type::one();
     using TArithmetization = zk::snark::plonk_constraint_system<TBlueprintField, WiresAmount>;
 
     zk::components::blueprint<TArithmetization> bp;
 
-    zk::components::element_g1_fixed_base_scalar_mul<TArithmetization, curve_type> scalar_mul_component(bp, B);
+    zk::components::element_g1_variable_base_endo_scalar_mul_plonk<TArithmetization, curve_type> scalar_mul_component(bp);
     zk::components::poseidon_plonk<TArithmetization, curve_type> poseidon_component(bp);
 
     scalar_mul_component.generate_gates();
