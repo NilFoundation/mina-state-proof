@@ -14,14 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity ^0.6.11;
+pragma solidity >=0.6.11;
 
 import "./merkle_statement_contract.sol";
 
 abstract contract merkle_statement_verifier is basic_merkle_verifier {
     merkle_statement_contract merkleStatementContract;
 
-    constructor(address merkleStatementContractAddress) public {
+    constructor(address merkleStatementContractAddress) {
         merkleStatementContract = merkle_statement_contract(merkleStatementContractAddress);
     }
 
@@ -59,7 +59,7 @@ abstract contract merkle_statement_verifier is basic_merkle_verifier {
 
             statement := keccak256(dataToHashPtrStart, sub(dataToHashPtrCur, dataToHashPtrStart))
         }
-        require(merkleStatementContract.isValid(statement), "INVALIDATED_MERKLE_STATEMENT");
+//        require(merkleStatementContract.isValid(statement), "INVALIDATED_MERKLE_STATEMENT");
         return root;
     }
 }

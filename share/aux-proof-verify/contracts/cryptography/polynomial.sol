@@ -15,7 +15,7 @@
 // limitations under the License.
 //---------------------------------------------------------------------------//
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import './bn254.sol';
@@ -868,7 +868,7 @@ library PolynomialEval {
         return output;
     }
 
-    function compute_batch_evaluation_scalar_multiplier(Types.Proof memory proof, Types.ChallengeTranscript memory challenges)
+    function compute_batch_evaluation_scalar_multiplier(types.proof memory proof, types.challenge_transcript memory challenges)
     internal
     pure
     returns (uint256)
@@ -992,9 +992,9 @@ library PolynomialEval {
     // Compute kate opening scalar for arithmetic gate selectors and pedersen gate selectors
     // (both the arithmetic gate and pedersen hash gate reuse the same selectors)
     function compute_arithmetic_selector_opening_group_element(
-        Types.Proof memory proof,
-        Types.VerificationKey memory vk,
-        Types.ChallengeTranscript memory challenges
+        types.proof memory proof,
+        types.verification_key memory vk,
+        types.challenge_transcript memory challenges
     ) internal view returns (types.g1_point memory) {
 
         uint256 q_arith = proof.q_arith;
@@ -1313,8 +1313,8 @@ library PolynomialEval {
     // This method evalautes the polynomial identity used to evaluate either
     // a 2-bit AND or XOR operation in a single constraint
     function compute_logic_gate_opening_scalar(
-        Types.Proof memory proof,
-        Types.ChallengeTranscript memory challenges
+        types.proof memory proof,
+        types.challenge_transcript memory challenges
     ) internal pure returns (uint256) {
         uint256 identity = 0;
         uint256 p = bn254_crypto.r_mod;
@@ -1465,8 +1465,8 @@ library PolynomialEval {
 
     // Compute kate opening scalar for arithmetic gate selectors
     function compute_range_gate_opening_scalar(
-        Types.Proof memory proof,
-        Types.ChallengeTranscript memory challenges
+        types.proof memory proof,
+        types.challenge_transcript memory challenges
     ) internal pure returns (uint256) {
         uint256 wire1 = proof.w1;
         uint256 wire2 = proof.w2;
@@ -1535,9 +1535,9 @@ library PolynomialEval {
 
     // Compute grand product opening scalar and perform kate verification scalar multiplication
     function compute_grand_product_opening_group_element(
-        Types.Proof memory proof,
-        Types.VerificationKey memory vk,
-        Types.ChallengeTranscript memory challenges,
+        types.proof memory proof,
+        types.verification_key memory vk,
+        types.challenge_transcript memory challenges,
         uint256 L1_fr
     ) internal view returns (types.g1_point memory) {
         uint256 beta = challenges.beta;

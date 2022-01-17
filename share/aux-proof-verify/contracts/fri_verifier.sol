@@ -14,12 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity ^0.6.11;
+pragma solidity >=0.6.11;
 
-import "fri.sol";
-import "memory_access_utils.sol";
+import "./fri.sol";
+import "./memory_access_utils.sol";
+import "./verifier_channel.sol";
 
-abstract contract FriVerifier is memory_access_utils, fri {
+abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
     /*
       The work required to generate an invalid proof is 2^numSecurityBits.
       Typical values: 80-128.
@@ -38,7 +39,7 @@ abstract contract FriVerifier is memory_access_utils, fri {
         uint256 numSecurityBits_,
         uint256 minProofOfWorkBits_,
         address oodsContractAddress_
-    ) public {
+    ) {
         numSecurityBits = numSecurityBits_;
         minProofOfWorkBits = minProofOfWorkBits_;
         oodsContractAddress = oodsContractAddress_;
@@ -166,11 +167,7 @@ abstract contract FriVerifier is memory_access_utils, fri {
         ctx[MM_TRACE_GENERATOR] = genTraceDomain;
     }
 
-    function getPublicInputHash(uint256[] memory publicInput)
-    internal
-    pure
-    virtual
-    returns (bytes32);
+    function getPublicInputHash(uint256[] memory publicInput) internal pure virtual returns (bytes32);
 
     function oodsConsistencyCheck(uint256[] memory ctx) internal view virtual;
 
@@ -517,7 +514,7 @@ abstract contract FriVerifier is memory_access_utils, fri {
         uint256[] memory proofParams,
         uint256[] memory proof,
         uint256[] memory publicInput
-    ) internal view override {
+    ) internal view {
         // emit LogGas("Transmission", gasleft());
         uint256[] memory ctx = initVerifierParams(publicInput, proofParams);
         uint256 channelPtr = getChannelPtr(ctx);
@@ -530,7 +527,7 @@ abstract contract FriVerifier is memory_access_utils, fri {
 
         if (hasInteraction()) {
             // Send interaction elements.
-            VerifierChannel.sendFieldElements(
+            verifier_channel.sendFieldElements(
                 channelPtr,
                 getNInteractionElements(),
                 getPtr(ctx, getMmInteractionElements())
@@ -540,7 +537,7 @@ abstract contract FriVerifier is memory_access_utils, fri {
             ctx[MM_TRACE_COMMITMENT + 1] = uint256(readHash(channelPtr, true));
         }
 
-        VerifierChannel.sendFieldElements(
+        verifier_channel.sendFieldElements(
             channelPtr,
             getNCoefficients(),
             getPtr(ctx, getMmCoefficients())
@@ -550,33 +547,33 @@ abstract contract FriVerifier is memory_access_utils, fri {
         ctx[MM_OODS_COMMITMENT] = uint256(readHash(channelPtr, true));
 
         // Send Out of Domain Sampling point.
-        VerifierChannel.sendFieldElements(channelPtr, 1, getPtr(ctx, MM_OODS_POINT));
+        verifier_channel.sendFieldElements(channelPtr, 1, getPtr(ctx, MM_OODS_POINT));
 
         // Read the answers to the Out of Domain Sampling.
         uint256 lmmOodsValues = getMmOodsValues();
         for (uint256 i = lmmOodsValues; i < lmmOodsValues + getNOodsValues(); i++) {
-            ctx[i] = VerifierChannel.readFieldElement(channelPtr, true);
+            ctx[i] = verifier_channel.readFieldElement(channelPtr, true);
         }
         // emit LogGas("Read OODS commitments", gasleft());
         oodsConsistencyCheck(ctx);
         // emit LogGas("OODS consistency check", gasleft());
-        VerifierChannel.sendFieldElements(
+        verifier_channel.sendFieldElements(
             channelPtr,
             getNOodsCoefficients(),
             getPtr(ctx, getMmOodsCoefficients())
         );
         // emit LogGas("Generate OODS coefficients", gasleft());
-        ctx[MM_FRI_COMMITMENTS] = uint256(VerifierChannel.readHash(channelPtr, true));
+        ctx[MM_FRI_COMMITMENTS] = uint256(verifier_channel.readHash(channelPtr, true));
 
         uint256 nFriSteps = getFriSteps(ctx).length;
         uint256 fri_evalPointPtr = getPtr(ctx, MM_FRI_EVAL_POINTS);
         for (uint256 i = 1; i < nFriSteps - 1; i++) {
-            VerifierChannel.sendFieldElements(channelPtr, 1, fri_evalPointPtr + i * 0x20);
-            ctx[MM_FRI_COMMITMENTS + i] = uint256(VerifierChannel.readHash(channelPtr, true));
+            verifier_channel.sendFieldElements(channelPtr, 1, fri_evalPointPtr + i * 0x20);
+            ctx[MM_FRI_COMMITMENTS + i] = uint256(verifier_channel.readHash(channelPtr, true));
         }
 
         // Send last random FRI evaluation point.
-        VerifierChannel.sendFieldElements(
+        verifier_channel.sendFieldElements(
             channelPtr,
             1,
             getPtr(ctx, MM_FRI_EVAL_POINTS + nFriSteps - 1)
@@ -587,8 +584,8 @@ abstract contract FriVerifier is memory_access_utils, fri {
 
         // Generate queries.
         // emit LogGas("Read FRI commitments", gasleft());
-        VerifierChannel.verifyProofOfWork(channelPtr, ctx[MM_PROOF_OF_WORK_BITS]);
-        ctx[MM_N_UNIQUE_QUERIES] = VerifierChannel.sendRandomQueries(
+        verifier_channel.verifyProofOfWork(channelPtr, ctx[MM_PROOF_OF_WORK_BITS]);
+        ctx[MM_N_UNIQUE_QUERIES] = verifier_channel.sendRandomQueries(
             channelPtr,
             ctx[MM_N_UNIQUE_QUERIES],
             ctx[MM_EVAL_DOMAIN_SIZE] - 1,

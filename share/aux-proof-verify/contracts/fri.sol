@@ -14,11 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity ^0.6.11;
+pragma solidity >=0.6.11;
 
-import "memory_access_utils.sol";
-import "fri_layer.sol";
-import "horner_evaluator.sol";
+import "./memory_access_utils.sol";
+import "./fri_layer.sol";
+import "./horner_evaluator.sol";
 
 /*
   This contract computes and verifies all the FRI layer, one by one. The final layer is verified

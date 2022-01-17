@@ -29,23 +29,23 @@ import "./fri_verifier.sol";
  * @title Turbo Plonk proof verification contract
  * @dev Top level Plonk proof verification contract, which allows Plonk proof to be verified
  */
-contract TurboVerifier is FriVerifier {
+abstract contract lpc_verifier is fri_verifier {
     using bn254_crypto for types.g1_point;
     using bn254_crypto for types.g2_point;
-    using transcript for Transcript.TranscriptData;
+    using transcript for transcript.transcript_data;
 
-    function verify(bytes calldata, uint256 size) external override {
-        Types.VerificationKey memory vk = verification_keys.make_vk(size);
+    function verify(bytes calldata, uint256 size) external {
+        types.verification_key memory vk = verification_keys.getKeyById(size);
         uint256 num_public_inputs = vk.num_inputs;
 
         // parse the input calldata and construct a Proof object
-        Types.Proof memory decoded_proof = deserialize_proof(num_public_inputs, vk);
+        types.proof memory decoded_proof = deserialize_proof(num_public_inputs, vk);
 
-        Transcript.TranscriptData memory transcript;
+        transcript.transcript_data memory transcript;
         transcript.generate_initial_challenge(vk.circuit_size, vk.num_inputs);
 
         // reconstruct the beta, gamma, alpha and zeta challenges
-        Types.ChallengeTranscript memory challenges;
+        types.challenge_transcript memory challenges;
         transcript.generate_beta_gamma_challenges(challenges, vk.num_inputs);
         transcript.generate_alpha_challenge(challenges, decoded_proof.Z);
         transcript.generate_zeta_challenge(challenges, decoded_proof.T1, decoded_proof.T2, decoded_proof.T3, decoded_proof.T4);
@@ -118,9 +118,9 @@ contract TurboVerifier is FriVerifier {
      * @return quotient polynomial evaluation (field element) and lagrange 1 evaluation (field element)
      */
     function evalaute_field_operations(
-        Types.Proof memory decoded_proof,
-        Types.VerificationKey memory vk,
-        Types.ChallengeTranscript memory challenges
+        types.proof memory decoded_proof,
+        types.verification_key memory vk,
+        types.challenge_transcript memory challenges
     ) internal view returns (uint256, uint256) {
         uint256 public_input_delta;
         uint256 zero_polynomial_eval;
@@ -178,9 +178,9 @@ contract TurboVerifier is FriVerifier {
     function perform_pairing(
         types.g1_point memory batch_opening_commitment,
         uint256 batch_evaluation_g1_scalar,
-        Types.ChallengeTranscript memory challenges,
-        Types.Proof memory decoded_proof,
-        Types.VerificationKey memory vk
+        types.challenge_transcript memory challenges,
+        types.proof memory decoded_proof,
+        types.verification_key memory vk
     ) internal view returns (bool) {
 
         uint256 u = challenges.u;
@@ -313,10 +313,10 @@ contract TurboVerifier is FriVerifier {
      * @param num_public_inputs - number of public inputs in the proof. Taken from verification key
      * @return proof - proof deserialized into the proof struct
      */
-    function deserialize_proof(uint256 num_public_inputs, Types.VerificationKey memory vk)
+    function deserialize_proof(uint256 num_public_inputs, types.verification_key memory vk)
     internal
     pure
-    returns (Types.Proof memory proof)
+    returns (types.proof memory proof)
     {
         uint256 p = bn254_crypto.r_mod;
         uint256 q = bn254_crypto.p_mod;

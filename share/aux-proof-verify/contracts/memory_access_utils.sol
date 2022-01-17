@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0.
-pragma solidity ^0.6.11;
+pragma solidity >=0.6.11;
 
-contract memory_access_utils {
+import "./memory_map.sol";
+
+contract memory_access_utils is memory_map {
     function getPtr(uint256[] memory ctx, uint256 offset) internal pure returns (uint256) {
         uint256 ctxPtr;
         require(offset < MM_CONTEXT_SIZE, "Overflow protection failed");
@@ -25,16 +27,6 @@ contract memory_access_utils {
             ctxPtr := add(ctx, 0x20)
         }
         return ctxPtr + MM_CHANNEL * 0x20;
-    }
-
-    function getQueries(uint256[] memory ctx) internal pure returns (uint256[] memory) {
-        uint256[] memory queries;
-        // Dynamic array holds length followed by values.
-        uint256 offset = 0x20 + 0x20 * MM_N_UNIQUE_QUERIES;
-        assembly {
-            queries := add(ctx, offset)
-        }
-        return queries;
     }
 
     function getMerkleQueuePtr(uint256[] memory ctx) internal pure returns (uint256) {

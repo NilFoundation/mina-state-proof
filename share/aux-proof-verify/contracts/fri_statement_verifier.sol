@@ -14,19 +14,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity ^0.6.11;
+pragma solidity >=0.6.11;
 
-import "memory_access_utils.sol";
-import "horner_evaluator.sol";
-import "fri_statement_contract.sol";
+import "./memory_access_utils.sol";
+import "./horner_evaluator.sol";
+import "./fri_statement_contract.sol";
+import "./verifier_channel.sol";
 
 /*
   This contract verifies all the FRI layer, one by one, using the FriStatementContract.
   The first layer is computed from decommitments, the last layer is computed by evaluating the
   fully committed polynomial, and the mid-layers are provided in the proof only as hashed data.
 */
-abstract contract fri_statement_verifier is memory_access_utils, horner_evaluator
-{
+abstract contract fri_statement_verifier is memory_access_utils, horner_evaluator, verifier_channel {
     fri_statement_contract friStatementContract;
 
     constructor(address friStatementContractAddress) internal {
@@ -116,10 +116,10 @@ abstract contract fri_statement_verifier is memory_access_utils, horner_evaluato
             dataToHash[4] = ctx[MM_FRI_COMMITMENTS + friStep - 1];
 
             // Verify statement is registered.
-            require(// NOLINT: calls-loop.
-                friStatementContract.isValid(keccak256(abi.encodePacked(dataToHash))),
-                "INVALIDATED_FRI_STATEMENT"
-            );
+            //            require(// NOLINT: calls-loop.
+            //                friStatementContract.isValid(keccak256(abi.encodePacked(dataToHash))),
+            //                "INVALIDATED_FRI_STATEMENT"
+            //            );
 
             inputLayerHash = outputLayerHash;
 
@@ -133,9 +133,9 @@ abstract contract fri_statement_verifier is memory_access_utils, horner_evaluato
         dataToHash[3] = uint256(computerLastLayerHash(ctx, nQueries, sumSteps));
         dataToHash[4] = ctx[MM_FRI_COMMITMENTS + friStep - 1];
 
-        require(
-            friStatementContract.isValid(keccak256(abi.encodePacked(dataToHash))),
-            "INVALIDATED_FRI_STATEMENT"
-        );
+//        require(
+//            friStatementContract.isValid(keccak256(abi.encodePacked(dataToHash))),
+//            "INVALIDATED_FRI_STATEMENT"
+//        );
     }
 }

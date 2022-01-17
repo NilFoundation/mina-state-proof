@@ -14,9 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity ^0.6.11;
+pragma solidity >=0.6.11;
 
-import "./components/FactRegistry.sol";
 import "./merkle_verifier.sol";
 
 contract merkle_statement_contract is merkle_verifier {
@@ -103,15 +102,15 @@ contract merkle_statement_contract is merkle_verifier {
         }
         require(badInput == 0, "INVALID_MERKLE_INDICES");
         bytes32 resRoot = verifyMerkle(channelPtr, merkleQueuePtr, bytes32(expectedRoot), nQueries);
-//        bytes32 factHash;
-//        assembly {
-//        // Append the resulted root (should be the return value of verify) to dataToHashPtr.
-//            mstore(dataToHashPtr, resRoot)
-//        // Reset dataToHashPtr.
-//            dataToHashPtr := add(channelPtr, 0x20)
-//            factHash := keccak256(dataToHashPtr, add(mul(nQueries, 0x40), 0x20))
-//        }
-//
-//        registerFact(factHash);
+        //        bytes32 factHash;
+        //        assembly {
+        //        // Append the resulted root (should be the return value of verify) to dataToHashPtr.
+        //            mstore(dataToHashPtr, resRoot)
+        //        // Reset dataToHashPtr.
+        //            dataToHashPtr := add(channelPtr, 0x20)
+        //            factHash := keccak256(dataToHashPtr, add(mul(nQueries, 0x40), 0x20))
+        //        }
+        //
+        //        registerFact(factHash);
     }
 }

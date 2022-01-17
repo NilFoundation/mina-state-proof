@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity ^0.6.11;
+pragma solidity >=0.6.11;
 
 abstract contract basic_merkle_verifier {
     uint256 internal constant MAX_N_MERKLE_VERIFIER_QUERIES = 128;

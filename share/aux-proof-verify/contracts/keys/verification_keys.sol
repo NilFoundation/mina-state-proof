@@ -15,12 +15,12 @@
 // limitations under the License.
 //---------------------------------------------------------------------------//
 
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import '../cryptography/types.sol';
 
-import 'redshift_vk.sol';
+import './redshift_vk.sol';
 
 /**
  * @title Verification keys library
@@ -31,7 +31,7 @@ library verification_keys {
      * @param _keyId - verification key identifier used to select the appropriate proof's key
      * @return Verification key
      */
-    function make_vk(uint256 _keyId) external pure returns (types.verification_key memory) {
+    function getKeyById(uint256 _keyId) external pure returns (types.verification_key memory) {
         // added in order: qL, qR, qO, qC, qM. x coord first, followed by y coord
         types.verification_key memory vk;
 
