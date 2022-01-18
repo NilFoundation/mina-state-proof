@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
 
     zk::components::blueprint<TArithmetization> bp;
 
-    zk::components::element_g1_variable_base_endo_scalar_mul_plonk<TArithmetization, curve_type> scalar_mul_component(bp);
+    zk::components::element_g1_variable_base_endo_scalar_mul<TArithmetization, curve_type> scalar_mul_component(bp);
     zk::components::poseidon_plonk<TArithmetization, curve_type> poseidon_component(bp);
 
     scalar_mul_component.generate_gates();
