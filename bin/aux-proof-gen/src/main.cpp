@@ -73,26 +73,40 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    std::string err{};
+    sexp s;
     if (vm.count("proof")) {
         if (boost::filesystem::exists(vm["proof"].as<std::string>())) {
             std::string string;
             boost::filesystem::load_string_file(vm["proof"].as<std::string>(), string);
-            sexp s = parse(string);
+            s = parse(string, err);
         } else {
-            sexp s = parse(vm["proof"].as<std::string>());
+            s = parse(vm["proof"].as<std::string>(), err);
         }
+    } else {
+        std::string string;
+        std::cin >> string;
+        s = parse(string, err);
     }
+
+
 #else
     std::string string;
     std::cin >> string;
-    sexp s = parse(string);
+    s = parse(string, err);
 #endif
+
+    if (!err.empty()) {
+
+    }
 
     typedef algebra::curves::alt_bn128<254> curve_type;
     using TBlueprintField = typename curve_type::base_field_type;
     constexpr std::size_t WiresAmount = 15;
     constexpr typename curve_type::template g1_type<>::value_type B = curve_type::template g1_type<>::value_type::one();
     using TArithmetization = zk::snark::plonk_constraint_system<TBlueprintField, WiresAmount>;
+
+    zk::snark::pickles_proof<curve_type, WiresAmount> state_proof;
 
     zk::components::blueprint<TArithmetization> bp;
 
@@ -117,5 +131,13 @@ int main(int argc, char *argv[]) {
     auto preprocessed_data = preprocess_type::process(cs, assignments);
     typedef zk::snark::redshift_prover<typename curve_type::base_field_type, 15, 5, 1, 5> prove_type;
     auto proof = prove_type::process(preprocessed_data, cs, assignments);
+
+#ifndef __EMSCRIPTEN__
+    if (vm.count("output")) {
+    }
+#else
+
+#endif
+
     return 0;
 }
