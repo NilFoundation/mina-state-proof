@@ -108,15 +108,14 @@ Constraints details:
 \end{itemize}
 
 \subsection{Variable Base Scalar Multiplication}
-For $S  = [r]T$, where $r = 2^n + k$ and $k = [k_n ... k_0]$, $k_i \in \{0, 1\}$:
+For $R  = [r]T$, where $r = 2^n + k$ and $k = [k_n ... k_0]$, $k_i \in \{0, 1\}$:
 \footnote{Using the results from \url{https://arxiv.org/pdf/math/0208038.pdf}}
 \begin{enumerate}
-    \item $S = [2]T$
+    \item $P = [2]T$
     \item for $i$ from $n - 1$ to $0$:
     \begin{enumerate}
         \item $Q = k_{i + 1} \: ? \: T : -T$
-        \item $R = S + Q$
-        \item $S = R + S$
+        \item $R = P + Q + P$
     \end{enumerate}
     \item $S = k_0 \: ? \: S - T : S$
 \end{enumerate}
@@ -127,11 +126,11 @@ The first and last steps of the alforithm are verified by the unified addition a
     \begin{table}[H]
         \begin{tabular}{llllllllllllllll}
             Row     & 0        & 1        & 2        & 3        & 4        & 5        & 6        & 7        & 8        & 9        & 10       & 11       & 12       & 13       & 14       \\
-            $i$    & $x_T$    & $y_T$    & $x_S$    & $y_S$    & $x_P$    & $y_P$    & $n=0$    & $x_R$    & $y_R$    & $s_1$    & $s_2$    & $b_1$    & $s_3$ & $s_4$ & $b_2$ \\
-            $i + 1$   & $s_5$    & $b_3$    & $x_S$    & $y_S$    & $x_P$    & $y_P$    & $n$      & $x_R$    & $y_R$    & $x_V$    & $y_V$    & $s_1$    & $b_1$ & $s_3$ & $b_2$ \\
+            $i$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
+            $i + 1$   & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $--$ & $--$ & $--$ \\
             $\vdots$  & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
-            $i + 100$ & $x_T$    & $y_T$    & $x_S$    & $y_S$    & $x_P$    & $y_P$    & $n$      & $x_R$    & $y_R$    & $s_1$    & $s_2$    & $b_1$ & $s_3$ & $s_4$ & $b_2$ \\
-            $i + 101$ & $s_5$    & $b_3$    & $x_S$    & $y_S$    & $x_P$    & $y_P$    & $n$      & $x_R$    & $y_R$    & $x_V$    & $y_V$    & $s_1$ & $b_1$ & $s_3$ & $b_2$ \\
+            $i + 100$ & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
+            $i + 101$ & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $--$ & $--$ & $--$ \\
         \end{tabular}
     \end{table}
 \end{center}
@@ -139,131 +138,61 @@ The first and last steps of the alforithm are verified by the unified addition a
 Two gates are used in the circuit. 
 Call them $\texttt{VBSM}_1$ and $\texttt{VBSM}_2$.
 $\texttt{VBSM}_1$ is applied to even rows and $\texttt{VBSM}_2$ is used with odd rows. 
-Each two rows perform calculations with five bits of the scalar.  
+Each two rows perform calculations with five bits of the scalar.
 
 Evaluations:
 \begin{itemize}
-	\item $b_i$ are bits of the $k$, first $b_1$ is the most significant bit of $k$.
-	\item $(X_R, Y_R) = (x_P, y_P) + (X_T, (2b_1 - 1)y_T)$
-	\item $s_1 = \frac{y_P - (2b_1 - 1) \cdot y_T}{x_P - x_T}$
-	\item  ??
-	\item $s_2 = \frac{y_R +y_P}{x_P - x_R}$
-	\item $s_3 = \frac{y_R - (2b_2 - 1) \cdot y_T}{x_R - x_T}$
-	\item $s_4 = \frac{y_R +y_S}{x_R - x_S}$
-	\item $2$:
-	\begin{itemize}
-		\item $s_5 = \frac{(2b_3 - 1)y_T +y_V}{x_T - x_V}$
-	\end{itemize}
+	\item $b_i$ are bits of the $k$, first $b_1$ is the most significant bit of $k$, $n$ is an accumulator of $b_i$.
+	\item $(x_1, y_1) - (x_0, y_0) = (x_0, y_0) + (x_T, (2b_1 - 1)y_T)$
+	\item $(x_2, y_2) - (x_1, y_1) = (x_1, y_1) + (x_T, (2b_1 - 1)y_T)$
+	\item $(x_3, y_3) - (x_2, y_2) = (x_2, y_2) + (x_T, (2b_1 - 1)y_T)$
+	\item $(x_4, y_4) - (x_3, y_3) = (x_3, y_3) + (x_T, (2b_1 - 1)y_T)$
+	\item $(x_5, y_5) - (x_4, y_4) = (x_4, y_4) + (x_T, (2b_1 - 1)y_T)$
+	\item $s_0 = \frac{y_0 - (2b_0 - 1) \cdot y_T}{x_0 - x_T}$
+	\item $s_1 = \frac{y_1 - (2b_1 - 1) \cdot y_T}{x_1 - x_T}$
+	\item $s_2 = \frac{y_2 - (2b_2 - 1) \cdot y_T}{x_2 - x_T}$
+	\item $s_3 = \frac{y_3 - (2b_3 - 1) \cdot y_T}{x_3 - x_T}$
+	\item $s_4 = \frac{y_4 - (2b_4 - 1) \cdot y_T}{x_4 - x_T}$
 \end{itemize}
 
-Constraints for $\texttt{VBSM}_1$:
+Constraints:
 \begin{itemize}
-    \item $w_{11} \cdot (w_{11} - 1) = 0$
-    \item $w_{14} \cdot (w_{14} - 1) = 0$
-    \item $(w_{4} - w_{0}) \cdot w_9 = w_5 - (2w_{11} - 1) \cdot w_1$
-    \item $w_9^2 - w_{10}^2 = w_{0} - w_7$
-    \item $(2 \cdot w_{4} + w_{0} - w_9^2) \cdot (w_9 + w_{10}) = 2w_5$
-    \item $(w_{4} - w_7) \cdot w_{10} = w_8 + w_5$
-    \item $(w_7 - w_{0}) \cdot w_{12} = w_8 - (2w_{14} - 1) \cdot w_1$
-    \item $w_{12}^2 - w_{13}^2 = w_{0} - w_2$
-    \item $(2 \cdot w_7 + w_{0} - w_{12}^2) \cdot (w_{12} + w_{13}) = 2 \cdot w_8$
-    \item $(w_7 - w_2) \cdot w_{13} = w_{3} + w_8$
-    \item $w_6 = 32 \cdot \texttt{next}(w_6) + 16 \cdot w_{11} + 8 \cdot w_{14} + 4 \cdot \texttt{next}(w_{12}) + 2 \cdot \texttt{next}(w_{14}) + \texttt{next}(w_1)$
-\end{itemize}
+    \item $\texttt{next}(w_2) \cdot (w_2 - 1) = 0$
+    \item $\texttt{next}(w_3) \cdot (w_3 - 1) = 0$
+    \item $\texttt{next}(w_4) \cdot (w_4 - 1) = 0$
+    \item $\texttt{next}(w_5) \cdot (w_5 - 1) = 0$
+    \item $\texttt{next}(w_6) \cdot (w_6 - 1) = 0$ \\
 
-Constraints for $\texttt{VBSM}_2$:
-\begin{itemize}
-    \item $w_{12} \cdot (w_{12} - 1) = 0$
-    \item $w_{14} \cdot (w_{14} - 1) = 0$
-    \item $w_1 \cdot (w_1 - 1) = 0$
-    \item $(w_{4} - \texttt{prev}(w_{0})) \cdot w_{11} = w_5 - (2w_{12} - 1) \cdot \texttt{prev}(w_{1})$
-    \item $(2 \cdot w_{4} + \texttt{prev}(w_{0}) - w_{11}^2) \cdot ((w_{4} - w_7) \cdot w_{11} + w_8 + w_5) = (w_{4} - w_7) \cdot 2w_5$
-    \item $(w_8 + w_5)^2 = (w_{4} - w_7)^2 \cdot (w_{11}^2 - \texttt{prev}(w_{0}) + w_7)$
-    \item $(\texttt{prev}(w_{0}) - w_7) \cdot w_{13} = (2w_{14} - 1) \cdot \texttt{prev}(w_{1}) - w_8$
-    \item $(2w_7 - w_{13}^2 + \texttt{prev}(w_{0})) \cdot ((w_7 - w_9) \cdot w_{13} + w_{10} + w_8) = (w_7 - w_9) \cdot 2w_8$
-    \item $(w_{10} + w_8)^2 = (w_7 - w_9)^2 \cdot (w_{13}^2 - \texttt{prev}(w_{0}) + w_9)$
-    \item $(\texttt{prev}(w_{0}) - w_9) \cdot w_0 = (2w_1 - 1) \cdot \texttt{prev}(w_{1}) - w_{10}$
-    \item $(2w_9 - w_0^2 + \texttt{prev}(w_{0})) \cdot ((w_9 - w_2) \cdot w_0 + w_{3} + w_{10}) = (w_9 - w_2) \cdot 2w_{10}$
-    \item $(w_{3} + w_{10})^2 = (w_9 - w_2)^2 \cdot (w_0^2 - \texttt{prev}(w_{0}) + w_2)$
-\end{itemize}
-
-
-Constraints details for $\texttt{VBSM}_1$:
-\begin{itemize}
-    \item $w_{11} \cdot (w_{11} - 1) = 0
-				\longleftrightarrow 
-    			b_1 \cdot (b_1 - 1) = 0$
-    \item $w_{14} \cdot (w_{14} - 1) = 0
-    			\longleftrightarrow
-    			b_2 \cdot (b_2 - 1) = 0$
-    \item $(w_{4} - w_{0}) \cdot w_9 = w_5 - (2w_{11} - 1) \cdot w_1
-    			\longleftrightarrow
-    			(x_P - x_T) \cdot s_1 = y_P - (2b_1 - 1) \cdot y_T$
-    \item $w_9^2 - w_{10}^2 = w_{0} - w_7
-    			\longleftrightarrow
-    			s_1^2 - s_2^2 = x_T - x_R$
-    \item $(2 \cdot w_{4} + w_{0} - w_9^2) \cdot (w_9 + w_{10}) = 2w_5
-    			\longleftrightarrow
-    			(2 \cdot x_P + x_T - s_1^2) \cdot (s_1 + s_2) = 2y_P$
-    \item $(w_{4} - w_7) \cdot w_{10} = w_8 + w_5
-    			\longleftrightarrow
-    			(x_P - x_R) \cdot s_2 = y_R + y_P$
-    \item $(w_7 - w_{0}) \cdot w_{12} = w_8 - (2w_{14} - 1) \cdot w_1
-    			\longleftrightarrow
-    			(x_R - x_T) \cdot s_3 = y_R - (2b_2 - 1) \cdot y_T$
-    \item $w_{12}^2 - w_{13}^2 = w_{0} - w_2
-    			\longleftrightarrow
-    			s_3^2 - s_4^2 = x_T - x_S$
-    \item $(2 \cdot w_7 + w_{0} - w_{12}^2) \cdot (w_{12} + w_{13}) = 2 \cdot w_8
-    			\longleftrightarrow
-    			(2 \cdot x_R + x_T - s_3^2) \cdot (s_3 + s_4) = 2 \cdot y_R$
-    \item $(w_7 - w_2) \cdot w_{13} = w_{3} + w_8
-    			\longleftrightarrow
-    			(x_R - x_S) \cdot s_4 = y_S + y_R$
-    \item $w_6 = 32 \cdot \texttt{next}(w_6) + 16 \cdot w_{11} + 8 \cdot w_{14} + 4 \cdot \texttt{next}(w_{12}) + 2 \cdot \texttt{next}(w_{14}) + \texttt{next}(w_1)
-    			\longleftrightarrow
-    			n = 32 \cdot \texttt{next}(n) + 16 \cdot b_1 + 8 \cdot b_2 + 4 \cdot \texttt{next}(b_1) + 2 \cdot \texttt{next}(b_2) + \texttt{next}(b_3)$
-\end{itemize}
-
-Constraints details for $\texttt{VBSM}_2$:
-\begin{itemize}
-    \item $w_{12} \cdot (w_{12} - 1) = 0
-    			\longleftrightarrow
-    			b_1 \cdot (b_1 - 1) = 0$
-    \item $w_{14} \cdot (w_{14} - 1) = 0
-    			\longleftrightarrow
-    			b_2 \cdot (b_2 - 1) = 0$
-    \item $w_1 \cdot (w_1 - 1) = 0
-    			\longleftrightarrow
-    			b_3 \cdot (b_3 - 1) = 0$
-    \item $(w_{4} - \texttt{prev}(w_{0})) \cdot w_{11} = w_5 - (2w_{12} - 1) \cdot \texttt{prev}(w_{1})
-    			\longleftrightarrow
-    			(x_P - x_T) \cdot s_1 = y_P - (2b_1 - 1) \cdot y_T$
-    \item $(2 \cdot w_{4} + \texttt{prev}(w_{0}) - w_{11}^2) \cdot ((w_{4} - w_7) \cdot w_{11} + w_8 + w_5) = (w_{4} - w_7) \cdot 2w_5
-    			\longleftrightarrow
-    			(2 \cdot x_P + x_T - s_1^2) \cdot ((x_P - x_R) \cdot s_1 + y_R + y_P) = (x_P - x_R) \cdot 2y_P$\
-    \item $(w_8 + w_5)^2 = (w_{4} - w_7)^2 \cdot (w_{11}^2 - \texttt{prev}(w_{0}) + w_7)
-    			\longleftrightarrow
-    			(y_R + y_P)^2 = (x_P - x_R)^2 \cdot (s_1^2 - x_T + x_R)$
-    \item $(\texttt{prev}(w_{0}) - w_7) \cdot w_{13} = (2w_{14} - 1) \cdot \texttt{prev}(w_{1}) - w_8
-    			\longleftrightarrow
-    			(x_T - x_R) \cdot s_3 = (2b_2 - 1) \cdot y_T - y_R$
-    \item $(2w_7 - w_{13}^2 + \texttt{prev}(w_{0})) \cdot ((w_7 - w_9) \cdot w_{13} + w_{10} + w_8) = (w_7 - w_9) \cdot 2w_8
-    			\longleftrightarrow
-    			(2x_R - s_3^2 + x_T) \cdot ((x_R - x_V) \cdot s_3 + y_V + y_R) = (x_R - x_V) \cdot 2y_R$
-    \item $(w_{10} + w_8)^2 = (w_7 - w_9)^2 \cdot (w_{13}^2 - \texttt{prev}(w_{0}) + w_9)
-    			\longleftrightarrow
-    			(y_V + y_R)^2 = (x_R - x_V)^2 \cdot (s_3^2 - x_T + x_V)$
-    \item $(\texttt{prev}(w_{0}) - w_9) \cdot w_0 = (2w_1 - 1) \cdot \texttt{prev}(w_{1}) - w_{10}
-    			\longleftrightarrow
-    			(x_T - x_V) \cdot s_5 = (2b_3 - 1) \cdot y_T - y_V$
-    \item $(2w_9 - w_0^2 + \texttt{prev}(w_{0})) \cdot ((w_9 - w_2) \cdot w_0 + w_{3} + w_{10}) = (w_9 - w_2) \cdot 2w_{10}
-    			\longleftrightarrow
-    			(2x_V - s_5^2 + x_T) \cdot ((x_V - x_S) \cdot s_5 + y_S + y_V) = (x_V - x_S) \cdot 2y_V$
-    \item $(w_{3} + w_{10})^2 = (w_9 - w_2)^2 \cdot (w_0^2 - \texttt{prev}(w_{0}) + w_2)
-    			\longleftrightarrow
-    			(y_S + y_V)^2 = (x_V - x_S)^2 \cdot (s_5^2 - x_T + x_S)$
-\end{itemize}
+    \item $(w_{2} - w_{0}) \cdot \texttt{next}(w_7) = w_3 - (2\texttt{next}(w_{2}) - 1) \cdot w_1$
+    \item $(w_{7} - w_{0}) \cdot \texttt{next}(w_8) = w_8 - (2\texttt{next}(w_{3}) - 1) \cdot w_1$
+    \item $(w_{10} - w_{0}) \cdot \texttt{next}(w_9) = w_{11} - (2\texttt{next}(w_{4}) - 1) \cdot w_1$
+    \item $(w_{12} - w_{0}) \cdot \texttt{next}(w_{10}) = w_{13} - (2\texttt{next}(w_{5}) - 1) \cdot w_1$
+    \item $(\texttt{next}(w_{0}) - w_{0}) \cdot \texttt{next}(w_{11}) = \texttt{next}(w_1) - (2\texttt{next}(w_{6}) - 1) \cdot w_1$ \\
+    
+    
+    \item $(2\cdot w_{3} - \texttt{next}(w_7) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}))^2 =  (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0})^2 \cdot (w_7 - w_0 + \texttt{next}(w_7)^2)$
+    \item $(2\cdot w_{8} - \texttt{next}(w_8) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}))^2 =  (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0})^2 \cdot (w_9 - w_0 + \texttt{next}(w_8)^2)$
+    \item $(2\cdot w_{10} - \texttt{next}(w_9) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}))^2 =  (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0})^2 \cdot (w_{11} - w_0 + \texttt{next}(w_9)^2)$
+    \item $(2\cdot w_{12} - \texttt{next}(w_{10}) \cdot (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}))^2 =  (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0})^2 \cdot (w_{13} - w_0 + \texttt{next}(w_{10})^2)$
+    \item $(2\cdot w_{14} - \texttt{next}(w_{11}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}))^2 =  (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0})^2 \cdot (\texttt{next}(w_0) - w_0 + \texttt{next}(w_{11})^2)$ \\
+    
+    \item $(w_{8} + w_{3}) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}) = (w_2 - w_7) \cdot (2\cdot w_{3} - \texttt{next}(w_7) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}))$
+    \item $(w_{10} + w_{8}) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}) = (w_7 - w_9) \cdot (2\cdot w_{8} - \texttt{next}(w_8) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}))$
+    \item $(w_{12} + w_{10}) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}) = (w_9 - w_{11}) \cdot (2\cdot w_{10} - \texttt{next}(w_9) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}))$
+    \item $(w_{14} + w_{10}) \cdot  (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}) = (w_{11} - w_{13}) \cdot (2\cdot w_{12} - \texttt{next}(w_{10}) \cdot (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}))$
+    \item $(\texttt{next}(w_{1}) + w_{14}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}) = (w_{13} - \texttt{next}(w_{0}) \cdot (2\cdot w_{14} - \texttt{next}(w_{11}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}))$ \\
+    
+    
+    \item $w_5 = 32 \cdot (w_4) + 16 \cdot \texttt{next}(w_{2}) + 8 \cdot \texttt{next}(w_{3}) + 4 \cdot \texttt{next}(w_{4}) + 2 \cdot \texttt{next}(w_{5}) + \texttt{next}(w_{6})$
+    \end{itemize}
+    
+    Copy constraints:
+    \begin{itemize}
+    \item $(x_T,y_T)$ in row $j$ are copy constrained with $(x_T,y_T)$ in row $j + 2$ 
+    \item $(x_0,y_0)$ in row $i$ are copy constrained with values from the first doubling circuit
+    \item $(x_0,y_0)$ in row $j, j \neq i$ are copy constrained with $(x_5,y_5)$ in row $j - 1$ 
+    \item $n = 0$ in row $i$ and $n$ in the row $j, j \neq i$ is copy contrained with $n'$ in the row $j-2$
+    \end{itemize}
 
 \subsection{Variable Base Endo-Scalar Multiplication}
 
