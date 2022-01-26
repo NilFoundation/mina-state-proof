@@ -45,6 +45,14 @@ library transcript_updated {
         self.current_challenge = sha256(bytes.concat(self.current_challenge, blob));
     }
 
+    function get_field_challenge(
+        transcript_data memory self,
+        uint256 modulus
+    ) internal pure returns(uint256) {
+        self.current_challenge = sha256(abi.encode(self.current_challenge));
+        return uint256(self.current_challenge) % modulus;
+    }
+
     function get_field_challenges(
         transcript_data memory self,
         uint256[] memory challenges,
