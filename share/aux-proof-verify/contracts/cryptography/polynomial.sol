@@ -27,7 +27,7 @@ import './types.sol';
  *
  * Expected to be inherited by `TurboPlonk.sol`
  */
-library PolynomialEval {
+library polynomial_eval {
     using bn254_crypto for types.g1_point;
     using bn254_crypto for types.g2_point;
 
@@ -82,31 +82,31 @@ library PolynomialEval {
         }
 
         accumulator = bn254_crypto.invert(accumulator);
-        assembly {
-            let intermediate := mulmod(accumulator, mload(add(mPtr, 0xe0)), p)
-            accumulator := mulmod(accumulator, mload(add(mPtr, 0x60)), p)
-            mstore(add(mPtr, 0x60), intermediate)
-
-            intermediate := mulmod(accumulator, mload(add(mPtr, 0xc0)), p)
-            accumulator := mulmod(accumulator, mload(add(mPtr, 0x40)), p)
-            mstore(add(mPtr, 0x40), intermediate)
-
-            intermediate := mulmod(accumulator, mload(add(mPtr, 0xa0)), p)
-            accumulator := mulmod(accumulator, mload(add(mPtr, 0x20)), p)
-            mstore(add(mPtr, 0x20), intermediate)
-
-            intermediate := mulmod(accumulator, mload(add(mPtr, 0x80)), p)
-            accumulator := mulmod(accumulator, mload(mPtr), p)
-            mstore(mPtr, intermediate)
-
-            public_input_delta := mulmod(public_input_delta_numerator, mload(mPtr), p)
-
-            zero_polynomial_eval := mulmod(vanishing_denominator, mload(add(mPtr, 0x20)), p)
-
-            l_start := mulmod(lagrange_numerator, mload(add(mPtr, 0x40)), p)
-
-            l_end := mulmod(lagrange_numerator, mload(add(mPtr, 0x60)), p)
-        }
+//        assembly {
+//            let intermediate := mulmod(accumulator, mload(add(mPtr, 0xe0)), p)
+//            accumulator := mulmod(accumulator, mload(add(mPtr, 0x60)), p)
+//            mstore(add(mPtr, 0x60), intermediate)
+//
+//            intermediate := mulmod(accumulator, mload(add(mPtr, 0xc0)), p)
+//            accumulator := mulmod(accumulator, mload(add(mPtr, 0x40)), p)
+//            mstore(add(mPtr, 0x40), intermediate)
+//
+//            intermediate := mulmod(accumulator, mload(add(mPtr, 0xa0)), p)
+//            accumulator := mulmod(accumulator, mload(add(mPtr, 0x20)), p)
+//            mstore(add(mPtr, 0x20), intermediate)
+//
+//            intermediate := mulmod(accumulator, mload(add(mPtr, 0x80)), p)
+//            accumulator := mulmod(accumulator, mload(mPtr), p)
+//            mstore(mPtr, intermediate)
+//
+//            public_input_delta := mulmod(public_input_delta_numerator, mload(mPtr), p)
+//
+//            zero_polynomial_eval := mulmod(vanishing_denominator, mload(add(mPtr, 0x20)), p)
+//
+//            l_start := mulmod(lagrange_numerator, mload(add(mPtr, 0x40)), p)
+//
+//            l_end := mulmod(lagrange_numerator, mload(add(mPtr, 0x60)), p)
+//        }
     }
 
     function compute_public_input_delta(
@@ -128,56 +128,56 @@ library PolynomialEval {
         // perform this computation in assembly to improve efficiency. We are sensitive to the cost of this loop as
         // it scales with the number of public inputs
         uint256 p = bn254_crypto.r_mod;
-        assembly {
-            public_inputs := add(calldataload(0x04), 0x24)
-
-        // get public inputs from calldata. N.B. If Contract ABI Changes this code will need to be updated!
-            endpoint := add(endpoint, public_inputs)
-        // Do some loop unrolling to reduce number of conditional jump operations
-            for {} lt(public_inputs, endpoint) {}
-            {
-                let N0 := add(mulmod(accumulating_root, 0x05, p), addmod(calldataload(public_inputs), gamma, p))
-                let D0 := add(mulmod(accumulating_root, 0x07, p), N0)
-
-                accumulating_root := mulmod(accumulating_root, work_root, p)
-
-                let N1 := add(mulmod(accumulating_root, 0x05, p), addmod(calldataload(add(public_inputs, 0x20)), gamma, p))
-                let D1 := add(mulmod(accumulating_root, 0x07, p), N1)
-
-                accumulating_root := mulmod(accumulating_root, work_root, p)
-
-                let N2 := add(mulmod(accumulating_root, 0x05, p), addmod(calldataload(add(public_inputs, 0x40)), gamma, p))
-                let D2 := add(mulmod(accumulating_root, 0x07, p), N2)
-
-                accumulating_root := mulmod(accumulating_root, work_root, p)
-
-                let N3 := add(mulmod(accumulating_root, 0x05, p), addmod(calldataload(add(public_inputs, 0x60)), gamma, p))
-
-                denominator_value := mulmod(mulmod(mulmod(mulmod(D2, D1, p), D0, p), denominator_value, p), add(N3, mulmod(accumulating_root, 0x07, p)), p)
-                numerator_value := mulmod(mulmod(mulmod(mulmod(N3, N2, p), N1, p), N0, p), numerator_value, p)
-
-                accumulating_root := mulmod(accumulating_root, work_root, p)
-
-                public_inputs := add(public_inputs, 0x80)
-            }
-
-            endpoint := add(endpoint, 0x60)
-            for {} lt(public_inputs, endpoint) {public_inputs := add(public_inputs, 0x20)}
-            {
-                let T0 := addmod(calldataload(public_inputs), gamma, p)
-                numerator_value := mulmod(
-                numerator_value,
-                add(mulmod(accumulating_root, 0x05, p), T0), // 0x05 = coset_generator0
-                p
-                )
-                denominator_value := mulmod(
-                denominator_value,
-                add(mulmod(accumulating_root, 0x0c, p), T0), // 0x0c = coset_generator7
-                p
-                )
-                accumulating_root := mulmod(accumulating_root, work_root, p)
-            }
-        }
+//        assembly {
+//            public_inputs := add(calldataload(0x04), 0x24)
+//
+//        // get public inputs from calldata. N.B. If Contract ABI Changes this code will need to be updated!
+//            endpoint := add(endpoint, public_inputs)
+//        // Do some loop unrolling to reduce number of conditional jump operations
+//            for {} lt(public_inputs, endpoint) {}
+//            {
+//                let N0 := add(mulmod(accumulating_root, 0x05, p), addmod(calldataload(public_inputs), gamma, p))
+//                let D0 := add(mulmod(accumulating_root, 0x07, p), N0)
+//
+//                accumulating_root := mulmod(accumulating_root, work_root, p)
+//
+//                let N1 := add(mulmod(accumulating_root, 0x05, p), addmod(calldataload(add(public_inputs, 0x20)), gamma, p))
+//                let D1 := add(mulmod(accumulating_root, 0x07, p), N1)
+//
+//                accumulating_root := mulmod(accumulating_root, work_root, p)
+//
+//                let N2 := add(mulmod(accumulating_root, 0x05, p), addmod(calldataload(add(public_inputs, 0x40)), gamma, p))
+//                let D2 := add(mulmod(accumulating_root, 0x07, p), N2)
+//
+//                accumulating_root := mulmod(accumulating_root, work_root, p)
+//
+//                let N3 := add(mulmod(accumulating_root, 0x05, p), addmod(calldataload(add(public_inputs, 0x60)), gamma, p))
+//
+//                denominator_value := mulmod(mulmod(mulmod(mulmod(D2, D1, p), D0, p), denominator_value, p), add(N3, mulmod(accumulating_root, 0x07, p)), p)
+//                numerator_value := mulmod(mulmod(mulmod(mulmod(N3, N2, p), N1, p), N0, p), numerator_value, p)
+//
+//                accumulating_root := mulmod(accumulating_root, work_root, p)
+//
+//                public_inputs := add(public_inputs, 0x80)
+//            }
+//
+//            endpoint := add(endpoint, 0x60)
+//            for {} lt(public_inputs, endpoint) {public_inputs := add(public_inputs, 0x20)}
+//            {
+//                let T0 := addmod(calldataload(public_inputs), gamma, p)
+//                numerator_value := mulmod(
+//                numerator_value,
+//                add(mulmod(accumulating_root, 0x05, p), T0), // 0x05 = coset_generator0
+//                p
+//                )
+//                denominator_value := mulmod(
+//                denominator_value,
+//                add(mulmod(accumulating_root, 0x0c, p), T0), // 0x0c = coset_generator7
+//                p
+//                )
+//                accumulating_root := mulmod(accumulating_root, work_root, p)
+//            }
+//        }
 
         return (numerator_value, denominator_value);
     }
@@ -516,20 +516,20 @@ library PolynomialEval {
             uint256 lend = lagrange_end;
             uint256 public_delta = public_input_delta;
             uint256 linearization_poly = proof.linearization_polynomial;
-            assembly {
-                let alpha_squared := mulmod(alpha, alpha, p)
-                let alpha_cubed := mulmod(alpha, alpha_squared, p)
-
-                let t0 := mulmod(lstart, alpha_cubed, p)
-                let t1 := mulmod(lend, alpha_squared, p)
-                let t2 := addmod(grand_product, sub(p, public_delta), p)
-                t1 := mulmod(t1, t2, p)
-
-                numerator_collector := addmod(numerator_collector, sub(p, t0), p)
-                numerator_collector := addmod(numerator_collector, t1, p)
-                numerator_collector := addmod(numerator_collector, linearization_poly, p)
-                alpha_base := mulmod(alpha_base, alpha_cubed, p)
-            }
+//            assembly {
+//                let alpha_squared := mulmod(alpha, alpha, p)
+//                let alpha_cubed := mulmod(alpha, alpha_squared, p)
+//
+//                let t0 := mulmod(lstart, alpha_cubed, p)
+//                let t1 := mulmod(lend, alpha_squared, p)
+//                let t2 := addmod(grand_product, sub(p, public_delta), p)
+//                t1 := mulmod(t1, t2, p)
+//
+//                numerator_collector := addmod(numerator_collector, sub(p, t0), p)
+//                numerator_collector := addmod(numerator_collector, t1, p)
+//                numerator_collector := addmod(numerator_collector, linearization_poly, p)
+//                alpha_base := mulmod(alpha_base, alpha_cubed, p)
+//            }
         }
 
         challenges.alpha_base = alpha_base;

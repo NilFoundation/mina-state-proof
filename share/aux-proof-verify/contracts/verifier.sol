@@ -29,7 +29,7 @@ import "./fri_verifier.sol";
  * @title Turbo Plonk proof verification contract
  * @dev Top level Plonk proof verification contract, which allows Plonk proof to be verified
  */
-abstract contract lpc_verifier is fri_verifier {
+contract verifier is fri {
     using bn254_crypto for types.g1_point;
     using bn254_crypto for types.g2_point;
     using transcript for transcript.transcript_data;
@@ -67,21 +67,21 @@ abstract contract lpc_verifier is fri_verifier {
         //reset 'alpha base'
         challenges.alpha_base = challenges.alpha;
 
-        types.g1_point memory linearised_contribution = PolynomialEval.compute_linearised_opening_terms(
+        types.g1_point memory linearised_contribution = polynomial_eval.compute_linearised_opening_terms(
             challenges,
             L1,
             vk,
             decoded_proof
         );
 
-        types.g1_point memory batch_opening_commitment = PolynomialEval.compute_batch_opening_commitment(
+        types.g1_point memory batch_opening_commitment = polynomial_eval.compute_batch_opening_commitment(
             challenges,
             vk,
             linearised_contribution,
             decoded_proof
         );
 
-        uint256 batch_evaluation_g1_scalar = PolynomialEval.compute_batch_evaluation_scalar_multiplier(
+        uint256 batch_evaluation_g1_scalar = polynomial_eval.compute_batch_evaluation_scalar_multiplier(
             decoded_proof,
             challenges
         );
@@ -127,7 +127,7 @@ abstract contract lpc_verifier is fri_verifier {
         uint256 l_start;
         uint256 l_end;
         {
-            (uint256 public_input_numerator, uint256 public_input_denominator) = PolynomialEval.compute_public_input_delta(
+            (uint256 public_input_numerator, uint256 public_input_denominator) = polynomial_eval.compute_public_input_delta(
                 challenges,
                 vk
             );
@@ -138,10 +138,10 @@ abstract contract lpc_verifier is fri_verifier {
             uint256 lagrange_numerator,
             uint256 l_start_denominator,
             uint256 l_end_denominator
-            ) = PolynomialEval.compute_lagrange_and_vanishing_fractions(vk, challenges.zeta);
+            ) = polynomial_eval.compute_lagrange_and_vanishing_fractions(vk, challenges.zeta);
 
 
-            (zero_polynomial_eval, public_input_delta, l_start, l_end) = PolynomialEval.compute_batch_inversions(
+            (zero_polynomial_eval, public_input_delta, l_start, l_end) = polynomial_eval.compute_batch_inversions(
                 public_input_numerator,
                 public_input_denominator,
                 vanishing_numerator,
@@ -152,7 +152,7 @@ abstract contract lpc_verifier is fri_verifier {
             );
         }
 
-        uint256 quotient_eval = PolynomialEval.compute_quotient_polynomial(
+        uint256 quotient_eval = polynomial_eval.compute_quotient_polynomial(
             zero_polynomial_eval,
             public_input_delta,
             challenges,
