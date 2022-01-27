@@ -35,21 +35,21 @@ library transcript_updated {
         transcript_data memory self,
         bytes memory init_blob
     ) internal pure {
-        self.current_challenge = sha256(init_blob);
+        self.current_challenge = keccak256(init_blob);
     }
 
     function update_transcript(
         transcript_data memory self,
         bytes memory blob
     ) internal pure {
-        self.current_challenge = sha256(bytes.concat(self.current_challenge, blob));
+        self.current_challenge = keccak256(bytes.concat(self.current_challenge, blob));
     }
 
     function get_field_challenge(
         transcript_data memory self,
         uint256 modulus
-    ) internal pure returns(uint256) {
-        self.current_challenge = sha256(abi.encode(self.current_challenge));
+    ) internal pure returns (uint256) {
+        self.current_challenge = keccak256(abi.encode(self.current_challenge));
         return uint256(self.current_challenge) % modulus;
     }
 
@@ -61,7 +61,7 @@ library transcript_updated {
         if (challenges.length > 0) {
             bytes32 new_challenge = self.current_challenge;
             for (uint256 i = 0; i < challenges.length; i++) {
-                new_challenge = sha256(abi.encode(new_challenge));
+                new_challenge = keccak256(abi.encode(new_challenge));
                 challenges[i] = uint256(new_challenge) % modulus;
             }
             self.current_challenge = new_challenge;
