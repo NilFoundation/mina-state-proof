@@ -197,7 +197,7 @@ Constraints:
 \subsection{Variable Base Endo-Scalar Multiplication}
 
 For $R  = [b]T$, where $b = [b_n ... b_0]$ and $b_i \in \{0, 1\}$:
-% \footnote{Using the results from \url{https://eprint.iacr.org/2019/1021.pdf}}
+ \footnote{Using the results from \url{https://eprint.iacr.org/2019/1021.pdf}}
 \begin{enumerate}
     \item $P = [2](\phi(T) + T)$
     \item for $i$ from $\frac{\lambda}{2} - 1$ to $0$:
@@ -206,7 +206,7 @@ For $R  = [b]T$, where $b = [b_n ... b_0]$ and $b_i \in \{0, 1\}$:
         \item $R - P = P + Q$
     \end{enumerate}
 \end{enumerate}
-The first step of the alforithm are verified by the doubling circuit. 
+The first step of the alforithm are verified by the doubling and unified addition circuit. 
 
 \begin{center}
     \begin{table}[H]
@@ -222,6 +222,7 @@ The first step of the alforithm are verified by the doubling circuit.
 
 Evaluations:
 \begin{itemize}
+	\item The first $x_P, y_P$ are equal to $2 \cdot ((x_T, y_T) + ((\texttt{endo}) \cdot x_T, y_T))$
 	\item $b_i$ are bits of the $k$, first $b_1$ is the most significant bit of $k$, $n$ is an accumulator of $b_i$.
 	\item $(x_R, y_R) - (x_P, y_P) = (x_P, y_P) + (1 + (\texttt{endo} - 1) \cdot b_2) x_T, (2b_1 - 1)y_T)$
 	\item $(\texttt{next}(x_P), \texttt{next}(y_P)) - (x_R, y_R) = (x_R, y_R) + ((\texttt{endo} - 1) \cdot b_2) x_T, (2b_1 - 1)y_T)$
