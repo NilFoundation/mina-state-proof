@@ -38,6 +38,7 @@ macro(cm_find_package NAME)
 endmacro()
 
 option(BUILD_TESTS "Build unit tests" TRUE)
+option(BUILD_SHARED_LIBS "Build shared library" TRUE)
 
 add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/libs")
 add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/libs/marshalling")
