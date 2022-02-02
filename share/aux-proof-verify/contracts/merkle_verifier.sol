@@ -34,7 +34,7 @@ contract merkle_verifier is basic_merkle_verifier {
 
       The input data is destroyed during verification.
     */
-    function verifyMerkle(
+    function verify_merkle(
         uint256 channelPtr,
         uint256 queuePtr,
         bytes32 root,

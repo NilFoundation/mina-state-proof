@@ -104,9 +104,9 @@ contract fri_statement_contract is fri_layer {
             mstore(add(dataToHash, 0x40), keccak256(friQueuePtr, mul(0x60, nQueries)))
         }
 
-        initFriGroups(friCtx);
+        init_fri_groups(friCtx);
 
-        nQueries = computeNextLayer(
+        nQueries = compute_next_layer(
             channelPtr,
             friQueuePtr,
             merkleQueuePtr,
@@ -116,7 +116,7 @@ contract fri_statement_contract is fri_layer {
             friCtx
         );
 
-        verifyMerkle(channelPtr, merkleQueuePtr, bytes32(expectedRoot), nQueries);
+        verify_merkle(channelPtr, merkleQueuePtr, bytes32(expectedRoot), nQueries);
 
 //        bytes32 factHash;
 //        assembly {

@@ -137,7 +137,7 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
 
         validateFriParams(friSteps, logTraceLength, logFriLastLayerDegBound);
 
-        uint256 friStepsPtr = getPtr(ctx, MM_FRI_STEPS_PTR);
+        uint256 friStepsPtr = ptr(ctx, MM_FRI_STEPS_PTR);
         assembly {
             mstore(friStepsPtr, friSteps)
         }
@@ -233,13 +233,13 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
 
       evalPoints generation:
           for each query index "idx" we compute the corresponding evaluation point:
-              g^(bitReverse(idx, log_evalDomainSize).
+              g^(bit_reverse(idx, log_evalDomainSize).
     */
     function adjustQueryIndicesAndPrepareEvalPoints(uint256[] memory ctx) internal view {
         uint256 nUniqueQueries = ctx[MM_N_UNIQUE_QUERIES];
-        uint256 friQueue = getPtr(ctx, MM_FRI_QUEUE);
+        uint256 friQueue = ptr(ctx, MM_FRI_QUEUE);
         uint256 friQueueEnd = friQueue + nUniqueQueries * 0x60;
-        uint256 evalPointsPtr = getPtr(ctx, MM_OODS_EVAL_POINTS);
+        uint256 evalPointsPtr = ptr(ctx, MM_OODS_EVAL_POINTS);
         uint256 log_evalDomainSize = ctx[MM_LOG_EVAL_DOMAIN_SIZE];
         uint256 evalDomainSize = ctx[MM_EVAL_DOMAIN_SIZE];
         uint256 evalDomainGenerator = ctx[MM_EVAL_DOMAIN_GENERATOR];
@@ -249,7 +249,7 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
           Returns the bit reversal of value assuming it has the given number of bits.
           numberOfBits must be <= 64.
         */
-            function bitReverse(value, numberOfBits) -> res {
+            function bit_reverse(value, numberOfBits) -> res {
             // Bit reverse value by swapping 1 bit chunks then 2 bit chunks and so forth.
             // Each swap is done by masking out and shifting one of the chunks by twice its size.
             // Finally, we use div to align the result to the right.
@@ -309,7 +309,7 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
             // Compute the evaluation point corresponding to the current queryIdx.
                 mstore(
                 evalPointsPtr,
-                expmod(evalDomainGenerator, bitReverse(queryIdx, log_evalDomainSize), PRIME)
+                expmod(evalDomainGenerator, bit_reverse(queryIdx, log_evalDomainSize), PRIME)
                 )
                 evalPointsPtr := add(evalPointsPtr, 0x20)
             }
@@ -344,10 +344,10 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
         require(nColumns <= getNColumnsInTrace() + getNColumnsInComposition(), "Too many columns.");
 
         uint256 nUniqueQueries = ctx[MM_N_UNIQUE_QUERIES];
-        uint256 channelPtr = getPtr(ctx, MM_CHANNEL);
-        uint256 friQueue = getPtr(ctx, MM_FRI_QUEUE);
+        uint256 channelPtr = ptr(ctx, MM_CHANNEL);
+        uint256 friQueue = ptr(ctx, MM_FRI_QUEUE);
         uint256 friQueueEnd = friQueue + nUniqueQueries * 0x60;
-        uint256 merkleQueuePtr = getPtr(ctx, MM_MERKLE_QUEUE);
+        uint256 merkleQueuePtr = ptr(ctx, MM_MERKLE_QUEUE);
         uint256 rowSize = 0x20 * nColumns;
         uint256 lhashMask = getHashMask();
         uint256 proofDataSkipBytes = 0x20 * (nTotalColumns - nColumns);
@@ -388,7 +388,7 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
             mstore(channelPtr, proofPtr)
         }
 
-        verifyMerkle(channelPtr, merkleQueuePtr, merkleRoot, nUniqueQueries);
+        verify_merkle(channelPtr, merkleQueuePtr, merkleRoot, nUniqueQueries);
     }
 
     /*
@@ -408,7 +408,7 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
             ctx,
             getNColumnsInTrace(),
             getNColumnsInTrace0(),
-            getPtr(ctx, MM_TRACE_QUERY_RESPONSES),
+            ptr(ctx, MM_TRACE_QUERY_RESPONSES),
             bytes32(ctx[MM_TRACE_COMMITMENT])
         );
         // emit LogGas("Read and decommit trace", gasleft());
@@ -418,7 +418,7 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
                 ctx,
                 getNColumnsInTrace(),
                 getNColumnsInTrace1(),
-                getPtr(ctx, MM_TRACE_QUERY_RESPONSES + getNColumnsInTrace0()),
+                ptr(ctx, MM_TRACE_QUERY_RESPONSES + getNColumnsInTrace0()),
                 bytes32(ctx[MM_TRACE_COMMITMENT + 1])
             );
             // emit LogGas("Read and decommit second trace", gasleft());
@@ -428,14 +428,14 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
             ctx,
             getNColumnsInComposition(),
             getNColumnsInComposition(),
-            getPtr(ctx, MM_COMPOSITION_QUERY_RESPONSES),
+            ptr(ctx, MM_COMPOSITION_QUERY_RESPONSES),
             bytes32(ctx[MM_OODS_COMMITMENT])
         );
 
         // emit LogGas("Read and decommit composition", gasleft());
 
         address oodsAddress = oodsContractAddress;
-        uint256 friQueue = getPtr(ctx, MM_FRI_QUEUE);
+        uint256 friQueue = ptr(ctx, MM_FRI_QUEUE);
         uint256 returnDataSize = MAX_N_QUERIES * 0x60;
         assembly {
         // Call the OODS contract.
@@ -517,9 +517,9 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
     ) internal view {
         // emit LogGas("Transmission", gasleft());
         uint256[] memory ctx = initVerifierParams(publicInput, proofParams);
-        uint256 channelPtr = getChannelPtr(ctx);
+        uint256 channelPtr = channel_ptr(ctx);
 
-        initChannel(channelPtr, getProofPtr(proof), getPublicInputHash(publicInput));
+        initChannel(channelPtr, proof_ptr(proof), getPublicInputHash(publicInput));
         // emit LogGas("Initializations", gasleft());
 
         // Read trace commitment.
@@ -530,7 +530,7 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
             verifier_channel.sendFieldElements(
                 channelPtr,
                 getNInteractionElements(),
-                getPtr(ctx, getMmInteractionElements())
+                ptr(ctx, getMmInteractionElements())
             );
 
             // Read second trace commitment.
@@ -540,14 +540,14 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
         verifier_channel.sendFieldElements(
             channelPtr,
             getNCoefficients(),
-            getPtr(ctx, getMmCoefficients())
+            ptr(ctx, getMmCoefficients())
         );
         // emit LogGas("Generate coefficients", gasleft());
 
         ctx[MM_OODS_COMMITMENT] = uint256(readHash(channelPtr, true));
 
         // Send Out of Domain Sampling point.
-        verifier_channel.sendFieldElements(channelPtr, 1, getPtr(ctx, MM_OODS_POINT));
+        verifier_channel.sendFieldElements(channelPtr, 1, ptr(ctx, MM_OODS_POINT));
 
         // Read the answers to the Out of Domain Sampling.
         uint256 lmmOodsValues = getMmOodsValues();
@@ -560,13 +560,13 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
         verifier_channel.sendFieldElements(
             channelPtr,
             getNOodsCoefficients(),
-            getPtr(ctx, getMmOodsCoefficients())
+            ptr(ctx, getMmOodsCoefficients())
         );
         // emit LogGas("Generate OODS coefficients", gasleft());
         ctx[MM_FRI_COMMITMENTS] = uint256(verifier_channel.readHash(channelPtr, true));
 
         uint256 nFriSteps = getFriSteps(ctx).length;
-        uint256 fri_evalPointPtr = getPtr(ctx, MM_FRI_EVAL_POINTS);
+        uint256 fri_evalPointPtr = ptr(ctx, MM_FRI_EVAL_POINTS);
         for (uint256 i = 1; i < nFriSteps - 1; i++) {
             verifier_channel.sendFieldElements(channelPtr, 1, fri_evalPointPtr + i * 0x20);
             ctx[MM_FRI_COMMITMENTS + i] = uint256(verifier_channel.readHash(channelPtr, true));
@@ -576,7 +576,7 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
         verifier_channel.sendFieldElements(
             channelPtr,
             1,
-            getPtr(ctx, MM_FRI_EVAL_POINTS + nFriSteps - 1)
+            ptr(ctx, MM_FRI_EVAL_POINTS + nFriSteps - 1)
         );
 
         // Read FRI last layer commitment.
@@ -589,13 +589,13 @@ abstract contract fri_verifier is memory_access_utils, fri, verifier_channel {
             channelPtr,
             ctx[MM_N_UNIQUE_QUERIES],
             ctx[MM_EVAL_DOMAIN_SIZE] - 1,
-            getPtr(ctx, MM_FRI_QUEUE),
+            ptr(ctx, MM_FRI_QUEUE),
             0x60
         );
         // emit LogGas("Send queries", gasleft());
 
         computeFirstFriLayer(ctx);
 
-        friVerifyLayers(ctx);
+        fri_verify_layers(ctx);
     }
 }

@@ -25,7 +25,7 @@ import "./horner_evaluator.sol";
   by evaluating the fully committed polynomial, and requires specific handling.
 */
 contract fri is memory_access_utils, horner_evaluator, fri_layer {
-    function verifyLastLayer(uint256[] memory ctx, uint256 nPoints) internal view {
+    function verify_last_layer(uint256[] memory ctx, uint256 nPoints) internal view {
         uint256 friLastLayerDegBound = ctx[MM_FRI_LAST_LAYER_DEG_BOUND];
         uint256 groupOrderMinusOne = friLastLayerDegBound * ctx[MM_BLOW_UP_FACTOR] - 1;
         uint256 coefsStart = ctx[MM_FRI_LAST_LAYER_PTR];
@@ -36,7 +36,7 @@ contract fri is memory_access_utils, horner_evaluator, fri_layer {
 
             point = fpow(point, groupOrderMinusOne);
             require(
-                hornerEval(coefsStart, point, friLastLayerDegBound) ==
+                horner_eval(coefsStart, point, friLastLayerDegBound) ==
                 ctx[MM_FRI_QUEUE + 3 * i + 1],
                 "Bad Last layer value."
             );
@@ -52,18 +52,18 @@ contract fri is memory_access_utils, horner_evaluator, fri_layer {
           ctx[mmFriQueue + 1::3] holds the input for the next layer.
           ctx[mmFriQueue + 2::3] holds the inverses of the evaluation points:
             ctx[mmFriQueue + 3*i + 2] = inverse(
-                fpow(layerGenerator,  bitReverse(ctx[mmFriQueue + 3*i], logLayerSize)).
+                fpow(layerGenerator,  bit_reverse(ctx[mmFriQueue + 3*i], logLayerSize)).
     */
-    function friVerifyLayers(uint256[] memory ctx) internal view virtual {
-        uint256 friCtx = getPtr(ctx, MM_FRI_CTX);
+    function fri_verify_layers(uint256[] memory ctx) internal view virtual {
+        uint256 friCtx = ptr(ctx, MM_FRI_CTX);
         require(
             MAX_SUPPORTED_MAX_FRI_STEP == FRI_MAX_FRI_STEP,
             "Incosistent MAX_FRI_STEP between MemoryMap.sol and FriLayer.sol"
         );
-        initFriGroups(friCtx);
+        init_fri_groups(friCtx);
         // emit LogGas("FRI offset precomputation", gasleft());
-        uint256 channelPtr = getChannelPtr(ctx);
-        uint256 merkleQueuePtr = getMerkleQueuePtr(ctx);
+        uint256 channelPtr = channel_ptr(ctx);
+        uint256 merkleQueuePtr = merkle_queue_ptr(ctx);
 
         uint256 friStep = 1;
         uint256 nLiveQueries = ctx[MM_N_UNIQUE_QUERIES];
@@ -81,14 +81,14 @@ contract fri is memory_access_utils, horner_evaluator, fri_layer {
             ctx[MM_FRI_QUEUE + 3 * i + 1] = fmul(ctx[MM_FRI_QUEUE + 3 * i + 1], K_MONTGOMERY_R);
         }
 
-        uint256 friQueue = getPtr(ctx, MM_FRI_QUEUE);
+        uint256 friQueue = ptr(ctx, MM_FRI_QUEUE);
 
         uint256[] memory friSteps = getFriSteps(ctx);
         uint256 nFriSteps = friSteps.length;
         while (friStep < nFriSteps) {
             uint256 friCosetSize = 2 ** friSteps[friStep];
 
-            nLiveQueries = computeNextLayer(
+            nLiveQueries = compute_next_layer(
                 channelPtr,
                 friQueue,
                 merkleQueuePtr,
@@ -104,7 +104,7 @@ contract fri is memory_access_utils, horner_evaluator, fri_layer {
             // Layer is done, verify the current layer and move to next layer.
             // ctx[mmMerkleQueue: merkleQueueIdx) holds the indices
             // and values of the merkle leaves that need verification.
-            verifyMerkle(
+            verify_merkle(
                 channelPtr,
                 merkleQueuePtr,
                 bytes32(ctx[MM_FRI_COMMITMENTS + friStep - 1]),
@@ -117,7 +117,7 @@ contract fri is memory_access_utils, horner_evaluator, fri_layer {
             friStep++;
         }
 
-        verifyLastLayer(ctx, nLiveQueries);
+        verify_last_layer(ctx, nLiveQueries);
         // emit LogGas("last FRI layer", gasleft());
     }
 }

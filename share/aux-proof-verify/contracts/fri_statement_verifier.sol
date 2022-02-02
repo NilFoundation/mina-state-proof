@@ -63,7 +63,7 @@ abstract contract fri_statement_verifier is memory_access_utils, horner_evaluato
             // Invert point using inverse(point) == fpow(point, ord(point) - 1).
 
             point = fpow(point, groupOrderMinusOne);
-            ctx[MM_FRI_QUEUE + 3 * curPointIndex + 1] = hornerEval(
+            ctx[MM_FRI_QUEUE + 3 * curPointIndex + 1] = horner_eval(
                 coefsStart,
                 point,
                 friLastLayerDegBound
@@ -72,7 +72,7 @@ abstract contract fri_statement_verifier is memory_access_utils, horner_evaluato
             curPointIndex++;
         }
 
-        uint256 friQueue = getPtr(ctx, MM_FRI_QUEUE);
+        uint256 friQueue = ptr(ctx, MM_FRI_QUEUE);
         assembly {
             lastLayerHash := keccak256(friQueue, mul(curPointIndex, 0x60))
         }
@@ -82,8 +82,8 @@ abstract contract fri_statement_verifier is memory_access_utils, horner_evaluato
       Verifies that FRI layers consistent with the computed first and last FRI layers
       have been registered in the FriStatementContract.
     */
-    function friVerifyLayers(uint256[] memory ctx) internal view virtual {
-        uint256 channelPtr = getChannelPtr(ctx);
+    function fri_verify_layers(uint256[] memory ctx) internal view virtual {
+        uint256 channelPtr = channel_ptr(ctx);
         uint256 nQueries = ctx[MM_N_UNIQUE_QUERIES];
 
         // Rather than converting all the values from Montgomery to standard form,
@@ -96,7 +96,7 @@ abstract contract fri_statement_verifier is memory_access_utils, horner_evaluato
             ctx[MM_FRI_QUEUE + 3 * i + 1] = fmul(ctx[MM_FRI_QUEUE + 3 * i + 1], K_MONTGOMERY_R);
         }
 
-        uint256 friQueue = getPtr(ctx, MM_FRI_QUEUE);
+        uint256 friQueue = ptr(ctx, MM_FRI_QUEUE);
         uint256 inputLayerHash;
         assembly {
             inputLayerHash := keccak256(friQueue, mul(nQueries, 0x60))

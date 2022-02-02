@@ -126,11 +126,10 @@ int main(int argc, char *argv[]) {
 
     auto assignments = bp.full_variable_assignment();
 
-    typedef zk::snark::redshift_preprocessor<typename curve_type::base_field_type, 15, 1> preprocess_type;
+    typedef zk::snark::redshift_preprocessor<typename curve_type::base_field_type, 15, 1> preprocessor_type;
+    typedef zk::snark::redshift_prover<typename curve_type::base_field_type, 15, 5, 1, 5> prover_type;
 
-    auto preprocessed_data = preprocess_type::process(cs, assignments);
-    typedef zk::snark::redshift_prover<typename curve_type::base_field_type, 15, 5, 1, 5> prove_type;
-    auto proof = prove_type::process(preprocessed_data, cs, assignments);
+    auto proof = prover_type::process(preprocessor_type::process(cs, assignments), cs, assignments);
 
 #ifndef __EMSCRIPTEN__
     if (vm.count("output")) {

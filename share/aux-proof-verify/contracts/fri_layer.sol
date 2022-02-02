@@ -50,7 +50,7 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
     uint256 internal constant FRI_CTX_SIZE =
     FRI_CTX_TO_FRI_HALF_INV_GROUP_OFFSET + (FRI_GROUP_SIZE / 2);
 
-    function nextLayerElementFromTwoPreviousLayerElements(
+    function next_layer_element_from_two_previous_layer_elements(
         uint256 fX,
         uint256 fMinusX,
         uint256 evalPoint,
@@ -97,9 +97,9 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
       -------------------------------------------- \ ---/ -------------
       FRI layer n+2:                                 f0
 
-      The basic FRI transformation is described in nextLayerElementFromTwoPreviousLayerElements().
+      The basic FRI transformation is described in next_layer_element_from_two_previous_layer_elements().
     */
-    function do2FriSteps(
+    function do2_fri_steps(
         uint256 friHalfInvGroupPtr,
         uint256 evaluationsOnCosetPtr,
         uint256 cosetOffset_,
@@ -171,9 +171,9 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
     /*
       Reads 8 elements, and applies 4 + 2 + 1 FRI transformation to obtain a single element.
 
-      See do2FriSteps for more detailed explanation.
+      See do2_fri_steps for more detailed explanation.
     */
-    function do3FriSteps(
+    function do3_fri_steps(
         uint256 friHalfInvGroupPtr,
         uint256 evaluationsOnCosetPtr,
         uint256 cosetOffset_,
@@ -329,9 +329,9 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
       This function reads 16 elements, and applies 8 + 4 + 2 + 1 fri transformation
       to obtain a single element.
 
-      See do2FriSteps for more detailed explanation.
+      See do2_fri_steps for more detailed explanation.
     */
-    function do4FriSteps(
+    function do4_fri_steps(
         uint256 friHalfInvGroupPtr,
         uint256 evaluationsOnCosetPtr,
         uint256 cosetOffset_,
@@ -656,7 +656,7 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
         cosetIdx - the start index of the coset that was gathered.
         cosetOffset_ - the xInv field element that corresponds to cosetIdx.
     */
-    function gatherCosetInputs(
+    function gather_coset_inputs(
         uint256 channelPtr,
         uint256 friCtx,
         uint256 friQueueHead_,
@@ -684,7 +684,7 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
         // Get the algebraic coset offset:
         // I.e. given c*g^(-k) compute c, where
         //      g is the generator of the coset group.
-        //      k is bitReverse(offsetWithinCoset, log2(cosetSize)).
+        //      k is bit_reverse(offsetWithinCoset, log2(cosetSize)).
         //
         // To do this we multiply the algebraic coset offset at the top of the queue (c*g^(-k))
         // by the group element that corresponds to the index inside the coset (g^k).
@@ -748,11 +748,7 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
       For example, if we have numberOfBits = 6 and num = (0b)1101 == (0b)001101,
       the function will return (0b)101100.
     */
-    function bitReverse(uint256 num, uint256 numberOfBits)
-    internal
-    pure
-    returns (uint256 numReversed)
-    {
+    function bit_reverse(uint256 num, uint256 numberOfBits) internal pure returns (uint256 numReversed) {
         assert((numberOfBits == 256) || (num < 2 ** numberOfBits));
         uint256 n = num;
         uint256 r = 0;
@@ -766,7 +762,7 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
     /*
       Initializes the FRI group and half inv group in the FRI context.
     */
-    function initFriGroups(uint256 friCtx) internal view {
+    function init_fri_groups(uint256 friCtx) internal view {
         uint256 friGroupPtr = friCtx + FRI_CTX_TO_FRI_GROUP_OFFSET;
         uint256 friHalfInvGroupPtr = friCtx + FRI_CTX_TO_FRI_HALF_INV_GROUP_OFFSET;
 
@@ -794,7 +790,7 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
         for (uint256 i = 1; i < halfCosetSize; i++) {
             lastVal = fmul(lastVal, genFriGroup);
             lastValInv = fmul(lastValInv, genFriGroupInv);
-            uint256 idx = bitReverse(i, FRI_MAX_FRI_STEP - 1);
+            uint256 idx = bit_reverse(i, FRI_MAX_FRI_STEP - 1);
 
             assembly {
             // ctx[mmHalfFriInvGroup + idx] = lastValInv;
@@ -818,7 +814,7 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
       The input is read either from the queue or from the proof depending on data availability.
       Since the function reads from the queue it returns an updated head pointer.
     */
-    function doFriSteps(
+    function do_fri_steps(
         uint256 friCtx,
         uint256 friQueueTail,
         uint256 cosetOffset_,
@@ -834,21 +830,21 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
 
         // Compare to expected FRI step sizes in order of likelihood, step size 3 being most common.
         if (friCosetSize == 8) {
-            (friValue, cosetOffset_) = do3FriSteps(
+            (friValue, cosetOffset_) = do3_fri_steps(
                 friHalfInvGroupPtr,
                 evaluationsOnCosetPtr,
                 cosetOffset_,
                 friEvalPoint
             );
         } else if (friCosetSize == 4) {
-            (friValue, cosetOffset_) = do2FriSteps(
+            (friValue, cosetOffset_) = do2_fri_steps(
                 friHalfInvGroupPtr,
                 evaluationsOnCosetPtr,
                 cosetOffset_,
                 friEvalPoint
             );
         } else if (friCosetSize == 16) {
-            (friValue, cosetOffset_) = do4FriSteps(
+            (friValue, cosetOffset_) = do4_fri_steps(
                 friHalfInvGroupPtr,
                 evaluationsOnCosetPtr,
                 cosetOffset_,
@@ -887,7 +883,7 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
       As the function computes the next layer it also collects that data from
       the previous layer for Merkle verification.
     */
-    function computeNextLayer(
+    function compute_next_layer(
         uint256 channelPtr,
         uint256 friQueuePtr,
         uint256 merkleQueuePtr,
@@ -904,14 +900,14 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
         do {
             uint256 cosetOffset;
             uint256 index;
-            (friQueueHead, index, cosetOffset) = gatherCosetInputs(
+            (friQueueHead, index, cosetOffset) = gather_coset_inputs(
                 channelPtr,
                 friCtx,
                 friQueueHead,
                 friCosetSize
             );
 
-            doFriSteps(
+            do_fri_steps(
                 friCtx,
                 friQueueTail,
                 cosetOffset,

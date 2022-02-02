@@ -28,7 +28,7 @@ abstract contract merkle_statement_verifier is basic_merkle_verifier {
     // Computes the hash of the Merkle statement, and verifies that it is registered in the
     // Merkle Fact Registry. Receives as input the queuePtr (as address), its length
     // the numbers of queries n, and the root. The channelPtr is is ignored.
-    function verifyMerkle(
+    function verify_merkle(
         uint256, /*channelPtr*/
         uint256 queuePtr,
         bytes32 root,

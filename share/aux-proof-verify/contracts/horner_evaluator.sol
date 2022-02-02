@@ -27,7 +27,7 @@ contract horner_evaluator is prime_field_element0 {
       a direct pointer.
       The function requires that n is divisible by 8.
     */
-    function hornerEval(
+    function horner_eval(
         uint256 coefsStart,
         uint256 point,
         uint256 nCoefs

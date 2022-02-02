@@ -26,7 +26,7 @@ contract merkle_statement_contract is merkle_verifier {
       which is the hash of the queue together with the resulting root.
     */
     // NOLINTNEXTLINE: external-function.
-    function verifyMerkle(
+    function verify_merkle(
         uint256[] memory merkleView,
         uint256[] memory initialMerkleQueue,
         uint256 height,
@@ -101,7 +101,7 @@ contract merkle_statement_contract is merkle_verifier {
             mstore(0x40, add(dataToHashPtr, 0x20))
         }
         require(badInput == 0, "INVALID_MERKLE_INDICES");
-        bytes32 resRoot = verifyMerkle(channelPtr, merkleQueuePtr, bytes32(expectedRoot), nQueries);
+        bytes32 resRoot = verify_merkle(channelPtr, merkleQueuePtr, bytes32(expectedRoot), nQueries);
         //        bytes32 factHash;
         //        assembly {
         //        // Append the resulted root (should be the return value of verify) to dataToHashPtr.
