@@ -117,7 +117,7 @@ For $R  = [r]T$, where $r = 2^n + k$ and $k = [k_n ... k_0]$, $k_i \in \{0, 1\}$
         \item $Q = k_{i + 1} \: ? \: T : -T$
         \item $R = P + Q + P$
     \end{enumerate}
-    \item $S = k_0 \: ? \: S - T : S$
+    \item $R = k_0 \: ? \: R - T : R$
 \end{enumerate}
 
 The first and last steps of the alforithm are verified by the unified addition and doubling circuit. 
@@ -126,7 +126,7 @@ The first and last steps of the alforithm are verified by the unified addition a
     \begin{table}[H]
         \begin{tabular}{llllllllllllllll}
             Row     & 0        & 1        & 2        & 3        & 4        & 5        & 6        & 7        & 8        & 9        & 10       & 11       & 12       & 13       & 14       \\
-            $i$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
+            $i$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n = 0$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
             $i + 1$   & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $--$ & $--$ & $--$ \\
             $\vdots$  & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
             $i + 100$ & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
@@ -196,43 +196,61 @@ Constraints:
 
 \subsection{Variable Base Endo-Scalar Multiplication}
 
-For $S  = [r]T$, where $r = [r_n ... r_0]$ and $r_i \in \{0, 1\}$:
-\footnote{Using the results from \url{https://eprint.iacr.org/2019/1021.pdf}}
+For $R  = [b]T$, where $b = [b_n ... b_0]$ and $b_i \in \{0, 1\}$:
+ \footnote{Using the results from \url{https://eprint.iacr.org/2019/1021.pdf}}
 \begin{enumerate}
-    \item $S = [2](\phi(T) + T)$
+    \item $P = [2](\phi(T) + T)$
     \item for $i$ from $\frac{\lambda}{2} - 1$ to $0$:
     \begin{enumerate}
         \item $Q = r_{2i + 1} \: ? \: \phi([2r_{2i} - 1]T) : [2r_{2i} - 1]T$
-        \item $R = S + Q$
-        \item $S = R + S$
+        \item $R - P = P + Q$
     \end{enumerate}
 \end{enumerate}
+The first step of the alforithm are verified by the doubling and unified addition circuit. 
 
 \begin{center}
     \begin{table}[H]
         \begin{tabular}{llllllllllllllll}
             Row    & 0        & 1        & 2        & 3        & 4        & 5        & 6        & 7        & 8        & 9        & 10       & 11       & 12       & 13       & 14       \\
-            $i$   & $x_T$    & $y_T$    & $x_S$    & $y_S$    & $x_P$    & $y_P$    & $n$      & $x_R$    & $y_R$    & $s_1$    & $s_3$    & $b_1$    & $b_2$ & $b_3$ & $b_4$ \\
+            $i$   & $x_T$    & $y_T$    & $--$    & $--$    & $x_P$    & $y_P$    & $n = 0$      & $x_R$    & $y_R$    & $s_1$    & $s_3$    & $b_1$    & $b_2$ & $b_3$ & $b_4$ \\
             $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
-            $i + 63$ &  $x_T$    & $y_T$    & $x_S$    & $y_S$    & $x_P$    & $y_P$    & $n$      & $x_R$    & $y_R$    & $s_1$    & $s_3$    & $b_1$    & $b_2$ & $b_3$ & $b_4$ \\
+            $i + 63$ &  $x_T$    & $y_T$    & $--$    & $--$    & $x_P$    & $y_P$    & $n$      & $x_R$    & $y_R$    & $s_1$    & $s_3$    & $b_1$    & $b_2$ & $b_3$ & $b_4$ \\
+            $i + 64$ &  $--$    & $--$    & $--$    & $--$    & $x_P$    & $y_P$    & $n$      & $--$    & $--$    & $--$    & $--$    & $--$    & $--$ & $--$ & $--$ \\
         \end{tabular}
     \end{table}
 \end{center}
 
+Evaluations:
+\begin{itemize}
+	\item The first $x_P, y_P$ are equal to $2 \cdot ((x_T, y_T) + ((\texttt{endo}) \cdot x_T, y_T))$
+	\item $b_i$ are bits of the $k$, first $b_1$ is the most significant bit of $k$, $n$ is an accumulator of $b_i$.
+	\item $(x_R, y_R) - (x_P, y_P) = (x_P, y_P) + (1 + (\texttt{endo} - 1) \cdot b_2) x_T, (2b_1 - 1)y_T)$
+	\item $(\texttt{next}(x_P), \texttt{next}(y_P)) - (x_R, y_R) = (x_R, y_R) + ((\texttt{endo} - 1) \cdot b_2) x_T, (2b_1 - 1)y_T)$
+	\item $s_1 = \frac{(2b_1 - 1) \cdot y_T - y_P}{(1 + (\texttt{endo} - 1) \cdot b_2) x_T - x_P}$
+	\item $s_3 = \frac{(2b_1 - 1) \cdot y_T - y_R}{(1 + (\texttt{endo} - 1) \cdot b_2) x_T - x_R}$
+
+\end{itemize}
+
 Constraints:
 \begin{itemize}
-    \item $b_1 \cdot (b_1 - 1) = 0$
-    \item $b_2 \cdot (b_2 - 1) = 0$
-    \item $b_3 \cdot (b_3 - 1) = 0$
-    \item $b_4 \cdot (b_4 - 1) = 0$
-    \item $((1 + (\texttt{endo} - 1) \cdot b_2) \cdot x_T - x_P) \cdot s_1 = (2 \cdot b_1 - 1) \cdot y_T - y_P$
-    \item $(2 \cdot x_P - s_1^2 + (1 + (\texttt{endo} - 1) \cdot b_2) \cdot x_T) \cdot ((x_P - x_R) \cdot s_1 + y_R + y_P) = (x_P - x_R) \cdot 2 \cdot y_P$
-    \item $(y_R + yP)^2 = (xP - x_R)^2 \cdot (s_1^2 - (1 + (\texttt{endo} - 1) \cdot b_2) \cdot x_T + x_R)$
-    \item $((1 + (\texttt{endo} - 1) \cdot b_2) \cdot x_T - x_R) \cdot s_3 = (2 \cdot b_3-1) \cdot y_T - y_R$
-    \item $(2 \cdot x_R - s_3^2 + (1 + (\texttt{endo} - 1) \cdot b_4) \cdot x_T) \cdot ((x_R - x_S) \cdot s_3 + y_S + y_R) = (x_R - x_S) \cdot 2 \cdot y_R$
-    \item $(y_S + y_R)^2 = (x_R - x_S)^2 \cdot (s_3^2 - (1 + (\texttt{endo} - 1) \cdot b_4) \cdot x_T + x_S)$
-    \item $n = 16 \cdot \texttt{next}(n) + 8 \cdot b_1 + 4 \cdot b_2 + 2 \cdot b_3 + b_4$
+    \item $w_{11} \cdot (w_{11} - 1) = 0$
+    \item $w_{12} \cdot (w_{12} - 1) = 0$
+    \item $w_{13} \cdot (w_{13} - 1) = 0$
+    \item $w_{14} \cdot (w_{14} - 1) = 0$
+    \item $((1 + (\texttt{endo} - 1) \cdot w_{12}) \cdot w_{0} - w_{4}) \cdot w_{9} = (2 \cdot w_{11} - 1) \cdot w_{1} - w_{5}$
+    \item $(2 \cdot w_{4} - w_{9}^2 + (1 + (\texttt{endo} - 1) \cdot w_{12}) \cdot w_{0}) \cdot ((w_{4} - w_{7}) \cdot w_{9} + w_{8} + w_{5}) = (w_{4} - w_{7}) \cdot 2 \cdot w_{5}$
+    \item $(w_{8} + w_{5})^2 = (w_{4} - w_{7})^2 \cdot (w_{9}^2 - (1 + (\texttt{endo} - 1) \cdot w_{12}) \cdot w_{0} + w_{7})$
+    \item $((1 + (\texttt{endo} - 1) \cdot w_{12}) \cdot w_{0} - w_{7}) \cdot w_{10} = (2 \cdot w_{13}-1) \cdot w_{1} - w_{8}$
+    \item $(2 \cdot w_{7} - w_{10}^2 + (1 + (\texttt{endo} - 1) \cdot w_{14} \cdot w_{0}) \cdot ((w_{7} - \texttt{next}(w_{4})) \cdot w_{10} + \texttt{next}(w_{5}) + w_{8}) = (w_{7} - \texttt{next}(w_{4})) \cdot 2 \cdot w_{8}$
+    \item $(\texttt{next}(w_{4}) + w_{8})^2 = (w_{7} - \texttt{next}(w_{4}))^2 \cdot (w_{10}^2 - (1 + (\texttt{endo} - 1) \cdot w_{14}) \cdot w_{0} + \texttt{next}(w_{4}))$
+    \item $\texttt{next}(w_{6}) = 16 \cdot w_{6} + 8 \cdot w_{11} + 4 \cdot w_{12} + 2 \cdot w_{13} + w_{14}$
 \end{itemize}
+
+    Copy constraints:
+    \begin{itemize}
+    \item $(x_T,y_T)$ in row $j$ are copy constrained with $(x_T,y_T)$ in row $j + 1$ 
+    \item $(x_P,y_P)$ in row $i$ are copy constrained with values from the first doubling circuit
+    \end{itemize}
 
 \subsection{Fixed-base scalar multiplication circuit}
 We precompute all values $w(B,s,k) = (k_i + 2) \cdot 8^s B$, where $k_i \in \{ 0,..7 \}$, $s \in \{0,.., 83\}$ and  $w(B,s,k) = (k_i \cdot 8^s - \sum_{j = 0}^{84} 8^{j + 1}) \cdot B$, where $k_i \in \{ 0,..7 \}$, $s = 84$.

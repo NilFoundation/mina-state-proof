@@ -34,3 +34,47 @@ Constraints for $i + z$, where $z\mod 2 = 1$:
     \item $(w_0 + w_1 \cdot w_5) \cdot w_9 = w_7$
     \item $(w_2 + w_3 \cdot w_5) \cdot w_6 = w_8$
 \end{itemize}
+
+\subsection{Endo-Scalar Computation}
+Let $\alpha$ be equals to $\phi(b)$, where $b \in {0,1}^{\lambda}$.
+\begin{center}
+    \begin{table}[H]
+        \begin{tabular}{llllllllllllllll}
+            Row    & 0        & 1        & 2        & 3        & 4        & 5        & 6        & 7        & 8        & 9        & 10       & 11       & 12       & 13       & 14       \\
+            $i$   & $n_0$    & $n_8$    & $a_0$    & $b_0$    & $a_8$    & $b_8$    & $x_0$      & $x_1$    & $x_2$    & $x_3$    & $x_4$    & $x_5$    & $x_6$ & $x_7$ & $--$ \\
+            $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+            $i + 15$   & $n_0$    & $n_8$    & $a_0$    & $b_0$    & $a_8$    & $b_8$    & $x_0$      & $x_1$    & $x_2$    & $x_3$    & $x_4$    & $x_5$    & $x_6$ & $x_7$ & $--$ \\
+        \end{tabular}
+    \end{table}
+\end{center}
+
+Evaluations:
+\begin{itemize}
+	\item In the first row $n_0 = 0$, $a_0 = 2$, $b_0 = 2$.
+	\item $x_i$ are 2-bits chunks of the $b$, first $x_0$ is the most significant bit of $b$, $n$ is an accumulator of $x_i$.
+	\item The values $(a_8, b_8) $ are $8$ iterations of the following computations:
+	\begin{center}
+	$(a_i, b_i) = (2\cdot a_{i - 1} + c_f(x_{i - 1}), 2\cdot b_{i - 1} + d_f(x_{i - 1}))$, where $c_f(x) = 2/3\cdot x^3 - 5/2\cdot x^2 + 11/6 \cdot x$ and $d_f(x) = 2/3 \cdot x^3 - 7/2 \cdot x^2 + 29/6 \cdot x - 1$.
+	\end{center}
+
+\end{itemize}
+
+Constraints:
+\begin{itemize}
+    \item $w_{7} \cdot (w_{7} - 1) \cdot (w_{7} - 2)\cdot (w_{7} - 3)  = 0$
+    \item $w_{8} \cdot (w_{8} - 1) \cdot (w_{8} - 2)\cdot (w_{8} - 3)  = 0$
+    \item $w_{9} \cdot (w_{9} - 1) \cdot (w_{9} - 2)\cdot (w_{9} - 3)  = 0$
+    \item $w_{10} \cdot (w_{10} - 1) \cdot (w_{10} - 2)\cdot (w_{10} - 3)  = 0$
+    \item $w_{11} \cdot (w_{11} - 1) \cdot (w_{11} - 2)\cdot (w_{11} - 3)  = 0$
+    \item $w_{12} \cdot (w_{12} - 1) \cdot (w_{12} - 2)\cdot (w_{12} - 3)  = 0$
+    \item $w_{13} \cdot (w_{13} - 1) \cdot (w_{13} - 2)\cdot (w_{13} - 3)  = 0$
+    \item $w_{14} \cdot (w_{14} - 1) \cdot (w_{14} - 2)\cdot (w_{14} - 3)  = 0$
+    \item $w_{4} = 256 \cdot w_{2} + 128 \cdot c_f(w_6) + 64 \cdot c_f(w_7) + 32 \cdot c_f(w_8) + 16 \cdot c_f(w_9) + 8 \cdot c_f(w_{10}) + 4 \cdot c_f(w_{11}) + 2 \cdot c_f(w_{12}) + c_f(w_{13})$
+    \item $w_{5} = 256 \cdot w_{3} + 128 \cdot d_f(w_6) + 64 \cdot d_f(w_7) + 32 \cdot d_f(w_8) + 16 \cdot d_f(w_9) + 8 \cdot d_f(w_{10}) + 4 \cdot d_f(w_{11}) + 2 \cdot d_f(w_{12}) + d_f(w_{13})$
+    \item $w_{1} = 256 \cdot w_{0} + 128 \cdot w_6 + 64 \cdot w_7 + 32 \cdot w_8 + 16 \cdot w_9 + 8 \cdot w_{10} + 4 \cdot w_{11} + 2 \cdot w_{12} + w_{13}$
+\end{itemize}
+
+    Copy constraints:
+    \begin{itemize}
+    \item $n_0, a_0, b_0$ in row $j + 1$ are copy constrained with $(n_8, a_8, b_8)$ in row $j$ 
+    \end{itemize}
