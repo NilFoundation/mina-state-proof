@@ -6,19 +6,8 @@ include(CMSetupVersion)
 
 cm_project(aux-proof-gen WORKSPACE_NAME ${CMAKE_WORKSPACE_NAME} LANGUAGES ASM C CXX)
 
-if(NOT Boost_FOUND AND NOT CMAKE_CROSSCOMPILING)
-    cm_find_package(Boost COMPONENTS REQUIRED filesystem log log_setup program_options thread system)
-elseif(CMAKE_CROSSCOMPILING)
-    include(ExternalProject)
-    set(Boost_LIBRARIES boost_random)
-    externalproject_add(boost
-                        PREFIX ${CMAKE_BINARY_DIR}/libs/boost
-                        GIT_REPOSITORY git@github.com:boostorg/boost.git
-                        GIT_TAG boost-1.77.0
-                        BUILD_IN_SOURCE TRUE
-                        CMAKE_ARGS -DCMAKE_CROSSCOMPILING_EMULATOR=${CMAKE_CROSSCOMPILING_EMULATOR} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-                        BUILD_COMMAND cmake --build . --target ${Boost_LIBRARIES}
-                        INSTALL_COMMAND "")
+if(NOT CMAKE_CROSSCOMPILING)
+    cm_find_package(Boost REQUIRED COMPONENTS filesystem log log_setup program_options thread system)
 endif()
 
 cm_setup_version(VERSION 0.1.0)
