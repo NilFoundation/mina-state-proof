@@ -42,13 +42,13 @@ contract verifier is fri {
         types.proof memory decoded_proof = deserialize_proof(num_public_inputs, vk);
 
         transcript.transcript_data memory transcript;
-        transcript.generate_initial_challenge(vk.circuit_size, vk.num_inputs);
+        transcript.init_transcript(vk.circuit_size, vk.num_inputs);
 
         // reconstruct the beta, gamma, alpha and zeta challenges
         types.challenge_transcript memory challenges;
-        transcript.generate_beta_gamma_challenges(challenges, vk.num_inputs);
-        transcript.generate_alpha_challenge(challenges, decoded_proof.Z);
-        transcript.generate_zeta_challenge(challenges, decoded_proof.T1, decoded_proof.T2, decoded_proof.T3, decoded_proof.T4);
+        transcript.get_field_challenges(challenges, vk.num_inputs);
+        transcript.get_field_challenges(challenges, decoded_proof.Z);
+        transcript.get_field_challenges(challenges, decoded_proof.T1, decoded_proof.T2, decoded_proof.T3, decoded_proof.T4);
 
         /**
          * Compute all inverses that will be needed throughout the program here.
@@ -61,8 +61,8 @@ contract verifier is fri {
         decoded_proof.quotient_polynomial_eval = quotient_eval;
 
         // reconstruct the nu and u challenges
-        transcript.generate_nu_challenges(challenges, decoded_proof.quotient_polynomial_eval, vk.num_inputs);
-        transcript.generate_separator_challenge(challenges, decoded_proof.PI_Z, decoded_proof.PI_Z_OMEGA);
+        transcript.get_field_challenges(challenges, decoded_proof.quotient_polynomial_eval, vk.num_inputs);
+        transcript.get_field_challenges(challenges, decoded_proof.PI_Z, decoded_proof.PI_Z_OMEGA);
 
         //reset 'alpha base'
         challenges.alpha_base = challenges.alpha;
