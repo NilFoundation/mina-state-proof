@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity >=0.6.11;
+pragma solidity >=0.6.0;
 
 import "./basic_merkle_verifier.sol";
 

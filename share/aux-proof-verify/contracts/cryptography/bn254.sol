@@ -29,11 +29,7 @@ library bn254_crypto {
 
     // Perform a modular exponentiation. This method is ideal for small exponents (~64 bits or less), as
     // it is cheaper than using the pow precompile
-    function pow_small(
-        uint256 base,
-        uint256 exponent,
-        uint256 modulus
-    ) internal pure returns (uint256) {
+    function pow_small(uint256 base, uint256 exponent, uint256 modulus) internal pure returns (uint256) {
         uint256 result = 1;
         uint256 input = base;
         uint256 count = 1;
@@ -52,8 +48,7 @@ library bn254_crypto {
         return result;
     }
 
-    function invert(uint256 fr) internal view returns (uint256)
-    {
+    function invert(uint256 fr) internal view returns (uint256) {
         uint256 output;
         bool success;
         uint256 p = r_mod;
@@ -72,11 +67,7 @@ library bn254_crypto {
         return output;
     }
 
-    function new_g1(uint256 x, uint256 y)
-    internal
-    pure
-    returns (types.g1_point memory)
-    {
+    function new_g1(uint256 x, uint256 y) internal pure returns (types.g1_point memory) {
         uint256 xValue;
         uint256 yValue;
         assembly {
@@ -86,11 +77,7 @@ library bn254_crypto {
         return types.g1_point(xValue, yValue);
     }
 
-    function new_g2(uint256 x0, uint256 x1, uint256 y0, uint256 y1)
-    internal
-    pure
-    returns (types.g2_point memory)
-    {
+    function new_g2(uint256 x0, uint256 x1, uint256 y0, uint256 y1) internal pure returns (types.g2_point memory) {
         return types.g2_point(x0, x1, y0, y1);
     }
 

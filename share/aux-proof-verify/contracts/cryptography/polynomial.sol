@@ -27,7 +27,7 @@ import './types.sol';
  *
  * Expected to be inherited by `TurboPlonk.sol`
  */
-library polynomial_eval {
+library polynomial {
     using bn254_crypto for types.g1_point;
     using bn254_crypto for types.g2_point;
 
@@ -45,16 +45,12 @@ library polynomial_eval {
         uint256 lagrange_numerator,
         uint256 l_start_denominator,
         uint256 l_end_denominator
-    )
-    internal
-    view
-    returns (
+    ) internal view returns (
         uint256 zero_polynomial_eval,
         uint256 public_input_delta,
         uint256 l_start,
-        uint256 l_end
-    )
-    {
+        uint256 l_end) {
+
         uint256 mPtr;
         uint256 p = bn254_crypto.r_mod;
         uint256 accumulator = 1;
@@ -516,20 +512,20 @@ library polynomial_eval {
             uint256 lend = lagrange_end;
             uint256 public_delta = public_input_delta;
             uint256 linearization_poly = proof.linearization_polynomial;
-//            assembly {
-//                let alpha_squared := mulmod(alpha, alpha, p)
-//                let alpha_cubed := mulmod(alpha, alpha_squared, p)
-//
-//                let t0 := mulmod(lstart, alpha_cubed, p)
-//                let t1 := mulmod(lend, alpha_squared, p)
-//                let t2 := addmod(grand_product, sub(p, public_delta), p)
-//                t1 := mulmod(t1, t2, p)
-//
-//                numerator_collector := addmod(numerator_collector, sub(p, t0), p)
-//                numerator_collector := addmod(numerator_collector, t1, p)
-//                numerator_collector := addmod(numerator_collector, linearization_poly, p)
-//                alpha_base := mulmod(alpha_base, alpha_cubed, p)
-//            }
+            assembly {
+                let alpha_squared := mulmod(alpha, alpha, p)
+                let alpha_cubed := mulmod(alpha, alpha_squared, p)
+
+                let t0 := mulmod(lstart, alpha_cubed, p)
+                let t1 := mulmod(lend, alpha_squared, p)
+                let t2 := addmod(grand_product, sub(p, public_delta), p)
+                t1 := mulmod(t1, t2, p)
+
+                numerator_collector := addmod(numerator_collector, sub(p, t0), p)
+                numerator_collector := addmod(numerator_collector, t1, p)
+                numerator_collector := addmod(numerator_collector, linearization_poly, p)
+                alpha_base := mulmod(alpha_base, alpha_cubed, p)
+            }
         }
 
         challenges.alpha_base = alpha_base;

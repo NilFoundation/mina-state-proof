@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity >=0.6.11;
+pragma solidity >=0.6.0;
 
 import "./prime_field_element0.sol";
 
@@ -27,7 +27,7 @@ contract horner_evaluator is prime_field_element0 {
       a direct pointer.
       The function requires that n is divisible by 8.
     */
-    function horner_eval(
+    function hornerEval(
         uint256 coefsStart,
         uint256 point,
         uint256 nCoefs

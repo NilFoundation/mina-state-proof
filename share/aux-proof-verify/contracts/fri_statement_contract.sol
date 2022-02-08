@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity >=0.6.11;
+pragma solidity >=0.6.0;
 
 import "./fri_layer.sol";
 
@@ -104,9 +104,9 @@ contract fri_statement_contract is fri_layer {
             mstore(add(dataToHash, 0x40), keccak256(friQueuePtr, mul(0x60, nQueries)))
         }
 
-        init_fri_groups(friCtx);
+        initFriGroups(friCtx);
 
-        nQueries = compute_next_layer(
+        nQueries = computeNextLayer(
             channelPtr,
             friQueuePtr,
             merkleQueuePtr,

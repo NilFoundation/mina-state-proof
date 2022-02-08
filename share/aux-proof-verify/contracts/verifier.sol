@@ -42,13 +42,13 @@ contract verifier is fri {
         types.proof memory decoded_proof = deserialize_proof(num_public_inputs, vk);
 
         transcript.transcript_data memory transcript;
-        transcript.init_transcript(vk.circuit_size, vk.num_inputs);
+        transcript.generate_initial_challenge(vk.circuit_size, vk.num_inputs);
 
         // reconstruct the beta, gamma, alpha and zeta challenges
         types.challenge_transcript memory challenges;
-        transcript.get_field_challenges(challenges, vk.num_inputs);
-        transcript.get_field_challenges(challenges, decoded_proof.Z);
-        transcript.get_field_challenges(challenges, decoded_proof.T1, decoded_proof.T2, decoded_proof.T3, decoded_proof.T4);
+        transcript.generate_beta_gamma_challenges(challenges, vk.num_inputs);
+        transcript.generate_alpha_challenge(challenges, decoded_proof.Z);
+        transcript.generate_zeta_challenge(challenges, decoded_proof.T1, decoded_proof.T2, decoded_proof.T3, decoded_proof.T4);
 
         /**
          * Compute all inverses that will be needed throughout the program here.
@@ -61,27 +61,27 @@ contract verifier is fri {
         decoded_proof.quotient_polynomial_eval = quotient_eval;
 
         // reconstruct the nu and u challenges
-        transcript.get_field_challenges(challenges, decoded_proof.quotient_polynomial_eval, vk.num_inputs);
-        transcript.get_field_challenges(challenges, decoded_proof.PI_Z, decoded_proof.PI_Z_OMEGA);
+        transcript.generate_nu_challenges(challenges, decoded_proof.quotient_polynomial_eval, vk.num_inputs);
+        transcript.generate_separator_challenge(challenges, decoded_proof.PI_Z, decoded_proof.PI_Z_OMEGA);
 
         //reset 'alpha base'
         challenges.alpha_base = challenges.alpha;
 
-        types.g1_point memory linearised_contribution = polynomial_eval.compute_linearised_opening_terms(
+        types.g1_point memory linearised_contribution = polynomial.compute_linearised_opening_terms(
             challenges,
             L1,
             vk,
             decoded_proof
         );
 
-        types.g1_point memory batch_opening_commitment = polynomial_eval.compute_batch_opening_commitment(
+        types.g1_point memory batch_opening_commitment = polynomial.compute_batch_opening_commitment(
             challenges,
             vk,
             linearised_contribution,
             decoded_proof
         );
 
-        uint256 batch_evaluation_g1_scalar = polynomial_eval.compute_batch_evaluation_scalar_multiplier(
+        uint256 batch_evaluation_g1_scalar = polynomial.compute_batch_evaluation_scalar_multiplier(
             decoded_proof,
             challenges
         );
@@ -127,7 +127,7 @@ contract verifier is fri {
         uint256 l_start;
         uint256 l_end;
         {
-            (uint256 public_input_numerator, uint256 public_input_denominator) = polynomial_eval.compute_public_input_delta(
+            (uint256 public_input_numerator, uint256 public_input_denominator) = polynomial.compute_public_input_delta(
                 challenges,
                 vk
             );
@@ -138,10 +138,10 @@ contract verifier is fri {
             uint256 lagrange_numerator,
             uint256 l_start_denominator,
             uint256 l_end_denominator
-            ) = polynomial_eval.compute_lagrange_and_vanishing_fractions(vk, challenges.zeta);
+            ) = polynomial.compute_lagrange_and_vanishing_fractions(vk, challenges.zeta);
 
 
-            (zero_polynomial_eval, public_input_delta, l_start, l_end) = polynomial_eval.compute_batch_inversions(
+            (zero_polynomial_eval, public_input_delta, l_start, l_end) = polynomial.compute_batch_inversions(
                 public_input_numerator,
                 public_input_denominator,
                 vanishing_numerator,
@@ -152,7 +152,7 @@ contract verifier is fri {
             );
         }
 
-        uint256 quotient_eval = polynomial_eval.compute_quotient_polynomial(
+        uint256 quotient_eval = polynomial.compute_quotient_polynomial(
             zero_polynomial_eval,
             public_input_delta,
             challenges,
@@ -259,8 +259,7 @@ contract verifier is fri {
             mstore(add(lhs, 0x20), sub(q, mload(add(lhs, 0x20))))
         }
 
-        if (vk.contains_recursive_proof)
-        {
+        if (vk.contains_recursive_proof) {
             // If the proof itself contains an accumulated proof,
             // we will have extracted two G1 elements `recursive_P1`, `recursive_p2` from the public inputs
 
@@ -314,10 +313,7 @@ contract verifier is fri {
      * @return proof - proof deserialized into the proof struct
      */
     function deserialize_proof(uint256 num_public_inputs, types.verification_key memory vk)
-    internal
-    pure
-    returns (types.proof memory proof)
-    {
+    internal pure returns (types.proof memory proof) {
         uint256 p = bn254_crypto.r_mod;
         uint256 q = bn254_crypto.p_mod;
         uint256 data_ptr;
