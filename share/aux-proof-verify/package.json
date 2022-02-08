@@ -2,6 +2,25 @@
   "name": "evm-mina-verification",
   "version": "1.0.0",
   "dependencies": {
-    "@truffle/hdwallet-provider": "^2.0.1"
-  }
+    "@truffle/hdwallet-provider": "^2.0.1",
+    "bip39": "^3.0.4",
+    "ethereumjs-wallet": "^1.0.2",
+    "web3": "^1.7.0"
+  },
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "main": "src/main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nilfoundation/evm-mina-verification.git"
+  },
+  "author": "Mikhail Komarov",
+  "license": "Apache",
+  "bugs": {
+    "url": "https://github.com/nilfoundation/evm-mina-verification/issues"
+  },
+  "homepage": "https://github.com/nilfoundation/evm-mina-verification#readme",
+  "description": ""
 }
