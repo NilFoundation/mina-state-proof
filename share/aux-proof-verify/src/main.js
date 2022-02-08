@@ -1,6 +1,8 @@
+const web3 = require('web3');
 const bip39 = require('bip39');
 const {hdkey} = require('ethereumjs-wallet');
 const fs = require('fs');
+
 const mnemonic = fs.readFileSync(".secret").toString().trim();
 const count = 5;
 
@@ -20,7 +22,7 @@ function generateAddressesFromSeed(mnemonic, count) {
 }
 
 function sendProof(address, abi, proof) {
-    var contract = new Contract(abi, address);
+    var contract = new web3.eth.Contract(abi, address);
 
     contract.methods.verify(proof).send({from: generateAddressesFromSeed(mnemonic, count)}, function (error, transactionHash) {
 
@@ -28,7 +30,7 @@ function sendProof(address, abi, proof) {
 }
 
 function estimateGas(address, abi, proof) {
-    var contract = new Contract(abi, address);
+    var contract = new web3.eth.Contract(abi, address);
 
     contract.methods.verify(proof).estimateGas({gas: 5000000}, function (error, gasAmount) {
         if (gasAmount === 5000000) {
@@ -37,4 +39,4 @@ function estimateGas(address, abi, proof) {
     });
 }
 
-module.exports = {sendProof, estimateGas};
+module.exports = {generateAddressesFromSeed, sendProof, estimateGas};
