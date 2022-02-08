@@ -35,6 +35,14 @@ Compiler/environment requirements are as follows:
 
 `bin/aux-proof-gen/aux-proof-gen ../share/mina/genesis_proof_*`
 
+### Tests
+
+`make zk_lpc_test && make zk_fri_test`
+
+### Benchmarks
+
+`make zk_lpc_performance_test`
+
 ## Community
 
 Issue reports are preferred to be done with Github Issues in here: https://github.com/nilfoundation/evm-mina-verification/issues.
