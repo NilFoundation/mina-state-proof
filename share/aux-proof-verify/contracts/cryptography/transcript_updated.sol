@@ -45,6 +45,17 @@ library transcript_updated {
         self.current_challenge = keccak256(bytes.concat(self.current_challenge, blob));
     }
 
+    function get_integral_challenge_be(
+        transcript_data memory self,
+        uint256 length
+    ) internal pure returns (uint256 result) {
+        require(length <= 32);
+        self.current_challenge = keccak256(abi.encodePacked(self.current_challenge));
+        return (uint256(self.current_challenge) & (((uint256(1) << (length * 8)) - 1) <<
+                (uint256(256) - length * 8))) >>
+            (uint256(256) - length * 8);
+    }
+
     function get_field_challenge(
         transcript_data memory self,
         uint256 modulus

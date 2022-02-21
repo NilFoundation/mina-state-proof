@@ -62,5 +62,7 @@ contract TestTranscript {
         for (uint256 i = 0; i < ch_n2.length; i++) {
             Assert.equal(ch_n2[i], expected_ch_n2[i], "Challenges are not equal");
         }
+
+        Assert.equal(uint256(4329468119771583341), transcript_updated.get_integral_challenge_be(tr_state, 8), "Challenges are not equal");
     }
 }
