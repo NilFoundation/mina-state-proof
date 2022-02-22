@@ -46,50 +46,62 @@ library merkle_verifier_adapted {
     // [0:8] - co-path element position on the layer
     // [8:16] - co-path element hash value length (which is always 32 bytes in current implementation)
     // [16:48] - co-path element hash value
-    function parse_merkle_proof_be(bytes memory raw_proof) internal pure returns (merkle_proof memory proof) {
+    function parse_merkle_proof_be(bytes memory blob, uint256 offset)
+    internal pure returns (merkle_proof memory proof, uint256 proof_size) {
+        require(offset < blob.length);
+        uint256 len = blob.length - offset;
+
+        uint256 layers_offset = 56;
+        require(layers_offset <= len);
+
         proof.li = 0;
         for (uint256 i = 0; i < 8; i++) {
             proof.li <<= 8;
-            proof.li |= uint256(uint8(raw_proof[i]));
+            proof.li |= uint256(uint8(blob[offset + i]));
         }
 
         uint256 root_length = 0;
         for (uint256 i = 8; i < 16; i++) {
             root_length <<= 8;
-            root_length |= uint256(uint8(raw_proof[i]));
+            root_length |= uint256(uint8(blob[offset + i]));
         }
         require(root_length == 32);
 
         bytes32 hash_value;
         assembly {
-            hash_value := mload(add(add(raw_proof, 0x20), 16))
+            hash_value := mload(add(add(add(blob, 0x20), offset), 16))
         }
         proof.root = hash_value;
 
         uint256 depth = 0;
         for (uint256 i = 48; i < 56; i++) {
             depth <<= 8;
-            depth |= uint256(uint8(raw_proof[i]));
+            depth |= uint256(uint8(blob[offset + i]));
         }
-        path_element[] memory path = new path_element[](depth);
-        uint256 layers_offset = 56;
+
+        // only one co-element on each layer as arity is always 2
         uint256 layer_size = 8   // number of co-path elements on the layer
                            + 8   // co-path element position on the layer
                            + 8   // co-path element hash value length
                            + 32; // co-path element hash value
+        proof_size = layers_offset + layer_size * depth;
+        require(proof_size <= len);
         bytes memory co_path_element = new bytes(32);
+        path_element[] memory path = new path_element[](depth);
+
         uint256 layer_offset = 0;
+        uint256 layer_hash_offset = 0;
         for (uint256 cur_layer_i = 0; cur_layer_i < depth; cur_layer_i++) {
-            // only one co-element on each layer as arity is always 2
             layer_offset = layers_offset + layer_size * cur_layer_i;
             path[cur_layer_i].position = 0;
             for (uint256 i = layer_offset + 8; i < layer_offset + 16; i++) {
                 path[cur_layer_i].position <<= 8;
-                path[cur_layer_i].position |= uint256(uint8(raw_proof[i]));
+                path[cur_layer_i].position |= uint256(uint8(blob[i + offset]));
             }
 
+            layer_hash_offset = 0x20 + offset + layer_offset + 24;
             assembly {
-                hash_value := mload(add(add(add(raw_proof, 0x20), layer_offset), 24))
+                hash_value := mload(add(blob, layer_hash_offset))
             }
             path[cur_layer_i].hash = hash_value;
         }
