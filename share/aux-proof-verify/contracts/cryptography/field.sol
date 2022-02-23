@@ -22,7 +22,7 @@ pragma experimental ABIEncoderV2;
  * @title Bn254 elliptic curve crypto
  * @dev Provides some basic methods to compute bilinear pairings, construct group elements and misc numerical methods
  */
-library field_math {
+library field {
     // Perform a modular exponentiation. This method is ideal for small exponents (~64 bits or less), as
     // it is cheaper than using the pow precompile
     function pow_small(uint256 base, uint256 exponent, uint256 modulus) internal pure returns (uint256) {

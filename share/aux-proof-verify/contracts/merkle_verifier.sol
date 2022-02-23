@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 //---------------------------------------------------------------------------//
-// Copyright (c) 2018-2021 Mikhail Komarov <nemo@nil.foundation>
+// Copyright (c) 2021 Mikhail Komarov <nemo@nil.foundation>
+// Copyright (c) 2021 Ilias Khairullin <ilias@nil.foundation>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,104 +17,112 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.6.0;
 
-import "./basic_merkle_verifier.sol";
+library merkle_verifier {
 
-contract merkle_verifier is basic_merkle_verifier {
-    function getHashMask() internal pure returns (uint256) {
-        // Default implementation.
-        return 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000000000000000;
+    struct path_element {
+        uint256 position;
+        bytes32 hash;
     }
 
-    /*
-      Verifies a Merkle tree decommitment for n leaves in a Merkle tree with N leaves.
+    struct merkle_proof {
+        uint256 li;
+        bytes32 root;
+        path_element[] path;
+    }
 
-      The inputs data sits in the queue at queuePtr.
-      Each slot in the queue contains a 32 bytes leaf index and a 32 byte leaf value.
-      The indices need to be in the range [N..2*N-1] and strictly incrementing.
-      Decommitments are read from the channel in the ctx.
+    // Merkle proof has the following structure:
+    // [0:8] - leaf index
+    // [8:16] - root length (which is always 32 bytes in current implementation)
+    // [16:48] - root
+    // [48:56] - merkle tree depth
+    //
+    // Depth number of layers with co-path elements follows then.
+    // Each layer has following structure (actually indexes begin from a certain offset):
+    // [0:8] - number of co-path elements on the layer
+    //  (layer_size = arity-1 actually, which (arity) is always 2 in current implementation)
+    //
+    // layer_size number of co-path elements for every layer in merkle proof follows then.
+    // Each element has following structure (actually indexes begin from a certain offset):
+    // [0:8] - co-path element position on the layer
+    // [8:16] - co-path element hash value length (which is always 32 bytes in current implementation)
+    // [16:48] - co-path element hash value
+    function parse_merkle_proof_be(bytes memory blob, uint256 offset)
+    internal pure returns (merkle_proof memory proof, uint256 proof_size) {
+        require(offset < blob.length);
+        uint256 len = blob.length - offset;
 
-      The input data is destroyed during verification.
-    */
-    function verify_merkle(
-        uint256 channelPtr,
-        uint256 queuePtr,
-        bytes32 root,
-        uint256 n
-    ) internal view virtual override returns (bytes32 hash) {
-        uint256 lhashMask = getHashMask();
-        require(n <= MAX_N_MERKLE_VERIFIER_QUERIES, "TOO_MANY_MERKLE_QUERIES");
+        uint256 layers_offset = 56;
+        require(layers_offset <= len);
 
-        assembly {
-        // queuePtr + i * 0x40 gives the i'th index in the queue.
-        // hashesPtr + i * 0x40 gives the i'th hash in the queue.
-            let hashesPtr := add(queuePtr, 0x20)
-            let queueSize := mul(n, 0x40)
-            let slotSize := 0x40
-
-        // The items are in slots [0, n-1].
-            let rdIdx := 0
-            let wrIdx := 0 // = n % n.
-
-        // Iterate the queue until we hit the root.
-            let index := mload(add(rdIdx, queuePtr))
-            let proofPtr := mload(channelPtr)
-
-        // while(index > 1).
-            for {
-
-            } gt(index, 1) {
-
-            } {
-                let siblingIndex := xor(index, 1)
-            // sibblingOffset := 0x20 * lsb(siblingIndex).
-                let sibblingOffset := mulmod(siblingIndex, 0x20, 0x40)
-
-            // Store the hash corresponding to index in the correct slot.
-            // 0 if index is even and 0x20 if index is odd.
-            // The hash of the sibling will be written to the other slot.
-                mstore(xor(0x20, sibblingOffset), mload(add(rdIdx, hashesPtr)))
-                rdIdx := addmod(rdIdx, slotSize, queueSize)
-
-            // Inline channel operation:
-            // Assume we are going to read a new hash from the proof.
-            // If this is not the case add(proofPtr, 0x20) will be reverted.
-                let newHashPtr := proofPtr
-                proofPtr := add(proofPtr, 0x20)
-
-            // Push index/2 into the queue, before reading the next index.
-            // The order is important, as otherwise we may try to read from an empty queue (in
-            // the case where we are working on one item).
-            // wrIdx will be updated after writing the relevant hash to the queue.
-                mstore(add(wrIdx, queuePtr), div(index, 2))
-
-            // Load the next index from the queue and check if it is our sibling.
-                index := mload(add(rdIdx, queuePtr))
-                if eq(index, siblingIndex) {
-                // Take sibling from queue rather than from proof.
-                    newHashPtr := add(rdIdx, hashesPtr)
-                // Revert reading from proof.
-                    proofPtr := sub(proofPtr, 0x20)
-                    rdIdx := addmod(rdIdx, slotSize, queueSize)
-
-                // Index was consumed, read the next one.
-                // Note that the queue can't be empty at this point.
-                // The index of the parent of the current node was already pushed into the
-                // queue, and the parent is never the sibling.
-                    index := mload(add(rdIdx, queuePtr))
-                }
-
-                mstore(sibblingOffset, mload(newHashPtr))
-
-            // Push the new hash to the end of the queue.
-                mstore(add(wrIdx, hashesPtr), and(lhashMask, keccak256(0x00, 0x40)))
-                wrIdx := addmod(wrIdx, slotSize, queueSize)
-            }
-            hash := mload(add(rdIdx, hashesPtr))
-
-        // Update the proof pointer in the context.
-            mstore(channelPtr, proofPtr)
+        proof.li = 0;
+        for (uint256 i = 0; i < 8; i++) {
+            proof.li <<= 8;
+            proof.li |= uint256(uint8(blob[offset + i]));
         }
-        // emit LogBool(hash == root);
-        require(hash == root, "INVALID_MERKLE_PROOF");
+
+        uint256 root_length = 0;
+        for (uint256 i = 8; i < 16; i++) {
+            root_length <<= 8;
+            root_length |= uint256(uint8(blob[offset + i]));
+        }
+        require(root_length == 32);
+
+        bytes32 hash_value;
+        assembly {
+            hash_value := mload(add(add(add(blob, 0x20), offset), 16))
+        }
+        proof.root = hash_value;
+
+        uint256 depth = 0;
+        for (uint256 i = 48; i < 56; i++) {
+            depth <<= 8;
+            depth |= uint256(uint8(blob[offset + i]));
+        }
+
+        // only one co-element on each layer as arity is always 2
+        uint256 layer_size = 8   // number of co-path elements on the layer
+                           + 8   // co-path element position on the layer
+                           + 8   // co-path element hash value length
+                           + 32; // co-path element hash value
+        proof_size = layers_offset + layer_size * depth;
+        require(proof_size <= len);
+        bytes memory co_path_element = new bytes(32);
+        path_element[] memory path = new path_element[](depth);
+
+        uint256 layer_offset = 0;
+        uint256 layer_hash_offset = 0;
+        for (uint256 cur_layer_i = 0; cur_layer_i < depth; cur_layer_i++) {
+            layer_offset = layers_offset + layer_size * cur_layer_i;
+            path[cur_layer_i].position = 0;
+            for (uint256 i = layer_offset + 8; i < layer_offset + 16; i++) {
+                path[cur_layer_i].position <<= 8;
+                path[cur_layer_i].position |= uint256(uint8(blob[i + offset]));
+            }
+
+            layer_hash_offset = 0x20 + offset + layer_offset + 24;
+            assembly {
+                hash_value := mload(add(blob, layer_hash_offset))
+            }
+            path[cur_layer_i].hash = hash_value;
+        }
+        proof.path = path;
+    }
+
+    function verify_merkle_proof(
+        merkle_proof memory proof,
+        bytes32 verified_data
+    ) internal pure returns (bool) {
+
+        bytes32 prev_hash = keccak256(abi.encode(verified_data));
+        for (uint256 cur_layer_i = 0; cur_layer_i < proof.path.length; cur_layer_i++) {
+            if (0 == proof.path[cur_layer_i].position) {
+                prev_hash = keccak256(bytes.concat(proof.path[cur_layer_i].hash, prev_hash));
+            }
+            else if (1 == proof.path[cur_layer_i].position) {
+                prev_hash = keccak256(bytes.concat(prev_hash, proof.path[cur_layer_i].hash));
+            }
+        }
+
+        return prev_hash == proof.root;
     }
 }

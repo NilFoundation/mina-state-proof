@@ -20,7 +20,7 @@ pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
-import '../contracts/cryptography/transcript_updated.sol';
+import '../contracts/cryptography/transcript.sol';
 import '../contracts/cryptography/bn254.sol';
 
 contract TestTranscript {

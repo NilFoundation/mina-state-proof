@@ -20,7 +20,7 @@ pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
-import '../contracts/fri_verifier_adapted.sol';
+import '../contracts/fri_verifier.sol';
 
 contract TestFRIVerifier {
     function test_fri_proof_marshalling() public {
