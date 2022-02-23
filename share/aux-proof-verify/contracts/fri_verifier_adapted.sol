@@ -20,8 +20,8 @@ pragma solidity >=0.6.0;
 import './merkle_verifier_adapted.sol';
 import './cryptography/transcript_updated.sol';
 import './cryptography/types.sol';
-//import './field_math.sol';
-//import './cryptography/polynomial_adapted.sol';
+import './field_math.sol';
+import './cryptography/polynomial_adapted.sol';
 
 library fri_verifier_adapted {
 
@@ -176,31 +176,72 @@ library fri_verifier_adapted {
     }
 
     //
-//    function verifyProof(
-//        bytes memory proof,
-//        transcript_updated.transcript_data memory transcript,
-//        fri_params_type memory fri_params,
-//        uint256[] memory U,
-//        uint256[] memory V
-//    ) internal view returns(bool result) {
-//        uint256 modulus = fri_params.modulus;
-//        uint256 idx = transcript_updated.get_integral_challenge_be(transcript, 8);
-//        uint256 x = field_math.pow_small(fri_params.D[0].get_domain_element(1), idx, modulus);
-//
-//        uint256[2] s;
-//        for (uint256 i = 0; i < fri_params.r; i++) {
-//            uint256 alpha = transcript_updated.get_field_challenge();
-//            uint256 x_next = polynomial_adapted.evaluate(fri_params.q, x, modulus);
-//
-//            s[0] = x;
-//            s[1] = modulus - x;
-//
-//            for (uint256 j = 0; j < m; j++) {
-//                // TODO: get_merkle_proof, get_leaf_data
-//                if (!merkle_verifier_adapted.verify_merkle_proof(get_merkle_proof(proof, i, j), get_leaf_data(proof, i, j))) {
-//                    return false;
-//                }
-//            }
-//        }
-//    }
+    function verifyProof(
+        proof_type memory proof,
+        transcript_updated.transcript_data memory transcript,
+        params_type memory fri_params,
+        uint256[] memory U,
+        uint256[] memory V
+    ) internal view returns(bool) {
+        uint256 modulus = fri_params.modulus;
+        uint256 r = fri_params.r;
+
+        uint256 idx = transcript_updated.get_integral_challenge_be(transcript, 8);
+        // as we use basic_radix2_domain get_domain_element returns power of omega
+        uint256 x = field_math.pow_small(fri_params.D_omegas[0], idx, modulus);
+
+        uint256[] memory s = new uint256[](2);
+        uint256[] memory y = new uint256[](2);
+        uint256[] memory interpolant;
+        uint256 tmp_value;
+        for (uint256 i = 0; i < r; i++) {
+            uint256 alpha = transcript_updated.get_field_challenge(transcript, modulus);
+            uint256 x_next = polynomial_adapted.evaluate(fri_params.q, x, modulus);
+
+            s[0] = x;
+            s[1] = modulus - x;
+
+            for (uint256 j = 0; j < m; j++) {
+                if (!merkle_verifier_adapted.verify_merkle_proof(proof.round_proofs[i].p[j], bytes32(proof.round_proofs[i].y[j]))) {
+                    return false;
+                }
+            }
+
+            for (uint256 j = 0; j < m; j++) {
+                if (i == 0) {
+                    uint256 U_evaluated_neg = modulus - polynomial_adapted.evaluate(U, s[j], modulus);
+                    uint256 V_evaluated_inv = field_math.invmod(polynomial_adapted.evaluate(V, s[j], modulus), modulus);
+                    tmp_value = proof.round_proofs[i].y[j];
+                    assembly {
+                        tmp_value := mulmod(addmod(tmp_value, U_evaluated_neg, modulus), V_evaluated_inv, modulus)
+                    }
+                    y[j] = tmp_value;
+                }
+                else {
+                    y[j] = proof.round_proofs[i].y[j];
+                }
+            }
+
+            interpolant = polynomial_adapted.lagrange_interpolation(s, y, modulus);
+            if (polynomial_adapted.evaluate(interpolant, alpha, modulus) != proof.round_proofs[i].colinear_value) {
+                return false;
+            }
+
+            if (i < r - 1) {
+                transcript_updated.update_transcript_b32(transcript, proof.round_proofs[i + 1].T_root);
+                if (!merkle_verifier_adapted.verify_merkle_proof(proof.round_proofs[i].colinear_path, bytes32(proof.round_proofs[i].colinear_value))) {
+                    return false;
+                }
+            }
+            x = x_next;
+        }
+        if (proof.final_polynomial.length - 1 > uint256(2) ** (field_math.log2(fri_params.max_degree + 1) - r) - 1) {
+            return false;
+        }
+        if (polynomial_adapted.evaluate(proof.final_polynomial, x, modulus) != proof.round_proofs[r - 1].colinear_value) {
+            return false;
+        }
+
+        return true;
+    }
 }

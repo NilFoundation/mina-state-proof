@@ -45,6 +45,13 @@ library transcript_updated {
         self.current_challenge = keccak256(bytes.concat(self.current_challenge, blob));
     }
 
+    function update_transcript_b32(
+        transcript_data memory self,
+        bytes32 blob
+    ) internal pure {
+        self.current_challenge = keccak256(bytes.concat(self.current_challenge, blob));
+    }
+
     function get_integral_challenge_be(
         transcript_data memory self,
         uint256 length
