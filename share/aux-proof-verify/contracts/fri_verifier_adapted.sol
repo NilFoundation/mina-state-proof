@@ -75,9 +75,9 @@ library fri_verifier_adapted {
         proof_size += 32;
         require(proof_size <= len);
         assembly {
-            value := mload(add(add(blob, 0x20), local_offset))
+            mstore(proof, mload(add(add(blob, 0x20), local_offset)))
         }
-        proof.colinear_value = value;
+//        proof.colinear_value = value;
         local_offset += 32; // colinear_value
 
         // T_root
@@ -88,9 +88,9 @@ library fri_verifier_adapted {
         proof_size += 32;
         require(proof_size <= len);
         assembly {
-            hash_value := mload(add(add(blob, 0x20), local_offset))
+            mstore(add(proof, 0x20), mload(add(add(blob, 0x20), local_offset)))
         }
-        proof.T_root = hash_value;
+//        proof.T_root = hash_value;
         local_offset += 32; // T_root
 
         // y
