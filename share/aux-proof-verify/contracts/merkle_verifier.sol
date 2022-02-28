@@ -30,6 +30,28 @@ library merkle_verifier {
         path_element[] path;
     }
 
+    function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
+        if (_i == 0) {
+            return "0";
+        }
+        uint j = _i;
+        uint len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(len);
+        uint k = len;
+        while (_i != 0) {
+            k = k - 1;
+            uint8 temp = (48 + uint8(_i - _i / 10 * 10));
+            bytes1 b1 = bytes1(temp);
+            bstr[k] = b1;
+            _i /= 10;
+        }
+        return string(bstr);
+    }
+
     // Merkle proof has the following structure:
     // [0:8] - leaf index
     // [8:16] - root length (which is always 32 bytes in current implementation)
@@ -50,62 +72,58 @@ library merkle_verifier {
     internal pure returns (merkle_proof memory proof, uint256 proof_size) {
         require(offset < blob.length);
         uint256 len = blob.length - offset;
+        uint256 tmp_value;
 
         uint256 layers_offset = 56;
         require(layers_offset <= len);
 
-        proof.li = 0;
-        for (uint256 i = 0; i < 8; i++) {
-            proof.li <<= 8;
-            proof.li |= uint256(uint8(blob[offset + i]));
-        }
-
-        uint256 root_length = 0;
-        for (uint256 i = 8; i < 16; i++) {
-            root_length <<= 8;
-            root_length |= uint256(uint8(blob[offset + i]));
-        }
-        require(root_length == 32);
-
-        bytes32 hash_value;
+        // proof.li
         assembly {
-            hash_value := mload(add(add(add(blob, 0x20), offset), 16))
+            mstore(proof, shr(0xc0, mload(add(add(blob, 0x20), offset))))
         }
-        proof.root = hash_value;
+
+        // root_length
+        assembly {
+            tmp_value := shr(0xc0, mload(add(add(blob, 0x20), add(offset, 8))))
+        }
+        require(tmp_value == 32, uint2str(tmp_value));
+
+        // proof.root
+        assembly {
+            mstore(add(proof, 0x20), mload(add(add(add(blob, 0x20), offset), 16)))
+        }
 
         uint256 depth = 0;
-        for (uint256 i = 48; i < 56; i++) {
-            depth <<= 8;
-            depth |= uint256(uint8(blob[offset + i]));
+        assembly {
+            depth := shr(0xc0, mload(add(add(blob, 0x20), add(offset, 48))))
         }
 
         // only one co-element on each layer as arity is always 2
         uint256 layer_size = 8   // number of co-path elements on the layer
-                           + 8   // co-path element position on the layer
-                           + 8   // co-path element hash value length
-                           + 32; // co-path element hash value
+        + 8   // co-path element position on the layer
+        + 8   // co-path element hash value length
+        + 32;
+        // co-path element hash value
         proof_size = layers_offset + layer_size * depth;
         require(proof_size <= len);
-        bytes memory co_path_element = new bytes(32);
-        path_element[] memory path = new path_element[](depth);
+        proof.path = new path_element[](depth);
 
         uint256 layer_offset = 0;
         uint256 layer_hash_offset = 0;
+        bytes32 hash_value;
         for (uint256 cur_layer_i = 0; cur_layer_i < depth; cur_layer_i++) {
-            layer_offset = layers_offset + layer_size * cur_layer_i;
-            path[cur_layer_i].position = 0;
-            for (uint256 i = layer_offset + 8; i < layer_offset + 16; i++) {
-                path[cur_layer_i].position <<= 8;
-                path[cur_layer_i].position |= uint256(uint8(blob[i + offset]));
+            layer_offset = offset + layers_offset + layer_size * cur_layer_i;
+            assembly {
+                tmp_value := shr(0xc0, mload(add(add(blob, 0x20), add(layer_offset, 8))))
             }
+            proof.path[cur_layer_i].position = tmp_value;
 
-            layer_hash_offset = 0x20 + offset + layer_offset + 24;
+            layer_hash_offset = 0x20 + layer_offset + 24;
             assembly {
                 hash_value := mload(add(blob, layer_hash_offset))
             }
-            path[cur_layer_i].hash = hash_value;
+            proof.path[cur_layer_i].hash = hash_value;
         }
-        proof.path = path;
     }
 
     function verify_merkle_proof(

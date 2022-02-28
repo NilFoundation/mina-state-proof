@@ -55,56 +55,56 @@ library polynomial {
         uint256[] memory a,
         uint256[] memory b,
         uint256 modulus
-    ) internal pure returns (uint256[] memory) {
-        uint256 len;
+    ) internal pure returns (uint256[] memory result) {
+        // [0] = minLen
+        // [1] = maxLen
+        // [3] = longArr
+        uint256[] memory local_vars = new uint256[](3);
         if (a.length < b.length) {
-            len = b.length;
-        } else {
-            len = a.length;
-        }
-
-        uint256[] memory results = new uint256[](len);
-
-        for (uint256 i = 0; i < len; i++) {
-            uint256 aOrZero = a.length > i ? a[i] : 0;
-            uint256 bOrZero = b.length > i ? b[i] : 0;
             assembly {
-                mstore(add(add(results, 0x20), mul(i, 0x20)), addmod(aOrZero, bOrZero, modulus))
+                mstore(add(local_vars, 0x20), mload(a))
+                mstore(add(local_vars, 0x40), mload(b))
+                mstore(add(local_vars, 0x60), b)
+            }
+        } else {
+            assembly {
+                mstore(add(local_vars, 0x20), mload(b))
+                mstore(add(local_vars, 0x40), mload(a))
+                mstore(add(local_vars, 0x60), a)
             }
         }
 
-        return results;
+        result = new uint256[](local_vars[1]);
+
+        assembly {
+            for {let i := 0}
+            lt(i, mul(mload(add(local_vars, 0x20)), 0x20))
+            {i := add(i, 0x20)} {
+                mstore(add(add(result, 0x20), i), addmod(mload(add(add(a, 0x20), i)), mload(add(add(b, 0x20), i)), modulus))
+            }
+            for {let i := mul(mload(add(local_vars, 0x20)), 0x20)}
+            lt(i, mul(mload(add(local_vars, 0x40)), 0x20))
+            {i := add(i, 0x20)} {
+                mstore(add(add(result, 0x20), i), mload(add(mload(add(local_vars, 0x60)), add(0x20, i))))
+            }
+        }
     }
 
     function mul_poly(
         uint256[] memory a,
         uint256[] memory b,
         uint256 modulus
-    ) internal pure returns (uint256[] memory resultTerms) {
-        uint256 padding = 0;
+    ) internal pure returns (uint256[] memory result) {
         for (uint256 i = 0; i < b.length; i++) {
-            uint256[] memory currentValues = new uint256[](a.length + padding);
-            uint256 aTerm;
-            uint256 bTerm;
-            // TODO: seems redundant
-            for (uint256 k = 0; k < padding; k++) {
-//                currentValues[k] = 0;
-                assembly {
-                    mstore(add(add(currentValues, 0x20), mul(k, 0x20)), 0)
-                }
-            }
+            uint256[] memory currentValues = new uint256[](a.length + i);
             for (uint256 j = 0; j < a.length; j++) {
-//                uint256 aTerm = a[j];
-//                uint256 bTerm = b[i];
-//                currentValues[j + padding] = aTerm.gf256Mul(bTerm);
+                // currentValues[j + i] = a[j] * b[i];
                 assembly {
-                    aTerm := mload(add(add(a, 0x20), mul(j, 0x20)))
-                    bTerm := mload(add(add(b, 0x20), mul(i, 0x20)))
-                    mstore(add(add(currentValues, 0x20), mul(add(j, padding), 0x20)), mulmod(aTerm, bTerm, modulus))
+                    mstore(add(add(currentValues, 0x20), mul(add(j, i), 0x20)),
+                    mulmod(mload(add(add(a, 0x20), mul(j, 0x20))), mload(add(add(b, 0x20), mul(i, 0x20))), modulus))
                 }
             }
-            resultTerms = add_poly(resultTerms, currentValues, modulus);
-            padding += 1;
+            result = add_poly(result, currentValues, modulus);
         }
     }
 
@@ -134,6 +134,28 @@ library polynomial {
                 thisPoly = mul_poly(thisPoly, multiple, modulus);
             }
             result = add_poly(result, thisPoly, modulus);
+        }
+    }
+
+    function interpolate_evaluate_by_2_points(
+        uint256 x,
+        uint256 dblXInv,
+        uint256 fX,
+        uint256 fMinusX,
+        uint256 evalPoint,
+        uint256 modulus
+    ) internal pure returns (uint256 result) {
+        assembly {
+            result := addmod(
+            mulmod(
+            mulmod(
+            addmod(fX, sub(modulus, fMinusX), modulus),
+            dblXInv,
+            modulus),
+            addmod(evalPoint, sub(modulus, x), modulus),
+            modulus),
+            fX,
+            modulus)
         }
     }
 }

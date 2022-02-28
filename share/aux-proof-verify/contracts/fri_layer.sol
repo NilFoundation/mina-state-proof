@@ -858,19 +858,19 @@ contract fri_layer is merkle_verifier, prime_field_element0 {
             require(false, "Only step sizes of 2, 3 or 4 are supported.");
         }
 
-        uint256 lhashMask = getHashMask();
-        assembly {
-            let indexInNextStep := div(index, friCosetSize)
-            mstore(merkleQueuePtr, indexInNextStep)
-            mstore(
-            add(merkleQueuePtr, 0x20),
-            and(lhashMask, keccak256(evaluationsOnCosetPtr, mul(0x20, friCosetSize)))
-            )
-
-            mstore(friQueueTail, indexInNextStep)
-            mstore(add(friQueueTail, 0x20), friValue)
-            mstore(add(friQueueTail, 0x40), cosetOffset_)
-        }
+//        uint256 lhashMask = getHashMask();
+//        assembly {
+//            let indexInNextStep := div(index, friCosetSize)
+//            mstore(merkleQueuePtr, indexInNextStep)
+//            mstore(
+//            add(merkleQueuePtr, 0x20),
+//            and(lhashMask, keccak256(evaluationsOnCosetPtr, mul(0x20, friCosetSize)))
+//            )
+//
+//            mstore(friQueueTail, indexInNextStep)
+//            mstore(add(friQueueTail, 0x20), friValue)
+//            mstore(add(friQueueTail, 0x40), cosetOffset_)
+//        }
     }
 
     /*

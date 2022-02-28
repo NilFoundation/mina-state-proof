@@ -25,7 +25,7 @@ import './types.sol';
  * @title Transcript library
  * @dev Generates Plonk random challenges
  */
-library transcript {
+library transcript_updated {
 
     struct transcript_data {
         bytes32 current_challenge;
@@ -45,6 +45,13 @@ library transcript {
         self.current_challenge = keccak256(bytes.concat(self.current_challenge, blob));
     }
 
+    function update_transcript_b32(
+        transcript_data memory self,
+        bytes32 blob
+    ) internal pure {
+        self.current_challenge = keccak256(bytes.concat(self.current_challenge, blob));
+    }
+
     function get_integral_challenge_be(
         transcript_data memory self,
         uint256 length
@@ -52,8 +59,8 @@ library transcript {
         require(length <= 32);
         self.current_challenge = keccak256(abi.encodePacked(self.current_challenge));
         return (uint256(self.current_challenge) & (((uint256(1) << (length * 8)) - 1) <<
-                (uint256(256) - length * 8))) >>
-            (uint256(256) - length * 8);
+        (uint256(256) - length * 8))) >>
+        (uint256(256) - length * 8);
     }
 
     function get_field_challenge(
