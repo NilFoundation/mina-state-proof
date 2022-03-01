@@ -19,7 +19,6 @@ pragma solidity >=0.6.0;
 
 import './merkle_verifier_adapted.sol';
 import './cryptography/transcript_updated.sol';
-import './cryptography/types.sol';
 import './field_math.sol';
 import './cryptography/polynomial_adapted.sol';
 
@@ -58,6 +57,28 @@ library fri_verifier_adapted {
         uint256 alpha;
         uint256[] s;
         uint256[] y;
+    }
+
+    function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
+        if (_i == 0) {
+            return "0";
+        }
+        uint j = _i;
+        uint len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(len);
+        uint k = len;
+        while (_i != 0) {
+            k = k-1;
+            uint8 temp = (48 + uint8(_i - _i / 10 * 10));
+            bytes1 b1 = bytes1(temp);
+            bstr[k] = b1;
+            _i /= 10;
+        }
+        return string(bstr);
     }
 
     function parse_round_proof_be(bytes memory blob, uint256 offset)
@@ -235,10 +256,10 @@ library fri_verifier_adapted {
         local_vars_type memory local_vars;
         local_vars.s = new uint256[](2);
         local_vars.y = new uint256[](2);
-        local_vars.x = field_math.pow_small(fri_params.D_omegas[0], transcript_updated.get_integral_challenge_be(transcript, 8), modulus);
+        local_vars.x = field_math.expmod_static(fri_params.D_omegas[0], transcript_updated.get_integral_challenge_be(transcript, 8), modulus);
 
         for (uint256 i = 0; i < 4; i++) {
-//            local_vars.alpha = transcript_updated.get_field_challenge(transcript, modulus);
+            local_vars.alpha = transcript_updated.get_field_challenge(transcript, modulus);
             local_vars.x_next = polynomial_adapted.evaluate(fri_params.q, local_vars.x, modulus);
 
             local_vars.s[0] = local_vars.x;
@@ -248,28 +269,29 @@ library fri_verifier_adapted {
                 return false;
             }
 
-//            for (uint256 j = 0; j < m; j++) {
-//                local_vars.y[j] = eval_y(i, j, proof, local_vars.s, fri_params.U, fri_params.V, modulus);
-//            }
+            for (uint256 j = 0; j < m; j++) {
+                local_vars.y[j] = eval_y(i, j, proof, local_vars.s, fri_params.U, fri_params.V, modulus);
+            }
 
-//            if (polynomial_adapted.interpolate_evaluate_by_2_points(local_vars.s[0], field_math.inverse_static((2 * local_vars.s[0]) % modulus, modulus), local_vars.y[0], local_vars.y[1], local_vars.alpha, modulus) != proof.round_proofs[i].colinear_value) {
-//                return false;
-//            }
+            if (polynomial_adapted.interpolate_evaluate_by_2_points(local_vars.s[0], field_math.inverse_static((2 * local_vars.s[0]) % modulus, modulus), local_vars.y[0], local_vars.y[1], local_vars.alpha, modulus) != proof.round_proofs[i].colinear_value) {
+                require(false, uint2str(i));
+                return false;
+            }
 
-//            if (i < fri_params.r - 1) {
-//                transcript_updated.update_transcript_b32(transcript, proof.round_proofs[i + 1].T_root);
-//                if (!merkle_verifier_adapted.verify_merkle_proof(proof.round_proofs[i].colinear_path, bytes32(proof.round_proofs[i].colinear_value))) {
-//                    return false;
-//                }
-//            }
+            if (i < fri_params.r - 1) {
+                transcript_updated.update_transcript_b32(transcript, proof.round_proofs[i + 1].T_root);
+                if (!merkle_verifier_adapted.verify_merkle_proof(proof.round_proofs[i].colinear_path, bytes32(proof.round_proofs[i].colinear_value))) {
+                    return false;
+                }
+            }
             local_vars.x = local_vars.x_next;
         }
         if (proof.final_polynomial.length - 1 > uint256(2) ** (field_math.log2(fri_params.max_degree + 1) - fri_params.r) - 1) {
             return false;
         }
-//        if (polynomial_adapted.evaluate(proof.final_polynomial, local_vars.x, modulus) != proof.round_proofs[fri_params.r - 1].colinear_value) {
-//            return false;
-//        }
+        if (polynomial_adapted.evaluate(proof.final_polynomial, local_vars.x, modulus) != proof.round_proofs[fri_params.r - 1].colinear_value) {
+            return false;
+        }
 
         return true;
     }

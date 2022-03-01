@@ -60,6 +60,7 @@ contract TestFRIVerifier {
         transcript_updated.transcript_data memory tr_state;
         transcript_updated.init_transcript(tr_state, init_blob);
         fri_verifier_adapted.params_type memory params;
+        params.modulus = modulus;
         params.r = 4;
         params.max_degree = 15;
         uint256[] memory D_omegas = new uint256[](params.r);
