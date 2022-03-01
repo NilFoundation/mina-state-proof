@@ -160,10 +160,11 @@ library merkle_verifier_adapted {
         }
         for (uint256 cur_layer_i = 0; cur_layer_i < proof.path.length - 1; cur_layer_i++) {
             assembly {
-                switch mload(mload(add(mload(add(proof, 0x40)), add(0x20, mul(0x20, cur_layer_i)))))
+                let path_ptr := add(mload(add(proof, 0x40)), add(0x20, mul(0x20, cur_layer_i)))
+                switch mload(mload(path_ptr))
                 case 0 {
-                    mstore(0x00, mload(add(mload(add(mload(add(proof, 0x40)), add(0x20, mul(0x20, cur_layer_i)))), 0x20)))
-                    switch mload(mload(add(mload(add(proof, 0x40)), add(0x20, mul(0x20, add(cur_layer_i, 1))))))
+                    mstore(0x00, mload(add(mload(path_ptr), 0x20)))
+                    switch mload(mload(add(path_ptr, 0x20)))
                     case 0 {
                         mstore(0x20, keccak256(0, 0x40))
                     }
@@ -172,8 +173,8 @@ library merkle_verifier_adapted {
                     }
                 }
                 case 1 {
-                    mstore(0x20, mload(add(mload(add(mload(add(proof, 0x40)), add(0x20, mul(0x20, cur_layer_i)))), 0x20)))
-                    switch mload(mload(add(mload(add(proof, 0x40)), add(0x20, mul(0x20, add(cur_layer_i, 1))))))
+                    mstore(0x20, mload(add(mload(path_ptr), 0x20)))
+                    switch mload(mload(add(path_ptr, 0x20)))
                     case 0 {
                         mstore(0x20, keccak256(0, 0x40))
                     }
@@ -184,13 +185,14 @@ library merkle_verifier_adapted {
             }
         }
         assembly {
-            switch mload(mload(add(mload(add(proof, 0x40)), add(0x20, mul(0x20, sub(mload(mload(add(proof, 0x40))), 1))))))
+            let path_ptr := add(mload(add(proof, 0x40)), add(0x20, mul(0x20, sub(mload(mload(add(proof, 0x40))), 1))))
+            switch mload(mload(path_ptr))
             case 0 {
-                mstore(0x00, mload(add(mload(add(mload(add(proof, 0x40)), add(0x20, mul(0x20, sub(mload(mload(add(proof, 0x40))), 1))))), 0x20)))
+                mstore(0x00, mload(add(mload(path_ptr), 0x20)))
                 verified_data := keccak256(0, 0x40)
             }
             case 1 {
-                mstore(0x20, mload(add(mload(add(mload(add(proof, 0x40)), add(0x20, mul(0x20, sub(mload(mload(add(proof, 0x40))), 1))))), 0x20)))
+                mstore(0x20, mload(add(mload(path_ptr), 0x20)))
                 verified_data := keccak256(0, 0x40)
             }
         }

@@ -64,126 +64,131 @@ library fri_verifier_adapted {
     internal pure returns (round_proof_type memory proof, uint256 proof_size) {
         require(offset < blob.length);
         uint256 len = blob.length - offset;
-
-        uint256 local_offset = offset;
-        uint256 value_len = 0;
-        uint256 value = 0;
-        bytes32 hash_value;
+        uint256 value_len;
         proof_size = 0;
 
         // colinear_value
-        proof_size += 32;
+        assembly {
+            proof_size := add(proof_size, 0x20)
+        }
         require(proof_size <= len);
         assembly {
-            mstore(proof, mload(add(add(blob, 0x20), local_offset)))
+            mstore(proof, mload(add(blob, add(0x20, offset))))
+            offset := add(offset, 0x20)
         }
-//        proof.colinear_value = value;
-        local_offset += 32; // colinear_value
 
         // T_root
         // TODO: add T_root length check
-        proof_size += 8;
+        assembly {
+            proof_size := add(proof_size, 8)
+        }
         require(proof_size <= len);
-        local_offset += 8; // T_root length
+        offset += 8; // T_root length
         proof_size += 32;
         require(proof_size <= len);
         assembly {
-            mstore(add(proof, 0x20), mload(add(add(blob, 0x20), local_offset)))
+            mstore(add(proof, 0x20), mload(add(blob, add(0x20, offset))))
+            offset := add(offset, 0x20)
         }
-//        proof.T_root = hash_value;
-        local_offset += 32; // T_root
 
         // y
-        proof_size += 8;
-        require(proof_size <= len);
-        value_len = 0;
-        for (uint256 i = 0; i < 8; i++) {
-            value_len <<= 8;
-            value_len |= uint256(uint8(blob[local_offset]));
-            local_offset += 1;
+        assembly {
+            proof_size := add(proof_size, 8)
         }
-        proof_size += 32 * value_len;
         require(proof_size <= len);
-        uint256[] memory y = new uint256[](value_len);
-        for (uint256 i = 0; i < value_len; i++) {
-            assembly {
-                value := mload(add(add(blob, 0x20), local_offset))
+        assembly {
+            value_len := shr(0xc0, mload(add(add(blob, 0x20), offset)))
+            offset := add(offset, 8)
+            proof_size := add(proof_size, mul(0x20, value_len))
+        }
+        require(proof_size <= len);
+        proof.y = new uint256[](value_len);
+        assembly {
+            let y_ptr := add(mload(add(proof, 0x40)), 0x20)
+            for { let i := 0 }
+            lt(i, mul(0x20, value_len))
+            { i := add(i, 0x20) } {
+                mstore(add(y_ptr, i), mload(add(add(blob, 0x20), offset)))
+                offset := add(offset, 0x20)
             }
-            y[i] = value;
-            local_offset += 32; // y[i]
         }
-        proof.y = y;
 
         // colinear_path
-        (proof.colinear_path, value_len) = merkle_verifier_adapted.parse_merkle_proof_be(blob, local_offset);
-        proof_size += value_len;
-        local_offset += value_len;
+        (proof.colinear_path, value_len) = merkle_verifier_adapted.parse_merkle_proof_be(blob, offset);
+        assembly {
+            proof_size := add(proof_size, value_len)
+            offset := add(offset, value_len)
+        }
 
         // p
-        proof_size += 8;
+        assembly {
+            proof_size := add(proof_size, 8)
+        }
         require(proof_size <= len);
-        value_len = 0;
-        for (uint256 i = 0; i < 8; i++) {
-            value_len <<= 8;
-            value_len |= uint256(uint8(blob[local_offset]));
-            local_offset += 1;
+        assembly {
+            value_len := shr(0xc0, mload(add(add(blob, 0x20), offset)))
+            offset := add(offset, 8)
         }
-        merkle_verifier_adapted.merkle_proof[] memory p = new merkle_verifier_adapted.merkle_proof[](value_len);
+        proof.p = new merkle_verifier_adapted.merkle_proof[](value_len);
+        merkle_verifier_adapted.merkle_proof memory p;
         for (uint256 i = 0; i < value_len; i++) {
-            (p[i], value) = merkle_verifier_adapted.parse_merkle_proof_be(blob, local_offset);
-            proof_size += value;
-            local_offset += value;
+            (p, len) = merkle_verifier_adapted.parse_merkle_proof_be(blob, offset);
+            assembly {
+                mstore(add(mload(add(proof, 0x80)), add(0x20, mul(0x20, i))), p)
+                proof_size := add(proof_size, len)
+                offset := add(offset, len)
+            }
         }
-        proof.p = p;
     }
 
     function parse_proof_be(bytes memory blob, uint256 offset)
     internal pure returns (proof_type memory proof, uint256 proof_size) {
         require(offset < blob.length);
         uint256 len = blob.length - offset;
-
-        uint256 local_offset = offset;
-        uint256 value_len = 0;
-        uint256 value = 0;
+        uint256 value_len;
         proof_size = 0;
 
         // final_polynomial
-        proof_size += 8;
-        require(proof_size <= len);
-        value_len = 0;
-        for (uint256 i = 0; i < 8; i++) {
-            value_len <<= 8;
-            value_len |= uint256(uint8(blob[local_offset]));
-            local_offset += 1;
+        assembly {
+            proof_size := add(proof_size, 8)
         }
-        proof_size += 32 * value_len;
         require(proof_size <= len);
-        uint256[] memory final_polynomial = new uint256[](value_len);
-        for (uint256 i = 0; i < value_len; i++) {
-            assembly {
-                value := mload(add(add(blob, 0x20), local_offset))
+        assembly {
+            value_len := shr(0xc0, mload(add(add(blob, 0x20), offset)))
+            offset := add(offset, 8)
+            proof_size := add(proof_size, mul(0x20, value_len))
+        }
+        require(proof_size <= len);
+        proof.final_polynomial = new uint256[](value_len);
+        assembly {
+            let final_polynomial_ptr := add(mload(proof), 0x20)
+            for { let i := 0 }
+            lt(i, mul(0x20, value_len))
+            { i := add(i, 0x20) } {
+                mstore(add(final_polynomial_ptr, i), mload(add(add(blob, 0x20), offset)))
+                offset := add(offset, 0x20)
             }
-            final_polynomial[i] = value;
-            local_offset += 32; // final_polynomial[i]
         }
-        proof.final_polynomial = final_polynomial;
 
         // round_proofs
-        proof_size += 8;
+        assembly {
+            proof_size := add(proof_size, 8)
+        }
         require(proof_size <= len);
-        value_len = 0;
-        for (uint256 i = 0; i < 8; i++) {
-            value_len <<= 8;
-            value_len |= uint256(uint8(blob[local_offset]));
-            local_offset += 1;
+        assembly {
+            value_len := shr(0xc0, mload(add(add(blob, 0x20), offset)))
+            offset := add(offset, 8)
         }
-        round_proof_type[] memory round_proofs = new round_proof_type[](value_len);
+        proof.round_proofs = new round_proof_type[](value_len);
+        round_proof_type memory p;
         for (uint256 i = 0; i < value_len; i++) {
-            (round_proofs[i], value) = parse_round_proof_be(blob, local_offset);
-            proof_size += value;
-            local_offset += value;
+            (p, len) = parse_round_proof_be(blob, offset);
+            assembly {
+                mstore(add(mload(add(proof, 0x20)), add(0x20, mul(0x20, i))), p)
+                proof_size := add(proof_size, len)
+                offset := add(offset, len)
+            }
         }
-        proof.round_proofs = round_proofs;
     }
 
     function verify_round_proofs(
