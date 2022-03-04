@@ -20,7 +20,7 @@ pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
-import '../contracts/cryptography/polynomial_adapted.sol';
+import '../contracts/cryptography/polynomial.sol';
 import '../contracts/field_math.sol';
 
 contract TestFieldMath {

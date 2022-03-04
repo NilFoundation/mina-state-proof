@@ -17,8 +17,8 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.6.0;
 
-import './fri_verifier_adapted.sol';
-import './cryptography/polynomial_adapted.sol';
+import './fri_verifier.sol';
+import './cryptography/polynomial.sol';
 
 library lpc_verifier {
 
@@ -30,13 +30,13 @@ library lpc_verifier {
         uint256 r;
         uint256 m;
         uint256 k;
-        fri_verifier_adapted.params_type fri_params;
+        fri_verifier.params_type fri_params;
     }
 
     struct proof_type {
         bytes32 T_root;
         uint256[] z;
-        fri_verifier_adapted.proof_type[] fri_proof;
+        fri_verifier.proof_type[] fri_proof;
     }
 
     struct local_vars_type {
@@ -122,10 +122,10 @@ library lpc_verifier {
             value_len := shr(0xc0, mload(add(blob, add(0x20, offset))))
             offset := add(offset, 8)
         }
-        proof.fri_proof = new fri_verifier_adapted.proof_type[](value_len);
-        fri_verifier_adapted.proof_type memory p;
+        proof.fri_proof = new fri_verifier.proof_type[](value_len);
+        fri_verifier.proof_type memory p;
         for (uint256 i = 0; i < value_len; i++) {
-            (p, len) = fri_verifier_adapted.parse_proof_be(blob, offset);
+            (p, len) = fri_verifier.parse_proof_be(blob, offset);
             assembly {
                 mstore(add(mload(add(proof, 0x40)), add(0x20, mul(0x20, i))), p)
                 proof_size := add(proof_size, len)
@@ -138,21 +138,21 @@ library lpc_verifier {
     function verifyProof(
         uint256[] memory evaluation_points,
         proof_type memory proof,
-        transcript_updated.transcript_data memory transcript,
+        transcript.transcript_data memory tr_state,
         params_type memory params
     ) internal view returns(bool) {
         require(evaluation_points.length == proof.z.length, "Number of evaluation points is not correct");
-        params.fri_params.U = polynomial_adapted.interpolate(evaluation_points, proof.z, params.modulus);
+        params.fri_params.U = polynomial.interpolate(evaluation_points, proof.z, params.modulus);
         params.fri_params.V = new uint256[](1);
         params.fri_params.V[0] = 1;
         uint256[] memory a_poly = new uint256[](2);
         a_poly[1] = 1;
         for (uint256 j = 0; j < evaluation_points.length; j++) {
             a_poly[0] = params.modulus - evaluation_points[j];
-            params.fri_params.V = polynomial_adapted.mul_poly(params.fri_params.V, a_poly, params.modulus);
+            params.fri_params.V = polynomial.mul_poly(params.fri_params.V, a_poly, params.modulus);
         }
         for (uint256 round_id = 0; round_id < params.lambda; round_id++) {
-            if (!fri_verifier_adapted.verifyProof(proof.fri_proof[round_id], transcript, params.fri_params)) {
+            if (!fri_verifier.verifyProof(proof.fri_proof[round_id], tr_state, params.fri_params)) {
                 return false;
             }
         }

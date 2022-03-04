@@ -20,7 +20,7 @@ pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
-import '../contracts/cryptography/polynomial_adapted.sol';
+import '../contracts/cryptography/polynomial.sol';
 import '../contracts/field_math.sol';
 
 contract TestPolynomial {
@@ -46,7 +46,7 @@ contract TestPolynomial {
         coeffs_a[12] = uint256(40270035943400403518245235869503406015606750823522126415839328954233300286377);
         coeffs_a[13] = uint256(19242274791613852994062046708895011528612116405970139599063224375941096114882);
         coeffs_a[14] = uint256(51210933877630050308911600222337475468419365406384948922830920749543447648049);
-        Assert.equal(result_a, polynomial_adapted.evaluate(coeffs_a, point, modulus), "Polynomial a evaluation result is not correct");
+        Assert.equal(result_a, polynomial.evaluate(coeffs_a, point, modulus), "Polynomial a evaluation result is not correct");
 
         n = 20;
         uint256 result_b = 14517755454571204328742925318278771894557514434895094535074691459831465705004;
@@ -71,7 +71,7 @@ contract TestPolynomial {
         coeffs_b[17] = uint256(21629737092293633841808483441609502152835687222025838343942592706898443398521);
         coeffs_b[18] = uint256(35421751487726592093113600554305470436997497989275001484151724878012223715200);
         coeffs_b[19] = uint256(51247318461592091828807885904778616016408560728322067993790715232596969553727);
-        Assert.equal(result_b, polynomial_adapted.evaluate(coeffs_b, point, modulus), "Polynomial b evaluation result is not correct");
+        Assert.equal(result_b, polynomial.evaluate(coeffs_b, point, modulus), "Polynomial b evaluation result is not correct");
     }
 
     function test_polynomial_addition() public {
@@ -141,7 +141,7 @@ contract TestPolynomial {
         coeffs_sum[17] = uint256(21629737092293633841808483441609502152835687222025838343942592706898443398521);
         coeffs_sum[18] = uint256(35421751487726592093113600554305470436997497989275001484151724878012223715200);
         coeffs_sum[19] = uint256(51247318461592091828807885904778616016408560728322067993790715232596969553727);
-        uint256[] memory a_plus_b = polynomial_adapted.add_poly(coeffs_a, coeffs_b, modulus);
+        uint256[] memory a_plus_b = polynomial.add_poly(coeffs_a, coeffs_b, modulus);
         Assert.equal(coeffs_sum, a_plus_b, "Polynomial addition result is not correct");
     }
 
@@ -226,7 +226,7 @@ contract TestPolynomial {
         coeffs_mul[31] = uint256(23095283302844004528854017195459146622662540890046538607288251350326507217544);
         coeffs_mul[32] = uint256(45815246088579244773243928572080583080745677230128753810473105432520879086931);
         coeffs_mul[33] = uint256(18846607898602946561630534830837489232188727774005472911573896473436323752210);
-        uint256[] memory a_mul_b = polynomial_adapted.mul_poly(coeffs_a, coeffs_b, modulus);
+        uint256[] memory a_mul_b = polynomial.mul_poly(coeffs_a, coeffs_b, modulus);
         Assert.equal(coeffs_mul.length, a_mul_b.length, "Polynomial multiplication result length is not correct");
         Assert.equal(coeffs_mul, a_mul_b, "Polynomial multiplication result is not correct");
     }
@@ -246,7 +246,7 @@ contract TestPolynomial {
         etalon_interpolated_poly[0] = uint256(45863909754770953574941211132560772200443894513098009385289015884407326107132);
         etalon_interpolated_poly[1] = uint256(306400884220968022577340188138333996135439223138113708607130720467290203462);
         etalon_interpolated_poly[2] = uint256(40785886772544473963190998835184144050681147583222663910965803442251397137695);
-        uint256[] memory interpolated_poly = polynomial_adapted.lagrange_interpolation(xs, fxs, modulus);
+        uint256[] memory interpolated_poly = polynomial.lagrange_interpolation(xs, fxs, modulus);
         Assert.equal(etalon_interpolated_poly.length, interpolated_poly.length, "Lagrange interpolation result length is not correct");
 //        for (uint256 i = 0; i < interpolated_poly.length; i++) {
 //            Assert.equal(etalon_interpolated_poly[i], interpolated_poly[i], "Lagrange interpolation result is not correct");
@@ -264,7 +264,7 @@ contract TestPolynomial {
         uint256 point = 48153868050457893764636815688936466338946039141187270065866853882046790835184;
         uint256 interpolate_p = 47167026852270603624692004883323338002565421423261929593965935305477245075449;
         uint256 interpolate_p2 = 41898178529415016769936269258460710167440290345996221365328211911015908966385;
-        uint256 ans = polynomial_adapted.interpolate_evaluate_by_2_points_neg_x(x, dblXInv, fx, f_minus_x, point, modulus);
+        uint256 ans = polynomial.interpolate_evaluate_by_2_points_neg_x(x, dblXInv, fx, f_minus_x, point, modulus);
         Assert.equal(interpolate_p, ans, "Lagrange interpolation evaluation result is not correct");
     }
 
@@ -278,11 +278,11 @@ contract TestPolynomial {
         fx[1] = 42429922444448686604017683269922063440964335484964201106691762991369582981200;
         uint256 point = 24868796103580083179645354023730047815734900319155333463213446778245767615297;
         uint256 interpolate_p = 40762883383788727750124127024453804465754478296506721859951139537974273249132;
-        uint256 ans = polynomial_adapted.interpolate_evaluate_by_2_points(x, fx, point, modulus);
+        uint256 ans = polynomial.interpolate_evaluate_by_2_points(x, fx, point, modulus);
         Assert.equal(interpolate_p, ans, "Lagrange interpolation evaluation result is not correct");
 
-        uint256[] memory coeffs = polynomial_adapted.interpolate(x, fx, modulus);
-        Assert.equal(interpolate_p, polynomial_adapted.evaluate(coeffs, point, modulus), "Evaluation of interpolated polynomial is not correct");
+        uint256[] memory coeffs = polynomial.interpolate(x, fx, modulus);
+        Assert.equal(interpolate_p, polynomial.evaluate(coeffs, point, modulus), "Evaluation of interpolated polynomial is not correct");
     }
 
     function test_lagrange_interpolation_by_2_points2() public {
@@ -295,7 +295,7 @@ contract TestPolynomial {
         fx[1] = 28976720826705814608978164416095000797859924214963526570316110117483425299187;
         uint256 point = 48153868050457893764636815688936466338946039141187270065866853882046790835184;
         uint256 interpolate_p = 47167026852270603624692004883323338002565421423261929593965935305477245075449;
-        uint256 ans = polynomial_adapted.interpolate_evaluate_by_2_points(x, fx, point, modulus);
+        uint256 ans = polynomial.interpolate_evaluate_by_2_points(x, fx, point, modulus);
         Assert.equal(interpolate_p, ans, "Lagrange interpolation evaluation result is not correct");
     }
 }
