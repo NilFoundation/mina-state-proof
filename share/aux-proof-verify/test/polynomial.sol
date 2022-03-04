@@ -21,7 +21,7 @@ pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
 import '../contracts/cryptography/polynomial.sol';
-import '../contracts/field_math.sol';
+import '../contracts/cryptography/field.sol';
 
 contract TestPolynomial {
     function test_polynomial_evaluation_aDeg15_bDeg20() public {
@@ -257,7 +257,7 @@ contract TestPolynomial {
     function test_lagrange_interpolation_by_2_points_neg_x() public {
         uint256 modulus = 0x73EDA753299D7D483339D80809A1D80553BDA402FFFE5BFEFFFFFFFF00000001;
         uint256 x = 44038862670345190294673664060592308181004034858773208775317302252436776935563;
-        uint256 dblXInv = field_math.inverse_static((2 * x) % modulus, modulus);
+        uint256 dblXInv = field.inverse_static((2 * x) % modulus, modulus);
         uint256 fx = 49493457902001516273705036835225226573976620701363464555283163139256350994103;
         uint256 f_minus_x = 28976720826705814608978164416095000797859924214963526570316110117483425299187;
         uint256 xInv = 47098724223474821775521332453585531707749745902334713572669745831884543336149;

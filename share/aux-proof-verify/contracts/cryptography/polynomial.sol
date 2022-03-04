@@ -19,7 +19,7 @@
 pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
-import '../field_math.sol';
+import './field.sol';
 
 /**
  * @title Turbo Plonk polynomial evaluation
@@ -128,10 +128,10 @@ library polynomial {
                 if (i == j) {
                     continue;
                 }
-                uint256 denominator = field_math.fsub(xs[i], xs[j], modulus);
+                uint256 denominator = field.fsub(xs[i], xs[j], modulus);
                 uint256[] memory thisTerm = new uint256[](2);
-                thisTerm[0] = field_math.fdiv(modulus - xs[j], denominator, modulus);
-                thisTerm[1] = field_math.fdiv(uint256(1), denominator, modulus);
+                thisTerm[0] = field.fdiv(modulus - xs[j], denominator, modulus);
+                thisTerm[1] = field.fdiv(uint256(1), denominator, modulus);
                 thisPoly = mul_poly(thisPoly, thisTerm, modulus);
             }
             if (fxs.length + 1 >= i) {
@@ -173,7 +173,7 @@ library polynomial {
     ) internal view returns (uint256 result) {
         require(x.length == 2, "x length is not equal to 2");
         require(fx.length == 2, "fx length is not equal to 2");
-        uint256 x2_minus_x1_inv = field_math.inverse_static((x[1] + (modulus - x[0])) % modulus, modulus);
+        uint256 x2_minus_x1_inv = field.inverse_static((x[1] + (modulus - x[0])) % modulus, modulus);
         assembly {
             let y2_minus_y1 := addmod(mload(add(fx, 0x40)), sub(modulus, mload(add(fx, 0x20))), modulus)
             let x3_minus_x1 := addmod(eval_point, sub(modulus, mload(add(x, 0x20))), modulus)
@@ -208,7 +208,7 @@ library polynomial {
     ) internal view returns (uint256[] memory result) {
         require(x.length == 2, "x length is not equal to 2");
         require(fx.length == 2, "fx length is not equal to 2");
-        uint256 x2_minus_x1_inv = field_math.inverse_static((x[1] + (modulus - x[0])) % modulus, modulus);
+        uint256 x2_minus_x1_inv = field.inverse_static((x[1] + (modulus - x[0])) % modulus, modulus);
         result = new uint256[](2);
         assembly {
             let y2_minus_y1 := addmod(mload(add(fx, 0x40)), sub(modulus, mload(add(fx, 0x20))), modulus)

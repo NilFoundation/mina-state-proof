@@ -20,7 +20,7 @@ pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
-import '../contracts/field_math.sol';
+import '../contracts/cryptography/field.sol';
 import '../contracts/cryptography/transcript.sol';
 import '../contracts/cryptography/bn254.sol';
 
@@ -52,22 +52,22 @@ contract TestOperationsPerformance {
 
     function test_field_math_log2() public {
         uint256 i = 908723247892348972132478978923429087;
-        field_math.log2(i);
+        field.log2(i);
     }
 
     function test_field_math_invmod() public {
         uint256 val = 10359452186428527605436343203440067497552205259388878191021578220384701716497;
-        field_math.invmod(val, bn254_crypto.r_mod);
+        field.invmod(val, bn254_crypto.r_mod);
     }
 
     function test_field_math_inverse_static() public {
         uint256 val = 10359452186428527605436343203440067497552205259388878191021578220384701716497;
-        field_math.inverse_static(val, bn254_crypto.r_mod);
+        field.inverse_static(val, bn254_crypto.r_mod);
     }
 
     function test_field_math_expmod_static() public {
         uint256 val = 10359452186428527605436343203440067497552205259388878191021578220384701716497;
         uint256 e = 14940766826517323942636479241147756311199852622225275649687664389641784935947;
-        field_math.expmod_static(val, e, bn254_crypto.r_mod);
+        field.expmod_static(val, e, bn254_crypto.r_mod);
     }
 }

@@ -19,7 +19,7 @@ pragma solidity >=0.6.0;
 
 import './merkle_verifier.sol';
 import './cryptography/transcript.sol';
-import './field_math.sol';
+import './cryptography/field.sol';
 import './cryptography/polynomial.sol';
 
 library fri_verifier {
@@ -244,7 +244,7 @@ library fri_verifier {
                         x,
                         fri_params.modulus
                     );
-                V_evaluated_inv = field_math.inverse_static(
+                V_evaluated_inv = field.inverse_static(
                     polynomial.evaluate(
                         fri_params.V,
                         x,
@@ -259,7 +259,7 @@ library fri_verifier {
                         fri_params.modulus - x,
                         fri_params.modulus
                     );
-                V_evaluated_inv = field_math.inverse_static(
+                V_evaluated_inv = field.inverse_static(
                     polynomial.evaluate(
                         fri_params.V,
                         fri_params.modulus - x,
@@ -286,7 +286,7 @@ library fri_verifier {
     ) internal view returns(bool) {
         local_vars_type memory local_vars;
         local_vars.y = new uint256[](2);
-        local_vars.x = field_math.expmod_static(
+        local_vars.x = field.expmod_static(
             fri_params.D_omegas[0],
             transcript.get_integral_challenge_be(tr_state, 8),
             fri_params.modulus
@@ -306,7 +306,7 @@ library fri_verifier {
 
             if (polynomial.interpolate_evaluate_by_2_points_neg_x(
                     local_vars.x,
-                    field_math.inverse_static((2 * local_vars.x) % fri_params.modulus, fri_params.modulus),
+                    field.inverse_static((2 * local_vars.x) % fri_params.modulus, fri_params.modulus),
                     local_vars.y[0],
                     local_vars.y[1],
                     local_vars.alpha,
@@ -331,7 +331,7 @@ library fri_verifier {
         }
 
         if (proof.final_polynomial.length - 1 >
-            uint256(2) ** (field_math.log2(fri_params.max_degree + 1) - fri_params.r) - 1
+            uint256(2) ** (field.log2(fri_params.max_degree + 1) - fri_params.r) - 1
         ) {
             return false;
         }
