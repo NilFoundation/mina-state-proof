@@ -292,7 +292,7 @@ library fri_verifier_adapted {
             fri_params.modulus
         );
 
-        for (uint256 i = 0; i < 4; i++) {
+        for (uint256 i = 0; i < fri_params.r; i++) {
             local_vars.alpha = transcript_updated.get_field_challenge(transcript, fri_params.modulus);
             local_vars.x_next = polynomial_adapted.evaluate(fri_params.q, local_vars.x, fri_params.modulus);
 
@@ -304,7 +304,7 @@ library fri_verifier_adapted {
                 local_vars.y[j] = eval_y(i, j, local_vars.x, proof, fri_params);
             }
 
-            if (polynomial_adapted.interpolate_evaluate_by_2_points(
+            if (polynomial_adapted.interpolate_evaluate_by_2_points_neg_x(
                     local_vars.x,
                     field_math.inverse_static((2 * local_vars.x) % fri_params.modulus, fri_params.modulus),
                     local_vars.y[0],

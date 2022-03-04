@@ -254,7 +254,7 @@ contract TestPolynomial {
         Assert.equal(etalon_interpolated_poly, interpolated_poly, "Lagrange interpolation result is not correct");
     }
 
-    function test_lagrange_interpolation_by_2_points() public {
+    function test_lagrange_interpolation_by_2_points_neg_x() public {
         uint256 modulus = 0x73EDA753299D7D483339D80809A1D80553BDA402FFFE5BFEFFFFFFFF00000001;
         uint256 x = 44038862670345190294673664060592308181004034858773208775317302252436776935563;
         uint256 dblXInv = field_math.inverse_static((2 * x) % modulus, modulus);
@@ -264,7 +264,38 @@ contract TestPolynomial {
         uint256 point = 48153868050457893764636815688936466338946039141187270065866853882046790835184;
         uint256 interpolate_p = 47167026852270603624692004883323338002565421423261929593965935305477245075449;
         uint256 interpolate_p2 = 41898178529415016769936269258460710167440290345996221365328211911015908966385;
-        uint256 ans = polynomial_adapted.interpolate_evaluate_by_2_points(x, dblXInv, fx, f_minus_x, point, modulus);
+        uint256 ans = polynomial_adapted.interpolate_evaluate_by_2_points_neg_x(x, dblXInv, fx, f_minus_x, point, modulus);
+        Assert.equal(interpolate_p, ans, "Lagrange interpolation evaluation result is not correct");
+    }
+
+    function test_lagrange_interpolation_by_2_points1() public {
+        uint256 modulus = 0x73EDA753299D7D483339D80809A1D80553BDA402FFFE5BFEFFFFFFFF00000001;
+        uint256[] memory x = new uint256[](2);
+        x[0] = 41647106870606161616591387966715847902573139189804717221698810708101242940521;
+        x[1] = 7618811309034160695676016680056885734768587155692572468640041509483598127985;
+        uint256[] memory fx = new uint256[](2);
+        fx[0] = 10830495527854936642823522147966338959848560248013811437627905910805426798945;
+        fx[1] = 42429922444448686604017683269922063440964335484964201106691762991369582981200;
+        uint256 point = 24868796103580083179645354023730047815734900319155333463213446778245767615297;
+        uint256 interpolate_p = 40762883383788727750124127024453804465754478296506721859951139537974273249132;
+        uint256 ans = polynomial_adapted.interpolate_evaluate_by_2_points(x, fx, point, modulus);
+        Assert.equal(interpolate_p, ans, "Lagrange interpolation evaluation result is not correct");
+
+        uint256[] memory coeffs = polynomial_adapted.interpolate(x, fx, modulus);
+        Assert.equal(interpolate_p, polynomial_adapted.evaluate(coeffs, point, modulus), "Evaluation of interpolated polynomial is not correct");
+    }
+
+    function test_lagrange_interpolation_by_2_points2() public {
+        uint256 modulus = 0x73EDA753299D7D483339D80809A1D80553BDA402FFFE5BFEFFFFFFFF00000001;
+        uint256[] memory x = new uint256[](2);
+        x[0] = 44038862670345190294673664060592308181004034858773208775317302252436776935563;
+        x[1] = modulus - 44038862670345190294673664060592308181004034858773208775317302252436776935563;
+        uint256[] memory fx = new uint256[](2);
+        fx[0] = 49493457902001516273705036835225226573976620701363464555283163139256350994103;
+        fx[1] = 28976720826705814608978164416095000797859924214963526570316110117483425299187;
+        uint256 point = 48153868050457893764636815688936466338946039141187270065866853882046790835184;
+        uint256 interpolate_p = 47167026852270603624692004883323338002565421423261929593965935305477245075449;
+        uint256 ans = polynomial_adapted.interpolate_evaluate_by_2_points(x, fx, point, modulus);
         Assert.equal(interpolate_p, ans, "Lagrange interpolation evaluation result is not correct");
     }
 }
