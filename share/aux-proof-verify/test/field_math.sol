@@ -20,11 +20,10 @@ pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
-import '../contracts/cryptography/polynomial.sol';
 import '../contracts/field_math.sol';
 
 contract TestFieldMath {
-    function test_field_math() public {
+    function test_log2_ceil() public {
         uint256 i = 1;
         Assert.equal(0, field_math.log2(i), "Log2 result is not correct");
         i += 1000;
