@@ -27,15 +27,15 @@ contract TestTranscript {
     function test_transcript() public {
         bytes memory init_blob = hex"00010203040506070809";
         bytes memory updated_blob = hex"0a0b0c0d0e0f";
-        transcript_updated.transcript_data memory tr_state;
-        transcript_updated.init_transcript(tr_state, init_blob);
+        transcript.transcript_data memory tr_state;
+        transcript.init_transcript(tr_state, init_blob);
 
         Assert.equal(tr_state.current_challenge, hex"f0ae86a6257e615bce8b0fe73794934deda00c13d58f80b466a9354e306c9eb0", "States are not equal");
 
         uint256[] memory ch_n1 = new uint256[](3);
-        uint256 ch1 = transcript_updated.get_field_challenge(tr_state, bn254_crypto.r_mod);
-        uint256 ch2 = transcript_updated.get_field_challenge(tr_state, bn254_crypto.r_mod);
-        transcript_updated.get_field_challenges(tr_state, ch_n1, bn254_crypto.r_mod);
+        uint256 ch1 = transcript.get_field_challenge(tr_state, bn254_crypto.r_mod);
+        uint256 ch2 = transcript.get_field_challenge(tr_state, bn254_crypto.r_mod);
+        transcript.get_field_challenges(tr_state, ch_n1, bn254_crypto.r_mod);
 
         uint256[3] memory expected_ch_n1 = [
             2245175900862542509951906212793478103240010197496750948704322685051902675354,
@@ -49,9 +49,9 @@ contract TestTranscript {
             Assert.equal(ch_n1[i], expected_ch_n1[i], "Challenges are not equal");
         }
 
-        transcript_updated.update_transcript(tr_state, updated_blob);
+        transcript.update_transcript(tr_state, updated_blob);
         uint256[] memory ch_n2 = new uint256[](3);
-        transcript_updated.get_field_challenges(tr_state, ch_n2, bn254_crypto.r_mod);
+        transcript.get_field_challenges(tr_state, ch_n2, bn254_crypto.r_mod);
 
         uint256[3] memory expected_ch_n2 = [
             3901835814944774396760742241791593702879373256387333213493637370872332164712,
@@ -63,6 +63,6 @@ contract TestTranscript {
             Assert.equal(ch_n2[i], expected_ch_n2[i], "Challenges are not equal");
         }
 
-        Assert.equal(uint256(4329468119771583341), transcript_updated.get_integral_challenge_be(tr_state, 8), "Challenges are not equal");
+        Assert.equal(uint256(4329468119771583341), transcript.get_integral_challenge_be(tr_state, 8), "Challenges are not equal");
     }
 }

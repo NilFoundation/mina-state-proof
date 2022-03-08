@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //---------------------------------------------------------------------------//
-// Copyright (c) 2018-2021 Mikhail Komarov <nemo@nil.foundation>
+// Copyright (c) 2021 Mikhail Komarov <nemo@nil.foundation>
+// Copyright (c) 2021 Ilias Khairullin <ilias@nil.foundation>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -77,14 +78,14 @@ library polynomial {
         result = new uint256[](local_vars[1]);
 
         assembly {
-            for {let i := 0}
+            for { let i := 0 }
             lt(i, mul(mload(add(local_vars, 0x20)), 0x20))
-            {i := add(i, 0x20)} {
+            { i := add(i, 0x20) } {
                 mstore(add(add(result, 0x20), i), addmod(mload(add(add(a, 0x20), i)), mload(add(add(b, 0x20), i)), modulus))
             }
-            for {let i := mul(mload(add(local_vars, 0x20)), 0x20)}
+            for { let i := mul(mload(add(local_vars, 0x20)), 0x20) }
             lt(i, mul(mload(add(local_vars, 0x40)), 0x20))
-            {i := add(i, 0x20)} {
+            { i := add(i, 0x20) } {
                 mstore(add(add(result, 0x20), i), mload(add(mload(add(local_vars, 0x60)), add(0x20, i))))
             }
         }
@@ -95,13 +96,18 @@ library polynomial {
         uint256[] memory b,
         uint256 modulus
     ) internal pure returns (uint256[] memory result) {
+        if (b.length > a.length) {
+            uint256[] memory tmp = a;
+            a = b;
+            b = tmp;
+        }
         for (uint256 i = 0; i < b.length; i++) {
             uint256[] memory currentValues = new uint256[](a.length + i);
             for (uint256 j = 0; j < a.length; j++) {
                 // currentValues[j + i] = a[j] * b[i];
                 assembly {
                     mstore(add(add(currentValues, 0x20), mul(add(j, i), 0x20)),
-                    mulmod(mload(add(add(a, 0x20), mul(j, 0x20))), mload(add(add(b, 0x20), mul(i, 0x20))), modulus))
+                        mulmod(mload(add(add(a, 0x20), mul(j, 0x20))), mload(add(add(b, 0x20), mul(i, 0x20))), modulus))
                 }
             }
             result = add_poly(result, currentValues, modulus);
@@ -137,7 +143,7 @@ library polynomial {
         }
     }
 
-    function interpolate_evaluate_by_2_points(
+    function interpolate_evaluate_by_2_points_neg_x(
         uint256 x,
         uint256 dblXInv,
         uint256 fX,
@@ -147,15 +153,86 @@ library polynomial {
     ) internal pure returns (uint256 result) {
         assembly {
             result := addmod(
-            mulmod(
-            mulmod(
-            addmod(fX, sub(modulus, fMinusX), modulus),
-            dblXInv,
-            modulus),
-            addmod(evalPoint, sub(modulus, x), modulus),
-            modulus),
-            fX,
-            modulus)
+                mulmod(
+                    mulmod(
+                        addmod(fX, sub(modulus, fMinusX), modulus),
+                        dblXInv,
+                        modulus),
+                    addmod(evalPoint, sub(modulus, x), modulus),
+                    modulus),
+                fX,
+                modulus)
         }
+    }
+
+    function interpolate_evaluate_by_2_points(
+        uint256[] memory x,
+        uint256[] memory fx,
+        uint256 eval_point,
+        uint256 modulus
+    ) internal view returns (uint256 result) {
+        require(x.length == 2, "x length is not equal to 2");
+        require(fx.length == 2, "fx length is not equal to 2");
+        uint256 x2_minus_x1_inv = field.inverse_static((x[1] + (modulus - x[0])) % modulus, modulus);
+        assembly {
+            let y2_minus_y1 := addmod(mload(add(fx, 0x40)), sub(modulus, mload(add(fx, 0x20))), modulus)
+            let x3_minus_x1 := addmod(eval_point, sub(modulus, mload(add(x, 0x20))), modulus)
+            result := addmod(
+                mulmod(mulmod(y2_minus_y1, x2_minus_x1_inv, modulus), x3_minus_x1, modulus),
+                mload(add(fx, 0x20)),
+                modulus
+            )
+        }
+    }
+
+    function interpolate_evaluate(
+        uint256[] memory x,
+        uint256[] memory fx,
+        uint256 eval_point,
+        uint256 modulus
+    ) internal view returns (uint256) {
+        if (x.length == 1 && fx.length == 1) {
+            return fx[0];
+        }
+        if (x.length == 2) {
+            return interpolate_evaluate_by_2_points(x, fx, eval_point, modulus);
+        }
+        require(false, "unsupported number of points for interpolation");
+        return 0;
+    }
+
+    function interpolate_by_2_points(
+        uint256[] memory x,
+        uint256[] memory fx,
+        uint256 modulus
+    ) internal view returns (uint256[] memory result) {
+        require(x.length == 2, "x length is not equal to 2");
+        require(fx.length == 2, "fx length is not equal to 2");
+        uint256 x2_minus_x1_inv = field.inverse_static((x[1] + (modulus - x[0])) % modulus, modulus);
+        result = new uint256[](2);
+        assembly {
+            let y2_minus_y1 := addmod(mload(add(fx, 0x40)), sub(modulus, mload(add(fx, 0x20))), modulus)
+            let a := mulmod(y2_minus_y1, x2_minus_x1_inv, modulus)
+            let a_mul_x1_neg := sub(modulus, mulmod(a, mload(add(x, 0x20)), modulus))
+            let b := addmod(mload(add(fx, 0x20)), a_mul_x1_neg, modulus)
+            mstore(add(result, 0x20), b)
+            mstore(add(result, 0x40), a)
+        }
+    }
+
+    function interpolate(
+        uint256[] memory x,
+        uint256[] memory fx,
+        uint256 modulus
+    ) internal view returns (uint256[] memory) {
+        if (x.length == 1 && fx.length == 1) {
+            uint256[] memory result = new uint256[](1);
+            result[0] = fx[0];
+            return result;
+        }
+        if (x.length == 2) {
+            return interpolate_by_2_points(x, fx, modulus);
+        }
+        require(false, "unsupported number of points for interpolation");
     }
 }

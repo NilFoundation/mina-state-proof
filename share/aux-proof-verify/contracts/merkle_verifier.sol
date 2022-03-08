@@ -30,6 +30,12 @@ library merkle_verifier {
         path_element[] path;
     }
 
+    // only one co-element on each layer as arity is always 2
+    uint256 constant LAYER_SIZE = 56; // 8  number of co-path elements on the layer
+                                      // 8  co-path element position on the layer
+                                      // 8  co-path element hash value length
+                                      // 32 co-path element hash value
+
     function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
         if (_i == 0) {
             return "0";
@@ -43,7 +49,7 @@ library merkle_verifier {
         bytes memory bstr = new bytes(len);
         uint k = len;
         while (_i != 0) {
-            k = k - 1;
+            k = k-1;
             uint8 temp = (48 + uint8(_i - _i / 10 * 10));
             bytes1 b1 = bytes1(temp);
             bstr[k] = b1;
@@ -72,21 +78,20 @@ library merkle_verifier {
     internal pure returns (merkle_proof memory proof, uint256 proof_size) {
         require(offset < blob.length);
         uint256 len = blob.length - offset;
-        uint256 tmp_value;
 
-        uint256 layers_offset = 56;
-        require(layers_offset <= len);
+        // layers_offset = 56
+        require(56 <= len);
 
         // proof.li
         assembly {
             mstore(proof, shr(0xc0, mload(add(add(blob, 0x20), offset))))
         }
 
-        // root_length
-        assembly {
-            tmp_value := shr(0xc0, mload(add(add(blob, 0x20), add(offset, 8))))
-        }
-        require(tmp_value == 32, uint2str(tmp_value));
+//        // root_length
+//        assembly {
+//            tmp_value := shr(0xc0, mload(add(add(blob, 0x20), add(offset, 8))))
+//        }
+//        require(tmp_value == 32, uint2str(tmp_value));
 
         // proof.root
         assembly {
@@ -100,29 +105,48 @@ library merkle_verifier {
 
         // only one co-element on each layer as arity is always 2
         uint256 layer_size = 8   // number of co-path elements on the layer
-        + 8   // co-path element position on the layer
-        + 8   // co-path element hash value length
-        + 32;
-        // co-path element hash value
-        proof_size = layers_offset + layer_size * depth;
+                           + 8   // co-path element position on the layer
+                           + 8   // co-path element hash value length
+                           + 32; // co-path element hash value
+        proof_size = 56 + layer_size * depth;
         require(proof_size <= len);
         proof.path = new path_element[](depth);
 
         uint256 layer_offset = 0;
         uint256 layer_hash_offset = 0;
-        bytes32 hash_value;
         for (uint256 cur_layer_i = 0; cur_layer_i < depth; cur_layer_i++) {
-            layer_offset = offset + layers_offset + layer_size * cur_layer_i;
+            layer_offset = offset + 56 + layer_size * cur_layer_i;
+            // tmp_value := shr(0xc0, mload(add(add(blob, 0x20), add(layer_offset, 8))))
+            // proof.path[cur_layer_i].position = tmp_value;
             assembly {
-                tmp_value := shr(0xc0, mload(add(add(blob, 0x20), add(layer_offset, 8))))
+                mstore(
+                    mload(
+                        add(
+                            mload(add(proof, 0x40)),
+                            add(0x20, mul(0x20, cur_layer_i))
+                        )
+                    ),
+                    shr(0xc0, mload(add(add(blob, 0x20), add(layer_offset, 8))))
+                )
             }
-            proof.path[cur_layer_i].position = tmp_value;
 
             layer_hash_offset = 0x20 + layer_offset + 24;
+            // hash_value := mload(add(blob, layer_hash_offset))
+            // proof.path[cur_layer_i].hash = hash_value;
             assembly {
-                hash_value := mload(add(blob, layer_hash_offset))
+                mstore(
+                    add(
+                        mload(
+                            add(
+                                mload(add(proof, 0x40)),
+                                add(0x20, mul(0x20, cur_layer_i))
+                            )
+                        ),
+                        0x20
+                    ),
+                    mload(add(blob, layer_hash_offset))
+                )
             }
-            proof.path[cur_layer_i].hash = hash_value;
         }
     }
 
@@ -130,17 +154,140 @@ library merkle_verifier {
         merkle_proof memory proof,
         bytes32 verified_data
     ) internal pure returns (bool) {
-
-        bytes32 prev_hash = keccak256(abi.encode(verified_data));
-        for (uint256 cur_layer_i = 0; cur_layer_i < proof.path.length; cur_layer_i++) {
-            if (0 == proof.path[cur_layer_i].position) {
-                prev_hash = keccak256(bytes.concat(proof.path[cur_layer_i].hash, prev_hash));
+        assembly {
+            mstore(0, verified_data)
+            switch mload(mload(add(mload(add(proof, 0x40)), 0x20)))
+            case 0 {
+                mstore(0x20, keccak256(0, 0x20))
             }
-            else if (1 == proof.path[cur_layer_i].position) {
-                prev_hash = keccak256(bytes.concat(prev_hash, proof.path[cur_layer_i].hash));
+            case 1 {
+                mstore(0x00, keccak256(0, 0x20))
+            }
+        }
+        for (uint256 cur_layer_i = 0; cur_layer_i < proof.path.length - 1; cur_layer_i++) {
+            assembly {
+                let path_ptr := add(mload(add(proof, 0x40)), add(0x20, mul(0x20, cur_layer_i)))
+                switch mload(mload(path_ptr))
+                case 0 {
+                    mstore(0x00, mload(add(mload(path_ptr), 0x20)))
+                    switch mload(mload(add(path_ptr, 0x20)))
+                    case 0 {
+                        mstore(0x20, keccak256(0, 0x40))
+                    }
+                    case 1 {
+                        mstore(0, keccak256(0, 0x40))
+                    }
+                }
+                case 1 {
+                    mstore(0x20, mload(add(mload(path_ptr), 0x20)))
+                    switch mload(mload(add(path_ptr, 0x20)))
+                    case 0 {
+                        mstore(0x20, keccak256(0, 0x40))
+                    }
+                    case 1 {
+                        mstore(0, keccak256(0, 0x40))
+                    }
+                }
+            }
+        }
+        assembly {
+            let path_ptr := add(mload(add(proof, 0x40)), add(0x20, mul(0x20, sub(mload(mload(add(proof, 0x40))), 1))))
+            switch mload(mload(path_ptr))
+            case 0 {
+                mstore(0x00, mload(add(mload(path_ptr), 0x20)))
+                verified_data := keccak256(0, 0x40)
+            }
+            case 1 {
+                mstore(0x20, mload(add(mload(path_ptr), 0x20)))
+                verified_data := keccak256(0, 0x40)
             }
         }
 
-        return prev_hash == proof.root;
+        return verified_data == proof.root;
+    }
+
+    function parse_verify_merkle_proof_be(bytes memory blob, uint256 offset, bytes32 verified_data)
+    internal pure returns (bool result, uint256 proof_size) {
+        require(offset < blob.length);
+        uint256 len = blob.length - offset;
+
+        // layers_offset = 56
+        require(56 <= len);
+
+        // proof.root
+        bytes32 root;
+        assembly {
+            root := mload(add(add(blob, 0x20), add(offset, 16)))
+        }
+
+        uint256 depth;
+        assembly {
+            depth := shr(0xc0, mload(add(add(blob, 0x20), add(offset, 48))))
+        }
+
+        proof_size = 56 + LAYER_SIZE * depth;
+        require(proof_size <= len);
+        uint256 layer_offset = offset + 56;
+        uint256 layer_hash_offset = 0;
+
+        // hash verified_data to get corresponding merkle tree leaf
+        assembly {
+            let first_pos := shr(0xc0, mload(add(add(blob, 0x20), add(layer_offset, 8))))
+            mstore(0, verified_data)
+            switch first_pos
+            case 0 {
+                mstore(0x20, keccak256(0, 0x20))
+            }
+            case 1 {
+                mstore(0x00, keccak256(0, 0x20))
+            }
+        }
+
+        for (uint256 cur_layer_i = 0; cur_layer_i < depth - 1; cur_layer_i++) {
+            layer_offset = offset + 56 + LAYER_SIZE * cur_layer_i;
+            layer_hash_offset = 0x20 + layer_offset + 24;
+            assembly {
+                let pos := shr(0xc0, mload(add(add(blob, 0x20), add(layer_offset, 8))))
+                let next_pos := shr(0xc0, mload(add(add(blob, 0x20), add(add(layer_offset, 8), LAYER_SIZE))))
+                switch pos
+                case 0 {
+                    mstore(0x00, mload(add(blob, layer_hash_offset)))
+                    switch next_pos
+                    case 0 {
+                        mstore(0x20, keccak256(0, 0x40))
+                    }
+                    case 1 {
+                        mstore(0, keccak256(0, 0x40))
+                    }
+                }
+                case 1 {
+                    mstore(0x20, mload(add(blob, layer_hash_offset)))
+                    switch next_pos
+                    case 0 {
+                        mstore(0x20, keccak256(0, 0x40))
+                    }
+                    case 1 {
+                        mstore(0, keccak256(0, 0x40))
+                    }
+                }
+            }
+        }
+
+        layer_offset = offset + 56 + LAYER_SIZE * (depth - 1);
+        layer_hash_offset = 0x20 + layer_offset + 24;
+        assembly {
+            let pos := shr(0xc0, mload(add(add(blob, 0x20), add(layer_offset, 8))))
+            switch pos
+            case 0 {
+                mstore(0x00, mload(add(blob, layer_hash_offset)))
+                verified_data := keccak256(0, 0x40)
+            }
+            case 1 {
+                mstore(0x20, mload(add(blob, layer_hash_offset)))
+                verified_data := keccak256(0, 0x40)
+            }
+        }
+
+        result = (verified_data == root);
     }
 }
