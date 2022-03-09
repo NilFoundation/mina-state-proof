@@ -149,6 +149,23 @@ library merkle_verifier {
             }
         }
     }
+    
+    function get_merkle_proof_size_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 proof_size) {
+        require(offset < blob.length);
+        uint256 len = blob.length - offset;
+
+        // layers_offset = 56
+        require(56 <= len, "here");
+
+        uint256 depth = 0;
+        assembly {
+            depth := shr(0xc0, mload(add(add(blob, 0x20), add(offset, 48))))
+        }
+
+        proof_size = 56 + LAYER_SIZE * depth;
+        require(proof_size <= len, "here");
+    }
 
     function verify_merkle_proof(
         merkle_proof memory proof,

@@ -24,8 +24,6 @@ import './cryptography/polynomial.sol';
 
 library fri_verifier {
 
-    uint256 constant m = 2;
-
     struct params_type {
         uint256 modulus;
         uint256 r;
@@ -52,11 +50,25 @@ library fri_verifier {
     }
 
     struct local_vars_type {
+        uint256 len;
+        uint256 colinear_value;
+        bytes32 T_root;
+        uint256 final_poly_len;
         uint256 x;
         uint256 x_next;
         uint256 alpha;
         uint256[] y;
     }
+
+    struct round_proof_verification_local_vars {
+        bytes32 y;
+        uint256 len;
+        uint256 mp_size;
+        bool result_j;
+    }
+
+    uint256 constant m = 2;
+    uint256 constant ROUND_PROOF_Y_OFFSET = 0x48;
 
     function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
         if (_i == 0) {
@@ -277,6 +289,65 @@ library fri_verifier {
             result = proof.round_proofs[i].y[j];
         }
     }
+    
+    function eval_y_from_blob(
+    	bytes memory blob,
+        uint256 offset,
+        uint256 i,
+        uint256 j,
+        uint256 x,
+        params_type memory fri_params
+    ) internal view returns(uint256 result) {
+        assembly {
+            result := mload(
+                add(
+                    add(blob, 0x20),
+                    add(
+                        add(add(offset, ROUND_PROOF_Y_OFFSET), 8),
+                        mul(0x20, j)
+                    )
+                )
+            )
+        }
+        if (i == 0) {
+            uint256 U_evaluated_neg;
+            uint256 V_evaluated_inv;
+            if (j == 0) {
+                U_evaluated_neg = fri_params.modulus -
+                    polynomial.evaluate(
+                        fri_params.U,
+                        x,
+                        fri_params.modulus
+                    );
+                V_evaluated_inv = field.inverse_static(
+                    polynomial.evaluate(
+                        fri_params.V,
+                        x,
+                        fri_params.modulus
+                    ),
+                    fri_params.modulus
+                );
+            } else if (j == 1) {
+                U_evaluated_neg = fri_params.modulus -
+                    polynomial.evaluate(
+                        fri_params.U,
+                        fri_params.modulus - x,
+                        fri_params.modulus
+                    );
+                V_evaluated_inv = field.inverse_static(
+                    polynomial.evaluate(
+                        fri_params.V,
+                        fri_params.modulus - x,
+                        fri_params.modulus
+                    ),
+                    fri_params.modulus
+                );
+            }
+            assembly {
+                result := mulmod(addmod(result, U_evaluated_neg, mload(fri_params)), V_evaluated_inv, mload(fri_params))
+            }
+        }
+    }
 
     //
     function verifyProof(
@@ -343,5 +414,184 @@ library fri_verifier {
         }
 
         return true;
+    }
+
+    function parse_verify_round_proof_be(
+        bytes memory blob,
+        uint256 offset,
+        params_type memory fri_params
+    ) internal view returns (bool result, uint256 proof_size) {
+        require(offset < blob.length);
+        round_proof_verification_local_vars memory vars;
+        vars.len = blob.length - offset;
+
+        proof_size += (ROUND_PROOF_Y_OFFSET + 8);
+        require(proof_size <= vars.len);
+        assembly {
+            let y_len := shr(0xc0, mload(add(add(blob, 0x20), add(offset, ROUND_PROOF_Y_OFFSET))))
+            // size of y should be equal to m
+            if eq(
+                eq(y_len, m),
+                0
+            ) {
+                mstore(0, 1)
+                revert(0, 0x20)
+            }
+            proof_size := add(proof_size, mul(0x20, y_len))
+        }
+        require(proof_size <= vars.len);
+        // skip colinear_path
+        proof_size += merkle_verifier.get_merkle_proof_size_be(blob, offset + proof_size);
+        require(proof_size + 8 <= vars.len);
+        assembly {
+            let p_len := shr(0xc0, mload(add(add(blob, 0x20), add(offset, proof_size))))
+            // size of p should be equal to m
+            if eq(
+                eq(p_len, m),
+                0
+            ) {
+                mstore(0, 1)
+                revert(0, 0x20)
+            }
+        }
+        proof_size += 8;
+        for (uint256 j = 0; j < m; j++) {
+            assembly {
+                mstore(
+                    vars,
+                    mload(
+                        add(
+                            add(blob, 0x20),
+                            add(
+                                add(
+                                    offset,
+                                    add(ROUND_PROOF_Y_OFFSET, 8)
+                                ),
+                                mul(0x20, j)
+                            )
+                        )
+                    )
+                )
+            }
+            (vars.result_j, vars.mp_size) =
+                merkle_verifier.parse_verify_merkle_proof_be(blob, offset + proof_size, vars.y);
+            if (!vars.result_j) {
+                return (false, 0);
+            }
+            proof_size += vars.mp_size;
+        }
+        result = true;
+    }
+
+    function parse_verify_proof_be(
+        bytes memory blob,
+        uint256 offset,
+        transcript.transcript_data memory tr_state,
+        params_type memory fri_params
+    ) internal view returns (bool result, uint256 proof_size) {
+        require(offset < blob.length);
+
+        local_vars_type memory local_vars;
+        local_vars.len = blob.length - offset;
+        local_vars.y = new uint256[](2);
+        local_vars.x = field.expmod_static(
+            fri_params.D_omegas[0],
+            transcript.get_integral_challenge_be(tr_state, 8),
+            fri_params.modulus
+        );
+
+        require(8 <= local_vars.len);
+        assembly {
+            let final_poly_len := shr(0xc0, mload(add(add(blob, 0x20), offset)))
+            mstore(add(local_vars, 0x60), final_poly_len)
+            proof_size := add(8, mul(0x20, final_poly_len))
+            // local_vars.len should be >= proof_size
+            if lt(mload(local_vars), add(8, proof_size)) {
+                revert(0, 0)
+            }
+            let round_proofs_len := shr(0xc0, mload(add(add(blob, 0x20), add(offset, proof_size))))
+            proof_size := add(8, proof_size)
+            // number of round proofs should be equal to r
+            if eq(
+                eq(
+                    round_proofs_len,
+                    // fri_params.r
+                    mload(add(fri_params, 0x20))
+                ),
+                0
+            ) {
+                revert(0, 0)
+            }
+        }
+
+        for (uint256 i = 0; i < fri_params.r; i++) {
+            local_vars.alpha = transcript.get_field_challenge(tr_state, fri_params.modulus);
+            local_vars.x_next = polynomial.evaluate(fri_params.q, local_vars.x, fri_params.modulus);
+
+            (bool result_i, uint256 read_round_proof_size) = parse_verify_round_proof_be(blob, offset + proof_size, fri_params);
+            if (!result_i) {
+                return (false, 0);
+            }
+
+            for (uint256 j = 0; j < m; j++) {
+                local_vars.y[j] = eval_y_from_blob(blob, offset + proof_size, i, j, local_vars.x, fri_params);
+            }
+            // get colinear_value
+            assembly {
+                mstore(add(local_vars, 0x20), mload(add(add(blob, 0x20), add(offset, proof_size))))
+            }
+            if (polynomial.interpolate_evaluate_by_2_points_neg_x(
+                    local_vars.x,
+                    field.inverse_static((2 * local_vars.x) % fri_params.modulus, fri_params.modulus),
+                    local_vars.y[0],
+                    local_vars.y[1],
+                    local_vars.alpha,
+                    fri_params.modulus
+                ) != local_vars.colinear_value
+            ) {
+                return (false, 0);
+            }
+
+            if (i < fri_params.r - 1) {
+                // get round_proofs[i + 1].T_root
+                assembly {
+                    mstore(
+                        add(local_vars, 0x40),
+                        mload(add(
+                            add(blob, 0x20),
+                            add(
+                                add(
+                                    add(offset, proof_size),
+                                    read_round_proof_size
+                                ),
+                                0x28
+                            )
+                        ))
+                    )
+                }
+                transcript.update_transcript_b32(tr_state, local_vars.T_root);
+                (result_i, ) = merkle_verifier.parse_verify_merkle_proof_be(blob, offset + proof_size + ROUND_PROOF_Y_OFFSET + 8 + m * 0x20, bytes32(local_vars.colinear_value));
+                if (!result_i) {
+                    return (false, 0);
+                }
+            }
+
+            local_vars.x = local_vars.x_next;
+            proof_size += read_round_proof_size;
+        }
+
+        if (local_vars.final_poly_len - 1 >
+            uint256(2) ** (field.log2(fri_params.max_degree + 1) - fri_params.r) - 1
+        ) {
+            return (false, 0);
+        }
+
+        if (polynomial.evaluate_by_ptr(blob, offset + 8, local_vars.final_poly_len, local_vars.x, fri_params.modulus) !=
+            local_vars.colinear_value
+        ) {
+            return (false, 0);
+        }
+
+        result = true;
     }
 }

@@ -52,6 +52,24 @@ library polynomial {
         return result;
     }
 
+    function evaluate_by_ptr(
+        bytes memory blob,
+        uint256 offset,
+        uint256 len,
+        uint256 point,
+        uint256 modulus
+    ) internal pure returns (uint256) {
+        uint256 result = 0;
+        uint256 x_pow = 1;
+        for (uint256 i = 0; i < len; i++) {
+            assembly {
+                result := addmod(result, mulmod(x_pow, mload(add(add(add(blob, 0x20), offset), mul(i, 0x20))), modulus), modulus)
+                x_pow := mulmod(x_pow, point, modulus)
+            }
+        }
+        return result;
+    }
+
     function add_poly(
         uint256[] memory a,
         uint256[] memory b,
