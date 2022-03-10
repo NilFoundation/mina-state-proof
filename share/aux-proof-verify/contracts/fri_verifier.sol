@@ -489,6 +489,7 @@ library fri_verifier {
         transcript.transcript_data memory tr_state,
         params_type memory fri_params
     ) internal view returns (bool result, uint256 proof_size) {
+        result = false;
         require(offset < blob.length);
 
         local_vars_type memory local_vars;

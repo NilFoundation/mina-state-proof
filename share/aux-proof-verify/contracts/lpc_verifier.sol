@@ -22,8 +22,6 @@ import './cryptography/polynomial.sol';
 
 library lpc_verifier {
 
-    uint256 constant m = 2;
-
     struct params_type {
         uint256 modulus;
         uint256 lambda;
@@ -40,11 +38,12 @@ library lpc_verifier {
     }
 
     struct local_vars_type {
-        uint256 x;
-        uint256 x_next;
-        uint256 alpha;
-        uint256[] y;
+        uint256 z_len;
+        uint256[] z;
     }
+
+    uint256 constant m = 2;
+    uint256 constant PROOF_Z_OFFSET = 0x28;
 
     function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
         if (_i == 0) {
@@ -157,5 +156,84 @@ library lpc_verifier {
             }
         }
         return true;
+    }
+
+    function parse_verify_proof_be(
+        bytes memory blob,
+        uint256 offset,
+        uint256[] memory evaluation_points,
+        transcript.transcript_data memory tr_state,
+        params_type memory params
+    ) internal view returns(bool result, uint256 proof_size) {
+        result = false;
+        require(offset < blob.length);
+        uint256 len = blob.length - offset;
+        proof_size = PROOF_Z_OFFSET + 8;
+        require(proof_size <= len);
+        local_vars_type memory local_vars;
+        assembly {
+            let z_len := shr(0xc0, mload(add(add(blob, 0x20), add(offset, PROOF_Z_OFFSET))))
+            // number of z points should be equal to k
+            if eq(
+                eq(
+                    z_len,
+                    // k
+                    mload(add(params, 0x80))
+                ),
+                0
+            ) {
+                revert(0, 0)
+            }
+            proof_size := add(proof_size, mul(0x20, z_len))
+            mstore(local_vars, z_len)
+        }
+
+        require(proof_size + 8 <= len);
+        assembly {
+            let fri_proof_len := shr(0xc0, mload(add(add(blob, 0x20), add(offset, proof_size))))
+            // number of fri proofs should be equal to lambda
+            if eq(
+                eq(
+                    fri_proof_len,
+                    // lambda
+                    mload(add(params, 0x20))
+                ),
+                0
+            ) {
+                revert(0, 0)
+            }
+            proof_size := add(proof_size, 8)
+        }
+
+        local_vars.z = new uint256[](local_vars.z_len);
+        assembly {
+            let z_ptr := add(mload(add(local_vars, 0x20)), 0x20)
+            let local_off := add(add(offset, PROOF_Z_OFFSET), 8)
+            for { let i := 0 }
+            lt(i, mul(0x20, mload(local_vars)))
+            { i := add(i, 0x20) } {
+                mstore(add(z_ptr, i), mload(add(add(blob, 0x20), local_off)))
+                local_off := add(local_off, 0x20)
+            }
+        }
+        require(evaluation_points.length == params.k, "Number of evaluation points is not correct");
+        params.fri_params.U = polynomial.interpolate(evaluation_points, local_vars.z, params.modulus);
+        params.fri_params.V = new uint256[](1);
+        params.fri_params.V[0] = 1;
+        uint256[] memory a_poly = new uint256[](2);
+        a_poly[1] = 1;
+        for (uint256 j = 0; j < evaluation_points.length; j++) {
+            a_poly[0] = params.modulus - evaluation_points[j];
+            params.fri_params.V = polynomial.mul_poly(params.fri_params.V, a_poly, params.modulus);
+        }
+        for (uint256 round_id = 0; round_id < params.lambda; round_id++) {
+            (bool result_i, uint256 read_fri_proof_size) = fri_verifier.parse_verify_proof_be(blob, offset + proof_size, tr_state, params.fri_params);
+            if (!result_i) {
+                require(false, uint2str(round_id));
+                return (false, 0);
+            }
+            proof_size += read_fri_proof_size;
+        }
+        result = true;
     }
 }
