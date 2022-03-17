@@ -12,15 +12,39 @@ protocol on EVM.
 The overall process description is as follows:
 
 \begin{algorithm}
-    \caption{Proving Statement}
+    \caption{Commit Log Construction Overview}
     \label{commitlog}
     \begin{enumerate}
         \item A user retrieves a replication packet $B_{n}$ containing some trnasaction $T$ 
             from Mina's commit log.
         \item A user submits the replication packet $B_{n}$ to the in-EVM piece of logic.
-        \item The in-EVM piece of logic emplaces the replication packet $B_{n}$ into
-            the Merkle Tree $T$, built upon Poseidon hashes of all the user-submitted
-            replication packages: $H_{B_{i - 1}} \forall i \in [0, n]$
+        \item The in-EVM piece of logic emplaces the replication packet $B_{n}$
+            into the backwards-linked list $C$.
+        \item The in-EVM piece of logic computes a Poseidon hash $H_{B_{n}}$ of
+            a replication packet $B_{n}$ and inserts such one in a Merkle Tree
+            $T$.
+        \item The in-EVM piece of logic uses a Merkle Tree's hash $H_{B_{n}}$ of
+            a particular replication packet $B_{n}$ as an input to the
+            state proof verification mechanism, taking the state proof from the
+            original Mina's cluster in the same time, corresponding to the
+            replication packet $B_{n}$ seqno.
+        \item In case the verification of a state proof corresponding to the
+            replication packet $B_{n}$ was completed sucessfully,
+            such a replication packet $B_{n}$ can be considered valid and appended 
+            to the backwards-linked list, representing in-EVM Mina's
+            commit log.
+        \item In case the verification of a state proof corresponding to the
+            replication packet $B_{n}$ wasn't completed sucessfully, then a
+            replication packet $B_{n}$ gets rejected by the in-EVM piece of
+            logic.
+        \item In case there are more than a single replication packet $B_{n}$
+            (e.g. $B_{n_1}$ and $B_{n_2}$) and each of them is being considered
+            valid, the backward-linked list used to store such replication
+            packets turns into the tree containing several branches of
+            backward-linked lists ${C_1, ... , C_M}$.
+        \item In case several branches ${C_1, ... , C_M}$ are introduced, the
+            Mina's Ouroboros modification chain selection rule applies to pick
+            the 
     \end{enumerate}
 \end{algorithm}
 
@@ -32,11 +56,36 @@ the in-EVM commit log consistent with the actual Mina's one) is defined as
 follows:
 
 Here, $C_{loc}$ is the local commit log sequence, $N = {C_1, ... ,C_M}$ is the list 
-of potential commit log sequences to choose from. The function
-$isShortRange(C,C′)$ outputs whether or not the chains fork in the “short range” or not. 
-The function getMinDen(C) outputs the minimum of all the window densities observed thus far in C; it is formally defined in Figure 16.
+of potential commit log sequences to choose from. 
+The function $getMinDen(C)$ outputs the minimum of all the window densities
+observed thus far in $C$.
 
-\begin{algorithm}
+\begin{algorithm}[H]
+    \caption{getMinDen(C)}
+    Let $B_{last}$ be the last block in $C$.
+    \begin{enumerate}
+        \item if $B_{last} = G$ then // i.e., if $B_{last}$ is the genesis block 
+        \item return $0$
+        \item else
+        \item Parse $B_{last}$ to obtain the parameter $minDen$. 
+        \item return $minDen$
+    \end{enumerate}
+\end{algorithm}
+
+The function $isShortRange(C,C′)$ outputs whether or not the chains fork in the “short range” or not. 
+
+\begin{algorithm}[H]
+    \caption{isShortRange(C1, C2)}
+    \begin{enumerate}
+        \item Let $prevLockcp$ and $prevLockcp$ be the $prevLockcp$ components in the 12 last blocks of C1, C2, respectively. 
+        \item if $prevLockcp = prevLockcp$ then
+        \item return ⊤
+        \item else
+        \item return ⊥
+    \end{enumerate}
+\end{algorithm}
+
+\begin{algorithm}[H]
     \caption{maxvalid-sc($C_{loc}, N = {C_1, ... , C_M}, k)$}
     \begin{enumerate}
         // Compare $C_{loc}$ with each candidate chain in N
@@ -53,5 +102,26 @@ The function getMinDen(C) outputs the minimum of all the window densities observ
             end if \\
             end for \\
         \item return $C_{max}$
+    \end{enumerate}
+\end{algorithm}
+
+\subsection{Purpose}
+
+The protocol is supposed to make it possible for the users to prove a particular
+transaction to the in-EVM Mina's commit log replica to be able to prove it
+actually belongs to Mina's commit log.
+
+The overview of such a mechanism is as follows:
+
+\begin{algorithm}
+    \caption{Proving Statement}
+    \label{commitlog}
+    \begin{enumerate}
+        \item A user retrieves the transaction $T$ from Mina's database commit log
+        \item A user compares the tranasction $T$ with the contents of the
+            in-EVM Mina's commit log representation.
+        \item If a trivial comparison results in a match, Mina's data from the
+            transaction $T$ can be considered valid for the in-EVM usage.
+        \item Otherwise, the transaction is supposed to be rejected.
     \end{enumerate}
 \end{algorithm}
