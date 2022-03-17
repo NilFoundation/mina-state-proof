@@ -1,21 +1,57 @@
 \chapter{Appendix A. In-EVM Mina State}
 
-This introduces a description for in-EVM Mina Protocol state handling mechanism.
+This introduces a description for in-EVM Mina Protocol state handling mechanism
+which is supposed to provide a bridge user with the way to verify plaintext 
+transactions coming from Mina database commit log on EVM.
 
-Crucial components which define this part design are:
-\begin{enumerate}
-    \item Mina's chain selection rule (part of Ouroboros Genesis).
-    \item Mina's account-value data storage.
-\end{enumerate}
+\section{Overview}
 
-\section{Verification Logic Architecture}
+The protocol described literally replicates Mina's commit log constructon
+protocol on EVM.
 
-The verification logic is split to several parts:
-\begin{enumerate}
-    \item Verification Key Definition
-    \item LPC/FRI auxiliary proof deserialization
-\end{enumerate}
+The overall process description is as follows:
 
-\section{Verification Logic API Reference}
+\begin{algorithm}
+    \caption{Proving Statement}
+    \label{commitlog}
+    \begin{enumerate}
+        \item A user retrieves a replication packet $B_{n}$ containing some trnasaction $T$ 
+            from Mina's commit log.
+        \item A user submits the replication packet $B_{n}$ to the in-EVM piece of logic.
+        \item The in-EVM piece of logic emplaces the replication packet $B_{n}$ into
+            the Merkle Tree $T$, built upon Poseidon hashes of all the user-submitted
+            replication packages: $H_{B_{i - 1}} \forall i \in [0, n]$
+    \end{enumerate}
+\end{algorithm}
 
-\section{Input Data Structures}
+$T_{n_1, n_2}$ allows to provide a successfull transaction from $\{B_{n_1}, ..., B_{n_2}\}$ to the Ethereum-based proof verificator later. 
+
+Ouroboros' consensus protocol chain selecton rule which is supposed to handle
+potentially incorrect replication packet data submitted by the user (and to keep
+the in-EVM commit log consistent with the actual Mina's one) is defined as
+follows:
+
+Here, $C_{loc}$ is the local commit log sequence, $N = {C_1, ... ,C_M}$ is the list 
+of potential commit log sequences to choose from. The function
+$isShortRange(C,C′)$ outputs whether or not the chains fork in the “short range” or not. 
+The function getMinDen(C) outputs the minimum of all the window densities observed thus far in C; it is formally defined in Figure 16.
+
+\begin{algorithm}
+    \caption{maxvalid-sc($C_{loc}, N = {C_1, ... , C_M}, k)$}
+    \begin{enumerate}
+        // Compare $C_{loc}$ with each candidate chain in N
+        \item Set $C_{max} \Leftrightarrow C_{loc}$
+        \item for $i = 1, ... , M$ do
+            if $isShortRange(C_i, C_{max})$ then // Short-range fork\\
+            if $|C_i| > |C_{max}|$ then \\
+            Set $C_{max} \Leftrightarrow C_{i}$ \\
+            end if\\
+            else //Long-range fork\\
+            if $getMinDen(C𝑖) > getMinDen(Cmax)$ then \\
+            Set $C_{max} \Leftrightarrow C_{i}$ \\
+            end if \\
+            end if \\
+            end for \\
+        \item return $C_{max}$
+    \end{enumerate}
+\end{algorithm}
