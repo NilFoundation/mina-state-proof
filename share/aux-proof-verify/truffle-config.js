@@ -99,7 +99,8 @@ module.exports = {
 
     // Set default mocha options here, use special reporters etc.
     mocha: {
-        // timeout: 100000
+        // timeout: 100000,
+        reporter: 'eth-gas-reporter'
     },
 
     // Configure your compilers
@@ -116,10 +117,6 @@ module.exports = {
             }
         }
     },
-
-    mocha: {
-        reporter: 'eth-gas-reporter'
-    }
 
     // Truffle DB is currently disabled by default; to enable it, change enabled:
     // false to enabled: true. The default storage location can also be
