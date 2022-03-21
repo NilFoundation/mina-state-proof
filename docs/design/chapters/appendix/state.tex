@@ -89,15 +89,14 @@ The function $isShortRange(C,C′)$ outputs whether or not the chains fork in th
 \begin{algorithm}[H]
     \caption{maxvalid-sc($C_{loc}, N = {C_1, ... , C_M}, k)$}
     \begin{enumerate}
-        // Compare $C_{loc}$ with each candidate chain in N
-        \item Set $C_{max} \Leftrightarrow C_{loc}$
+        \item Set $C_{max} \Leftrightarrow C_{loc}$ // Compare $C_{loc}$ with each candidate chain in N
         \item for $i = 1, ... , M$ do
             if $isShortRange(C_i, C_{max})$ then // Short-range fork\\
             if $|C_i| > |C_{max}|$ then \\
             Set $C_{max} \Leftrightarrow C_{i}$ \\
             end if\\
             else //Long-range fork\\
-            if $getMinDen(C𝑖) > getMinDen(Cmax)$ then \\
+            if $getMinDen(C_i) > getMinDen(C_{max})$ then \\
             Set $C_{max} \Leftrightarrow C_{i}$ \\
             end if \\
             end if \\
