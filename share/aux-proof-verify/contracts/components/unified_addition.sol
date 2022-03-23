@@ -17,14 +17,10 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.6.0;
 
+import "truffle/Assert.sol";
 import '../cryptography/types.sol';
 
 library unified_addition_component {
-    struct params_type {
-        uint256 modulus;
-        uint256 theta_acc;
-        uint256 theta;
-    }
 
     function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
         if (_i == 0) {
@@ -51,11 +47,11 @@ library unified_addition_component {
     function evaluate_gate_be(
         uint256[] memory assignment_pointers,
         types.gate_evaluation_params memory params
-    ) internal view returns (uint256 gate_evaluation) {
+    ) internal pure returns (uint256 gate_evaluation) {
         require(assignment_pointers.length >= 11, "Too little assignments passed (at least 11).");
 
         assembly {
-            gate_evaluation := 1
+            gate_evaluation := 0
             let modulus := mload(params)
             let theta_acc := mload(add(params, 0x20))
             let theta := mload(add(params, 0x40))
@@ -120,7 +116,7 @@ library unified_addition_component {
             theta_acc := mulmod(theta_acc, theta, modulus)
 
             //==========================================================================================================
-            // 3. w_7 * (2 * w_8 * w_1 - 3 * w_0 * w_0) + (1 - w_7) * (w_2 - w_0 * w_8 - (w_3 - w_1))
+            // 3. w_7 * (2 * w_8 * w_1 - 3 * w_0 * w_0) + (1 - w_7) * ((w_2 - w_0) * w_8 - (w_3 - w_1))
             constraint_eval := addmod(
                 // w_7 * (2 * w_8 * w_1 - 3 * w_0 * w_0)
                 mulmod(
@@ -158,7 +154,7 @@ library unified_addition_component {
                     ),
                     modulus
                 ),
-                // (1 - w_7) * (w_2 - w_0 * w_8 - (w_3 - w_1))
+                // (1 - w_7) * ((w_2 - w_0) * w_8 - (w_3 - w_1))
                 mulmod(
                     // 1 - w_7
                     addmod(
@@ -167,24 +163,20 @@ library unified_addition_component {
                         sub(modulus, mload(mload(add(assignment_pointers, 0x100)))),
                         modulus
                     ),
-                    // w_2 - w_0 * w_8 - (w_3 - w_1)
+                    // (w_2 - w_0) * w_8 - (w_3 - w_1)
                     addmod(
-                        // w_2 - w_0 * w_8
-                        addmod(
-                            // w_2
-                            mload(mload(add(assignment_pointers, 0x60))),
-                            // - w_0 * w_8
-                            sub(
-                                modulus,
-                                // w_0 * w_8
-                                mulmod(
-                                    // w_0
-                                    mload(mload(add(assignment_pointers, 0x20))),
-                                    // w_8
-                                    mload(mload(add(assignment_pointers, 0x120))),
-                                    modulus
-                                )
+                        // (w_2 - w_0) * w_8
+                        mulmod(
+                            //w_2 - w_0
+                            addmod(
+                                // w_2
+                                mload(mload(add(assignment_pointers, 0x60))),
+                                // -w_0
+                                sub(modulus, mload(mload(add(assignment_pointers, 0x20)))),
+                                modulus
                             ),
+                            // w_8
+                            mload(mload(add(assignment_pointers, 0x120))),
                             modulus
                         ),
                         // -(w_3 - w_1)
@@ -253,7 +245,7 @@ library unified_addition_component {
             )
             // theta_acc *= theta
             theta_acc := mulmod(theta_acc, theta, modulus)
-            
+
             //==========================================================================================================
             // 5. w_5 - (w_8 * (w_0 - w_4) - w_1)
             constraint_eval := addmod(
@@ -323,7 +315,7 @@ library unified_addition_component {
             )
             // theta_acc *= theta
             theta_acc := mulmod(theta_acc, theta, modulus)
-            
+
             //==========================================================================================================
             // 7. (w_3 - w_1) * w_9 - w_6
             constraint_eval := addmod(
