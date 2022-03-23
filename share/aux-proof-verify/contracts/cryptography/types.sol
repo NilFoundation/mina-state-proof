@@ -136,4 +136,10 @@ library types {
         // Not actually part of the verification key, but we put it here to prevent stack depth errors
         uint256 zeta_pow_n;
     }
+
+    struct gate_evaluation_params {
+        uint256 modulus;
+        uint256 theta_acc;
+        uint256 theta;
+    }
 }

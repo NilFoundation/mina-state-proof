@@ -18,7 +18,7 @@
 pragma solidity >=0.6.0;
 
 import './fri_verifier.sol';
-import './cryptography/polynomial.sol';
+import '../cryptography/polynomial.sol';
 
 library lpc_verifier {
 

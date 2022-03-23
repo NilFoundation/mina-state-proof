@@ -20,7 +20,7 @@ pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
-import '../contracts/merkle_verifier.sol';
+import '../contracts/containers/merkle_verifier.sol';
 
 contract TestMerkleProofVerifier {
     function test_merkle_proof_verifier() public {

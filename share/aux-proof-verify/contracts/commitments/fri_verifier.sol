@@ -17,10 +17,10 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.6.0;
 
-import './merkle_verifier.sol';
-import './cryptography/transcript.sol';
-import './cryptography/field.sol';
-import './cryptography/polynomial.sol';
+import '../containers/merkle_verifier.sol';
+import '../cryptography/transcript.sol';
+import '../cryptography/field.sol';
+import '../cryptography/polynomial.sol';
 
 library fri_verifier {
 
