@@ -17,7 +17,6 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.6.0;
 
-import "truffle/Assert.sol";
 import '../cryptography/types.sol';
 
 library unified_addition_component {
