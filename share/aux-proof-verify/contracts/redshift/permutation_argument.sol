@@ -92,6 +92,7 @@ library permutation_argument {
             // challenge
             switch mload(add(params, 0x20))
             case 1 {
+                // TODO: check case
                 mstore(
                     add(F, 0x20),
                     // preprocessed_data.common_data.lagrange_0.evaluate(challenge) *
