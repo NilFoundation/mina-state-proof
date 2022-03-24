@@ -15,8 +15,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity >=0.6.0;
+pragma solidity >=0.8.4;
 
+import '../cryptography/types.sol';
 import '../containers/merkle_verifier.sol';
 import '../cryptography/transcript.sol';
 import '../cryptography/field.sol';
@@ -352,7 +353,7 @@ library fri_verifier {
     //
     function verifyProof(
         proof_type memory proof,
-        transcript.transcript_data memory tr_state,
+        types.transcript_data memory tr_state,
         params_type memory fri_params
     ) internal view returns(bool) {
         local_vars_type memory local_vars;
@@ -486,7 +487,7 @@ library fri_verifier {
     function parse_verify_proof_be(
         bytes memory blob,
         uint256 offset,
-        transcript.transcript_data memory tr_state,
+        types.transcript_data memory tr_state,
         params_type memory fri_params
     ) internal view returns (bool result, uint256 proof_size) {
         result = false;

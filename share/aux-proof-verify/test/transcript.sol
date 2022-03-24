@@ -16,7 +16,7 @@
 // limitations under the License.
 //---------------------------------------------------------------------------//
 
-pragma solidity >=0.6.0;
+pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
@@ -27,7 +27,7 @@ contract TestTranscript {
     function test_transcript() public {
         bytes memory init_blob = hex"00010203040506070809";
         bytes memory updated_blob = hex"0a0b0c0d0e0f";
-        transcript.transcript_data memory tr_state;
+        types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
 
         Assert.equal(tr_state.current_challenge, hex"f0ae86a6257e615bce8b0fe73794934deda00c13d58f80b466a9354e306c9eb0", "States are not equal");

@@ -15,7 +15,7 @@
 // limitations under the License.
 //---------------------------------------------------------------------------//
 
-pragma solidity >=0.6.0;
+pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
 /**
@@ -136,11 +136,39 @@ library types {
         // Not actually part of the verification key, but we put it here to prevent stack depth errors
         uint256 zeta_pow_n;
     }
+    
+    struct transcript_data {
+        bytes32 current_challenge;
+    }
 
-    struct gate_evaluation_params {
+    struct gate_eval_params {
         uint256 modulus;
         uint256 theta_acc;
         uint256 theta;
         uint256 selector_evaluation;
+    }
+    
+    struct permutation_argument_eval_params {
+        uint256 modulus;
+        // 0x20
+        uint256 challenge;
+        // 0x40
+        uint256[] column_polynomials_values_ptrs;
+        // 0x60
+        uint256[] id_permutation_ptrs;
+        // 0x80
+        uint256[] sigma_permutation_ptrs;
+        // 0xa0
+        uint256 perm_polynomial_value;
+        // 0xc0
+        uint256 perm_polynomial_shifted_value;
+        // 0xe0
+        uint256 beta;
+        // 0x100
+        uint256 gamma;
+        // 0x120
+        uint256 q_blind_eval;
+        // 0x140
+        uint256 q_last_eval;
     }
 }

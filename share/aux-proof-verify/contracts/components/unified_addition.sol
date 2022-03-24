@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity >=0.6.0;
+pragma solidity >=0.8.4;
 
 import '../cryptography/types.sol';
 
@@ -45,7 +45,7 @@ library unified_addition_component {
 
     function evaluate_gate_be(
         uint256[] memory assignment_pointers,
-        types.gate_evaluation_params memory params
+        types.gate_eval_params memory params
     ) internal pure returns (uint256 gate_evaluation) {
         require(assignment_pointers.length >= 11, "Too little assignments passed (at least 11).");
 

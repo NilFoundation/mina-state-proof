@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity >=0.6.0;
+pragma solidity >=0.8.4;
 
 import './fri_verifier.sol';
 import '../cryptography/polynomial.sol';
@@ -137,7 +137,7 @@ library lpc_verifier {
     function verifyProof(
         uint256[] memory evaluation_points,
         proof_type memory proof,
-        transcript.transcript_data memory tr_state,
+        types.transcript_data memory tr_state,
         params_type memory params
     ) internal view returns(bool) {
         require(evaluation_points.length == proof.z.length, "Number of evaluation points is not correct");
@@ -162,7 +162,7 @@ library lpc_verifier {
         bytes memory blob,
         uint256 offset,
         uint256[] memory evaluation_points,
-        transcript.transcript_data memory tr_state,
+        types.transcript_data memory tr_state,
         params_type memory params
     ) internal view returns(bool result, uint256 proof_size) {
         result = false;
