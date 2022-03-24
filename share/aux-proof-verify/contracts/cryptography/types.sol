@@ -141,5 +141,6 @@ library types {
         uint256 modulus;
         uint256 theta_acc;
         uint256 theta;
+        uint256 selector_evaluation;
     }
 }

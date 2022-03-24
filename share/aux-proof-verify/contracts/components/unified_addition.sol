@@ -345,6 +345,13 @@ library unified_addition_component {
             // theta_acc *= theta
             theta_acc := mulmod(theta_acc, theta, modulus)
             mstore(add(params, 0x20), theta_acc)
+            
+            //==========================================================================================================
+            gate_evaluation := mulmod(
+                gate_evaluation,
+                mload(add(params, 0x60)),
+                modulus
+            )
         }
     }
 }
