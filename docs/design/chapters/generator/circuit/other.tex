@@ -41,9 +41,9 @@ Let $\alpha$ be equals to $\phi(b)$, where $b \in {0,1}^{\lambda}$.
     \begin{table}[H]
         \begin{tabular}{llllllllllllllll}
             Row    & 0        & 1        & 2        & 3        & 4        & 5        & 6        & 7        & 8        & 9        & 10       & 11       & 12       & 13       & 14       \\
-            $i$   & $n_0$    & $n_8$    & $a_0$    & $b_0$    & $a_8$    & $b_8$    & $x_0$      & $x_1$    & $x_2$    & $x_3$    & $x_4$    & $x_5$    & $x_6$ & $x_7$ & $--$ \\
+            $i$   & $n_0$    & $n_8$    & $a_0$    & $b_0$    & $a_8$    & $b_8$   & $--$ & $x_0$      & $x_1$    & $x_2$    & $x_3$    & $x_4$    & $x_5$    & $x_6$ & $x_7$ \\
             $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
-            $i + 15$   & $n_0$    & $n_8$    & $a_0$    & $b_0$    & $a_8$    & $b_8$    & $x_0$      & $x_1$    & $x_2$    & $x_3$    & $x_4$    & $x_5$    & $x_6$ & $x_7$ & $--$ \\
+            $i + 7$   & $n_0$    & $n_8$    & $a_0$    & $b_0$    & $a_8$    & $b_8$   & $res$ & $x_0$      & $x_1$    & $x_2$    & $x_3$    & $x_4$    & $x_5$    & $x_6$ & $x_7$ \\
         \end{tabular}
     \end{table}
 \end{center}
@@ -71,7 +71,11 @@ Constraints:
     \item $w_{14} \cdot (w_{14} - 1) \cdot (w_{14} - 2)\cdot (w_{14} - 3)  = 0$
     \item $w_{4} = 256 \cdot w_{2} + 128 \cdot c_f(w_6) + 64 \cdot c_f(w_7) + 32 \cdot c_f(w_8) + 16 \cdot c_f(w_9) + 8 \cdot c_f(w_{10}) + 4 \cdot c_f(w_{11}) + 2 \cdot c_f(w_{12}) + c_f(w_{13})$
     \item $w_{5} = 256 \cdot w_{3} + 128 \cdot d_f(w_6) + 64 \cdot d_f(w_7) + 32 \cdot d_f(w_8) + 16 \cdot d_f(w_9) + 8 \cdot d_f(w_{10}) + 4 \cdot d_f(w_{11}) + 2 \cdot d_f(w_{12}) + d_f(w_{13})$
-    \item $w_{1} = 256 \cdot w_{0} + 128 \cdot w_6 + 64 \cdot w_7 + 32 \cdot w_8 + 16 \cdot w_9 + 8 \cdot w_{10} + 4 \cdot w_{11} + 2 \cdot w_{12} + w_{13}$
+    \item $w_{1} = 2^{16} \cdot w_{0} + 2^{14} \cdot w_6 + 2^{12} \cdot w_7 + 2^{10} \cdot w_8 + 2^8 \cdot w_9 + 2^6 \cdot w_{10} + 2^4 \cdot w_{11} + 2^2 \cdot w_{12} + w_{13}$
+	\item for $i + 7$:
+	\begin{enumerate}
+		\item $w_{6} = \texttt{endo} \cdot w_{4} +  \cdot w_{5}$
+	\end{enumerate}
 \end{itemize}
 
     Copy constraints:
