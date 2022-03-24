@@ -8,7 +8,7 @@ This repository contains In-EVM Mina State verification project. In particular:
 
 ## Documentation
 
-Project documentation, circuit definitions, API references etc can be found at https://mina.nil.foundation/projects/verification.
+Project documentation, circuit definitions, API references etc can be found at https://verify.mina.nil.foundation/docs.
 
 ## Auxiliary Proof Generator (`aux-proof-gen`)
 
