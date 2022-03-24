@@ -8,6 +8,10 @@
 
 ### Documentation
 
+Project documentation is mostly concentrated (for now) in https://github.
+com/nilfoundation/evm-mina-verification/docs/design/main.pdf and https://github.
+com/nilfoundation/evm-mina-verification/docs/proof_system/main.pdf
+
 ### Repositories 
 
 Project repository is https://github.com/nilfoundation/evm-mina-verification.git
