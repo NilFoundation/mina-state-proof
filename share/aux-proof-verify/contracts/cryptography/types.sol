@@ -179,10 +179,13 @@ library types {
 
     struct lpc_params_type {
         uint256 modulus;
+        // 0x20
         uint256 lambda;
+        // 0x40
         uint256 r;
+        // 0x60
         uint256 m;
-        uint256 k;
+        // 0x80
         fri_params_type fri_params;
     }
 

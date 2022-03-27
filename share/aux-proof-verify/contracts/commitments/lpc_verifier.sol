@@ -159,17 +159,6 @@ library lpc_verifier {
         local_vars_type memory local_vars;
         assembly {
             let z_len := shr(0xc0, mload(add(add(blob, 0x20), add(offset, PROOF_Z_OFFSET))))
-            // number of z points should be equal to k
-            if eq(
-                eq(
-                    z_len,
-                    // k
-                    mload(add(params, 0x80))
-                ),
-                0
-            ) {
-                revert(0, 0)
-            }
             proof_size := add(proof_size, mul(0x20, z_len))
             mstore(local_vars, z_len)
         }
@@ -178,14 +167,11 @@ library lpc_verifier {
         assembly {
             let fri_proof_len := shr(0xc0, mload(add(add(blob, 0x20), add(offset, proof_size))))
             // number of fri proofs should be equal to lambda
-            if eq(
-                eq(
-                    fri_proof_len,
-                    // lambda
-                    mload(add(params, 0x20))
-                ),
-                0
-            ) {
+            if iszero(eq(
+                fri_proof_len,
+                // lambda
+                mload(add(params, 0x20))
+            )) {
                 revert(0, 0)
             }
             proof_size := add(proof_size, 8)
@@ -202,7 +188,6 @@ library lpc_verifier {
                 local_off := add(local_off, 0x20)
             }
         }
-        require(evaluation_points.length == params.k, "Number of evaluation points is not correct");
         params.fri_params.U = polynomial.interpolate(evaluation_points, local_vars.z, params.modulus);
         params.fri_params.V = new uint256[](1);
         params.fri_params.V[0] = 1;

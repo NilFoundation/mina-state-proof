@@ -50,7 +50,6 @@ contract TestLPCVerifier_d16 {
         lpc_params.modulus = modulus;
         lpc_params.lambda = 3;
         lpc_params.r = 3;
-        lpc_params.k = 1;
         lpc_params.m = 2;
         lpc_params.fri_params = fri_params;
         uint256[] memory evaluation_points = new uint256[](1);
@@ -84,7 +83,6 @@ contract TestLPCVerifier_d16 {
         lpc_params.modulus = modulus;
         lpc_params.lambda = 3;
         lpc_params.r = 3;
-        lpc_params.k = 1;
         lpc_params.m = 2;
         lpc_params.fri_params = fri_params;
         uint256[] memory evaluation_points = new uint256[](1);
