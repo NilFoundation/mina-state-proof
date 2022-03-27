@@ -37,7 +37,7 @@ contract TestPermutationArgument {
         params.perm_polynomial_shifted_value = 1;
         params.q_last_eval = 13999826423747567137123496940434711920412742386286813791218855552927143290328;
         params.q_blind_eval = 19370296004945959788133544749639859787788107681683555575106426224754701333537;
-        params.column_polynomials_values_ptrs = new uint256[](12);
+        params.column_polynomials_values = new uint256[](12);
         params.id_permutation_ptrs = new uint256[](12);
         params.sigma_permutation_ptrs = new uint256[](12);
         assembly {
@@ -50,7 +50,7 @@ contract TestPermutationArgument {
             let S_sigma_blob_ptr := add(S_sigma_blob, 0x20)
             let sigma_permutation_ptrs_ptr := add(mload(add(params, 0x80)), 0x20)
             for { let i := 0 } lt(i, 12) { i := add(i, 1) } {
-                mstore(column_polynomials_values_ptrs_ptr, column_polynomials_values_blob_ptr)
+                mstore(column_polynomials_values_ptrs_ptr, mload(column_polynomials_values_blob_ptr))
                 column_polynomials_values_blob_ptr := add(column_polynomials_values_blob_ptr, 0x20)
                 column_polynomials_values_ptrs_ptr := add(column_polynomials_values_ptrs_ptr, 0x20)
 
@@ -89,7 +89,7 @@ contract TestPermutationArgument {
         params.perm_polynomial_shifted_value = 1;
         params.q_last_eval = 1003188330204223361284696557335529039690738119140782086203806503030447081647;
         params.q_blind_eval = 1068012289539091434797183909362029488296752803983909452234101517389351617211;
-        params.column_polynomials_values_ptrs = new uint256[](12);
+        params.column_polynomials_values = new uint256[](12);
         params.id_permutation_ptrs = new uint256[](12);
         params.sigma_permutation_ptrs = new uint256[](12);
         assembly {
@@ -102,7 +102,7 @@ contract TestPermutationArgument {
             let S_sigma_blob_ptr := add(S_sigma_blob, 0x20)
             let sigma_permutation_ptrs_ptr := add(mload(add(params, 0x80)), 0x20)
             for { let i := 0 } lt(i, 12) { i := add(i, 1) } {
-                mstore(column_polynomials_values_ptrs_ptr, column_polynomials_values_blob_ptr)
+                mstore(column_polynomials_values_ptrs_ptr, mload(column_polynomials_values_blob_ptr))
                 column_polynomials_values_blob_ptr := add(column_polynomials_values_blob_ptr, 0x20)
                 column_polynomials_values_ptrs_ptr := add(column_polynomials_values_ptrs_ptr, 0x20)
 

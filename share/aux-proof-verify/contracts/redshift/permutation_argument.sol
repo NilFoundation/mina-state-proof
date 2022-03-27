@@ -25,8 +25,8 @@ library permutation_argument {
     function verify_eval_be(
         types.permutation_argument_eval_params memory params
     ) internal pure returns (uint256[] memory F) {
-        require(params.id_permutation_ptrs.length >= params.column_polynomials_values_ptrs.length, "");
-        require(params.sigma_permutation_ptrs.length >= params.column_polynomials_values_ptrs.length, "");
+        require(params.id_permutation_ptrs.length >= params.column_polynomials_values.length, "");
+        require(params.sigma_permutation_ptrs.length >= params.column_polynomials_values.length, "");
 
         F = new uint256[](ARGUMENT_SIZE);
         
@@ -43,7 +43,7 @@ library permutation_argument {
                     // column_polynomials_values[i] + beta * S_id[i].evaluate(challenge) + gamma
                     addmod(
                         // column_polynomials_values[i]
-                        mload(mload(add(mload(add(params, 0x40)), offset))),
+                        mload(add(mload(add(params, 0x40)), offset)),
                         // beta * S_id[i].evaluate(challenge) + gamma
                         addmod(
                             // beta * S_id[i].evaluate(challenge)
@@ -67,7 +67,7 @@ library permutation_argument {
                     // column_polynomials_values[i] + beta * S_sigma[i].evaluate(challenge) + gamma
                     addmod(
                         // column_polynomials_values[i]
-                        mload(mload(add(mload(add(params, 0x40)), offset))),
+                        mload(add(mload(add(params, 0x40)), offset)),
                         // beta * S_sigma[i].evaluate(challenge) + gamma
                         addmod(
                             // beta * S_sigma[i].evaluate(challenge)

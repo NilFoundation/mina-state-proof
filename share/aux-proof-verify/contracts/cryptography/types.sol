@@ -210,7 +210,7 @@ library types {
         // 0x20
         uint256 challenge;
         // 0x40
-        uint256[] column_polynomials_values_ptrs;
+        uint256[] column_polynomials_values;
         // 0x60
         uint256[] id_permutation_ptrs;
         // 0x80
@@ -227,5 +227,30 @@ library types {
         uint256 q_blind_eval;
         // 0x140
         uint256 q_last_eval;
+    }
+
+    struct redshift_proof_map {
+        uint256 witness_commitments_offset;
+        uint256 T_commitments_offset;
+        uint256 eval_proof_offset;
+        uint256 eval_proof_witness_offset;
+        uint256 eval_proof_permutation_offset;
+        uint256 eval_proof_quotient_offset;
+        uint256 eval_proof_id_permutation_offset;
+        uint256 eval_proof_sigma_permutation_offset;
+        uint256 eval_proof_public_input_offset;
+        uint256 eval_proof_constant_offset;
+        uint256 eval_proof_selector_offset;
+        uint256 eval_proof_special_selectors_offset;
+    }
+
+    struct redshift_column_rotations {
+        int256[] rotations;
+    }
+
+    struct redshift_common_data {
+        uint256 rows_amount;
+        uint256 omega;
+        redshift_column_rotations[] columns_rotations; 
     }
 }
