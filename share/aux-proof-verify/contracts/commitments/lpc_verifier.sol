@@ -20,6 +20,7 @@ pragma solidity >=0.8.4;
 import '../cryptography/types.sol';
 import './fri_verifier.sol';
 import '../cryptography/polynomial.sol';
+import '../basic_marshalling.sol';
 
 library lpc_verifier {
 
@@ -116,6 +117,20 @@ library lpc_verifier {
                 proof_size := add(proof_size, len)
                 offset := add(offset, len)
             }
+        }
+    }
+
+    function skip_proof_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result_offset) {
+        // T_root
+        result_offset = basic_marshalling.skip_octet_vector_32_be(blob, offset);
+        // z
+        result_offset = basic_marshalling.skip_vector_of_uint256_be(blob, result_offset);
+        // fri_proof
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length(blob, result_offset);
+        for (uint256 i = 0; i < value_len; i++) {
+            result_offset = fri_verifier.skip_proof_be(blob, result_offset);
         }
     }
 

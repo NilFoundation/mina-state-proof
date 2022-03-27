@@ -62,6 +62,7 @@ contract TestFRIVerifier_d1024 {
         params.V = V;
         (types.fri_proof_type memory proof, uint256 proof_size) = fri_verifier.parse_proof_be(raw_proof, 0);
         Assert.equal(raw_proof.length, proof_size, "Proof length is not correct");
+        Assert.equal(raw_proof.length, fri_verifier.skip_proof_be(raw_proof, 0), "Skipping proof is not correct");
         bool result = fri_verifier.verifyProof(proof, tr_state, params);
         Assert.equal(true, result, "Proof is not correct");
     }
@@ -103,5 +104,6 @@ contract TestFRIVerifier_d1024 {
         (bool result1, uint256 proof_size1) = fri_verifier.parse_verify_proof_be(raw_proof, 0, tr_state, params);
         Assert.equal(true, result1, "Proof is not correct!");
         Assert.equal(raw_proof.length, proof_size1, "Proof length is not correct!");
+        Assert.equal(raw_proof.length, fri_verifier.skip_proof_be(raw_proof, 0), "Skipping proof is not correct");
     }
 }

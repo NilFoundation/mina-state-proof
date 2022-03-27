@@ -22,6 +22,7 @@ import '../containers/merkle_verifier.sol';
 import '../cryptography/transcript.sol';
 import '../cryptography/field.sol';
 import '../cryptography/polynomial.sol';
+import '../basic_marshalling.sol';
 
 library fri_verifier {
 
@@ -196,6 +197,36 @@ library fri_verifier {
                 proof_size := add(proof_size, len)
                 offset := add(offset, len)
             }
+        }
+    }
+
+    function skip_round_proof_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result_offset) {
+        // colinear_value
+        result_offset = basic_marshalling.skip_uint256_be(blob, offset);
+        // T_root
+        result_offset = basic_marshalling.skip_octet_vector_32_be(blob, result_offset);
+        // y
+        result_offset = basic_marshalling.skip_vector_of_uint256_be(blob, result_offset);
+        // colinear_path
+        result_offset = merkle_verifier.skip_merkle_proof_be(blob, result_offset);
+        // p
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length(blob, result_offset);
+        for (uint256 i = 0; i < value_len; i++) {
+            result_offset = merkle_verifier.skip_merkle_proof_be(blob, result_offset);
+        }
+    }
+
+    function skip_proof_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result_offset) {
+        // final_polynomial
+        result_offset = basic_marshalling.skip_vector_of_uint256_be(blob, offset);
+        // round_proofs
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length(blob, result_offset);
+        for (uint256 i = 0; i < value_len; i++) {
+            result_offset = skip_round_proof_be(blob, result_offset);
         }
     }
 

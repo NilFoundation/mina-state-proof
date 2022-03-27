@@ -20,12 +20,29 @@ pragma solidity >=0.8.4;
 import '../cryptography/types.sol';
 
 library merkle_verifier {
-
+    // Merkle proof has the following structure:
+    // [0:8] - leaf index
+    // [8:16] - root length (which is always 32 bytes in current implementation)
+    // [16:48] - root
+    // [48:56] - merkle tree depth
+    //
+    // Depth number of layers with co-path elements follows then.
+    // Each layer has following structure (actually indexes begin from a certain offset):
+    // [0:8] - number of co-path elements on the layer
+    //  (layer_size = arity-1 actually, which (arity) is always 2 in current implementation)
+    //
+    // layer_size number of co-path elements for every layer in merkle proof follows then.
+    // Each element has following structure (actually indexes begin from a certain offset):
+    // [0:8] - co-path element position on the layer
+    // [8:16] - co-path element hash value length (which is always 32 bytes in current implementation)
+    // [16:48] - co-path element hash value
+    uint256 constant DEPTH_OFFSET = 48;
+    uint256 constant LAYERS_OFFSET = 56;
     // only one co-element on each layer as arity is always 2
-    uint256 constant LAYER_SIZE = 56; // 8  number of co-path elements on the layer
-                                      // 8  co-path element position on the layer
-                                      // 8  co-path element hash value length
-                                      // 32 co-path element hash value
+    uint256 constant LAYER_OCTETS = 56; // 8  number of co-path elements on the layer
+                                        // 8  co-path element position on the layer
+                                        // 8  co-path element hash value length
+                                        // 32 co-path element hash value
 
     function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
         if (_i == 0) {
@@ -49,22 +66,6 @@ library merkle_verifier {
         return string(bstr);
     }
 
-    // Merkle proof has the following structure:
-    // [0:8] - leaf index
-    // [8:16] - root length (which is always 32 bytes in current implementation)
-    // [16:48] - root
-    // [48:56] - merkle tree depth
-    //
-    // Depth number of layers with co-path elements follows then.
-    // Each layer has following structure (actually indexes begin from a certain offset):
-    // [0:8] - number of co-path elements on the layer
-    //  (layer_size = arity-1 actually, which (arity) is always 2 in current implementation)
-    //
-    // layer_size number of co-path elements for every layer in merkle proof follows then.
-    // Each element has following structure (actually indexes begin from a certain offset):
-    // [0:8] - co-path element position on the layer
-    // [8:16] - co-path element hash value length (which is always 32 bytes in current implementation)
-    // [16:48] - co-path element hash value
     function parse_merkle_proof_be(bytes memory blob, uint256 offset)
     internal pure returns (types.merkle_proof memory proof, uint256 proof_size) {
         require(offset < blob.length);
@@ -154,8 +155,22 @@ library merkle_verifier {
             depth := shr(0xc0, mload(add(add(blob, 0x20), add(offset, 48))))
         }
 
-        proof_size = 56 + LAYER_SIZE * depth;
+        proof_size = 56 + LAYER_OCTETS * depth;
         require(proof_size <= len, "here");
+    }
+
+    function skip_merkle_proof_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result_offset) {
+        require(offset < blob.length);
+
+        require(LAYERS_OFFSET <= blob.length - offset, "skip_merkle_proof_be");
+        uint256 depth = 0;
+        assembly {
+            depth := shr(0xc0, mload(add(add(blob, 0x20), add(offset, DEPTH_OFFSET))))
+        }
+
+        result_offset = offset + LAYERS_OFFSET + LAYER_OCTETS * depth;
+        require(result_offset <= blob.length, "skip_merkle_proof_be");
     }
 
     function verify_merkle_proof(
@@ -233,7 +248,7 @@ library merkle_verifier {
             depth := shr(0xc0, mload(add(add(blob, 0x20), add(offset, 48))))
         }
 
-        proof_size = 56 + LAYER_SIZE * depth;
+        proof_size = 56 + LAYER_OCTETS * depth;
         require(proof_size <= len);
         uint256 layer_offset = offset + 56;
         uint256 layer_hash_offset = 0;
@@ -252,11 +267,11 @@ library merkle_verifier {
         }
 
         for (uint256 cur_layer_i = 0; cur_layer_i < depth - 1; cur_layer_i++) {
-            layer_offset = offset + 56 + LAYER_SIZE * cur_layer_i;
+            layer_offset = offset + 56 + LAYER_OCTETS * cur_layer_i;
             layer_hash_offset = 0x20 + layer_offset + 24;
             assembly {
                 let pos := shr(0xc0, mload(add(add(blob, 0x20), add(layer_offset, 8))))
-                let next_pos := shr(0xc0, mload(add(add(blob, 0x20), add(add(layer_offset, 8), LAYER_SIZE))))
+                let next_pos := shr(0xc0, mload(add(add(blob, 0x20), add(add(layer_offset, 8), LAYER_OCTETS))))
                 switch pos
                 case 0 {
                     mstore(0x00, mload(add(blob, layer_hash_offset)))
@@ -281,7 +296,7 @@ library merkle_verifier {
             }
         }
 
-        layer_offset = offset + 56 + LAYER_SIZE * (depth - 1);
+        layer_offset = offset + 56 + LAYER_OCTETS * (depth - 1);
         layer_hash_offset = 0x20 + layer_offset + 24;
         assembly {
             let pos := shr(0xc0, mload(add(add(blob, 0x20), add(layer_offset, 8))))

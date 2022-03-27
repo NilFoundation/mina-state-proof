@@ -56,6 +56,7 @@ contract TestLPCVerifier_d16 {
         evaluation_points[0] = 5;
         (types.lpc_proof_type memory proof, uint256 proof_size) = lpc_verifier.parse_proof_be(raw_proof, 0);
         Assert.equal(raw_proof.length, proof_size, "Proof length is not correct");
+        Assert.equal(raw_proof.length, lpc_verifier.skip_proof_be(raw_proof, 0), "Skipping proof is not correct!");
         bool result = lpc_verifier.verifyProof(evaluation_points, proof, tr_state, lpc_params);
         Assert.equal(true, result, "Proof is not correct");
     }
@@ -90,5 +91,6 @@ contract TestLPCVerifier_d16 {
         (bool result1, uint256 proof_size1) = lpc_verifier.parse_verify_proof_be(raw_proof, 0, evaluation_points, tr_state, lpc_params);
         Assert.equal(true, result1, "Proof is not correct!");
         Assert.equal(raw_proof.length, proof_size1, "Proof length is not correct!");
+        Assert.equal(raw_proof.length, lpc_verifier.skip_proof_be(raw_proof, 0), "Skipping proof is not correct!");
     }
 }
