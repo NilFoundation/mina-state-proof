@@ -27,7 +27,7 @@ contract TestMerkleProofVerifier {
         // tree depth = 5
         bytes memory raw_proof = hex"0000000000000005000000000000002059cba3bdcfcfdcabe6bc23802966d76367c28a7939fb39f8432620ec466aabaf0000000000000005000000000000000100000000000000000000000000000020fd9445ad175f8f3a6405eaaf5fd583873d3f5d0c903da0aeb97b04fac7fcbcc80000000000000001000000000000000100000000000000204a5e9e2000650fa7d168a06809478bbcb469532092887806f21d7cd074d96905000000000000000100000000000000000000000000000020b0e647e0624a38eeb146c44762a79021f3864d12abd3342fd6edde51f304db850000000000000001000000000000000100000000000000205ca0b18db54a196413a95df26ef750b03adba1e2f0bc08a976545f9cfa83481d0000000000000001000000000000000100000000000000206e0184836cd6eaedf595e70cfb97d83d2d261c987b86f937e0877235ac259abc";
         bytes32 verified_data = hex"8107f390abb06908493732a40062b18e3894e0d191b091b273b584cdc6fbd547";
-        (merkle_verifier.merkle_proof memory proof, uint256 proof_size) = merkle_verifier.parse_merkle_proof_be(raw_proof, 0);
+        (types.merkle_proof memory proof, uint256 proof_size) = merkle_verifier.parse_merkle_proof_be(raw_proof, 0);
         Assert.equal(raw_proof.length, proof_size, "Proof length is not correct");
         Assert.equal(true, merkle_verifier.verify_merkle_proof(proof, verified_data), "Proof is not correct");
 

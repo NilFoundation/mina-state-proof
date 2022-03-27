@@ -20,6 +20,7 @@ pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
+import '../contracts/cryptography/types.sol';
 import '../contracts/commitments/fri_verifier.sol';
 import '../contracts/cryptography/transcript.sol';
 
@@ -32,7 +33,7 @@ contract TestFRIVerifier_d1024 {
         bytes memory init_blob = hex"00010203040506070809";
         types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
-        fri_verifier.params_type memory params;
+        types.fri_params_type memory params;
         params.modulus = modulus;
         params.r = 10;
         params.max_degree = 1023;
@@ -59,7 +60,7 @@ contract TestFRIVerifier_d1024 {
         V[0] = 1;
         params.U = U;
         params.V = V;
-        (fri_verifier.proof_type memory proof, uint256 proof_size) = fri_verifier.parse_proof_be(raw_proof, 0);
+        (types.fri_proof_type memory proof, uint256 proof_size) = fri_verifier.parse_proof_be(raw_proof, 0);
         Assert.equal(raw_proof.length, proof_size, "Proof length is not correct");
         bool result = fri_verifier.verifyProof(proof, tr_state, params);
         Assert.equal(true, result, "Proof is not correct");
@@ -72,7 +73,7 @@ contract TestFRIVerifier_d1024 {
         bytes memory init_blob = hex"00010203040506070809";
         types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
-        fri_verifier.params_type memory params;
+        types.fri_params_type memory params;
         params.modulus = modulus;
         params.r = 10;
         params.max_degree = 1023;

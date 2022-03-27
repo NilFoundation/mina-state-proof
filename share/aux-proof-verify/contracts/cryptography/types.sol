@@ -141,10 +141,64 @@ library types {
         bytes32 current_challenge;
     }
 
+    struct path_element {
+        uint256 position;
+        bytes32 hash;
+    }
+
+    struct merkle_proof {
+        uint256 li;
+        bytes32 root;
+        path_element[] path;
+    }
+
+    struct fri_params_type {
+        uint256 modulus;
+        uint256 r;
+        uint256 max_degree;
+
+        uint256[] D_omegas;
+        uint256[] q;
+
+        uint256[] U;
+        uint256[] V;
+    }
+
+    struct fri_round_proof_type {
+        uint256 colinear_value;
+        bytes32 T_root;
+        uint256[] y;
+        merkle_proof colinear_path;
+        merkle_proof[] p;
+    }
+
+    struct fri_proof_type {
+        uint256[] final_polynomial;
+        fri_round_proof_type[] round_proofs;
+    }
+
+    struct lpc_params_type {
+        uint256 modulus;
+        uint256 lambda;
+        uint256 r;
+        uint256 m;
+        uint256 k;
+        fri_params_type fri_params;
+    }
+
+    struct lpc_proof_type {
+        bytes32 T_root;
+        uint256[] z;
+        fri_proof_type[] fri_proof;
+    }
+
     struct gate_eval_params {
         uint256 modulus;
+        // 0x20
         uint256 theta_acc;
+        // 0x40
         uint256 theta;
+        // 0x60
         uint256 selector_evaluation;
     }
     

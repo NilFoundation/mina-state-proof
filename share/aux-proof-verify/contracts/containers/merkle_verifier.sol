@@ -17,18 +17,9 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
+import '../cryptography/types.sol';
+
 library merkle_verifier {
-
-    struct path_element {
-        uint256 position;
-        bytes32 hash;
-    }
-
-    struct merkle_proof {
-        uint256 li;
-        bytes32 root;
-        path_element[] path;
-    }
 
     // only one co-element on each layer as arity is always 2
     uint256 constant LAYER_SIZE = 56; // 8  number of co-path elements on the layer
@@ -75,7 +66,7 @@ library merkle_verifier {
     // [8:16] - co-path element hash value length (which is always 32 bytes in current implementation)
     // [16:48] - co-path element hash value
     function parse_merkle_proof_be(bytes memory blob, uint256 offset)
-    internal pure returns (merkle_proof memory proof, uint256 proof_size) {
+    internal pure returns (types.merkle_proof memory proof, uint256 proof_size) {
         require(offset < blob.length);
         uint256 len = blob.length - offset;
 
@@ -110,7 +101,7 @@ library merkle_verifier {
                            + 32; // co-path element hash value
         proof_size = 56 + layer_size * depth;
         require(proof_size <= len);
-        proof.path = new path_element[](depth);
+        proof.path = new types.path_element[](depth);
 
         uint256 layer_offset = 0;
         uint256 layer_hash_offset = 0;
@@ -168,7 +159,7 @@ library merkle_verifier {
     }
 
     function verify_merkle_proof(
-        merkle_proof memory proof,
+        types.merkle_proof memory proof,
         bytes32 verified_data
     ) internal pure returns (bool) {
         assembly {

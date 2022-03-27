@@ -17,25 +17,11 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
+import '../cryptography/types.sol';
 import './fri_verifier.sol';
 import '../cryptography/polynomial.sol';
 
 library lpc_verifier {
-
-    struct params_type {
-        uint256 modulus;
-        uint256 lambda;
-        uint256 r;
-        uint256 m;
-        uint256 k;
-        fri_verifier.params_type fri_params;
-    }
-
-    struct proof_type {
-        bytes32 T_root;
-        uint256[] z;
-        fri_verifier.proof_type[] fri_proof;
-    }
 
     struct local_vars_type {
         uint256 z_len;
@@ -68,7 +54,7 @@ library lpc_verifier {
     }
 
     function parse_proof_be(bytes memory blob, uint256 offset)
-    internal pure returns (proof_type memory proof, uint256 proof_size) {
+    internal pure returns (types.lpc_proof_type memory proof, uint256 proof_size) {
         require(offset < blob.length);
         uint256 len = blob.length - offset;
         uint256 value_len;
@@ -121,8 +107,8 @@ library lpc_verifier {
             value_len := shr(0xc0, mload(add(blob, add(0x20, offset))))
             offset := add(offset, 8)
         }
-        proof.fri_proof = new fri_verifier.proof_type[](value_len);
-        fri_verifier.proof_type memory p;
+        proof.fri_proof = new types.fri_proof_type[](value_len);
+        types.fri_proof_type memory p;
         for (uint256 i = 0; i < value_len; i++) {
             (p, len) = fri_verifier.parse_proof_be(blob, offset);
             assembly {
@@ -136,9 +122,9 @@ library lpc_verifier {
     //
     function verifyProof(
         uint256[] memory evaluation_points,
-        proof_type memory proof,
+        types.lpc_proof_type memory proof,
         types.transcript_data memory tr_state,
-        params_type memory params
+        types.lpc_params_type memory params
     ) internal view returns(bool) {
         require(evaluation_points.length == proof.z.length, "Number of evaluation points is not correct");
         params.fri_params.U = polynomial.interpolate(evaluation_points, proof.z, params.modulus);
@@ -163,7 +149,7 @@ library lpc_verifier {
         uint256 offset,
         uint256[] memory evaluation_points,
         types.transcript_data memory tr_state,
-        params_type memory params
+        types.lpc_params_type memory params
     ) internal view returns(bool result, uint256 proof_size) {
         result = false;
         require(offset < blob.length);

@@ -20,6 +20,7 @@ pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
+import '../contracts/cryptography/types.sol';
 import '../contracts/commitments/fri_verifier.sol';
 import '../contracts/commitments/lpc_verifier.sol';
 import '../contracts/cryptography/transcript.sol';
@@ -33,7 +34,7 @@ contract TestLPCVerifier_d16 {
         bytes memory init_blob = hex"00010203040506070809";
         types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
-        fri_verifier.params_type memory fri_params;
+        types.fri_params_type memory fri_params;
         fri_params.modulus = modulus;
         fri_params.r = 3;
         fri_params.max_degree = 15;
@@ -45,7 +46,7 @@ contract TestLPCVerifier_d16 {
         fri_params.q[0] = 0;
         fri_params.q[1] = 0;
         fri_params.q[2] = 1;
-        lpc_verifier.params_type memory lpc_params;
+        types.lpc_params_type memory lpc_params;
         lpc_params.modulus = modulus;
         lpc_params.lambda = 3;
         lpc_params.r = 3;
@@ -54,7 +55,7 @@ contract TestLPCVerifier_d16 {
         lpc_params.fri_params = fri_params;
         uint256[] memory evaluation_points = new uint256[](1);
         evaluation_points[0] = 5;
-        (lpc_verifier.proof_type memory proof, uint256 proof_size) = lpc_verifier.parse_proof_be(raw_proof, 0);
+        (types.lpc_proof_type memory proof, uint256 proof_size) = lpc_verifier.parse_proof_be(raw_proof, 0);
         Assert.equal(raw_proof.length, proof_size, "Proof length is not correct");
         bool result = lpc_verifier.verifyProof(evaluation_points, proof, tr_state, lpc_params);
         Assert.equal(true, result, "Proof is not correct");
@@ -67,7 +68,7 @@ contract TestLPCVerifier_d16 {
         bytes memory init_blob = hex"00010203040506070809";
         types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
-        fri_verifier.params_type memory fri_params;
+        types.fri_params_type memory fri_params;
         fri_params.modulus = modulus;
         fri_params.r = 3;
         fri_params.max_degree = 15;
@@ -79,7 +80,7 @@ contract TestLPCVerifier_d16 {
         fri_params.q[0] = 0;
         fri_params.q[1] = 0;
         fri_params.q[2] = 1;
-        lpc_verifier.params_type memory lpc_params;
+        types.lpc_params_type memory lpc_params;
         lpc_params.modulus = modulus;
         lpc_params.lambda = 3;
         lpc_params.r = 3;
