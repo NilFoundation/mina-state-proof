@@ -96,7 +96,7 @@ library basic_marshalling {
         assembly {
             result := mload(add(
                 add(blob, 0x20),
-                add(offset, mul(i, 0x20))
+                add(add(offset, LENGTH_OCTETS), mul(i, 0x20))
             ))
         }
     }

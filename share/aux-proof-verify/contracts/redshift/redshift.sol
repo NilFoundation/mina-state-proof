@@ -17,8 +17,8 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import "truffle/Assert.sol";
 import '../cryptography/types.sol';
+import '../cryptography/transcript.sol';
 import './verifier.sol';
 
 contract RedshiftVerifier {
@@ -26,7 +26,7 @@ contract RedshiftVerifier {
     types.lpc_params_type lpc_params;
     types.redshift_common_data common_data;
 
-    function set_lpc_params(uint256 modulus, uint256 r, uint256 max_degree, uint256 lambda, uint256 m) public {
+    function set_initial_params(uint256 modulus, uint256 r, uint256 max_degree, uint256 lambda, uint256 m, uint256 rows_amount, uint256 omega, uint256 columns_number) public {
         lpc_params.modulus = modulus;
         lpc_params.lambda = lambda;
         lpc_params.r = r;
@@ -35,10 +35,14 @@ contract RedshiftVerifier {
         lpc_params.fri_params.modulus = modulus;
         lpc_params.fri_params.r = r;
         lpc_params.fri_params.max_degree = max_degree;
+
+        common_data.rows_amount = rows_amount;
+        common_data.omega = omega;
+        common_data.columns_rotations = new int256[][](columns_number);
     }
 
-    constructor(uint256 modulus, uint256 r, uint256 max_degree, uint256 lambda, uint256 m) {
-        set_lpc_params(modulus, r, max_degree, lambda, m);
+    constructor(uint256 modulus, uint256 r, uint256 max_degree, uint256 lambda, uint256 m, uint256 rows_amount, uint256 omega, uint256 columns_number) {
+        set_initial_params(modulus, r, max_degree, lambda, m, rows_amount, omega, columns_number);
     }
 
     function set_U(uint256[] calldata U) public {
@@ -57,11 +61,15 @@ contract RedshiftVerifier {
         lpc_params.fri_params.q = q;
     }
 
-    function verify(bytes calldata blob) public {
-        (types.redshift_proof_map memory proof_map, uint256 proof_size) = redshift_verifier.parse_proof_map_be(blob, 0);
-        // require(blob.length == proof_size - 1, "Proof length is not correct");
-        Assert.equal(blob.length, proof_size - 1, "Proof length is not correct");
+    function set_column_rotations(int256[] calldata rotations, uint256 i) public {
+        common_data.columns_rotations[i] = rotations;
     }
 
-
+    function verify(bytes calldata blob) public {
+        (types.redshift_proof_map memory proof_map, uint256 proof_size) = redshift_verifier.parse_proof_map_be(blob, 0);
+        bytes memory init_blob = hex"";
+        types.transcript_data memory tr_state;
+        transcript.init_transcript(tr_state, init_blob);
+        bool result = redshift_verifier.parse_verify_proof_be(blob, 0, tr_state, proof_map, lpc_params, common_data);
+    }
 }

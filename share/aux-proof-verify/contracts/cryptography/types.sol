@@ -251,6 +251,14 @@ library types {
     struct redshift_common_data {
         uint256 rows_amount;
         uint256 omega;
-        redshift_column_rotations[] columns_rotations; 
+        int256[][] columns_rotations; 
+    }
+
+    struct redshift_local_variables {
+        uint256 len;
+        uint256 offset;
+        uint256 zero_index;
+
+        uint256 tmp1;
     }
 }

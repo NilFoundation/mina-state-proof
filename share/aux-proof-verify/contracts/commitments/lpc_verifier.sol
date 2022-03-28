@@ -161,9 +161,10 @@ library lpc_verifier {
 
     function get_z_0_ptr_from_proof_be(bytes memory blob, uint256 offset)
     internal pure returns (uint256 z_0_ptr) {
-        // 0x28 - skip T_root
+        // 0x28 - skip T_root +
+        //  8 - lenght
         assembly {
-            z_0_ptr := add(add(blob, 0x20), add(offset, 0x28))
+            z_0_ptr := add(add(blob, 0x20), add(offset, 0x30))
         }
     }
 
