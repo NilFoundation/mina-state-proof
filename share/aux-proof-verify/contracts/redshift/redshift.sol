@@ -71,5 +71,6 @@ contract RedshiftVerifier {
         types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
         bool result = redshift_verifier.parse_verify_proof_be(blob, 0, tr_state, proof_map, lpc_params, common_data);
+        require(result, "Proof is not correct!");
     }
 }

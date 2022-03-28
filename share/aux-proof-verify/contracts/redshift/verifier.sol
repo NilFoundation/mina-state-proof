@@ -212,7 +212,7 @@ library redshift_verifier {
                 ),
                 0
             );
-        uint256[] memory permutation_argument =
+        local_vars.permutation_argument =
             permutation_argument.verify_eval_be(permutation_argument_params);
 
         // 7. gate argument
@@ -254,226 +254,315 @@ library redshift_verifier {
             proof_map.eval_proof_selector_offset + basic_marshalling.LENGTH_OCTETS,
             0
         );
-        uint256 gate_argument =
+        local_vars.gate_argument =
             unified_addition_component.evaluate_gate_be(assignments_ptrs, gate_params);
+
+        // 8. alphas computations
+        local_vars.alphas = new uint256[](f_parts);
+        transcript.get_field_challenges(tr_state, local_vars.alphas, params.modulus);
+
+        // 9. Evaluation proof check
+        (local_vars.len, local_vars.offset) = basic_marshalling.get_skip_length(blob, proof_map.T_commitments_offset);
+        for (uint256 i = 0; i < local_vars.len; i++) {
+            transcript.update_transcript_b32_by_offset(tr_state, blob, local_vars.offset + basic_marshalling.LENGTH_OCTETS);
+            local_vars.offset = basic_marshalling.skip_octet_vector_32_be(blob, local_vars.offset);
+        }
+        local_vars.challenge = transcript.get_field_challenge(tr_state, params.modulus);
+        if (local_vars.challenge != basic_marshalling.get_uint256_be(blob, proof_map.eval_proof_offset)) {
+            return false;
+        }
+
+        // witnesses
+        (local_vars.len, local_vars.offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_witness_offset);
+        for (uint256 i = 0; i < local_vars.len; i++) {
+            uint256[] memory evaluation_points_gates = new uint256[](common_data.columns_rotations[i].length);
+            for (uint256 j = 0; j < common_data.columns_rotations[i].length; j++) {
+                local_vars.e = uint256(common_data.columns_rotations[i][j] + int256(params.modulus)) % params.modulus;
+                local_vars.e = field.expmod_static(common_data.omega, local_vars.e, params.modulus);
+                assembly {
+                    mstore(
+                        // evaluation_points_gates[j]
+                        add(add(evaluation_points_gates, 0x20), mul(0x20, j)),
+                        // challenge * omega^rotation_gates[j]
+                        mulmod(
+                            // challenge
+                            mload(add(local_vars, 0xc0)),
+                            // e = omega^rotation_gates[j]
+                            mload(add(local_vars, 0xe0)),
+                            // modulus
+                            mload(params)
+                        )
+                    )
+                }
+            }
+            (local_vars.status,) = lpc_verifier.parse_verify_proof_be(
+                blob,
+                local_vars.offset,
+                evaluation_points_gates,
+                tr_state,
+                params
+            );
+            if (!local_vars.status) {
+                return false;
+            }
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
+
+        // permutation
+        local_vars.evaluation_points_permutation = new uint256[](2);
+        local_vars.evaluation_points_permutation[0] = local_vars.challenge;
+        // local_vars.evaluation_points_permutation[1] = (local_vars.challenge * common_data.omega) % params.modulus;
+        assembly {
+            mstore(
+                // local_vars.evaluation_points_permutation[1]
+                add(mload(add(local_vars, 0x100)), 0x40),
+                // (local_vars.challenge * common_data.omega) % params.modulus
+                mulmod(
+                    // local_vars.challenge
+                    mload(add(local_vars, 0xc0)),
+                    // common_data.omega
+                    mload(add(common_data, 0x20)),
+                    // modulus
+                    mload(params)
+                )
+            )
+        }
+        (local_vars.len, local_vars.offset) =
+            basic_marshalling.get_skip_length(blob, proof_map.eval_proof_permutation_offset);
+        for (uint256 i = 0; i < local_vars.len; i++) {
+            (local_vars.status,) = lpc_verifier.parse_verify_proof_be(
+                blob,
+                local_vars.offset,
+                local_vars.evaluation_points_permutation,
+                tr_state,
+                params
+            );
+            if (!local_vars.status) {
+                return false;
+            }
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
+
+        // quotient
+        local_vars.evaluation_points_quotient = new uint256[](1);
+        local_vars.evaluation_points_quotient[0] = local_vars.challenge;
+        (local_vars.len, local_vars.offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_quotient_offset);
+        for (uint256 i = 0; i < local_vars.len; i++) {
+            (local_vars.status,) = lpc_verifier.parse_verify_proof_be(
+                blob,
+                local_vars.offset,
+                local_vars.evaluation_points_quotient,
+                tr_state,
+                params
+            );
+            if (!local_vars.status) {
+                return false;
+            }
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
+
+        // public data
+        (local_vars.len, local_vars.offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_id_permutation_offset);
+        for (uint256 i = 0; i < local_vars.len; i++) {
+            (local_vars.status,) = lpc_verifier.parse_verify_proof_be(
+                blob,
+                local_vars.offset,
+                local_vars.evaluation_points_quotient,
+                tr_state,
+                params
+            );
+            if (!local_vars.status) {
+                return false;
+            }
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
         // uint256 _x = assignments_ptrs[10];
         // assembly {
         //     _x := mload(_x)
         // }
-        // require(false, uint2str(gate_argument));
+        // require(false, uint2str(alphas[2]));
 
-        // // 8. alphas computations
-        // uint256[] memory alphas = new uint256[](f_parts);
-        // transcript.get_field_challenges(tr_state, alphas, params.modulus);
-        
-        // // 9. Evaluation proof check
-        // (local_len, local_offset) = basic_marshalling.get_skip_length(blob, proof_map.T_commitments_offset);
-        // for (uint256 i = 0; i < local_len; i++) {
-        //     transcript.update_transcript_b32_by_offset(tr_state, blob, local_offset + basic_marshalling.LENGTH_OCTETS);
-        // }
-        // uint256 challenge = transcript.get_field_challenge(tr_state, params.modulus);
-        // if (challenge != basic_marshalling.get_uint256_be(blob, proof_map.eval_proof_offset)) {
-        //     return false;
-        // }
+        // sigma
+        (local_vars.len, local_vars.offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_sigma_permutation_offset);
+        for (uint256 i = 0; i < local_vars.len; i++) {
+            (local_vars.status,) = lpc_verifier.parse_verify_proof_be(
+                blob,
+                local_vars.offset,
+                local_vars.evaluation_points_quotient,
+                tr_state,
+                params
+            );
+            if (!local_vars.status) {
+                return false;
+            }
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
 
-        // // witnesses
-        // (local_len, local_offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_witness_offset);
-        // for (uint256 i = 0; i < local_len; i++) {
-        //     uint256[] memory evaluation_points_gates = new uint256[](common_data.columns_rotations[i].rotations.length);
-        //     for (uint256 j = 0; j < common_data.columns_rotations[i].rotations.length; j++) {
-        //         uint256 e = uint256(common_data.columns_rotations[i].rotations[j] + int256(params.modulus)) % params.modulus;
-        //         e = field.expmod_static(common_data.omega, e, params.modulus);
-        //         assembly {
-        //             e := mulmod(
-        //                 e,
-        //                 challenge,
-        //                 mload(params)
-        //             )
-        //         }
-        //         evaluation_points_gates[j] = e;
-        //     }
-        //     (bool res,) = lpc_verifier.parse_verify_proof_be(
-        //         blob,
-        //         local_offset,
-        //         evaluation_points_gates,
-        //         tr_state,
-        //         params
-        //     );
-        //     if (!res) {
-        //         return false;
-        //     }
-        //     local_offset = lpc_verifier.skip_proof_be(blob, local_offset);
-        // }
+        // public_input
+        (local_vars.len, local_vars.offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_public_input_offset);
+        for (uint256 i = 0; i < local_vars.len; i++) {
+            (local_vars.status,) = lpc_verifier.parse_verify_proof_be(
+                blob,
+                local_vars.offset,
+                local_vars.evaluation_points_quotient,
+                tr_state,
+                params
+            );
+            if (!local_vars.status) {
+                return false;
+            }
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
 
-        // // permutation
-        // uint256[] memory evaluation_points_permutation = new uint256[](2);
-        // evaluation_points_permutation[0] = challenge;
-        // evaluation_points_permutation[1] = (challenge * common_data.omega) % params.modulus;
-        // (local_len, local_offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_permutation_offset);
-        // for (uint256 i = 0; i < local_len; i++) {
-        //     (bool res,) = lpc_verifier.parse_verify_proof_be(
-        //         blob,
-        //         local_offset,
-        //         evaluation_points_permutation,
-        //         tr_state,
-        //         params
-        //     );
-        //     if (!res) {
-        //         return false;
-        //     }
-        //     local_offset = lpc_verifier.skip_proof_be(blob, local_offset);
-        // }
+        // constant
+        (local_vars.len, local_vars.offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_constant_offset);
+        for (uint256 i = 0; i < local_vars.len; i++) {
+            (local_vars.status,) = lpc_verifier.parse_verify_proof_be(
+                blob,
+                local_vars.offset,
+                local_vars.evaluation_points_quotient,
+                tr_state,
+                params
+            );
+            if (!local_vars.status) {
+                return false;
+            }
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
 
-        // // quotient
-        // uint256[] memory evaluation_points_quotient = new uint256[](1);
-        // evaluation_points_permutation[0] = challenge;
-        // (local_len, local_offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_quotient_offset);
-        // for (uint256 i = 0; i < local_len; i++) {
-        //     (bool res,) = lpc_verifier.parse_verify_proof_be(
-        //         blob,
-        //         local_offset,
-        //         evaluation_points_quotient,
-        //         tr_state,
-        //         params
-        //     );
-        //     if (!res) {
-        //         return false;
-        //     }
-        //     local_offset = lpc_verifier.skip_proof_be(blob, local_offset);
-        // }
+        // selector
+        (local_vars.len, local_vars.offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_selector_offset);
+        for (uint256 i = 0; i < local_vars.len; i++) {
+            (local_vars.status,) = lpc_verifier.parse_verify_proof_be(
+                blob,
+                local_vars.offset,
+                local_vars.evaluation_points_quotient,
+                tr_state,
+                params
+            );
+            if (!local_vars.status) {
+                return false;
+            }
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
 
-        // // public data
-        // (local_len, local_offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_id_permutation_offset);
-        // for (uint256 i = 0; i < local_len; i++) {
-        //     (bool res,) = lpc_verifier.parse_verify_proof_be(
-        //         blob,
-        //         local_offset,
-        //         evaluation_points_quotient,
-        //         tr_state,
-        //         params
-        //     );
-        //     if (!res) {
-        //         return false;
-        //     }
-        //     local_offset = lpc_verifier.skip_proof_be(blob, local_offset);
-        // }
+        // special_selectors
+        (local_vars.len, local_vars.offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_special_selectors_offset);
+        for (uint256 i = 0; i < local_vars.len; i++) {
+            (local_vars.status,) = lpc_verifier.parse_verify_proof_be(
+                blob,
+                local_vars.offset,
+                local_vars.evaluation_points_quotient,
+                tr_state,
+                params
+            );
+            if (!local_vars.status) {
+                return false;
+            }
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
 
-        // // sigma
-        // (local_len, local_offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_sigma_permutation_offset);
-        // for (uint256 i = 0; i < local_len; i++) {
-        //     (bool res,) = lpc_verifier.parse_verify_proof_be(
-        //         blob,
-        //         local_offset,
-        //         evaluation_points_quotient,
-        //         tr_state,
-        //         params
-        //     );
-        //     if (!res) {
-        //         return false;
-        //     }
-        //     local_offset = lpc_verifier.skip_proof_be(blob, local_offset);
-        // }
+        // 10. final check
+        local_vars.F = new uint256[](f_parts);
+        local_vars.F[0] = local_vars.permutation_argument[0];
+        local_vars.F[1] = local_vars.permutation_argument[1];
+        local_vars.F[2] = local_vars.permutation_argument[2];
+        local_vars.F[3] = local_vars.gate_argument;
 
-        // // public_input
-        // (local_len, local_offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_public_input_offset);
-        // for (uint256 i = 0; i < local_len; i++) {
-        //     (bool res,) = lpc_verifier.parse_verify_proof_be(
-        //         blob,
-        //         local_offset,
-        //         evaluation_points_quotient,
-        //         tr_state,
-        //         params
-        //     );
-        //     if (!res) {
-        //         return false;
-        //     }
-        //     local_offset = lpc_verifier.skip_proof_be(blob, local_offset);
-        // }
+        local_vars.F_consolidated = 0;
+        for (uint256 i = 0; i < f_parts; i++) {
+            assembly {
+                mstore(
+                    add(local_vars, 0x160),
+                    addmod(
+                        // F_consolidated
+                        mload(add(local_vars, 0x160)),
+                        mulmod(
+                            // alpha[i]
+                            mload(add(add(mload(add(local_vars, 0xa0)), 0x20), mul(0x20, i))),
+                            // F[i]
+                            mload(add(add(mload(add(local_vars, 0x140)), 0x20), mul(0x20, i))),
+                            // modulus
+                            mload(params)
+                        ),
+                        // modulus
+                        mload(params)
+                    )
+                )
+            }
+        }
 
-        // // constant
-        // (local_len, local_offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_constant_offset);
-        // for (uint256 i = 0; i < local_len; i++) {
-        //     (bool res,) = lpc_verifier.parse_verify_proof_be(
-        //         blob,
-        //         local_offset,
-        //         evaluation_points_quotient,
-        //         tr_state,
-        //         params
-        //     );
-        //     if (!res) {
-        //         return false;
-        //     }
-        //     local_offset = lpc_verifier.skip_proof_be(blob, local_offset);
-        // }
+        local_vars.T_consolidated = 0;
+        (local_vars.len, local_vars.offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_quotient_offset);
+        for (uint256 i = 0; i < local_vars.len; i++) {
+            local_vars.zero_index = lpc_verifier.get_z_i_from_proof_be(blob, local_vars.offset, 0);
+            local_vars.e = field.expmod_static(local_vars.challenge, (params.fri_params.max_degree + 1) * i, params.modulus);
 
-        // // selector
-        // (local_len, local_offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_selector_offset);
-        // for (uint256 i = 0; i < local_len; i++) {
-        //     (bool res,) = lpc_verifier.parse_verify_proof_be(
-        //         blob,
-        //         local_offset,
-        //         evaluation_points_quotient,
-        //         tr_state,
-        //         params
-        //     );
-        //     if (!res) {
-        //         return false;
-        //     }
-        //     local_offset = lpc_verifier.skip_proof_be(blob, local_offset);
-        // }
+            // local_vars.zero_index = (local_vars.zero_index * local_vars.e) % params.modulus;
+            // local_vars.T_consolidated = (local_vars.T_consolidated + local_vars.zero_index) % params.modulus;
+            assembly {
+                mstore(
+                    // local_vars.zero_index
+                    add(local_vars, 0x40),
+                    // local_vars.zero_index * local_vars.e
+                    mulmod(
+                        // local_vars.zero_index
+                        mload(add(local_vars, 0x40)),
+                        // local_vars.e
+                        mload(add(local_vars, 0xe0)),
+                        // modulus
+                        mload(params)
+                    )
+                )
+                mstore(
+                    // local_vars.T_consolidated
+                    add(local_vars, 0x180),
+                    // local_vars.T_consolidated + local_vars.zero_index
+                    addmod(
+                        // local_vars.T_consolidated
+                        mload(add(local_vars, 0x180)),
+                        // local_vars.zero_index
+                        mload(add(local_vars, 0x40)),
+                        // modulus
+                        mload(params)
+                    )
+                )
+            }
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
 
-        // // special_selectors
-        // (local_len, local_offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_special_selectors_offset);
-        // for (uint256 i = 0; i < local_len; i++) {
-        //     (bool res,) = lpc_verifier.parse_verify_proof_be(
-        //         blob,
-        //         local_offset,
-        //         evaluation_points_quotient,
-        //         tr_state,
-        //         params
-        //     );
-        //     if (!res) {
-        //         return false;
-        //     }
-        //     local_offset = lpc_verifier.skip_proof_be(blob, local_offset);
-        // }
-
-        // // 10. final check
-        // uint256[] memory F = new uint256[](f_parts);
-        // F[0] = permutation_argument[0];
-        // F[1] = permutation_argument[1];
-        // F[2] = permutation_argument[2];
-        // F[3] = gate_argument;
-
-        // uint256 F_consolidated = 0;
-        // for (uint256 i = 0; i < f_parts; i++) {
-        //     assembly {
-        //         F_consolidated := addmod(
-        //             F_consolidated,
-        //             mulmod(
-        //                 mload(add(add(alphas, 0x20), mul(0x20, i))),
-        //                 mload(add(add(F, 0x20), mul(0x20, i))),
-        //                 mload(params)
-        //             ),
-        //             mload(params)
-        //         )
-        //     }
-        // }
-
-        // uint256 T_consolidated = 0;
-        // (local_len, local_offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_quotient_offset);
-        // for (uint256 i = 0; i < local_len; i++) {
-        //     uint256 z_0 = lpc_verifier.get_z_i_from_proof_be(blob, local_offset, 0);
-        //     z_0 = (z_0 * field.expmod_static(challenge, (params.fri_params.max_degree + 1) * i, params.modulus)) % params.modulus;
-        //     T_consolidated = (T_consolidated + z_0) % params.modulus;
-        //     local_offset = lpc_verifier.skip_proof_be(blob, local_offset);
-        // }
-
-        // uint256 Z_at_challenge = field.expmod_static(challenge, common_data.rows_amount, params.modulus);
-
-        // if (F_consolidated != (Z_at_challenge * T_consolidated) % params.modulus) {
-        //     return false;
-        // }
+        local_vars.Z_at_challenge = field.expmod_static(local_vars.challenge, common_data.rows_amount, params.modulus);
+        assembly {
+            mstore(
+                // local_vars.Z_at_challenge
+                add(local_vars, 0x1a0),
+                // local_vars.Z_at_challenge - 1
+                addmod(
+                    // Z_at_challenge
+                    mload(add(local_vars, 0x1a0)),
+                    // -1
+                    sub(mload(params), 1),
+                    // modulus
+                    mload(params)
+                )
+            )
+            mstore(
+                // local_vars.Z_at_challenge
+                add(local_vars, 0x1a0),
+                // Z_at_challenge * T_consolidated
+                mulmod(
+                    // Z_at_challenge
+                    mload(add(local_vars, 0x1a0)),
+                    // T_consolidated
+                    mload(add(local_vars, 0x180)),
+                    // modulus
+                    mload(params)
+                )
+            )
+        }
+        if (local_vars.F_consolidated != local_vars.Z_at_challenge) {
+            return false;
+        }
 
         return true;
     }

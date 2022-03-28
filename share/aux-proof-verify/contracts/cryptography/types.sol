@@ -250,16 +250,40 @@ library types {
 
     struct redshift_common_data {
         uint256 rows_amount;
+        // 0x20
         uint256 omega;
         int256[][] columns_rotations; 
     }
 
     struct redshift_local_variables {
         uint256 len;
+        // 0x20
         uint256 offset;
+        // 0x40
         uint256 zero_index;
-
+        // 0x60
+        uint256[] permutation_argument;
+        // 0x80
+        uint256 gate_argument;
+        // 0xa0
+        uint256[] alphas;
+        // 0xc0
+        uint256 challenge;
+        // 0xe0
+        uint256 e;
+        // 0x100
+        uint256[] evaluation_points_permutation;
+        // 0x120
+        uint256[] evaluation_points_quotient;
+        // 0x140
+        uint256[] F;
+        // 0x160
+        uint256 F_consolidated;
+        // 0x180
+        uint256 T_consolidated;
+        // 0x1a0
+        uint256 Z_at_challenge;
         uint256 tmp1;
-        uint256 tmp2;
+        bool status;
     }
 }
