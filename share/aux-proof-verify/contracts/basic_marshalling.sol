@@ -90,4 +90,25 @@ library basic_marshalling {
         }
         result_offset = offset + LENGTH_OCTETS;
     }
+
+    function get_i_uint256_from_vector(bytes memory blob, uint256 offset, uint256 i)
+    internal pure returns (uint256 result) {
+        assembly {
+            result := mload(add(
+                add(blob, 0x20),
+                add(offset, mul(i, 0x20))
+            ))
+        }
+    }
+
+    function get_uint256_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result) {
+        assembly {
+            result := mload(add(
+                add(blob, 0x20),
+                offset
+            ))
+        }
+    }
+
 }

@@ -48,6 +48,21 @@ library transcript {
         self.current_challenge = keccak256(bytes.concat(self.current_challenge, blob));
     }
 
+    function update_transcript_b32_by_offset(
+        types.transcript_data memory self,
+        bytes memory blob,
+        uint256 offset
+    ) internal pure {
+        require(offset < blob.length, "update_transcript_b32_by_offset: offset < blob.length");
+        require(32 <= blob.length - offset, "update_transcript_b32_by_offset: 32 <= blob.length - offset");
+
+        bytes32 blob32;
+        assembly {
+            blob32 := mload(add(add(blob, 0x20), offset))
+        }
+        update_transcript_b32(self, blob32);
+    }
+
     function get_integral_challenge_be(
         types.transcript_data memory self,
         uint256 length

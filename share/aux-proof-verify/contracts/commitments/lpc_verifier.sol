@@ -134,6 +134,39 @@ library lpc_verifier {
         }
     }
 
+    function skip_vector_of_proofs_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result_offset) {
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length(blob, offset);
+        for (uint256 i = 0; i < value_len; i++) {
+            result_offset = skip_proof_be(blob, result_offset);
+        }
+    }
+
+    function skip_n_proofs_in_vector_be(bytes memory blob, uint256 offset, uint256 n)
+    internal pure returns (uint256 result_offset) {
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length(blob, offset);
+        require(n <= value_len);
+        for (uint256 i = 0; i < n; i++) {
+            result_offset = skip_proof_be(blob, result_offset);
+        }
+    }
+
+    function get_z_i_from_proof_be(bytes memory blob, uint256 offset, uint256 i)
+    internal pure returns (uint256 z_i) {
+        // 0x28 - skip T_root
+        z_i = basic_marshalling.get_i_uint256_from_vector(blob, offset + 0x28, i);
+    }
+
+    function get_z_0_ptr_from_proof_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 z_0_ptr) {
+        // 0x28 - skip T_root
+        assembly {
+            z_0_ptr := add(add(blob, 0x20), add(offset, 0x28))
+        }
+    }
+
     //
     function verifyProof(
         uint256[] memory evaluation_points,

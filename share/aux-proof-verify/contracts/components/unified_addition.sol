@@ -43,11 +43,13 @@ library unified_addition_component {
         return string(bstr);
     }
 
+    uint256 constant WITNESS_ASSIGNMENTS_N = 11;
+
     function evaluate_gate_be(
         uint256[] memory assignment_pointers,
         types.gate_eval_params memory params
     ) internal pure returns (uint256 gate_evaluation) {
-        require(assignment_pointers.length >= 11, "Too little assignments passed (at least 11).");
+        require(assignment_pointers.length >= WITNESS_ASSIGNMENTS_N, "Too little assignments passed (at least 11).");
 
         assembly {
             gate_evaluation := 0
