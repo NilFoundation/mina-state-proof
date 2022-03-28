@@ -15,27 +15,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity >=0.6.0;
+pragma solidity >=0.8.4;
 
+import '../cryptography/types.sol';
 import './fri_verifier.sol';
-import './cryptography/polynomial.sol';
+import '../cryptography/polynomial.sol';
+import '../basic_marshalling.sol';
 
 library lpc_verifier {
-
-    struct params_type {
-        uint256 modulus;
-        uint256 lambda;
-        uint256 r;
-        uint256 m;
-        uint256 k;
-        fri_verifier.params_type fri_params;
-    }
-
-    struct proof_type {
-        bytes32 T_root;
-        uint256[] z;
-        fri_verifier.proof_type[] fri_proof;
-    }
 
     struct local_vars_type {
         uint256 z_len;
@@ -68,7 +55,7 @@ library lpc_verifier {
     }
 
     function parse_proof_be(bytes memory blob, uint256 offset)
-    internal pure returns (proof_type memory proof, uint256 proof_size) {
+    internal pure returns (types.lpc_proof_type memory proof, uint256 proof_size) {
         require(offset < blob.length);
         uint256 len = blob.length - offset;
         uint256 value_len;
@@ -121,8 +108,8 @@ library lpc_verifier {
             value_len := shr(0xc0, mload(add(blob, add(0x20, offset))))
             offset := add(offset, 8)
         }
-        proof.fri_proof = new fri_verifier.proof_type[](value_len);
-        fri_verifier.proof_type memory p;
+        proof.fri_proof = new types.fri_proof_type[](value_len);
+        types.fri_proof_type memory p;
         for (uint256 i = 0; i < value_len; i++) {
             (p, len) = fri_verifier.parse_proof_be(blob, offset);
             assembly {
@@ -133,12 +120,60 @@ library lpc_verifier {
         }
     }
 
+    function skip_proof_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result_offset) {
+        // T_root
+        result_offset = basic_marshalling.skip_octet_vector_32_be(blob, offset);
+        // z
+        result_offset = basic_marshalling.skip_vector_of_uint256_be(blob, result_offset);
+        // fri_proof
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length(blob, result_offset);
+        for (uint256 i = 0; i < value_len; i++) {
+            result_offset = fri_verifier.skip_proof_be(blob, result_offset);
+        }
+    }
+
+    function skip_vector_of_proofs_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result_offset) {
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length(blob, offset);
+        for (uint256 i = 0; i < value_len; i++) {
+            result_offset = skip_proof_be(blob, result_offset);
+        }
+    }
+
+    function skip_n_proofs_in_vector_be(bytes memory blob, uint256 offset, uint256 n)
+    internal pure returns (uint256 result_offset) {
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length(blob, offset);
+        require(n <= value_len);
+        for (uint256 i = 0; i < n; i++) {
+            result_offset = skip_proof_be(blob, result_offset);
+        }
+    }
+
+    function get_z_i_from_proof_be(bytes memory blob, uint256 offset, uint256 i)
+    internal pure returns (uint256 z_i) {
+        // 0x28 - skip T_root
+        z_i = basic_marshalling.get_i_uint256_from_vector(blob, offset + 0x28, i);
+    }
+
+    function get_z_0_ptr_from_proof_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 z_0_ptr) {
+        // 0x28 - skip T_root +
+        //  8 - lenght
+        assembly {
+            z_0_ptr := add(add(blob, 0x20), add(offset, 0x30))
+        }
+    }
+
     //
     function verifyProof(
         uint256[] memory evaluation_points,
-        proof_type memory proof,
-        transcript.transcript_data memory tr_state,
-        params_type memory params
+        types.lpc_proof_type memory proof,
+        types.transcript_data memory tr_state,
+        types.lpc_params_type memory params
     ) internal view returns(bool) {
         require(evaluation_points.length == proof.z.length, "Number of evaluation points is not correct");
         params.fri_params.U = polynomial.interpolate(evaluation_points, proof.z, params.modulus);
@@ -162,8 +197,8 @@ library lpc_verifier {
         bytes memory blob,
         uint256 offset,
         uint256[] memory evaluation_points,
-        transcript.transcript_data memory tr_state,
-        params_type memory params
+        types.transcript_data memory tr_state,
+        types.lpc_params_type memory params
     ) internal view returns(bool result, uint256 proof_size) {
         result = false;
         require(offset < blob.length);
@@ -173,17 +208,6 @@ library lpc_verifier {
         local_vars_type memory local_vars;
         assembly {
             let z_len := shr(0xc0, mload(add(add(blob, 0x20), add(offset, PROOF_Z_OFFSET))))
-            // number of z points should be equal to k
-            if eq(
-                eq(
-                    z_len,
-                    // k
-                    mload(add(params, 0x80))
-                ),
-                0
-            ) {
-                revert(0, 0)
-            }
             proof_size := add(proof_size, mul(0x20, z_len))
             mstore(local_vars, z_len)
         }
@@ -192,14 +216,11 @@ library lpc_verifier {
         assembly {
             let fri_proof_len := shr(0xc0, mload(add(add(blob, 0x20), add(offset, proof_size))))
             // number of fri proofs should be equal to lambda
-            if eq(
-                eq(
-                    fri_proof_len,
-                    // lambda
-                    mload(add(params, 0x20))
-                ),
-                0
-            ) {
+            if iszero(eq(
+                fri_proof_len,
+                // lambda
+                mload(add(params, 0x20))
+            )) {
                 revert(0, 0)
             }
             proof_size := add(proof_size, 8)
@@ -216,7 +237,6 @@ library lpc_verifier {
                 local_off := add(local_off, 0x20)
             }
         }
-        require(evaluation_points.length == params.k, "Number of evaluation points is not correct");
         params.fri_params.U = polynomial.interpolate(evaluation_points, local_vars.z, params.modulus);
         params.fri_params.V = new uint256[](1);
         params.fri_params.V[0] = 1;

@@ -15,39 +15,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //---------------------------------------------------------------------------//
-pragma solidity >=0.6.0;
+pragma solidity >=0.8.4;
 
-import './merkle_verifier.sol';
-import './cryptography/transcript.sol';
-import './cryptography/field.sol';
-import './cryptography/polynomial.sol';
+import '../cryptography/types.sol';
+import '../containers/merkle_verifier.sol';
+import '../cryptography/transcript.sol';
+import '../cryptography/field.sol';
+import '../cryptography/polynomial.sol';
+import '../basic_marshalling.sol';
 
 library fri_verifier {
-
-    struct params_type {
-        uint256 modulus;
-        uint256 r;
-        uint256 max_degree;
-
-        uint256[] D_omegas;
-        uint256[] q;
-
-        uint256[] U;
-        uint256[] V;
-    }
-
-    struct round_proof_type {
-        uint256 colinear_value;
-        bytes32 T_root;
-        uint256[] y;
-        merkle_verifier.merkle_proof colinear_path;
-        merkle_verifier.merkle_proof[] p;
-    }
-
-    struct proof_type {
-        uint256[] final_polynomial;
-        round_proof_type[] round_proofs;
-    }
 
     struct local_vars_type {
         uint256 len;
@@ -93,7 +70,7 @@ library fri_verifier {
     }
 
     function parse_round_proof_be(bytes memory blob, uint256 offset)
-    internal pure returns (round_proof_type memory proof, uint256 proof_size) {
+    internal pure returns (types.fri_round_proof_type memory proof, uint256 proof_size) {
         require(offset < blob.length);
         uint256 len = blob.length - offset;
         uint256 value_len;
@@ -161,8 +138,8 @@ library fri_verifier {
             value_len := shr(0xc0, mload(add(add(blob, 0x20), offset)))
             offset := add(offset, 8)
         }
-        proof.p = new merkle_verifier.merkle_proof[](value_len);
-        merkle_verifier.merkle_proof memory p;
+        proof.p = new types.merkle_proof[](value_len);
+        types.merkle_proof memory p;
         for (uint256 i = 0; i < value_len; i++) {
             (p, len) = merkle_verifier.parse_merkle_proof_be(blob, offset);
             assembly {
@@ -174,7 +151,7 @@ library fri_verifier {
     }
 
     function parse_proof_be(bytes memory blob, uint256 offset)
-    internal pure returns (proof_type memory proof, uint256 proof_size) {
+    internal pure returns (types.fri_proof_type memory proof, uint256 proof_size) {
         require(offset < blob.length);
         uint256 len = blob.length - offset;
         uint256 value_len;
@@ -211,8 +188,8 @@ library fri_verifier {
             value_len := shr(0xc0, mload(add(add(blob, 0x20), offset)))
             offset := add(offset, 8)
         }
-        proof.round_proofs = new round_proof_type[](value_len);
-        round_proof_type memory p;
+        proof.round_proofs = new types.fri_round_proof_type[](value_len);
+        types.fri_round_proof_type memory p;
         for (uint256 i = 0; i < value_len; i++) {
             (p, len) = parse_round_proof_be(blob, offset);
             assembly {
@@ -223,8 +200,38 @@ library fri_verifier {
         }
     }
 
+    function skip_round_proof_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result_offset) {
+        // colinear_value
+        result_offset = basic_marshalling.skip_uint256_be(blob, offset);
+        // T_root
+        result_offset = basic_marshalling.skip_octet_vector_32_be(blob, result_offset);
+        // y
+        result_offset = basic_marshalling.skip_vector_of_uint256_be(blob, result_offset);
+        // colinear_path
+        result_offset = merkle_verifier.skip_merkle_proof_be(blob, result_offset);
+        // p
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length(blob, result_offset);
+        for (uint256 i = 0; i < value_len; i++) {
+            result_offset = merkle_verifier.skip_merkle_proof_be(blob, result_offset);
+        }
+    }
+
+    function skip_proof_be(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result_offset) {
+        // final_polynomial
+        result_offset = basic_marshalling.skip_vector_of_uint256_be(blob, offset);
+        // round_proofs
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length(blob, result_offset);
+        for (uint256 i = 0; i < value_len; i++) {
+            result_offset = skip_round_proof_be(blob, result_offset);
+        }
+    }
+
     function verify_round_proofs(
-        proof_type memory proof,
+        types.fri_proof_type memory proof,
         uint256 i
     ) internal view returns(bool) {
         for (uint256 j = 0; j < m; j++) {
@@ -243,8 +250,8 @@ library fri_verifier {
         uint256 i,
         uint256 j,
         uint256 x,
-        proof_type memory proof,
-        params_type memory fri_params
+        types.fri_proof_type memory proof,
+        types.fri_params_type memory fri_params
     ) internal view returns(uint256 result) {
         uint256 U_evaluated_neg;
         uint256 V_evaluated_inv;
@@ -296,7 +303,7 @@ library fri_verifier {
         uint256 i,
         uint256 j,
         uint256 x,
-        params_type memory fri_params
+        types.fri_params_type memory fri_params
     ) internal view returns(uint256 result) {
         assembly {
             result := mload(
@@ -351,9 +358,9 @@ library fri_verifier {
 
     //
     function verifyProof(
-        proof_type memory proof,
-        transcript.transcript_data memory tr_state,
-        params_type memory fri_params
+        types.fri_proof_type memory proof,
+        types.transcript_data memory tr_state,
+        types.fri_params_type memory fri_params
     ) internal view returns(bool) {
         local_vars_type memory local_vars;
         local_vars.y = new uint256[](2);
@@ -419,7 +426,7 @@ library fri_verifier {
     function parse_verify_round_proof_be(
         bytes memory blob,
         uint256 offset,
-        params_type memory fri_params
+        types.fri_params_type memory fri_params
     ) internal view returns (bool result, uint256 proof_size) {
         require(offset < blob.length);
         round_proof_verification_local_vars memory vars;
@@ -486,8 +493,8 @@ library fri_verifier {
     function parse_verify_proof_be(
         bytes memory blob,
         uint256 offset,
-        transcript.transcript_data memory tr_state,
-        params_type memory fri_params
+        types.transcript_data memory tr_state,
+        types.fri_params_type memory fri_params
     ) internal view returns (bool result, uint256 proof_size) {
         result = false;
         require(offset < blob.length);

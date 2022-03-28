@@ -16,7 +16,7 @@
 // limitations under the License.
 //---------------------------------------------------------------------------//
 
-pragma solidity >=0.6.0;
+pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
 import './types.sol';
@@ -27,33 +27,44 @@ import './types.sol';
  */
 library transcript {
 
-    struct transcript_data {
-        bytes32 current_challenge;
-    }
-
     function init_transcript(
-        transcript_data memory self,
+        types.transcript_data memory self,
         bytes memory init_blob
     ) internal pure {
         self.current_challenge = keccak256(init_blob);
     }
 
     function update_transcript(
-        transcript_data memory self,
+        types.transcript_data memory self,
         bytes memory blob
     ) internal pure {
         self.current_challenge = keccak256(bytes.concat(self.current_challenge, blob));
     }
 
     function update_transcript_b32(
-        transcript_data memory self,
+        types.transcript_data memory self,
         bytes32 blob
     ) internal pure {
         self.current_challenge = keccak256(bytes.concat(self.current_challenge, blob));
     }
 
+    function update_transcript_b32_by_offset(
+        types.transcript_data memory self,
+        bytes memory blob,
+        uint256 offset
+    ) internal pure {
+        require(offset < blob.length, "update_transcript_b32_by_offset: offset < blob.length");
+        require(32 <= blob.length - offset, "update_transcript_b32_by_offset: 32 <= blob.length - offset");
+
+        bytes32 blob32;
+        assembly {
+            blob32 := mload(add(add(blob, 0x20), offset))
+        }
+        update_transcript_b32(self, blob32);
+    }
+
     function get_integral_challenge_be(
-        transcript_data memory self,
+        types.transcript_data memory self,
         uint256 length
     ) internal pure returns (uint256 result) {
         require(length <= 32);
@@ -64,7 +75,7 @@ library transcript {
     }
 
     function get_field_challenge(
-        transcript_data memory self,
+        types.transcript_data memory self,
         uint256 modulus
     ) internal pure returns (uint256) {
         self.current_challenge = keccak256(abi.encode(self.current_challenge));
@@ -72,7 +83,7 @@ library transcript {
     }
 
     function get_field_challenges(
-        transcript_data memory self,
+        types.transcript_data memory self,
         uint256[] memory challenges,
         uint256 modulus
     ) internal pure {

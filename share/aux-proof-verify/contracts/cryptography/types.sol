@@ -15,7 +15,7 @@
 // limitations under the License.
 //---------------------------------------------------------------------------//
 
-pragma solidity >=0.6.0;
+pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
 /**
@@ -135,5 +135,130 @@ library types {
         // zeta challenge raised to the power of the circuit size.
         // Not actually part of the verification key, but we put it here to prevent stack depth errors
         uint256 zeta_pow_n;
+    }
+    
+    struct transcript_data {
+        bytes32 current_challenge;
+    }
+
+    struct path_element {
+        uint256 position;
+        bytes32 hash;
+    }
+
+    struct merkle_proof {
+        uint256 li;
+        bytes32 root;
+        path_element[] path;
+    }
+
+    struct fri_params_type {
+        uint256 modulus;
+        uint256 r;
+        uint256 max_degree;
+
+        uint256[] D_omegas;
+        uint256[] q;
+
+        uint256[] U;
+        uint256[] V;
+    }
+
+    struct fri_round_proof_type {
+        uint256 colinear_value;
+        bytes32 T_root;
+        uint256[] y;
+        merkle_proof colinear_path;
+        merkle_proof[] p;
+    }
+
+    struct fri_proof_type {
+        uint256[] final_polynomial;
+        fri_round_proof_type[] round_proofs;
+    }
+
+    struct lpc_params_type {
+        uint256 modulus;
+        // 0x20
+        uint256 lambda;
+        // 0x40
+        uint256 r;
+        // 0x60
+        uint256 m;
+        // 0x80
+        fri_params_type fri_params;
+    }
+
+    struct lpc_proof_type {
+        bytes32 T_root;
+        uint256[] z;
+        fri_proof_type[] fri_proof;
+    }
+
+    struct gate_eval_params {
+        uint256 modulus;
+        // 0x20
+        uint256 theta_acc;
+        // 0x40
+        uint256 theta;
+        // 0x60
+        uint256 selector_evaluation;
+    }
+    
+    struct permutation_argument_eval_params {
+        uint256 modulus;
+        // 0x20
+        uint256 challenge;
+        // 0x40
+        uint256[] column_polynomials_values;
+        // 0x60
+        uint256[] id_permutation_ptrs;
+        // 0x80
+        uint256[] sigma_permutation_ptrs;
+        // 0xa0
+        uint256 perm_polynomial_value;
+        // 0xc0
+        uint256 perm_polynomial_shifted_value;
+        // 0xe0
+        uint256 beta;
+        // 0x100
+        uint256 gamma;
+        // 0x120
+        uint256 q_blind_eval;
+        // 0x140
+        uint256 q_last_eval;
+    }
+
+    struct redshift_proof_map {
+        uint256 witness_commitments_offset;
+        uint256 T_commitments_offset;
+        uint256 eval_proof_offset;
+        uint256 eval_proof_witness_offset;
+        uint256 eval_proof_permutation_offset;
+        uint256 eval_proof_quotient_offset;
+        uint256 eval_proof_id_permutation_offset;
+        uint256 eval_proof_sigma_permutation_offset;
+        uint256 eval_proof_public_input_offset;
+        uint256 eval_proof_constant_offset;
+        uint256 eval_proof_selector_offset;
+        uint256 eval_proof_special_selectors_offset;
+    }
+
+    struct redshift_column_rotations {
+        int256[] rotations;
+    }
+
+    struct redshift_common_data {
+        uint256 rows_amount;
+        uint256 omega;
+        int256[][] columns_rotations; 
+    }
+
+    struct redshift_local_variables {
+        uint256 len;
+        uint256 offset;
+        uint256 zero_index;
+
+        uint256 tmp1;
     }
 }

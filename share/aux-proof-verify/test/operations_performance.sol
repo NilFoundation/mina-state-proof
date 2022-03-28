@@ -16,7 +16,7 @@
 // limitations under the License.
 //---------------------------------------------------------------------------//
 
-pragma solidity >=0.6.0;
+pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
@@ -28,7 +28,7 @@ contract TestOperationsPerformance {
     function test_transcript_get_field_challenge() public {
         bytes memory init_blob = hex"00010203040506070809";
         bytes memory updated_blob = hex"0a0b0c0d0e0f";
-        transcript.transcript_data memory tr_state;
+        types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
         transcript.get_field_challenge(tr_state, bn254_crypto.r_mod);
     }
@@ -36,7 +36,7 @@ contract TestOperationsPerformance {
     function test_transcript_get_field_challenges_10() public {
         bytes memory init_blob = hex"00010203040506070809";
         bytes memory updated_blob = hex"0a0b0c0d0e0f";
-        transcript.transcript_data memory tr_state;
+        types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
         uint256[] memory ch_n1 = new uint256[](10);
         transcript.get_field_challenges(tr_state, ch_n1, bn254_crypto.r_mod);
@@ -45,7 +45,7 @@ contract TestOperationsPerformance {
     function test_transcript_get_integral_challenge_be_8_bytes() public {
         bytes memory init_blob = hex"00010203040506070809";
         bytes memory updated_blob = hex"0a0b0c0d0e0f";
-        transcript.transcript_data memory tr_state;
+        types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
         transcript.get_integral_challenge_be(tr_state, 8);
     }
