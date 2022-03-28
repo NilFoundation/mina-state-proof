@@ -60,31 +60,31 @@ library redshift_verifier {
     )
     internal view returns(types.redshift_proof_map memory proof_map, uint256 proof_size) {
         // skip v_perm_commitment
-        proof_map.witness_commitments_offset = basic_marshalling.skip_octet_vector_32_be(blob, offset);
+        proof_map.witness_commitments_offset = basic_marshalling.skip_octet_vector_32_be_check(blob, offset);
         // skip witness_commitments
-        proof_map.T_commitments_offset = basic_marshalling.skip_vector_of_octet_vectors_32_be(blob, proof_map.witness_commitments_offset);
+        proof_map.T_commitments_offset = basic_marshalling.skip_vector_of_octet_vectors_32_be_check(blob, proof_map.witness_commitments_offset);
         // skip T_commitments
-        proof_map.eval_proof_offset = basic_marshalling.skip_vector_of_octet_vectors_32_be(blob, proof_map.T_commitments_offset);
+        proof_map.eval_proof_offset = basic_marshalling.skip_vector_of_octet_vectors_32_be_check(blob, proof_map.T_commitments_offset);
         // skip challenge
-        proof_map.eval_proof_witness_offset = basic_marshalling.skip_uint256_be(blob, proof_map.eval_proof_offset);
+        proof_map.eval_proof_witness_offset = basic_marshalling.skip_uint256_be_check(blob, proof_map.eval_proof_offset);
         // skip witness
-        proof_map.eval_proof_permutation_offset = lpc_verifier.skip_vector_of_proofs_be(blob, proof_map.eval_proof_witness_offset);
+        proof_map.eval_proof_permutation_offset = lpc_verifier.skip_vector_of_proofs_be_check(blob, proof_map.eval_proof_witness_offset);
         // skip permutation
-        proof_map.eval_proof_quotient_offset = lpc_verifier.skip_vector_of_proofs_be(blob, proof_map.eval_proof_permutation_offset);
+        proof_map.eval_proof_quotient_offset = lpc_verifier.skip_vector_of_proofs_be_check(blob, proof_map.eval_proof_permutation_offset);
         // skip quotient
-        proof_map.eval_proof_id_permutation_offset = lpc_verifier.skip_vector_of_proofs_be(blob, proof_map.eval_proof_quotient_offset);
+        proof_map.eval_proof_id_permutation_offset = lpc_verifier.skip_vector_of_proofs_be_check(blob, proof_map.eval_proof_quotient_offset);
         // skip id_permutation
-        proof_map.eval_proof_sigma_permutation_offset = lpc_verifier.skip_vector_of_proofs_be(blob, proof_map.eval_proof_id_permutation_offset);
+        proof_map.eval_proof_sigma_permutation_offset = lpc_verifier.skip_vector_of_proofs_be_check(blob, proof_map.eval_proof_id_permutation_offset);
         // skip sigma_permutation
-        proof_map.eval_proof_public_input_offset = lpc_verifier.skip_vector_of_proofs_be(blob, proof_map.eval_proof_sigma_permutation_offset);
+        proof_map.eval_proof_public_input_offset = lpc_verifier.skip_vector_of_proofs_be_check(blob, proof_map.eval_proof_sigma_permutation_offset);
         // skip public_input
-        proof_map.eval_proof_constant_offset = lpc_verifier.skip_vector_of_proofs_be(blob, proof_map.eval_proof_public_input_offset);
+        proof_map.eval_proof_constant_offset = lpc_verifier.skip_vector_of_proofs_be_check(blob, proof_map.eval_proof_public_input_offset);
         // skip constant
-        proof_map.eval_proof_selector_offset = lpc_verifier.skip_vector_of_proofs_be(blob, proof_map.eval_proof_constant_offset);
+        proof_map.eval_proof_selector_offset = lpc_verifier.skip_vector_of_proofs_be_check(blob, proof_map.eval_proof_constant_offset);
         // skip selector
-        proof_map.eval_proof_special_selectors_offset = lpc_verifier.skip_vector_of_proofs_be(blob, proof_map.eval_proof_selector_offset);
+        proof_map.eval_proof_special_selectors_offset = lpc_verifier.skip_vector_of_proofs_be_check(blob, proof_map.eval_proof_selector_offset);
         // skip special_selectors
-        proof_size = lpc_verifier.skip_vector_of_proofs_be(blob, proof_map.eval_proof_special_selectors_offset) - offset;
+        proof_size = lpc_verifier.skip_vector_of_proofs_be_check(blob, proof_map.eval_proof_special_selectors_offset) - offset;
     }
 
 

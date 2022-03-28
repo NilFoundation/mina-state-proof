@@ -161,6 +161,17 @@ library merkle_verifier {
 
     function skip_merkle_proof_be(bytes memory blob, uint256 offset)
     internal pure returns (uint256 result_offset) {
+        uint256 depth = 0;
+        assembly {
+            depth := shr(0xc0, mload(add(add(blob, 0x20), add(offset, DEPTH_OFFSET))))
+        }
+
+        result_offset = offset + LAYERS_OFFSET + LAYER_OCTETS * depth;
+    }
+
+
+    function skip_merkle_proof_be_check(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result_offset) {
         require(offset < blob.length);
 
         require(LAYERS_OFFSET <= blob.length - offset, "skip_merkle_proof_be");
@@ -172,6 +183,9 @@ library merkle_verifier {
         result_offset = offset + LAYERS_OFFSET + LAYER_OCTETS * depth;
         require(result_offset <= blob.length, "skip_merkle_proof_be");
     }
+
+
+
 
     function verify_merkle_proof(
         types.merkle_proof memory proof,

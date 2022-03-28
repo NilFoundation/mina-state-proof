@@ -147,7 +147,6 @@ library lpc_verifier {
     internal pure returns (uint256 result_offset) {
         uint256 value_len;
         (value_len, result_offset) = basic_marshalling.get_skip_length(blob, offset);
-        require(n <= value_len);
         for (uint256 i = 0; i < n; i++) {
             result_offset = skip_proof_be(blob, result_offset);
         }
@@ -173,6 +172,63 @@ library lpc_verifier {
             z_0_ptr := add(add(blob, 0x20), add(offset, 0x30))
         }
     }
+
+
+    function skip_proof_be_check(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result_offset) {
+        // T_root
+        result_offset = basic_marshalling.skip_octet_vector_32_be_check(blob, offset);
+        // z
+        result_offset = basic_marshalling.skip_vector_of_uint256_be_check(blob, result_offset);
+        // fri_proof
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length_check(blob, result_offset);
+        for (uint256 i = 0; i < value_len; i++) {
+            result_offset = fri_verifier.skip_proof_be_check(blob, result_offset);
+        }
+    }
+
+    function skip_vector_of_proofs_be_check(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 result_offset) {
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length_check(blob, offset);
+        for (uint256 i = 0; i < value_len; i++) {
+            result_offset = skip_proof_be_check(blob, result_offset);
+        }
+    }
+
+    function skip_n_proofs_in_vector_be_check(bytes memory blob, uint256 offset, uint256 n)
+    internal pure returns (uint256 result_offset) {
+        uint256 value_len;
+        (value_len, result_offset) = basic_marshalling.get_skip_length_check(blob, offset);
+        require(n <= value_len);
+        for (uint256 i = 0; i < n; i++) {
+            result_offset = skip_proof_be_check(blob, result_offset);
+        }
+    }
+
+    function get_z_i_from_proof_be_check(bytes memory blob, uint256 offset, uint256 i)
+    internal pure returns (uint256 z_i) {
+        // 0x28 - skip T_root
+        z_i = basic_marshalling.get_i_uint256_from_vector_check(blob, offset + 0x28, i);
+    }
+
+    function get_z_i_ptr_from_proof_be_check(bytes memory blob, uint256 offset, uint256 i)
+    internal pure returns (uint256 z_i) {
+        // 0x28 - skip T_root
+        z_i = basic_marshalling.get_i_uint256_ptr_from_vector_check(blob, offset + 0x28, i);
+    }
+
+    function get_z_0_ptr_from_proof_be_check(bytes memory blob, uint256 offset)
+    internal pure returns (uint256 z_0_ptr) {
+        // 0x28 - skip T_root +
+        //  8 - lenght
+        assembly {
+            z_0_ptr := add(add(blob, 0x20), add(offset, 0x30))
+        }
+    }
+
+
 
     //
     function verifyProof(
