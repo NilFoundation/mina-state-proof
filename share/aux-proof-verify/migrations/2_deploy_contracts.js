@@ -1,11 +1,9 @@
-const verification_keys = artifacts.require("verification_keys");
-const merkle_verifier = artifacts.require("merkle_verifier");
-const lpc_verifier = artifacts.require("lpc_verifier");
+const BN = require('bn.js');
+const RedshiftVerifierLib = artifacts.require("redshift_verifier");
+const RedshiftVerifier = artifacts.require("RedshiftVerifier");
 
 module.exports = function (deployer) {
-  deployer.deploy(merkle_verifier);
-  deployer.deploy(verification_keys);
-  deployer.link(merkle_verifier, lpc_verifier);
-  deployer.link(verification_keys, lpc_verifier);
-  deployer.deploy(lpc_verifier);
+  deployer.deploy(RedshiftVerifierLib);
+  deployer.link(RedshiftVerifierLib, RedshiftVerifier);
+  deployer.deploy(RedshiftVerifier, new BN('40000000000000000000000000000000224698fc094cf91b992d30ed00000001', 16), 1, 3, 2, 2);
 };

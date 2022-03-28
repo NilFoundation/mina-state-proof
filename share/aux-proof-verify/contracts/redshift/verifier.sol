@@ -220,7 +220,7 @@ library redshift_verifier {
         uint256 _i = 0;
         for (uint256 i = 0; i < unified_addition_component.WITNESS_ASSIGNMENTS_N; i++) {
             // TODO: remove for general case
-            require(common_data.columns_rotations[i].rotations.length == 0);
+            require(common_data.columns_rotations[i].rotations.length == 1);
             for (uint256 j = 0; j < common_data.columns_rotations[i].rotations.length; j++) {
                 assignments_ptrs[_i] =
                     lpc_verifier.get_z_i_from_proof_be(
