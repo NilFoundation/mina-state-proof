@@ -159,6 +159,12 @@ library lpc_verifier {
         z_i = basic_marshalling.get_i_uint256_from_vector(blob, offset + 0x28, i);
     }
 
+    function get_z_i_ptr_from_proof_be(bytes memory blob, uint256 offset, uint256 i)
+    internal pure returns (uint256 z_i) {
+        // 0x28 - skip T_root
+        z_i = basic_marshalling.get_i_uint256_ptr_from_vector(blob, offset + 0x28, i);
+    }
+
     function get_z_0_ptr_from_proof_be(bytes memory blob, uint256 offset)
     internal pure returns (uint256 z_0_ptr) {
         // 0x28 - skip T_root +

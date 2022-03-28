@@ -101,6 +101,16 @@ library basic_marshalling {
         }
     }
 
+    function get_i_uint256_ptr_from_vector(bytes memory blob, uint256 offset, uint256 i)
+    internal pure returns (uint256 result_ptr) {
+        assembly {
+            result_ptr := add(
+                add(blob, 0x20),
+                add(add(offset, LENGTH_OCTETS), mul(i, 0x20))
+            )
+        }
+    }
+
     function get_uint256_be(bytes memory blob, uint256 offset)
     internal pure returns (uint256 result) {
         assembly {

@@ -260,5 +260,6 @@ library types {
         uint256 zero_index;
 
         uint256 tmp1;
+        uint256 tmp2;
     }
 }

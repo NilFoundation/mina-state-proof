@@ -214,45 +214,53 @@ library redshift_verifier {
             );
         uint256[] memory permutation_argument =
             permutation_argument.verify_eval_be(permutation_argument_params);
-        // uint256 _x = permutation_argument_params.sigma_permutation_ptrs[11];
+
+        // 7. gate argument
+        // TODO: generalize for different components
+        // TODO: generalize method to get assignments length
+        // TODO: add public_input_columns and constant_columns to assignments
+        // TODO: make correct length of assignments_ptrs for general case
+        uint256[] memory assignments_ptrs =
+            new uint256[](unified_addition_component.WITNESS_ASSIGNMENTS_N);
+        local_vars.tmp1 = 0;
+        local_vars.offset = proof_map.eval_proof_witness_offset + basic_marshalling.LENGTH_OCTETS;
+        for (uint256 i = 0; i < unified_addition_component.WITNESS_ASSIGNMENTS_N; i++) {
+            // TODO: remove for general case
+            require(common_data.columns_rotations[i].length == 1);
+            for (uint256 j = 0; j < common_data.columns_rotations[i].length; j++) {
+                // TODO: remove for general case
+                require(common_data.columns_rotations[i][j] == 0);
+                /// local_vars.offset = lpc_verifier.skip_n_proofs_in_vector_be(
+                ///     blob,
+                ///     proof_map.eval_proof_witness_offset,
+                ///     i
+                /// );
+                assignments_ptrs[local_vars.tmp1] =
+                    lpc_verifier.get_z_i_ptr_from_proof_be(
+                        blob,
+                        local_vars.offset,
+                        j
+                    );
+                local_vars.tmp1++;
+            }
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
+        types.gate_eval_params memory gate_params;
+        gate_params.modulus = params.modulus;
+        gate_params.theta_acc = 1;
+        gate_params.theta = transcript.get_field_challenge(tr_state, params.modulus);
+        gate_params.selector_evaluation = lpc_verifier.get_z_i_from_proof_be(
+            blob,
+            proof_map.eval_proof_selector_offset + basic_marshalling.LENGTH_OCTETS,
+            0
+        );
+        uint256 gate_argument =
+            unified_addition_component.evaluate_gate_be(assignments_ptrs, gate_params);
+        // uint256 _x = assignments_ptrs[10];
         // assembly {
         //     _x := mload(_x)
         // }
-        // require(false, uint2str(permutation_argument[2]));
-
-        // // 7. gate argument
-        // // TODO: generalize for different components
-        // // TODO: generalize method to get assignments length
-        // // TODO: add public_input_columns and constant_columns to assignments
-        // // TODO: make correct length of assignments_ptrs for general case
-        // uint256[] memory assignments_ptrs =
-        //     new uint256[](unified_addition_component.WITNESS_ASSIGNMENTS_N);
-        // uint256 _i = 0;
-        // for (uint256 i = 0; i < unified_addition_component.WITNESS_ASSIGNMENTS_N; i++) {
-        //     // TODO: remove for general case
-        //     require(common_data.columns_rotations[i].rotations.length == 1);
-        //     for (uint256 j = 0; j < common_data.columns_rotations[i].rotations.length; j++) {
-        //         assignments_ptrs[_i] =
-        //             lpc_verifier.get_z_i_from_proof_be(
-        //                 blob,
-        //                 lpc_verifier.skip_n_proofs_in_vector_be(
-        //                     blob,
-        //                     proof_map.eval_proof_witness_offset,
-        //                     i
-        //                 ),
-        //                 j
-        //             );
-        //         _i++;
-        //     }
-        // }
-        // types.gate_eval_params memory gate_params;
-        // gate_params.modulus = params.modulus;
-        // gate_params.theta_acc = 1;
-        // gate_params.theta = transcript.get_field_challenge(tr_state, params.modulus);
-        // gate_params.selector_evaluation =
-        //     lpc_verifier.get_z_i_from_proof_be(blob, proof_map.eval_proof_selector_offset, 0);
-        // uint256 gate_argument =
-        //     unified_addition_component.evaluate_gate_be(assignments_ptrs, gate_params);
+        // require(false, uint2str(gate_argument));
 
         // // 8. alphas computations
         // uint256[] memory alphas = new uint256[](f_parts);
