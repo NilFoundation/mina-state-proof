@@ -117,11 +117,6 @@ library redshift_verifier {
                 }
             }
             if (i < witness_columns_amount) {
-                // require(i != 0, uint2str(lpc_verifier.skip_n_proofs_in_vector_be(
-                //         blob,
-                //         proof_map.eval_proof_witness_offset,
-                //         i
-                //     )));
                 permutation_argument_params.column_polynomials_values[i] = lpc_verifier.get_z_i_from_proof_be(
                     blob,
                     lpc_verifier.skip_n_proofs_in_vector_be(
@@ -196,7 +191,7 @@ library redshift_verifier {
             );
         permutation_argument_params.beta = transcript.get_field_challenge(tr_state, params.modulus);
         permutation_argument_params.gamma = transcript.get_field_challenge(tr_state, params.modulus);
-        transcript.update_transcript_b32_by_offset(tr_state, blob, basic_marshalling.LENGTH_OCTETS);
+        transcript.update_transcript_b32_by_offset(tr_state, blob, offset + basic_marshalling.LENGTH_OCTETS);
         permutation_argument_params.q_last_eval =
             lpc_verifier.get_z_i_from_proof_be(
                 blob,
@@ -230,11 +225,6 @@ library redshift_verifier {
             for (uint256 j = 0; j < common_data.columns_rotations[i].length; j++) {
                 // TODO: remove for general case
                 require(common_data.columns_rotations[i][j] == 0);
-                /// local_vars.offset = lpc_verifier.skip_n_proofs_in_vector_be(
-                ///     blob,
-                ///     proof_map.eval_proof_witness_offset,
-                ///     i
-                /// );
                 assignments_ptrs[local_vars.tmp1] =
                     lpc_verifier.get_z_i_ptr_from_proof_be(
                         blob,
@@ -376,11 +366,6 @@ library redshift_verifier {
             }
             local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
         }
-        // uint256 _x = assignments_ptrs[10];
-        // assembly {
-        //     _x := mload(_x)
-        // }
-        // require(false, uint2str(alphas[2]));
 
         // sigma
         (local_vars.len, local_vars.offset) = basic_marshalling.get_skip_length(blob, proof_map.eval_proof_sigma_permutation_offset);
@@ -497,9 +482,6 @@ library redshift_verifier {
         for (uint256 i = 0; i < local_vars.len; i++) {
             local_vars.zero_index = lpc_verifier.get_z_i_from_proof_be(blob, local_vars.offset, 0);
             local_vars.e = field.expmod_static(local_vars.challenge, (params.fri_params.max_degree + 1) * i, params.modulus);
-
-            // local_vars.zero_index = (local_vars.zero_index * local_vars.e) % params.modulus;
-            // local_vars.T_consolidated = (local_vars.T_consolidated + local_vars.zero_index) % params.modulus;
             assembly {
                 mstore(
                     // local_vars.zero_index
