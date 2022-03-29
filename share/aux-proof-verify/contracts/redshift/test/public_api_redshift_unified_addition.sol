@@ -17,11 +17,12 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import '../cryptography/types.sol';
-import '../cryptography/transcript.sol';
-import './verifier.sol';
+import '../../cryptography/types.sol';
+import '../../cryptography/transcript.sol';
+import '../proof_map_parser.sol';
+import '../verifier_unified_addition_component.sol';
 
-contract RedshiftVerifier {
+contract TestRedshiftVerifierUnifiedAddition {
     types.transcript_data tr_state;
     types.lpc_params_type lpc_params;
     types.redshift_common_data common_data;
@@ -39,10 +40,6 @@ contract RedshiftVerifier {
         common_data.rows_amount = rows_amount;
         common_data.omega = omega;
         common_data.columns_rotations = new int256[][](columns_number);
-    }
-
-    constructor(uint256 modulus, uint256 r, uint256 max_degree, uint256 lambda, uint256 m, uint256 rows_amount, uint256 omega, uint256 columns_number) {
-        set_initial_params(modulus, r, max_degree, lambda, m, rows_amount, omega, columns_number);
     }
 
     function set_U(uint256[] calldata U) public {
@@ -66,10 +63,11 @@ contract RedshiftVerifier {
     }
 
     function verify(bytes calldata blob) public {
-        (types.redshift_proof_map memory proof_map, uint256 proof_size) = redshift_verifier.parse_proof_map_be(blob, 0);
+        (types.redshift_proof_map memory proof_map, uint256 proof_size) = redshift_proof_map_parser.parse_be(blob, 0);
         bytes memory init_blob = hex"";
         types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
-        bool result = redshift_verifier.parse_verify_proof_be(blob, 0, tr_state, proof_map, lpc_params, common_data);
+        bool result = redshift_verifier_unified_addition_component.parse_verify_proof_be(blob, 0, tr_state, proof_map, lpc_params, common_data);
+        require(result, "Proof is not correct!");
     }
 }
