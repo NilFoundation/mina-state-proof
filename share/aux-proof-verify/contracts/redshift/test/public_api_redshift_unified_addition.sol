@@ -42,10 +42,6 @@ contract TestRedshiftVerifierUnifiedAddition {
         common_data.columns_rotations = new int256[][](columns_number);
     }
 
-    constructor(uint256 modulus, uint256 r, uint256 max_degree, uint256 lambda, uint256 m, uint256 rows_amount, uint256 omega, uint256 columns_number) {
-        set_initial_params(modulus, r, max_degree, lambda, m, rows_amount, omega, columns_number);
-    }
-
     function set_U(uint256[] calldata U) public {
         lpc_params.fri_params.U = U;
     }
