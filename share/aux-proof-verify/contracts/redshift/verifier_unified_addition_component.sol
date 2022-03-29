@@ -25,7 +25,7 @@ import '../components/unified_addition.sol';
 import '../basic_marshalling.sol';
 import '../cryptography/field.sol';
 
-library redshift_verifier {
+library redshift_verifier_unified_addition_component {
     /**
      * Proof structure: https://github.com/NilFoundation/crypto3-zk-marshalling/blob/master/include/nil/crypto3/marshalling/zk/types/redshift/proof.hpp
      */
@@ -245,7 +245,7 @@ library redshift_verifier {
             0
         );
         local_vars.gate_argument =
-            unified_addition_component.evaluate_gate_be(assignments_ptrs, gate_params);
+            unified_addition_component.evaluate_gates_be(assignments_ptrs, gate_params);
 
         // 8. alphas computations
         local_vars.alphas = new uint256[](f_parts);

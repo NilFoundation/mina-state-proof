@@ -43,7 +43,7 @@ contract TestUnifiedAddition {
             }
             mstore(add(params, 0x60), mload(blob_ptr))
         }
-        uint256 gate_evaluation = unified_addition_component.evaluate_gate_be(assignment_pointers, params);
+        uint256 gate_evaluation = unified_addition_component.evaluate_gates_be(assignment_pointers, params);
         Assert.equal(theta_acc_result, params.theta_acc, "Theta accumulator result is not correct");
         Assert.equal(gate_evaluation_result, gate_evaluation, "Gate evaluation result is not correct");
     }
@@ -67,7 +67,7 @@ contract TestUnifiedAddition {
             }
             mstore(add(params, 0x60), mload(blob_ptr))
         }
-        uint256 gate_evaluation = unified_addition_component.evaluate_gate_be(assignment_pointers, params);
+        uint256 gate_evaluation = unified_addition_component.evaluate_gates_be(assignment_pointers, params);
         Assert.equal(theta_acc_result, params.theta_acc, "Theta accumulator result is not correct");
         Assert.equal(gate_evaluation_result, gate_evaluation, "Gate evaluation result is not correct");
     }

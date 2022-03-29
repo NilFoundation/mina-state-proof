@@ -1,8 +1,8 @@
 const BN = require('bn.js');
-const RedshiftVerifier = artifacts.require("RedshiftVerifier");
+const RedshiftVerifier = artifacts.require("TestRedshiftVerifierUnifiedAddition");
 
-contract("RedshiftVerifier", accounts => {
-    it("Deploy", async () => {
+contract("Redshift verifier unified addition component", accounts => {
+    it("Case 1", async () => {
         const instance = await RedshiftVerifier.deployed();
         await instance.set_q([0, 0, 1]);
         await instance.set_D_omegas([new BN('24760239192664116622385963963284001971067308018068707868888628426778644166363', 10),]);

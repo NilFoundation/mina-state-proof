@@ -17,11 +17,11 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import '../cryptography/types.sol';
-import '../cryptography/transcript.sol';
-import './verifier.sol';
+import '../../cryptography/types.sol';
+import '../../cryptography/transcript.sol';
+import '../verifier_unified_addition_component.sol';
 
-contract RedshiftVerifier {
+contract TestRedshiftVerifierUnifiedAddition {
     types.transcript_data tr_state;
     types.lpc_params_type lpc_params;
     types.redshift_common_data common_data;
@@ -66,11 +66,11 @@ contract RedshiftVerifier {
     }
 
     function verify(bytes calldata blob) public {
-        (types.redshift_proof_map memory proof_map, uint256 proof_size) = redshift_verifier.parse_proof_map_be(blob, 0);
+        (types.redshift_proof_map memory proof_map, uint256 proof_size) = redshift_verifier_unified_addition_component.parse_proof_map_be(blob, 0);
         bytes memory init_blob = hex"";
         types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
-        bool result = redshift_verifier.parse_verify_proof_be(blob, 0, tr_state, proof_map, lpc_params, common_data);
+        bool result = redshift_verifier_unified_addition_component.parse_verify_proof_be(blob, 0, tr_state, proof_map, lpc_params, common_data);
         require(result, "Proof is not correct!");
     }
 }
