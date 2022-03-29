@@ -21,21 +21,18 @@ import '../../cryptography/types.sol';
 import '../unified_addition.sol';
 
 contract TestUnifiedAdditionComponent {
-    address m_lib_addr;
     types.gate_eval_params m_params;
     uint256 public m_evaluation_result;
     uint256 public m_theta_acc;
 
-    function set_fields(address addr, uint256 modulus, uint256 theta) public {
-        m_lib_addr = addr;
-
+    function set_fields(uint256 modulus, uint256 theta) public {
         m_params.modulus = modulus;
         m_params.theta_acc = 1;
         m_params.theta = theta;
     }
 
-    constructor(address addr, uint256 modulus, uint256 theta) {
-        set_fields(addr, modulus, theta);
+    constructor(uint256 modulus, uint256 theta) {
+        set_fields(modulus, theta);
     }
 
     function evaluate(bytes memory assignments_blob) public {
