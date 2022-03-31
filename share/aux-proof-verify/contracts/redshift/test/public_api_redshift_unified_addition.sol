@@ -23,7 +23,6 @@ import '../proof_map_parser.sol';
 import '../verifier_unified_addition_component.sol';
 
 contract TestRedshiftVerifierUnifiedAddition {
-    types.transcript_data tr_state;
     types.lpc_params_type lpc_params;
     types.redshift_common_data common_data;
 
@@ -62,8 +61,9 @@ contract TestRedshiftVerifierUnifiedAddition {
         common_data.columns_rotations[i] = rotations;
     }
 
-    function verify(bytes calldata blob) public {
+    function verify(bytes calldata blob) public view {
         (types.redshift_proof_map memory proof_map, uint256 proof_size) = redshift_proof_map_parser.parse_be(blob, 0);
+        require(proof_size == blob.length, "Proof length was detected incorrectly!");
         bytes memory init_blob = hex"";
         types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);

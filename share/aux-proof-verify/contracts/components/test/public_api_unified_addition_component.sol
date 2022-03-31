@@ -25,14 +25,10 @@ contract TestUnifiedAdditionComponent {
     uint256 public m_evaluation_result;
     uint256 public m_theta_acc;
 
-    function set_fields(uint256 modulus, uint256 theta) public {
+    function set_params(uint256 modulus, uint256 theta) public {
         m_params.modulus = modulus;
         m_params.theta_acc = 1;
         m_params.theta = theta;
-    }
-
-    constructor(uint256 modulus, uint256 theta) {
-        set_fields(modulus, theta);
     }
 
     function evaluate(bytes memory assignments_blob) public {

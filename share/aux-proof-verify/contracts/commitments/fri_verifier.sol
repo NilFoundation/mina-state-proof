@@ -266,7 +266,7 @@ library fri_verifier {
     function verify_round_proofs(
         types.fri_proof_type memory proof,
         uint256 i
-    ) internal view returns(bool) {
+    ) internal pure returns(bool) {
         for (uint256 j = 0; j < m; j++) {
             if (!merkle_verifier.verify_merkle_proof(
                     proof.round_proofs[i].p[j],
@@ -458,9 +458,8 @@ library fri_verifier {
 
     function parse_verify_round_proof_be(
         bytes memory blob,
-        uint256 offset,
-        types.fri_params_type memory fri_params
-    ) internal view returns (bool result, uint256 proof_size) {
+        uint256 offset
+    ) internal pure returns (bool result, uint256 proof_size) {
         require(offset < blob.length);
         round_proof_verification_local_vars memory vars;
         vars.len = blob.length - offset;
@@ -569,7 +568,7 @@ library fri_verifier {
             local_vars.alpha = transcript.get_field_challenge(tr_state, fri_params.modulus);
             local_vars.x_next = polynomial.evaluate(fri_params.q, local_vars.x, fri_params.modulus);
 
-            (bool result_i, uint256 read_round_proof_size) = parse_verify_round_proof_be(blob, offset + proof_size, fri_params);
+            (bool result_i, uint256 read_round_proof_size) = parse_verify_round_proof_be(blob, offset + proof_size);
             if (!result_i) {
                 return (false, 0);
             }

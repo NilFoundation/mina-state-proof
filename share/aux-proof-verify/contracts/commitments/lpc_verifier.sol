@@ -173,7 +173,6 @@ library lpc_verifier {
         }
     }
 
-
     function skip_proof_be_check(bytes memory blob, uint256 offset)
     internal pure returns (uint256 result_offset) {
         // T_root
@@ -227,8 +226,6 @@ library lpc_verifier {
             z_0_ptr := add(add(blob, 0x20), add(offset, 0x30))
         }
     }
-
-
 
     //
     function verifyProof(
