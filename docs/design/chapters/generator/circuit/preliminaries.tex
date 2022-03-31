@@ -88,190 +88,89 @@ $\pi$ constains (here $\mathbb{F}_r$ is a scalar field of $\mathbb{G}$):
 For instance, we write $pub_{\texttt{comm}}$ instead of $pub_{i, \texttt{comm}}$.
 
 \begin{algorithm}[H]
-\caption{Verifier.Scalar\_Field}
-\begin{enumerate}
-	\item for each $\pi_i$:
-		\begin{enumerate}
-			\item $\texttt{random\_oracle}(p_{\texttt{comm}}, \pi_i)$:
-            \begin{enumerate}
-				\item Copy limbs of $\texttt{joint\_combiner}$ from PI
-				\item $\texttt{joint\_combiner} = \texttt{from\_limbs}(\texttt{joint\_combiner\_limbs})$
-				\item Copy limbs of $\beta, \gamma$ from PI
-                \item $\beta = \texttt{from\_limbs}(\beta\_limbs)$
-                \item $ \gamma = \texttt{from\_limbs}(\gamma\_limbs)$
-				\item Copy limbs of $\alpha$ from PI
-				\item $ \alpha_{c} = \texttt{from\_limbs}(\alpha\_limbs)$
-                \item $\alpha = \phi(\alpha_c)$
-				\item Copy limbs of $\zeta$ from PI
-				\item $ \zeta_{c} = \texttt{from\_limbs}(\zeta\_limbs)$
-                \item $\zeta = \phi(\zeta_c)$
-                \item Initialize $H_{\mathbb{F}_r}$
-                \item Copy $H_{\mathbb{F}_q}.\texttt{digest}$ from PI
-                \item $H_{\mathbb{F}_r}.\texttt{absorb}(H_{\mathbb{F}_q}.\texttt{digest})$
-                \item $\zeta_1 = \zeta^{n}$
-                \item $\zeta_w = \zeta \cdot \omega$
-				\item $\texttt{all\_alphas} = [1, \alpha, \dots, \alpha^{next\_power}]$
-				\item $\texttt{lagrange} = [\zeta - domain.w, \dots, \zeta_w - domain.w]$ L195
-				\item $\texttt{lagrange} = [1 / \texttt{lagrange}[0], \dots]$
-				\item $\texttt{p\_eval}[0] = (\sum(pub[i] \cdot domain[i] \cdot (-lagrange[i])) 
-													\cdot (\zeta_1 - 1) \cdot frac{1}{|domain|}$
-				\item $\texttt{p\_eval}[1] = (\sum(pub[i] \cdot domain[i] \cdot (-lagrange[pub.len + i])) 
-													\cdot (\zeta_w^{n} - 1) \cdot frac{1}{|domain|}$
-				\item $H_{\mathbb{F}_r}.\texttt{absorb}(p\_eval[0])$
-				\item $H_{\mathbb{F}_r}.\texttt{absorb}(evals[0])$ <- PI src -> plonk\_sponge.rs L41
-				\item $H_{\mathbb{F}_r}.\texttt{absorb}(p\_eval[1])$
-				\item $H_{\mathbb{F}_r}.\texttt{absorb}(evals[1])$ <- PI
-                %\item Fr: $H_{\mathbb{F}_r}.\texttt{absorb}(pub(\zeta) || w_{0}(\zeta) || ... || w_{N_{\text{wires}}}(\zeta)
-                %|| S_0(\zeta) || ... || S_{N_{\text{perm}}}(\zeta))$
-                %\item Fr: $H_{\mathbb{F}_r}.\texttt{absorb}(pub(\zeta\omega) || w_{0}(\zeta\omega) || ... || w_{N_{\text{wires}}}(\zeta\omega)
-                %|| S_0(\zeta\omega) || ... || S_{N_{\text{perm}}}(\zeta\omega))$
-                \item $Copy \bar{L}(\zeta\omega)$ from PI
-                \item $H_{\mathbb{F}_r}.\texttt{absorb}(\bar{L}(\zeta\omega))$
-                \item $v = \phi(H_{\mathbb{F}_r}.\texttt{squeeze}())$
-                \item $u = \phi(H_{\mathbb{F}_r}.\texttt{squeeze}())$
-                \item Compute evaluation of $\eta_i(\zeta), \eta_i(\zeta\omega)$ for $0 \leq i < N_{\texttt{prev}}$:
-                \begin{enumerate}
-                	\item $powers\_of\_evals = [\zeta^{max\_poly\_size}, \zeta_w^{max\_poly\_size}]$
-                	\item ...
-                \end{enumerate}
-                \item Compute evaluation of $\bar{L}(\zeta)$:
-                \begin{enumerate}
-                	\item ...
-                \end{enumerate}
-            \end{enumerate}
-   			\item Combine evals (ploynomial evals) L412
-            \item $\textbf{f}_{\text{base}} \coloneqq
-            	\{S_{\sigma_{N_{\texttt{perm}} - 1}, \texttt{comm}}, % permutation
-            	\texttt{gate}_{\text{mult}, \texttt{comm}}, w_{0, \texttt{comm}}, 
-            	w_{1, \texttt{comm}}, w_{2, \texttt{comm}}, q_{\text{const}, \texttt{comm}}, % generic constraint
-            	\texttt{gate}_{\text{psdn}, \texttt{comm}}, \texttt{gate}_{\text{rc}, \texttt{comm}},$\\ % poseidon
-            	$\texttt{gate}_{\text{ec\_add}, \texttt{comm}}, % ec add
-            	\texttt{gate}_{\text{ec\_dbl}, \texttt{comm}}, % ec double
-            	\texttt{gate}_{\text{ec\_endo}, \texttt{comm}}, %ec endoscalar multiplication
-            	\texttt{gate}_{\text{ec\_vbase}, \texttt{comm}} % ec variable base multiplication
-            	\}$
-            \item $s_{\text{perm}} \coloneqq (w_0(\zeta) + \gamma + \beta \cdot S_{\sigma_0}(\zeta)) \cdot ...
-            	\cdot (w_5(\zeta) + \gamma + \beta \cdot S_{\sigma_{N_{\texttt{perm}}}}(\zeta))$
-            \item $\textbf{f}_{\text{scalars}} \coloneqq
-            	\{-z(\zeta\omega) \cdot \beta \cdot \alpha_0 \cdot zkp(\zeta) \cdot s_{\text{perm}}, % permutation
-            	w_0(\zeta) \cdot w_1(\zeta), w_0(\zeta), w_1(\zeta), 1$ \\ % generic constraint
-            	$s_{\text{psdn},} s_{\text{rc}}, % poseidon
-            	s_{\text{ec\_add}}, % ec add
-            	s_{\text{ec\_dbl}}, % ec double
-            	s_{\text{ec\_endo}}, % ec endoscalar multiplication
-            	s_{\text{ec\_vbase}} % ec variable base multiplication
-            	\}$
-            \item $\textbf{PE}$ is a set of elements of the form $(f_{\texttt{comm}}, f(\zeta), f(\zeta\omega))$ for the following polynomials:
-            	$\eta_0, \dots, \eta_{N_{\texttt{prev}}}, pub, w_0, \dots, w_{N_{\texttt{wires}}}, 
-            	z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
-            \item $\mathcal{P}_i = \{H_{\mathbb{F}_q}, \zeta, v, u, \textbf{PE}, o_{\pi_i} \}$
-        \end{enumerate}
-        \item $\texttt{final\_check\_scalar\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
-\end{enumerate}
-\end{algorithm}
-
-\begin{algorithm}[H]
-\caption{Verifier.Base\_Field}
-\begin{enumerate}
-	\item for each $\pi_i$:
+    \caption{Verification}
+    \textbf{Input}: $\pi_0, \dots, \pi_{\texttt{batch\_size}}$ (see \ref{proof-state}) \\
+    \textbf{Output}: \texttt{acc} or \texttt{rej}
+    \begin{enumerate}
+        \item for each $\pi_i$:
         \begin{enumerate}
-            \item $pub_{\texttt{comm}} = -\texttt{MSM}(\textbf{L}, \texttt{pub}) \in \mathbb{G}$, where $\textbf{L}$ is Lagrange bases vector
+            \item $pub_{\texttt{comm}} = \texttt{MSM}(\textbf{L}, \texttt{pub}) \in \mathbb{G}$, where $\textbf{L}$ is Lagrange bases vector
             \item $\texttt{random\_oracle}(p_{\texttt{comm}}, \pi_i)$:
             \begin{enumerate}
                 \item $H_{\mathbb{F}_q}.\texttt{absorb}(pub_{\texttt{comm}} || w_{0, \texttt{comm}} || ... || w_{N_{\text{wires}}, \texttt{comm}})$
-				\item $\texttt{joint\_combiner} = H_{\mathbb{F}_q}.\texttt{squeeze}()$ <- PI check
-				\item $H_{\mathbb{F}_q}.\texttt{absorb}(LOOKUP)$ L146, commitments sorted
-                \item $\beta, \gamma = H_{\mathbb{F}_q}.\texttt{squeeze}()$ <- PI check
-				\item $H_{\mathbb{F}_q}.\texttt{absorb}(LOOKUP2)$ L156m commitments aggregated
+                \item $\beta, \gamma = H_{\mathbb{F}_q}.\texttt{squeeze}()$
                 \item $H_{\mathbb{F}_q}.\texttt{absorb}(z_{\texttt{comm}})$
-                \item $\alpha = H_{\mathbb{F}_q}.\texttt{squeeze}()$ <- PI check
+                \item $\alpha = \phi(H_{\mathbb{F}_q}.\texttt{squeeze}())$
                 \item $H_{\mathbb{F}_q}.\texttt{absorb}(t_{1, \texttt{comm}} ||  ... || t_{N_{\texttt{perm}}, \texttt{comm}} ||  ... || \infty ||)$
-                \item $\zeta = H_{\mathbb{F}_q}.\texttt{squeeze}()$ <- PI check
-                \item Get digest from $H_{\mathbb{F}_q}$ <- PI check
+                \item $\zeta = \phi(H_{\mathbb{F}_q}.\texttt{squeeze}())$
+                \item Transfrorm $H_{\mathbb{F}_q}$ to $H_{\mathbb{F}_r}$
+                \item $H_{\mathbb{F}_r}.\texttt{absorb}(pub(\zeta) || w_{0}(\zeta) || ... || w_{N_{\text{wires}}}(\zeta)
+                || S_0(\zeta) || ... || S_{N_{\text{perm}}}(\zeta))$
+                \item $H_{\mathbb{F}_r}.\texttt{absorb}(pub(\zeta\omega) || w_{0}(\zeta\omega) || ... || w_{N_{\text{wires}}}(\zeta\omega)
+                || S_0(\zeta\omega) || ... || S_{N_{\text{perm}}}(\zeta\omega))$
+                \item $H_{\mathbb{F}_r}.\texttt{absorb}(\bar{L}(\zeta\omega))$
+                \item $v = \phi(H_{\mathbb{F}_r}.\texttt{squeeze}())$
+                \item $u = \phi(H_{\mathbb{F}_r}.\texttt{squeeze}())$
+                \item Compute evaluation of $\eta_i(\zeta), \eta_i(\zeta\omega)$ for $0 \leq i < N_{\texttt{prev}}$
+                \item Compute evaluation of $\bar{L}(\zeta)$
             \end{enumerate}
             \item $\textbf{f}_{\text{base}} \coloneqq
-            	\{S_{\sigma_{N_{\texttt{perm}} - 1}, \texttt{comm}}, % permutation
-            	\texttt{gate}_{\text{mult}, \texttt{comm}}, w_{0, \texttt{comm}}, 
-            	w_{1, \texttt{comm}}, w_{2, \texttt{comm}}, q_{\text{const}, \texttt{comm}}, % generic constraint
-            	\texttt{gate}_{\text{psdn}, \texttt{comm}}, \texttt{gate}_{\text{rc}, \texttt{comm}},$\\ % poseidon
-            	$\texttt{gate}_{\text{ec\_add}, \texttt{comm}}, % ec add
-            	\texttt{gate}_{\text{ec\_dbl}, \texttt{comm}}, % ec double
-            	\texttt{gate}_{\text{ec\_endo}, \texttt{comm}}, %ec endoscalar multiplication
-            	\texttt{gate}_{\text{ec\_vbase}, \texttt{comm}} % ec variable base multiplication
-            	\}$
+            \{S_{\sigma_{N_{\texttt{perm}} - 1}, \texttt{comm}}, % permutation
+            \texttt{gate}_{\text{mult}, \texttt{comm}}, w_{0, \texttt{comm}}, w_{1, \texttt{comm}}, w_{2, \texttt{comm}}, q_{\text{const}, \texttt{comm}}, % generic constraint
+            \texttt{gate}_{\text{psdn}, \texttt{comm}}, \texttt{gate}_{\text{rc}, \texttt{comm}},$\\ % poseidon
+            $\texttt{gate}_{\text{ec\_add}, \texttt{comm}}, % ec add
+            \texttt{gate}_{\text{ec\_dbl}, \texttt{comm}}, % ec double
+            \texttt{gate}_{\text{ec\_endo}, \texttt{comm}}, %ec endoscalar multiplication
+            \texttt{gate}_{\text{ec\_vbase}, \texttt{comm}} % ec variable base multiplication
+            \}$
             \item $s_{\text{perm}} \coloneqq (w_0(\zeta) + \gamma + \beta \cdot S_{\sigma_0}(\zeta)) \cdot ...
-            	\cdot (w_5(\zeta) + \gamma + \beta \cdot S_{\sigma_{N_{\texttt{perm}}}}(\zeta))$
+            \cdot (w_5(\zeta) + \gamma + \beta \cdot S_{\sigma_{N_{\texttt{perm}}}}(\zeta))$
             \item $\textbf{f}_{\text{scalars}} \coloneqq
-            	\{-z(\zeta\omega) \cdot \beta \cdot \alpha_0 \cdot zkp(\zeta) \cdot s_{\text{perm}}, % permutation
-            	w_0(\zeta) \cdot w_1(\zeta), w_0(\zeta), w_1(\zeta), 1$ \\ % generic constraint
-            	$s_{\text{psdn},} s_{\text{rc}}, % poseidon
-            	s_{\text{ec\_add}}, % ec add
-            	s_{\text{ec\_dbl}}, % ec double
-            	s_{\text{ec\_endo}}, % ec endoscalar multiplication
-            	s_{\text{ec\_vbase}} % ec variable base multiplication
-            	\}$
+            \{-z(\zeta\omega) \cdot \beta \cdot \alpha_0 \cdot zkp(\zeta) \cdot s_{\text{perm}}, % permutation
+            w_0(\zeta) \cdot w_1(\zeta), w_0(\zeta), w_1(\zeta), 1$ \\ % generic constraint
+            $s_{\text{psdn},} s_{\text{rc}}, % poseidon
+            s_{\text{ec\_add}}, % ec add
+            s_{\text{ec\_dbl}}, % ec double
+            s_{\text{ec\_endo}}, % ec endoscalar multiplication
+            s_{\text{ec\_vbase}} % ec variable base multiplication
+            \}$
             \item $f_{\texttt{comm}} = \text{MSM}(\textbf{f}_{\text{base}}, \textbf{f}_{\text{scalars}})$
-			\item Copy from PI $(\zeta^n - 1)$
             \item $\bar{L}_{\texttt{comm}} = f_{\texttt{comm}} - t_{\texttt{comm}} \cdot (\zeta^n - 1)$
             \item $\textbf{PE}$ is a set of elements of the form $(f_{\texttt{comm}}, f(\zeta), f(\zeta\omega))$ for the following polynomials:
-            	$\eta_0, \dots, \eta_{N_{\texttt{prev}}}, pub, w_0, \dots, w_{N_{\texttt{wires}}}, 
-            	z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
+            $\eta_0, \dots, \eta_{N_{\texttt{prev}}}, pub, w_0, \dots, w_{N_{\texttt{wires}}}, z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
             \item $\mathcal{P}_i = \{H_{\mathbb{F}_q}, \zeta, v, u, \textbf{PE}, o_{\pi_i} \}$
         \end{enumerate}
-	\item $\texttt{final\_check\_base\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
-\end{enumerate}
-\end{algorithm}
-
-\begin{algorithm}[H]
-    \caption{Final Check - Scalar Field}
-    \textbf{Input}: $\pi_0, \dots, \pi_{\texttt{batch\_size}}$, where $\pi_i = \{H_{i, \mathbb{F}_q}, \zeta_i, \zeta_i\omega, v_i, u_i,
-    \textbf{PE}_i, o_{\pi_i} \}$ \\
-    \textbf{Output}: \texttt{acc} or \texttt{rej}
-    \begin{enumerate}
-        \item $\rho_1 \rightarrow \mathbb{F}_r$ <- should be calculated as poseidon from $H_{i, \mathbb{F}_q}$ state
-        \item $\rho_2 \rightarrow \mathbb{F}_r$
-        \item $r_0 = r'_0 = 1$
-        \item for $0 \leq i < \texttt{batch\_size}$:
-        \begin{enumerate}
-            \item $cip_i = \texttt{combined\_inner\_product}(\zeta_i, \zeta_i\omega, v_i, u_i, \textbf{PE}_i)$ <- PI check
-            \item Calculate opening challenges $\xi_{i, j}$ from limbs in $o_{\pi_i}$ <- PI?
-            \item Calculate inversion from $\xi_{i, j}$
-			\item Copy limbs $c_i\_limbs$ from PI
-            \item $c_i = \phi(c_i\_limbs)$
-            \item $h_i(X) \coloneqq \prod_{k=0}^{\log(d+1) - 1}(1 + \xi_{\log(d+1)-k}X^{2^k})$, where $d = \texttt{lr\_rounds}$
-            \item $b_i = h_i(\zeta) + u_i \cdot h_i(\zeta\omega)$
-            \item $sg = -r_i \cdot opening.z1 - r'_i$
-            \item $r_i = r_{i - 1} \cdot \rho_1$
-            \item $r'_i = r'_{i - 1} \cdot \rho_2$
-        \end{enumerate}
+        \item $\texttt{final\_check}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
     \end{enumerate}
 \end{algorithm}
 
 \begin{algorithm}[H]
-    \caption{Final Check - Base Field}
+    \caption{Final Check}
     \textbf{Input}: $\pi_0, \dots, \pi_{\texttt{batch\_size}}$, where $\pi_i = \{H_{i, \mathbb{F}_q}, \zeta_i, \zeta_i\omega, v_i, u_i,
     \textbf{PE}_i, o_{\pi_i} \}$ \\
     \textbf{Output}: \texttt{acc} or \texttt{rej}
     \begin{enumerate}
+        \item $\rho_1 \rightarrow \mathbb{F}_r$
+        \item $\rho_2 \rightarrow \mathbb{F}_r$
+        \item $r_0 = r'_0 = 1$
         \item for $0 \leq i < \texttt{batch\_size}$:
         \begin{enumerate}
-        	\item Get limbs $cip_i$ from PI
+            \item $cip_i = \texttt{combined\_inner\_product}(\zeta_i, \zeta_i\omega, v_i, u_i, \textbf{PE}_i)$
             \item $H_{i, \mathbb{F}_q}.\texttt{absorb}(cip_i - 2^{255})$
             \item $U_i = (H_{i, \mathbb{F}_q}.\texttt{squeeze}()).\texttt{to\_group}()$
-            \item Calculate opening challenges $\xi_{i, j}$ from $o_{\pi_i}$ <- PI output as limbs:
-            \begin{enumerate}
-            	\item ?????
-            \end{enumerate}
-            \item $H_{i, \mathbb{F}_q}.\texttt{absorb}(openings.\delta)$ L791
+            \item Calculate opening challenges $\xi_{i, j}$ from $o_{\pi_i}$
             \item $h_i(X) \coloneqq \prod_{k=0}^{\log(d+1) - 1}(1 + \xi_{\log(d+1)-k}X^{2^k})$, where $d = \texttt{lr\_rounds}$
+            \item $b_i = h_i(\zeta) + u_i \cdot h_i(\zeta\omega)$
             \item $C_i = \sum\limits_{j}v_i^j(\sum\limits_{k}r_i^k f_{j, \texttt{comm}}))$, where $f_{j, \texttt{comm}}$ from $\textbf{PE}_i$.
             \item $Q_i = \sum (\xi_{i, j} \cdot L_{i, j} + \xi_{i, j}^{-1} \cdot R_j) + cip_i \cdot U_i + C_i$
-            \item $c_i = H_{i, \mathbb{F}_q}.\texttt{squeeze}()$ <- PI
+            \item $c_i = \phi(H_{i, \mathbb{F}_q}.\texttt{squeeze}())$
+            \item $r_i = r_{i - 1} \cdot \rho_1$
+            \item $r'_i = r'_{i - 1} \cdot \rho_2$
             \item Check $\hat{G}_i = <s, G>$, where $s$ is set of $h(X)$ coefficients. \\
             \textbf{Remark}: This check can be done inside the \texttt{MSM} below using $r'_i$.
         \end{enumerate}
-        \item Fq: $\texttt{res} = \sum\limits_i r^i (c_i Q_i + delta_i - ( z_{i, 1} (\hat{G}_i + b_i U_i) + z_{i, 2} H ))$
-        \item Fq: $\texttt{return res } == 0$
+        \item $\texttt{res} = \sum\limits_i r^i (c_i Q_i + delta_i - ( z_{i, 1} (\hat{G}_i + b_i U_i) + z_{i, 2} H ))$
+        \item $\texttt{return res } == 0$
     \end{enumerate}
 \end{algorithm}
 
@@ -280,8 +179,7 @@ For instance, we write $pub_{\texttt{comm}}$ instead of $pub_{i, \texttt{comm}}$
     \textbf{Input}: $\xi, r, f_0(\zeta_1), \dots, f_k(\zeta_1), f_0(\zeta_2), \dots, f_k(\zeta_2)$ \\ %xi = v, r = u
     \textbf{Output}: $s$
     \begin{enumerate}
-        \item Fr: $s = \sum\limits_{i = 0}^{k} \xi^i \cdot (f_i(\zeta_1) + r \cdot f_i(\zeta_2))$
+        \item $s = \sum\limits_{i = 0}^{k} \xi^i \cdot (f_i(\zeta_1) + r \cdot f_i(\zeta_2))$
     \end{enumerate}
 \end{algorithm}
-
 We use the same 15-wires PLONK circuits that are designed for Mina.\footnote{\url{https://o1-labs.github.io/mina-book/specs/15_wires/15_wires.html}}
