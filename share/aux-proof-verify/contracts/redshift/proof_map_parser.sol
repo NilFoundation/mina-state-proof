@@ -29,7 +29,7 @@ library redshift_proof_map_parser {
         bytes memory blob,
         uint256 offset
     )
-    internal view returns(types.redshift_proof_map memory proof_map, uint256 proof_size) {
+    internal pure returns (types.redshift_proof_map memory proof_map, uint256 proof_size) {
         // skip v_perm_commitment
         proof_map.witness_commitments_offset = basic_marshalling.skip_octet_vector_32_be_check(blob, offset);
         // skip witness_commitments
