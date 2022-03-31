@@ -32,7 +32,7 @@
 #include <nil/crypto3/zk/blueprint/plonk.hpp>
 
 #include <nil/crypto3/zk/components/hashes/poseidon/plonk/poseidon_15_wires.hpp>
-#include <nil/crypto3/zk/components/algebra/curves/edwards/plonk/variable_base_endo_scalar_mul_15_wires.hpp>
+#include <nil/crypto3/zk/components/algebra/curves/pasta/plonk/variable_base_endo_scalar_mul_15_wires.hpp>
 
 #include <nil/crypto3/hash/algorithm/hash.hpp>
 #include <nil/crypto3/hash/keccak.hpp>
