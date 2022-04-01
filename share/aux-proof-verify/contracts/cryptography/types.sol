@@ -203,6 +203,14 @@ library types {
         uint256 theta;
         // 0x60
         uint256[] selector_evaluations_ptrs;
+        // 0x80
+        uint256 constraint_eval;
+        // 0xa0
+        uint256 gate_evaluation;
+        // 0xc0
+        bytes mds;
+        // 0xe0
+        bytes round_constants;
     }
     
     struct permutation_argument_eval_params {
