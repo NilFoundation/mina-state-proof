@@ -34,6 +34,7 @@ contract TestUnifiedAdditionComponent {
     function evaluate(bytes memory assignments_blob) public {
         types.gate_eval_params memory params = m_params;
         uint256[] memory assignment_pointers = new uint256[](11);
+        params.selector_evaluations_ptrs = new uint256[](1);
         assembly {
             let blob_ptr := add(assignments_blob, 0x20)
             let pointers_ptr := add(assignment_pointers, 0x20)
@@ -42,7 +43,7 @@ contract TestUnifiedAdditionComponent {
                 blob_ptr := add(blob_ptr, 0x20)
                 pointers_ptr := add(pointers_ptr, 0x20)
             }
-            mstore(add(params, 0x60), mload(blob_ptr))
+            mstore(add(mload(add(params, 0x60)), 0x20), blob_ptr)
         }
 
         m_evaluation_result = unified_addition_component.evaluate_gates_be(assignment_pointers, params);

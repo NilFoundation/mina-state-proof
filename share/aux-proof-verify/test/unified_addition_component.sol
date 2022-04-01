@@ -33,6 +33,7 @@ contract TestUnifiedAddition {
         uint256 theta_acc_result = 22776621096326636850168989734402224351450482466532466652833512923156695827432;
         uint256 gate_evaluation_result = 2187611903631573800010139566678334142237983618461939715906907249863037036657;
         uint256[] memory assignment_pointers = new uint256[](11);
+        params.selector_evaluations_ptrs = new uint256[](1);
         assembly {
             let blob_ptr := add(assignments_blob, 0x20)
             let pointers_ptr := add(assignment_pointers, 0x20)
@@ -41,7 +42,7 @@ contract TestUnifiedAddition {
                 blob_ptr := add(blob_ptr, 0x20)
                 pointers_ptr := add(pointers_ptr, 0x20)
             }
-            mstore(add(params, 0x60), mload(blob_ptr))
+            mstore(add(mload(add(params, 0x60)), 0x20), blob_ptr)
         }
         uint256 gate_evaluation = unified_addition_component.evaluate_gates_be(assignment_pointers, params);
         Assert.equal(theta_acc_result, params.theta_acc, "Theta accumulator result is not correct");
@@ -57,6 +58,7 @@ contract TestUnifiedAddition {
         uint256 theta_acc_result = 24646083228986430749961998025613465618039050811281191453579094140630843188665;
         uint256 gate_evaluation_result = 14885472559964206998700281637416132659595071240967250098605268510205097507577;
         uint256[] memory assignment_pointers = new uint256[](11);
+        params.selector_evaluations_ptrs = new uint256[](1);
         assembly {
             let blob_ptr := add(assignments_blob, 0x20)
             let pointers_ptr := add(assignment_pointers, 0x20)
@@ -65,7 +67,7 @@ contract TestUnifiedAddition {
                 blob_ptr := add(blob_ptr, 0x20)
                 pointers_ptr := add(pointers_ptr, 0x20)
             }
-            mstore(add(params, 0x60), mload(blob_ptr))
+            mstore(add(mload(add(params, 0x60)), 0x20), blob_ptr)
         }
         uint256 gate_evaluation = unified_addition_component.evaluate_gates_be(assignment_pointers, params);
         Assert.equal(theta_acc_result, params.theta_acc, "Theta accumulator result is not correct");

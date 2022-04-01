@@ -25,23 +25,18 @@ pragma experimental ABIEncoderV2;
 library field {
     // Perform a modular exponentiation. This method is ideal for small exponents (~64 bits or less), as
     // it is cheaper than using the pow precompile
-    function pow_small(uint256 base, uint256 exponent, uint256 modulus) internal pure returns (uint256) {
-        uint256 result = 1;
-        uint256 input = base;
-        uint256 count = 1;
-
+    function pow_small(uint256 base, uint256 exponent, uint256 modulus) internal pure returns (uint256 result) {
+        result = 1;
         assembly {
-            let endpoint := add(exponent, 0x01)
-            for {} lt(count, endpoint) {count := add(count, count)}
-            {
+            for { let count := 1 }
+            lt(count, add(exponent, 0x01))
+            { count := shl(1, count) } {
                 if and(exponent, count) {
-                    result := mulmod(result, input, modulus)
+                    result := mulmod(result, base, modulus)
                 }
-                input := mulmod(input, input, modulus)
+                base := mulmod(base, base, modulus)
             }
         }
-
-        return result;
     }
 
     /// @dev Modular inverse of a (mod p) using euclid.

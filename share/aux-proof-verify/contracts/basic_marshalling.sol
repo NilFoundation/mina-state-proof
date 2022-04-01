@@ -105,8 +105,6 @@ library basic_marshalling {
     }
 
 
-
-
     // TODO: general case
     function skip_octet_vector_32_be_check(bytes memory blob, uint256 offset)
     internal pure returns (uint256 result_offset) {

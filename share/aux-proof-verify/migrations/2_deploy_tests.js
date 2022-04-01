@@ -1,4 +1,3 @@
-const BN = require('bn.js');
 const TestUnifiedAdditionComponent = artifacts.require("TestUnifiedAdditionComponent");
 const TestRedshiftVerifierUnifiedAddition = artifacts.require("TestRedshiftVerifierUnifiedAddition");
 

@@ -202,7 +202,7 @@ library types {
         // 0x40
         uint256 theta;
         // 0x60
-        uint256 selector_evaluation;
+        uint256[] selector_evaluations_ptrs;
     }
     
     struct permutation_argument_eval_params {

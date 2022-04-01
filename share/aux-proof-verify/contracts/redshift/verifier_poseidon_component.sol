@@ -25,7 +25,7 @@ import '../components/unified_addition.sol';
 import '../basic_marshalling.sol';
 import '../cryptography/field.sol';
 
-library redshift_verifier_unified_addition_component {
+library redshift_verifier_poseidon_component {
     function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
         if (_i == 0) {
             return "0";
@@ -177,38 +177,6 @@ library redshift_verifier_unified_addition_component {
         // TODO: generalize method to get assignments length
         // TODO: add public_input_columns and constant_columns to assignments
         // TODO: make correct length of assignments_ptrs for general case
-        uint256[] memory assignments_ptrs =
-            new uint256[](unified_addition_component.WITNESS_ASSIGNMENTS_N);
-        local_vars.tmp1 = 0;
-        local_vars.offset = proof_map.eval_proof_witness_offset + basic_marshalling.LENGTH_OCTETS;
-        for (uint256 i = 0; i < unified_addition_component.WITNESS_ASSIGNMENTS_N; i++) {
-            // TODO: remove for general case
-            require(common_data.columns_rotations[i].length == 1);
-            for (uint256 j = 0; j < common_data.columns_rotations[i].length; j++) {
-                // TODO: remove for general case
-                require(common_data.columns_rotations[i][j] == 0);
-                assignments_ptrs[local_vars.tmp1] =
-                    lpc_verifier.get_z_i_ptr_from_proof_be(
-                        blob,
-                        local_vars.offset,
-                        j
-                    );
-                local_vars.tmp1++;
-            }
-            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
-        }
-        types.gate_eval_params memory gate_params;
-        gate_params.modulus = params.modulus;
-        gate_params.theta_acc = 1;
-        gate_params.theta = transcript.get_field_challenge(tr_state, params.modulus);
-        gate_params.selector_evaluations_ptrs = new uint256[](1);
-        gate_params.selector_evaluations_ptrs[0] = lpc_verifier.get_z_i_ptr_from_proof_be(
-            blob,
-            proof_map.eval_proof_selector_offset + basic_marshalling.LENGTH_OCTETS,
-            0
-        );
-        local_vars.gate_argument =
-            unified_addition_component.evaluate_gates_be(assignments_ptrs, gate_params);
 
         // 8. alphas computations
         local_vars.alphas = new uint256[](f_parts);
