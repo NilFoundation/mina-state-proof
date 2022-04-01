@@ -1,7 +1,7 @@
 const BN = require('bn.js');
 const TestComponent = artifacts.require("TestPoseidonComponent");
 
-contract("Unified addition component evaluation", accounts => {
+contract("Poseidon component evaluation", accounts => {
     it("Case 1", async () => {
         const instance = await TestComponent.deployed();
         await instance.set_params(
