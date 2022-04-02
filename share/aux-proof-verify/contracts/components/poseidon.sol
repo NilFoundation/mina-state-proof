@@ -21,6 +21,8 @@ import '../logging.sol';
 import '../cryptography/types.sol';
 
 library poseidon_component {
+    uint256 constant WITNESSES_N = 15;
+    // rotations considered
     uint256 constant WITNESS_ASSIGNMENTS_N = 18;
     uint256 constant GATES_N = 11;
     uint256 constant SBOX = 7;
@@ -47,30 +49,33 @@ library poseidon_component {
     uint32 constant W13_rot0 = 0x220;
     uint32 constant W14_rot0 = 0x240;
 
+    function get_rotation(uint256 W_idx, uint256 rotation_idx)
+    internal pure returns (int256 rotation) {
+        if (W_idx >= 0 && W_idx < 3) {
+            if (rotation_idx == 0) {
+                return 0;
+            } else if (rotation_idx == 1) {
+                return 1;
+            } else {
+                require(false);
+            }
+        } else if (W_idx >= 3 && W_idx < 15) {
+            if (rotation_idx == 0) {
+                return 0;
+            } else {
+                require(false);
+            }            
+        } else {
+            require(false);
+        }
+    }
+
     function evaluate_gates_be(
         uint256[] memory assignment_pointers,
         types.gate_eval_params memory params
     ) internal pure returns (uint256 gates_evaluation) {
-        require(
-            assignment_pointers.length >= WITNESS_ASSIGNMENTS_N,
-            string.concat(
-                "Too little assignments passed (at least ",
-                logging.uint2str(WITNESS_ASSIGNMENTS_N),
-                ", passed ",
-                logging.uint2str(assignment_pointers.length),
-                ")!"
-            )
-        );
-        require(
-            params.selector_evaluations_ptrs.length >= GATES_N,
-            string.concat(
-                "Too little selector evaluations passed (at least ",
-                logging.uint2str(GATES_N),
-                ", passed ",
-                logging.uint2str(params.selector_evaluations_ptrs.length),
-                ")!"
-            )
-        );
+        require(assignment_pointers.length >= WITNESS_ASSIGNMENTS_N);
+        require(params.selector_evaluations_ptrs.length >= GATES_N);
 
         // TODO: move definitions as constants to library level (when compiler support will be added)
         params.mds = hex"1a9bd250757e29ef4959b9bef59b4e60e20a56307d6491e7b7ea1fac679c7903384aa09faf3a48737e2d64f6a030aa242e6d5d455ae4a13696b48a7320c506cd3d2b7b0209bc3080064d5ce4a7a03653f8346506bfa6d076061217be9e6cfed509ee57c70bc351220b107983afcfabbea79868a4a8a5913e24b7aaf3b4bf3a4220989996bc29a96d17684d3ad4c859813115267f35225d7e1e9a5b5436a2458f14e39adb2e171ae232116419ee7f26d9191edde8a5632298347cdb74c3b2e69d174544357b687f65a9590c1df621818b5452d5d441597a94357f112316ef67cb3ca9263dc1a19d17cfbf15b0166bb25f95dffc53212db207fcee35f02c2c41373cf1fbef75d4ab63b7a812f80b7b0373b2dc21d269ba7c4c4d6581d50aae114c";

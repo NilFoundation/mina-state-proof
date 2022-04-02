@@ -22,4 +22,25 @@ contract("Unified addition component evaluation", accounts => {
             'Theta accumulator result is not correct!'
         );
     });
+
+    it("Kimchi demo case 1", async () => {
+        const instance = await TestComponent.deployed();
+        await instance.set_params(
+            new BN('40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001', 16),
+            new BN('10139201073279201608999635104601716206251779022092302383672853362840536912418', 10)
+        );
+        await instance.evaluate('0x3341241dfe546e053421649e793444988a1951e0685e6cf9cefc21f2c59dedc33ff83c0a96c71d5368ec2b4c739a5523653fa09c72f53c7b922503a70088f6c109afa0831f35ab6c96da91d1b2c25206c023d26ad66d19aa6a6e00e940b31cdf007479dd30fc89169f83306ce37ad184b9558e410ae78752ea72b98cb8818ce42f2dd730c5b69333c3639d70341c60640d09724e1abb35ad58a1779c434bdb8230f5efa53d014b51df1f177ed75e97808ed0053370bd2eac90d2e8a76aba3060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001c38c3554ac6c0e9d14b0a49d40252fa32e802f813f43606886f67bce82ae2ed000000000000000000000000000000000000000000000000000000000000000020a134bfaa7022cde8e5caba839cff4092c2b9dad681e53529583d0fc9bf8e3c3b41fb18ff5322ded2dfdf75561ad5a0ad5e8302141c5d10dcdecd074698cf99');
+        const evaluation_result = await instance.m_evaluation_result();
+        assert.equal(
+            evaluation_result.toString(10),
+            '3512541464968895540250973223430258334816599953500380668644889924020463293750',
+            'Gate evaluation result is not correct!'
+        );
+        const theta_acc_result = await instance.m_theta_acc();
+        assert.equal(
+            theta_acc_result.toString(10),
+            '16250801902841676856997604086164356918699321567625260947707428634771067018841',
+            'Theta accumulator result is not correct!'
+        );
+    });
 });
