@@ -17,39 +17,37 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
+import '../logging.sol';
 import '../cryptography/types.sol';
 
 library unified_addition_component {
-
-    function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
-        if (_i == 0) {
-            return "0";
-        }
-        uint j = _i;
-        uint len;
-        while (j != 0) {
-            len++;
-            j /= 10;
-        }
-        bytes memory bstr = new bytes(len);
-        uint k = len;
-        while (_i != 0) {
-            k = k-1;
-            uint8 temp = (48 + uint8(_i - _i / 10 * 10));
-            bytes1 b1 = bytes1(temp);
-            bstr[k] = b1;
-            _i /= 10;
-        }
-        return string(bstr);
-    }
-
     uint256 constant WITNESS_ASSIGNMENTS_N = 11;
+    uint256 constant GATES_N = 1;
 
     function evaluate_gates_be(
         uint256[] memory assignment_pointers,
         types.gate_eval_params memory params
     ) internal pure returns (uint256 gate_evaluation) {
-        require(assignment_pointers.length >= WITNESS_ASSIGNMENTS_N, "Too little assignments passed (at least 11).");
+        require(
+            assignment_pointers.length >= WITNESS_ASSIGNMENTS_N,
+            string.concat(
+                "Too little assignments passed (at least ",
+                logging.uint2str(WITNESS_ASSIGNMENTS_N),
+                ", passed ",
+                logging.uint2str(assignment_pointers.length),
+                ")!"
+            )
+        );
+        require(
+            params.selector_evaluations_ptrs.length >= GATES_N,
+            string.concat(
+                "Too little selector evaluations passed (at least ",
+                logging.uint2str(GATES_N),
+                ", passed ",
+                logging.uint2str(params.selector_evaluations_ptrs.length),
+                ")!"
+            )
+        );
 
         assembly {
             gate_evaluation := 0
@@ -351,7 +349,7 @@ library unified_addition_component {
             //==========================================================================================================
             gate_evaluation := mulmod(
                 gate_evaluation,
-                mload(add(params, 0x60)),
+                mload(mload(add(mload(add(params, 0x60)), 0x20))),
                 modulus
             )
         }

@@ -21,12 +21,11 @@ import '../cryptography/types.sol';
 import '../cryptography/transcript.sol';
 import '../commitments/lpc_verifier.sol';
 import './permutation_argument.sol';
-import '../components/unified_addition.sol';
+import '../components/poseidon.sol';
 import '../basic_marshalling.sol';
 import '../cryptography/field.sol';
 
-// TODO: insert component name for witch gate argument is evaluated
-library redshift_verifier_component_name {
+library redshift_verifier_poseidon_component {
     uint256 constant f_parts = 4;
 
     function parse_verify_proof_be(
@@ -152,11 +151,46 @@ library redshift_verifier_component_name {
             permutation_argument.verify_eval_be(permutation_argument_params);
 
         // 7. gate argument
-        // TODO: insert gate argument evaluation here
-        // ...
-        // ...
-        // ...
-        // local_vars.gate_argument = ...
+        // TODO: generalize for different components
+        // TODO: generalize method to get assignments length
+        // TODO: add public_input_columns and constant_columns to assignments
+        // TODO: make correct length of assignments_ptrs for general case
+        uint256[] memory assignments_ptrs =
+            new uint256[](poseidon_component.WITNESS_ASSIGNMENTS_N);
+        local_vars.tmp1 = 0;
+        local_vars.offset = proof_map.eval_proof_witness_offset + basic_marshalling.LENGTH_OCTETS;
+        for (uint256 i = 0; i < poseidon_component.WITNESSES_N; i++) {
+            for (uint256 j = 0; j < common_data.columns_rotations[i].length; j++) {
+                require(
+                    common_data.columns_rotations[i][j] == poseidon_component.get_rotation(i, j),
+                    "Incorrect rotations order in common_data!"
+                );
+                assignments_ptrs[local_vars.tmp1] =
+                    lpc_verifier.get_z_i_ptr_from_proof_be(
+                        blob,
+                        local_vars.offset,
+                        j
+                    );
+                local_vars.tmp1++;
+            }
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
+        types.gate_eval_params memory gate_params;
+        gate_params.modulus = params.modulus;
+        gate_params.theta_acc = 1;
+        gate_params.theta = transcript.get_field_challenge(tr_state, params.modulus);
+        gate_params.selector_evaluations_ptrs = new uint256[](poseidon_component.GATES_N);
+        local_vars.offset = proof_map.eval_proof_selector_offset + basic_marshalling.LENGTH_OCTETS;
+        for (uint256 i = 0; i < poseidon_component.GATES_N; i++) {
+            gate_params.selector_evaluations_ptrs[i] = lpc_verifier.get_z_i_ptr_from_proof_be(
+                blob,
+                local_vars.offset,
+                0
+            );
+            local_vars.offset = lpc_verifier.skip_proof_be(blob, local_vars.offset);
+        }
+        local_vars.gate_argument =
+            poseidon_component.evaluate_gates_be(assignments_ptrs, gate_params);
 
         // 8. alphas computations
         local_vars.alphas = new uint256[](f_parts);
