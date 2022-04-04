@@ -1,7 +1,7 @@
-// SPDX-License-Identifier: Apache-2.0.
+// SPDX-License-Identifier: MIT OR Apache-2.0
 //---------------------------------------------------------------------------//
-// Copyright (c) 2022 Mikhail Komarov <nemo@nil.foundation>
-// Copyright (c) 2022 Ilias Khairullin <ilias@nil.foundation>
+// Copyright (c) 2021 Mikhail Komarov <nemo@nil.foundation>
+// Copyright (c) 2021 Ilias Khairullin <ilias@nil.foundation>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 // limitations under the License.
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
+pragma experimental ABIEncoderV2;
 
-import '../cryptography/types.sol';
+import {types} from "../types.sol";
 
-abstract contract abstract_component {
-    function evaluate_gates_be(
-        uint256[] memory assignment_pointers,
-        types.gate_eval_params memory params
-    ) external pure virtual returns (uint256);
+/**
+ * @title Pallas elliptic curve crypto
+ */
+library pallas_crypto {
+    uint256 constant p_mod = 0x40000000000000000000000000000000224698fc094cf91b992d30ed00000001;
+    uint256 constant r_mod = 0x40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001;
 }

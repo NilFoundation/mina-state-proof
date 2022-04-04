@@ -20,7 +20,7 @@ pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
-import '../contracts/cryptography/types.sol';
+import '../contracts/types.sol';
 import '../contracts/redshift/permutation_argument.sol';
 
 contract TestPermutationArgument {

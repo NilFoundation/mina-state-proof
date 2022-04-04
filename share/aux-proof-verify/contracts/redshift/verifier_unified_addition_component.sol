@@ -17,13 +17,13 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import '../cryptography/types.sol';
+import '../types.sol';
 import '../cryptography/transcript.sol';
 import '../commitments/lpc_verifier.sol';
 import './permutation_argument.sol';
 import '../components/unified_addition.sol';
 import '../basic_marshalling.sol';
-import '../cryptography/field.sol';
+import '../algebra/field.sol';
 
 library redshift_verifier_unified_addition_component {
     uint256 constant f_parts = 4;

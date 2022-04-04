@@ -17,7 +17,7 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import '../../cryptography/types.sol';
+import '../../types.sol';
 import '../poseidon.sol';
 
 contract TestPoseidonComponent {

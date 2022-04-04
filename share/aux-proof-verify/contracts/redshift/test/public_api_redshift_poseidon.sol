@@ -17,7 +17,7 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import '../../cryptography/types.sol';
+import '../../types.sol';
 import '../../cryptography/transcript.sol';
 import '../proof_map_parser.sol';
 import '../verifier_poseidon_component.sol';

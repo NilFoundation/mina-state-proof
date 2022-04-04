@@ -16,7 +16,6 @@
 //---------------------------------------------------------------------------//
 
 pragma solidity >=0.8.4;
-pragma experimental ABIEncoderV2;
 
 /**
  * @title Bn254Crypto library used for the fr, g1 and g2 point types

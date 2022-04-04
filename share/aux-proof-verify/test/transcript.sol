@@ -21,7 +21,7 @@ pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
 import '../contracts/cryptography/transcript.sol';
-import '../contracts/cryptography/bn254.sol';
+import '../contracts/algebra/bn254.sol';
 
 contract TestTranscript {
     function test_transcript() public {

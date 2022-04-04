@@ -18,7 +18,7 @@
 pragma solidity >=0.8.4;
 
 import '../logging.sol';
-import '../cryptography/types.sol';
+import '../types.sol';
 
 library unified_addition_component {
     uint256 constant WITNESS_ASSIGNMENTS_N = 11;

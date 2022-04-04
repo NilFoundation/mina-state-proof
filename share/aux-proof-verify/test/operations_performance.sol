@@ -20,9 +20,9 @@ pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
-import '../contracts/cryptography/field.sol';
+import '../contracts/algebra/field.sol';
 import '../contracts/cryptography/transcript.sol';
-import '../contracts/cryptography/bn254.sol';
+import '../contracts/algebra/bn254.sol';
 
 contract TestOperationsPerformance {
     function test_transcript_get_field_challenge() public {

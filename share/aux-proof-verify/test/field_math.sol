@@ -20,7 +20,7 @@ pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
-import '../contracts/cryptography/field.sol';
+import '../contracts/algebra/field.sol';
 
 contract TestFieldMath {
     function test_log2_ceil() public {
