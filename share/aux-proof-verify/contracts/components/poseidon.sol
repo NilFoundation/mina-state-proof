@@ -18,7 +18,7 @@
 pragma solidity >=0.8.4;
 
 import '../logging.sol';
-import '../cryptography/types.sol';
+import '../types.sol';
 
 library poseidon_component {
     uint256 constant WITNESSES_N = 15;

@@ -20,8 +20,8 @@ pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "truffle/Assert.sol";
-import '../contracts/cryptography/polynomial.sol';
-import '../contracts/cryptography/field.sol';
+import '../contracts/algebra/polynomial.sol';
+import '../contracts/algebra/field.sol';
 
 contract TestPolynomial {
     function test_polynomial_evaluation_aDeg15_bDeg20() public {

@@ -17,9 +17,9 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import '../cryptography/types.sol';
+import '../types.sol';
 import './fri_verifier.sol';
-import '../cryptography/polynomial.sol';
+import '../algebra/polynomial.sol';
 import '../basic_marshalling.sol';
 
 library lpc_verifier {
