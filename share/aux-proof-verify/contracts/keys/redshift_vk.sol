@@ -18,8 +18,8 @@
 pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
-import '../cryptography/types.sol';
-import '../cryptography/bn254.sol';
+import '../types.sol';
+import '../algebra/bn254.sol';
 
 library redshift_vk {
     using bn254_crypto for types.g1_point;
