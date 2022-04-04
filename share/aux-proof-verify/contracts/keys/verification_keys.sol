@@ -18,7 +18,7 @@
 pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
-import '../cryptography/types.sol';
+import '../types.sol';
 
 import './redshift_vk.sol';
 
