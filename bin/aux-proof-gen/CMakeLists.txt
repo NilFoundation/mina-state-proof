@@ -18,8 +18,7 @@ set(${CURRENT_PROJECT_NAME}_HEADERS)
 
 # list cpp files excluding platform-dependent files
 list(APPEND ${CURRENT_PROJECT_NAME}_SOURCES
-     src/main.cpp
-     src/sexp.cpp)
+     src/main.cpp)
 
 add_executable(${CURRENT_PROJECT_NAME}
                ${${CURRENT_PROJECT_NAME}_HEADERS}
