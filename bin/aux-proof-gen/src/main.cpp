@@ -24,13 +24,17 @@
 #include <boost/program_options.hpp>
 #endif
 
+#include <nil/crypto3/algebra/curves/pallas.hpp>
+#include <nil/crypto3/algebra/fields/arithmetic_params/pallas.hpp>
+#include <nil/crypto3/algebra/random_element.hpp>
 #include <nil/crypto3/algebra/curves/alt_bn128.hpp>
 #include <nil/crypto3/algebra/fields/arithmetic_params/alt_bn128.hpp>
 #include <nil/crypto3/algebra/curves/params/multiexp/alt_bn128.hpp>
 #include <nil/crypto3/algebra/curves/params/wnaf/alt_bn128.hpp>
 
 #include <nil/crypto3/zk/blueprint/plonk.hpp>
-
+#include <nil/crypto3/zk/assignment/plonk.hpp>
+#include <nil/crypto3/zk/components/algebra/curves/pasta/plonk/unified_addition.hpp>
 #include <nil/crypto3/zk/components/hashes/poseidon/plonk/poseidon_15_wires.hpp>
 #include <nil/crypto3/zk/components/algebra/curves/pasta/plonk/variable_base_endo_scalar_mul_15_wires.hpp>
 
@@ -43,50 +47,37 @@
 
 #include <nil/crypto3/zk/algorithms/generate.hpp>
 
-#include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/redshift/prover.hpp>
+#include <nil/crypto3/zk/commitments/type_traits.hpp>
+#include <nil/crypto3/zk/snark/arithmetization/plonk/params.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/redshift/preprocessor.hpp>
-
-#include <nil/crypto3/zk/math/non_linear_combination.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/redshift/prover.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/redshift/verifier.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/redshift/params.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
 
 #include <nil/mina/auxproof/sexp.hpp>
 
 using namespace nil;
 using namespace nil::crypto3;
 
-typedef algebra::curves::alt_bn128<254> curve_type;
-typedef typename curve_type::base_field_type field_type;
-constexpr static const std::size_t m = 2;
-constexpr static const std::size_t k = 1;
+template<typename fri_type, typename FieldType>
+typename fri_type::params_type create_fri_params(std::size_t degree_log) {
+    typename fri_type::params_type params;
+    math::polynomial<typename FieldType::value_type> q = {0, 0, 1};
 
-constexpr static const std::size_t table_rows_log = 4;
-constexpr static const std::size_t table_rows = 1 << table_rows_log;
-constexpr static const std::size_t permutation_size = 4;
-constexpr static const std::size_t usable_rows = 1 << table_rows_log;
+    constexpr std::size_t expand_factor = 0;
+    std::size_t r = degree_log - 1;
 
-struct redshift_params {
-    using merkle_hash_type = hashes::keccak_1600<512>;
-    using transcript_hash_type = hashes::keccak_1600<512>;
+    std::vector<std::shared_ptr<math::evaluation_domain<FieldType>>> domain_set =
+        zk::commitments::detail::calculate_domain_set<FieldType>(degree_log + expand_factor, r);
 
-    constexpr static const std::size_t witness_columns = 3;
-    constexpr static const std::size_t public_input_columns = 1;
-    constexpr static const std::size_t constant_columns = 0;
-    constexpr static const std::size_t selector_columns = 2;
+    params.r = r;
+    params.D = domain_set;
+    params.q = q;
+    params.max_degree = (1 << degree_log) - 1;
 
-    constexpr static const std::size_t lambda = 40;
-    constexpr static const std::size_t r = table_rows_log - 1;
-    constexpr static const std::size_t m = 2;
-};
-
-constexpr static const std::size_t table_columns =
-    redshift_params::witness_columns + redshift_params::public_input_columns;
-
-typedef zk::commitments::fri<field_type, redshift_params::merkle_hash_type, redshift_params::transcript_hash_type, m>
-    fri_type;
-
-typedef zk::snark::redshift_params<field_type, redshift_params::witness_columns, redshift_params::public_input_columns,
-                                   redshift_params::constant_columns, redshift_params::selector_columns>
-    circuit_params;
+    return params;
+}
 
 int main(int argc, char *argv[]) {
 #ifndef __EMSCRIPTEN__
@@ -135,39 +126,74 @@ int main(int argc, char *argv[]) {
     if (!err.empty()) {
     }
 
-    constexpr typename curve_type::template g1_type<>::value_type B = curve_type::template g1_type<>::value_type::one();
-    using ArithmetizationType = zk::snark::plonk_constraint_system<field_type>;
+    using curve_type = algebra::curves::pallas;
+    using BlueprintFieldType = typename curve_type::base_field_type;
+    constexpr std::size_t WitnessColumns = 11;
+    constexpr std::size_t PublicInputColumns = 1;
+    constexpr std::size_t ConstantColumns = 0;
+    constexpr std::size_t SelectorColumns = 1;
+    using ArithmetizationParams = zk::snark::plonk_arithmetization_params<WitnessColumns,
+        PublicInputColumns, ConstantColumns, SelectorColumns>;
+    using ArithmetizationType = zk::snark::plonk_constraint_system<BlueprintFieldType,
+                ArithmetizationParams>;
 
-    zk::snark::pickles_proof<curve_type, redshift_params::witness_columns> state_proof;
+    using component_type = zk::components::curve_element_unified_addition<ArithmetizationType, curve_type,
+                                                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10>;
+    
+    // zk::snark::pickles_proof<curve_type, WitnessColumns> state_proof;
 
-    zk::blueprint<ArithmetizationType> bp;
-    zk::blueprint_private_assignment_table<ArithmetizationType, redshift_params::witness_columns> private_assignment;
-    zk::blueprint_public_assignment_table<ArithmetizationType, redshift_params::public_input_columns,
-                                          redshift_params::constant_columns, redshift_params::selector_columns>
-        public_assignment;
+    typename component_type::public_params_type public_params = {};
+    typename component_type::private_params_type private_params = {
+        algebra::random_element<curve_type::template g1_type<>>(),
+        algebra::random_element<curve_type::template g1_type<>>()};
 
-    zk::components::curve_element_variable_base_endo_scalar_mul<ArithmetizationType, curve_type, 0, 1, 2, 3, 4, 5, 6, 7,
-                                                                8, 9, 10, 11, 12, 13, 14>
-        scalar_mul_component(bp);
-    zk::components::poseidon_plonk<ArithmetizationType, curve_type> poseidon_component(bp);
+    zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams> desc;
 
-    scalar_mul_component.generate_gates(public_assignment);
-    poseidon_component.generate_gates();
+    zk::blueprint<ArithmetizationType> bp(desc);
+    zk::blueprint_private_assignment_table<ArithmetizationType> private_assignment(desc);
+    zk::blueprint_public_assignment_table<ArithmetizationType> public_assignment(desc);
 
-    typename curve_type::scalar_field_type::value_type a = curve_type::scalar_field_type::value_type::one();
-    typename curve_type::template g1_type<>::value_type P = curve_type::template g1_type<>::value_type::one();
+    std::size_t start_row = component_type::allocate_rows(bp);
+    component_type::generate_gates(bp, public_assignment, public_params, start_row);
+    component_type::generate_copy_constraints(bp, public_assignment, public_params, start_row);
+    component_type::generate_assignments(private_assignment, public_assignment,
+        public_params, private_params, start_row);
 
-    scalar_mul_component.generate_assignments(private_assignment, public_assignment, {P, a});
-    poseidon_component.generate_assignments();
+    private_assignment.padding();
+    public_assignment.padding();
+            
+    zk::snark::plonk_assignment_table<BlueprintFieldType, ArithmetizationParams> assignments(
+                private_assignment, public_assignment);
 
-    auto cs = bp.get_constraint_system();
+    using params = zk::snark::redshift_params<BlueprintFieldType, ArithmetizationParams>;
+    using types = zk::snark::detail::redshift_policy<BlueprintFieldType, params>;
 
-    auto assignments = bp.full_variable_assignment();
+    using fri_type = typename zk::commitments::fri<BlueprintFieldType,
+        typename params::merkle_hash_type,
+        typename params::transcript_hash_type,
+        2>;
 
-    typedef zk::snark::redshift_preprocessor<typename curve_type::base_field_type, 15, 1> preprocessor_type;
-    typedef zk::snark::redshift_prover<typename curve_type::base_field_type, 15, 5, 1, 5> prover_type;
+    std::size_t table_rows_log = std::ceil(std::log2(desc.rows_amount));
 
-    auto proof = prover_type::process(preprocessor_type::process(cs, assignments), cs, assignments);
+    typename fri_type::params_type fri_params = create_fri_params<fri_type, BlueprintFieldType>(table_rows_log);
+
+    std::size_t permutation_size = desc.witness_columns + desc.public_input_columns + desc.constant_columns;
+
+    typename types::preprocessed_public_data_type public_preprocessed_data =
+         zk::snark::redshift_public_preprocessor<BlueprintFieldType, params>::process(bp, public_assignment, 
+            desc, fri_params, permutation_size);
+    typename types::preprocessed_private_data_type private_preprocessed_data =
+         zk::snark::redshift_private_preprocessor<BlueprintFieldType, params>::process(bp, private_assignment,
+            desc);
+
+    auto proof = zk::snark::redshift_prover<BlueprintFieldType, params>::process(public_preprocessed_data,
+                                                                       private_preprocessed_data,
+                                                                       desc,
+                                                                       bp,
+                                                                       assignments, fri_params);
+
+    bool verifier_res = zk::snark::redshift_verifier<BlueprintFieldType, params>::process(public_preprocessed_data, proof, 
+                                                                                bp, fri_params);
 
 #ifndef __EMSCRIPTEN__
     if (vm.count("output")) {
