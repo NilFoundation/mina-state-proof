@@ -17,8 +17,7 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import '../logging.sol';
-import '../types.sol';
+import "../types.sol";
 
 library unified_addition_component {
     uint256 constant WITNESS_ASSIGNMENTS_N = 11;
@@ -28,26 +27,8 @@ library unified_addition_component {
         uint256[] memory assignment_pointers,
         types.gate_eval_params memory params
     ) internal pure returns (uint256 gate_evaluation) {
-        require(
-            assignment_pointers.length >= WITNESS_ASSIGNMENTS_N,
-            string.concat(
-                "Too little assignments passed (at least ",
-                logging.uint2str(WITNESS_ASSIGNMENTS_N),
-                ", passed ",
-                logging.uint2str(assignment_pointers.length),
-                ")!"
-            )
-        );
-        require(
-            params.selector_evaluations_ptrs.length >= GATES_N,
-            string.concat(
-                "Too little selector evaluations passed (at least ",
-                logging.uint2str(GATES_N),
-                ", passed ",
-                logging.uint2str(params.selector_evaluations_ptrs.length),
-                ")!"
-            )
-        );
+        require(assignment_pointers.length >= WITNESS_ASSIGNMENTS_N);
+        require(params.selector_evaluations_ptrs.length >= GATES_N);
 
         assembly {
             gate_evaluation := 0
@@ -78,7 +59,7 @@ library unified_addition_component {
             )
             // theta_acc *= theta
             theta_acc := mulmod(theta_acc, theta, modulus)
-            
+
             //==========================================================================================================
             // 2. (w_2 - w_0) * w_10 - (1 - w_7)
             constraint_eval := addmod(
@@ -89,7 +70,10 @@ library unified_addition_component {
                         // w_2
                         mload(mload(add(assignment_pointers, 0x60))),
                         // -w_0
-                        sub(modulus, mload(mload(add(assignment_pointers, 0x20)))),
+                        sub(
+                            modulus,
+                            mload(mload(add(assignment_pointers, 0x20)))
+                        ),
                         modulus
                     ),
                     // w_10
@@ -97,12 +81,18 @@ library unified_addition_component {
                     modulus
                 ),
                 // -(1 - w_7)
-                sub(modulus, addmod(
-                    1,
-                    // -w_7
-                    sub(modulus, mload(mload(add(assignment_pointers, 0x100)))),
-                    modulus
-                )),
+                sub(
+                    modulus,
+                    addmod(
+                        1,
+                        // -w_7
+                        sub(
+                            modulus,
+                            mload(mload(add(assignment_pointers, 0x100)))
+                        ),
+                        modulus
+                    )
+                ),
                 modulus
             )
             // gate_evaluation += constraint_2_eval * theta_acc
@@ -159,7 +149,10 @@ library unified_addition_component {
                     addmod(
                         1,
                         // -w_7
-                        sub(modulus, mload(mload(add(assignment_pointers, 0x100)))),
+                        sub(
+                            modulus,
+                            mload(mload(add(assignment_pointers, 0x100)))
+                        ),
                         modulus
                     ),
                     // (w_2 - w_0) * w_8 - (w_3 - w_1)
@@ -171,7 +164,10 @@ library unified_addition_component {
                                 // w_2
                                 mload(mload(add(assignment_pointers, 0x60))),
                                 // -w_0
-                                sub(modulus, mload(mload(add(assignment_pointers, 0x20)))),
+                                sub(
+                                    modulus,
+                                    mload(mload(add(assignment_pointers, 0x20)))
+                                ),
                                 modulus
                             ),
                             // w_8
@@ -186,7 +182,10 @@ library unified_addition_component {
                                 // w_3
                                 mload(mload(add(assignment_pointers, 0x80))),
                                 // -w_1
-                                sub(modulus, mload(mload(add(assignment_pointers, 0x40)))),
+                                sub(
+                                    modulus,
+                                    mload(mload(add(assignment_pointers, 0x40)))
+                                ),
                                 modulus
                             )
                         ),
@@ -264,13 +263,19 @@ library unified_addition_component {
                                 // w_0
                                 mload(mload(add(assignment_pointers, 0x20))),
                                 // -w_4
-                                sub(modulus, mload(mload(add(assignment_pointers, 0xa0)))),
+                                sub(
+                                    modulus,
+                                    mload(mload(add(assignment_pointers, 0xa0)))
+                                ),
                                 modulus
                             ),
                             modulus
                         ),
                         // -w_1
-                        sub(modulus, mload(mload(add(assignment_pointers, 0x40)))),
+                        sub(
+                            modulus,
+                            mload(mload(add(assignment_pointers, 0x40)))
+                        ),
                         modulus
                     )
                 ),
@@ -325,7 +330,10 @@ library unified_addition_component {
                         // w_3
                         mload(mload(add(assignment_pointers, 0x80))),
                         // -w_1
-                        sub(modulus, mload(mload(add(assignment_pointers, 0x40)))),
+                        sub(
+                            modulus,
+                            mload(mload(add(assignment_pointers, 0x40)))
+                        ),
                         modulus
                     ),
                     // w_9
@@ -345,7 +353,7 @@ library unified_addition_component {
             // theta_acc *= theta
             theta_acc := mulmod(theta_acc, theta, modulus)
             mstore(add(params, 0x20), theta_acc)
-            
+
             //==========================================================================================================
             gate_evaluation := mulmod(
                 gate_evaluation,
