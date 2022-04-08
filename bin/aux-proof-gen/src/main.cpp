@@ -55,8 +55,6 @@
 #include <nil/crypto3/zk/snark/systems/plonk/redshift/params.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
 
-#include <nil/mina/auxproof/sexp.hpp>
-
 using namespace nil;
 using namespace nil::crypto3;
 
@@ -132,14 +130,13 @@ int main(int argc, char *argv[]) {
     constexpr std::size_t PublicInputColumns = 1;
     constexpr std::size_t ConstantColumns = 0;
     constexpr std::size_t SelectorColumns = 1;
-    using ArithmetizationParams = zk::snark::plonk_arithmetization_params<WitnessColumns,
-        PublicInputColumns, ConstantColumns, SelectorColumns>;
-    using ArithmetizationType = zk::snark::plonk_constraint_system<BlueprintFieldType,
-                ArithmetizationParams>;
+    using ArithmetizationParams =
+        zk::snark::plonk_arithmetization_params<WitnessColumns, PublicInputColumns, ConstantColumns, SelectorColumns>;
+    using ArithmetizationType = zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams>;
 
-    using component_type = zk::components::curve_element_unified_addition<ArithmetizationType, curve_type,
-                                                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10>;
-    
+    using component_type = zk::components::curve_element_unified_addition<ArithmetizationType, curve_type, 0, 1, 2, 3,
+                                                                          4, 5, 6, 7, 8, 9, 10>;
+
     // zk::snark::pickles_proof<curve_type, WitnessColumns> state_proof;
 
     typename component_type::public_params_type public_params = {};
@@ -156,44 +153,41 @@ int main(int argc, char *argv[]) {
     std::size_t start_row = component_type::allocate_rows(bp);
     component_type::generate_gates(bp, public_assignment, public_params, start_row);
     component_type::generate_copy_constraints(bp, public_assignment, public_params, start_row);
-    component_type::generate_assignments(private_assignment, public_assignment,
-        public_params, private_params, start_row);
+    component_type::generate_assignments(private_assignment, public_assignment, public_params, private_params,
+                                         start_row);
 
     private_assignment.padding();
     public_assignment.padding();
-            
-    zk::snark::plonk_assignment_table<BlueprintFieldType, ArithmetizationParams> assignments(
-                private_assignment, public_assignment);
+
+    zk::snark::plonk_assignment_table<BlueprintFieldType, ArithmetizationParams> assignments(private_assignment,
+                                                                                             public_assignment);
 
     using params = zk::snark::redshift_params<BlueprintFieldType, ArithmetizationParams>;
     using types = zk::snark::detail::redshift_policy<BlueprintFieldType, params>;
 
-    using fri_type = typename zk::commitments::fri<BlueprintFieldType,
-        typename params::merkle_hash_type,
-        typename params::transcript_hash_type,
-        2>;
+    using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename params::merkle_hash_type,
+                                                   typename params::transcript_hash_type, 2>;
 
     std::size_t table_rows_log = std::ceil(std::log2(desc.rows_amount));
 
     typename fri_type::params_type fri_params = create_fri_params<fri_type, BlueprintFieldType>(table_rows_log);
 
-    std::size_t permutation_size = desc.witness_columns + desc.public_input_columns + desc.constant_columns;
+    std::size_t permutation_size =
+        zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams>::witness_columns +
+        zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams>::public_input_columns +
+        zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams>::constant_columns;
 
     typename types::preprocessed_public_data_type public_preprocessed_data =
-         zk::snark::redshift_public_preprocessor<BlueprintFieldType, params>::process(bp, public_assignment, 
-            desc, fri_params, permutation_size);
+        zk::snark::redshift_public_preprocessor<BlueprintFieldType, params>::process(bp, public_assignment, desc,
+                                                                                     fri_params, permutation_size);
     typename types::preprocessed_private_data_type private_preprocessed_data =
-         zk::snark::redshift_private_preprocessor<BlueprintFieldType, params>::process(bp, private_assignment,
-            desc);
+        zk::snark::redshift_private_preprocessor<BlueprintFieldType, params>::process(bp, private_assignment, desc);
 
-    auto proof = zk::snark::redshift_prover<BlueprintFieldType, params>::process(public_preprocessed_data,
-                                                                       private_preprocessed_data,
-                                                                       desc,
-                                                                       bp,
-                                                                       assignments, fri_params);
+    auto proof = zk::snark::redshift_prover<BlueprintFieldType, params>::process(
+        public_preprocessed_data, private_preprocessed_data, desc, bp, assignments, fri_params);
 
-    bool verifier_res = zk::snark::redshift_verifier<BlueprintFieldType, params>::process(public_preprocessed_data, proof, 
-                                                                                bp, fri_params);
+    bool verifier_res = zk::snark::redshift_verifier<BlueprintFieldType, params>::process(public_preprocessed_data,
+                                                                                          proof, bp, fri_params);
 
 #ifndef __EMSCRIPTEN__
     if (vm.count("output")) {
