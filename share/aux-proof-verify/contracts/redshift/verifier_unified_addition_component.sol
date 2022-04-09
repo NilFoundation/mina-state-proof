@@ -26,7 +26,7 @@ import '../basic_marshalling.sol';
 import '../algebra/field.sol';
 
 library redshift_verifier_unified_addition_component {
-    uint256 constant f_parts = 4;
+    uint256 constant f_parts = 9;
 
     function parse_verify_proof_be(
         bytes memory blob,
@@ -151,10 +151,6 @@ library redshift_verifier_unified_addition_component {
             permutation_argument.verify_eval_be(permutation_argument_params);
 
         // 7. gate argument
-        // TODO: generalize for different components
-        // TODO: generalize method to get assignments length
-        // TODO: add public_input_columns and constant_columns to assignments
-        // TODO: make correct length of assignments_ptrs for general case
         uint256[] memory assignments_ptrs =
             new uint256[](unified_addition_component.WITNESS_ASSIGNMENTS_N);
         local_vars.tmp1 = 0;
@@ -393,7 +389,11 @@ library redshift_verifier_unified_addition_component {
         local_vars.F[0] = local_vars.permutation_argument[0];
         local_vars.F[1] = local_vars.permutation_argument[1];
         local_vars.F[2] = local_vars.permutation_argument[2];
-        local_vars.F[3] = local_vars.gate_argument;
+        // lookup argument is not used in unified addition component
+        for (uint256 i = 3; i < 8; i++) {
+            local_vars.F[i] = 0;
+        }
+        local_vars.F[8] = local_vars.gate_argument;
 
         local_vars.F_consolidated = 0;
         for (uint256 i = 0; i < f_parts; i++) {

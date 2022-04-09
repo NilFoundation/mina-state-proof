@@ -17,17 +17,18 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import '../cryptography/types.sol';
+import '../types.sol';
 import '../cryptography/transcript.sol';
 import '../commitments/lpc_verifier.sol';
 import './permutation_argument.sol';
-import '../components/unified_addition.sol';
+// TODO: import component module
+// import '../components/component_module.sol';
 import '../basic_marshalling.sol';
-import '../cryptography/field.sol';
+import '../algebra/field.sol';
 
 // TODO: insert component name for witch gate argument is evaluated
 library redshift_verifier_component_name {
-    uint256 constant f_parts = 4;
+    uint256 constant f_parts = 9;
 
     function parse_verify_proof_be(
         bytes memory blob,
@@ -363,7 +364,11 @@ library redshift_verifier_component_name {
         local_vars.F[0] = local_vars.permutation_argument[0];
         local_vars.F[1] = local_vars.permutation_argument[1];
         local_vars.F[2] = local_vars.permutation_argument[2];
-        local_vars.F[3] = local_vars.gate_argument;
+        // TODO: initialize lookup argument result if needed
+        for (uint256 i = 3; i < 8; i++) {
+            local_vars.F[i] = 0;
+        }
+        local_vars.F[8] = local_vars.gate_argument;
 
         local_vars.F_consolidated = 0;
         for (uint256 i = 0; i < f_parts; i++) {
