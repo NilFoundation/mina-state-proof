@@ -279,17 +279,16 @@ library types {
         // 0xe0
         uint256 e;
         // 0x100
-        uint256[] evaluation_points_permutation;
+        uint256[] evaluation_points;
         // 0x120
-        uint256[] evaluation_points_quotient;
-        // 0x140
         uint256[] F;
-        // 0x160
+        // 0x140
         uint256 F_consolidated;
-        // 0x180
+        // 0x160
         uint256 T_consolidated;
-        // 0x1a0
+        // 0x180
         uint256 Z_at_challenge;
+        // 0x1a0
         uint256 tmp1;
         bool status;
     }
