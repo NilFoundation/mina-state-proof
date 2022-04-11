@@ -17,9 +17,8 @@
 //---------------------------------------------------------------------------//
 
 pragma solidity >=0.8.4;
-pragma experimental ABIEncoderV2;
 
-import './field.sol';
+import "./field.sol";
 
 /**
  * @title Turbo Plonk polynomial evaluation
@@ -45,7 +44,15 @@ library polynomial {
         uint256 x_pow = 1;
         for (uint256 i = 0; i < coeffs.length; i++) {
             assembly {
-                result := addmod(result, mulmod(x_pow, mload(add(add(coeffs, 0x20), mul(i, 0x20))), modulus), modulus)
+                result := addmod(
+                    result,
+                    mulmod(
+                        x_pow,
+                        mload(add(add(coeffs, 0x20), mul(i, 0x20))),
+                        modulus
+                    ),
+                    modulus
+                )
                 x_pow := mulmod(x_pow, point, modulus)
             }
         }
@@ -63,7 +70,43 @@ library polynomial {
         uint256 x_pow = 1;
         for (uint256 i = 0; i < len; i++) {
             assembly {
-                result := addmod(result, mulmod(x_pow, mload(add(add(add(blob, 0x20), offset), mul(i, 0x20))), modulus), modulus)
+                result := addmod(
+                    result,
+                    mulmod(
+                        x_pow,
+                        mload(add(add(add(blob, 0x20), offset), mul(i, 0x20))),
+                        modulus
+                    ),
+                    modulus
+                )
+                x_pow := mulmod(x_pow, point, modulus)
+            }
+        }
+        return result;
+    }
+
+    function evaluate_by_ptr_calldata(
+        bytes calldata blob,
+        uint256 offset,
+        uint256 len,
+        uint256 point,
+        uint256 modulus
+    ) internal pure returns (uint256) {
+        uint256 result = 0;
+        uint256 x_pow = 1;
+        for (uint256 i = 0; i < len; i++) {
+            assembly {
+                result := addmod(
+                    result,
+                    mulmod(
+                        x_pow,
+                        calldataload(
+                            add(add(blob.offset, offset), mul(i, 0x20))
+                        ),
+                        modulus
+                    ),
+                    modulus
+                )
                 x_pow := mulmod(x_pow, point, modulus)
             }
         }
@@ -96,15 +139,29 @@ library polynomial {
         result = new uint256[](local_vars[1]);
 
         assembly {
-            for { let i := 0 }
-            lt(i, mul(mload(add(local_vars, 0x20)), 0x20))
-            { i := add(i, 0x20) } {
-                mstore(add(add(result, 0x20), i), addmod(mload(add(add(a, 0x20), i)), mload(add(add(b, 0x20), i)), modulus))
+            for {
+                let i := 0
+            } lt(i, mul(mload(add(local_vars, 0x20)), 0x20)) {
+                i := add(i, 0x20)
+            } {
+                mstore(
+                    add(add(result, 0x20), i),
+                    addmod(
+                        mload(add(add(a, 0x20), i)),
+                        mload(add(add(b, 0x20), i)),
+                        modulus
+                    )
+                )
             }
-            for { let i := mul(mload(add(local_vars, 0x20)), 0x20) }
-            lt(i, mul(mload(add(local_vars, 0x40)), 0x20))
-            { i := add(i, 0x20) } {
-                mstore(add(add(result, 0x20), i), mload(add(mload(add(local_vars, 0x60)), add(0x20, i))))
+            for {
+                let i := mul(mload(add(local_vars, 0x20)), 0x20)
+            } lt(i, mul(mload(add(local_vars, 0x40)), 0x20)) {
+                i := add(i, 0x20)
+            } {
+                mstore(
+                    add(add(result, 0x20), i),
+                    mload(add(mload(add(local_vars, 0x60)), add(0x20, i)))
+                )
             }
         }
     }
@@ -124,8 +181,14 @@ library polynomial {
             for (uint256 j = 0; j < a.length; j++) {
                 // currentValues[j + i] = a[j] * b[i];
                 assembly {
-                    mstore(add(add(currentValues, 0x20), mul(add(j, i), 0x20)),
-                        mulmod(mload(add(add(a, 0x20), mul(j, 0x20))), mload(add(add(b, 0x20), mul(i, 0x20))), modulus))
+                    mstore(
+                        add(add(currentValues, 0x20), mul(add(j, i), 0x20)),
+                        mulmod(
+                            mload(add(add(a, 0x20), mul(j, 0x20))),
+                            mload(add(add(b, 0x20), mul(i, 0x20))),
+                            modulus
+                        )
+                    )
                 }
             }
             result = add_poly(result, currentValues, modulus);
@@ -175,11 +238,14 @@ library polynomial {
                     mulmod(
                         addmod(fX, sub(modulus, fMinusX), modulus),
                         dblXInv,
-                        modulus),
+                        modulus
+                    ),
                     addmod(evalPoint, sub(modulus, x), modulus),
-                    modulus),
+                    modulus
+                ),
                 fX,
-                modulus)
+                modulus
+            )
         }
     }
 
@@ -191,12 +257,27 @@ library polynomial {
     ) internal view returns (uint256 result) {
         require(x.length == 2, "x length is not equal to 2");
         require(fx.length == 2, "fx length is not equal to 2");
-        uint256 x2_minus_x1_inv = field.inverse_static((x[1] + (modulus - x[0])) % modulus, modulus);
+        uint256 x2_minus_x1_inv = field.inverse_static(
+            (x[1] + (modulus - x[0])) % modulus,
+            modulus
+        );
         assembly {
-            let y2_minus_y1 := addmod(mload(add(fx, 0x40)), sub(modulus, mload(add(fx, 0x20))), modulus)
-            let x3_minus_x1 := addmod(eval_point, sub(modulus, mload(add(x, 0x20))), modulus)
+            let y2_minus_y1 := addmod(
+                mload(add(fx, 0x40)),
+                sub(modulus, mload(add(fx, 0x20))),
+                modulus
+            )
+            let x3_minus_x1 := addmod(
+                eval_point,
+                sub(modulus, mload(add(x, 0x20))),
+                modulus
+            )
             result := addmod(
-                mulmod(mulmod(y2_minus_y1, x2_minus_x1_inv, modulus), x3_minus_x1, modulus),
+                mulmod(
+                    mulmod(y2_minus_y1, x2_minus_x1_inv, modulus),
+                    x3_minus_x1,
+                    modulus
+                ),
                 mload(add(fx, 0x20)),
                 modulus
             )
@@ -226,12 +307,22 @@ library polynomial {
     ) internal view returns (uint256[] memory result) {
         require(x.length == 2, "x length is not equal to 2");
         require(fx.length == 2, "fx length is not equal to 2");
-        uint256 x2_minus_x1_inv = field.inverse_static((x[1] + (modulus - x[0])) % modulus, modulus);
+        uint256 x2_minus_x1_inv = field.inverse_static(
+            (x[1] + (modulus - x[0])) % modulus,
+            modulus
+        );
         result = new uint256[](2);
         assembly {
-            let y2_minus_y1 := addmod(mload(add(fx, 0x40)), sub(modulus, mload(add(fx, 0x20))), modulus)
+            let y2_minus_y1 := addmod(
+                mload(add(fx, 0x40)),
+                sub(modulus, mload(add(fx, 0x20))),
+                modulus
+            )
             let a := mulmod(y2_minus_y1, x2_minus_x1_inv, modulus)
-            let a_mul_x1_neg := sub(modulus, mulmod(a, mload(add(x, 0x20)), modulus))
+            let a_mul_x1_neg := sub(
+                modulus,
+                mulmod(a, mload(add(x, 0x20)), modulus)
+            )
             let b := addmod(mload(add(fx, 0x20)), a_mul_x1_neg, modulus)
             mstore(add(result, 0x20), b)
             mstore(add(result, 0x40), a)
