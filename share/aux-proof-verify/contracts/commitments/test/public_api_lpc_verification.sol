@@ -18,70 +18,76 @@
 pragma solidity >=0.8.4;
 
 import "../../types.sol";
-import "../fri_verifier_calldata.sol";
+import "../lpc_verifier_calldata.sol";
 import "../../cryptography/transcript.sol";
 
-contract TestFriVerifier {
+contract TestLpcVerifier {
     bool m_result;
     uint256 m_proof_size;
-    types.fri_params_type m_params;
+    types.lpc_params_type m_params;
 
     function set_params(
         uint256 modulus,
         uint256 r,
-        uint256 max_degree
+        uint256 max_degree,
+        uint256 lambda,
+        uint256 m
     ) public {
         m_params.modulus = modulus;
+        m_params.lambda = lambda;
         m_params.r = r;
-        m_params.max_degree = max_degree;
+        m_params.m = m;
+
+        m_params.fri_params.modulus = modulus;
+        m_params.fri_params.r = r;
+        m_params.fri_params.max_degree = max_degree;
     }
 
     function set_q(uint256[] calldata q) public {
-        m_params.q = q;
+        m_params.fri_params.q = q;
     }
 
     function set_D_omegas(uint256[] calldata D_omegas) public {
-        m_params.D_omegas = D_omegas;
+        m_params.fri_params.D_omegas = D_omegas;
     }
 
     function set_U(uint256[] calldata U) public {
-        m_params.U = U;
+        m_params.fri_params.U = U;
     }
 
     function set_V(uint256[] calldata V) public {
-        m_params.V = V;
+        m_params.fri_params.V = V;
     }
 
     // TODO: optimize - do not copy params from storage to memory
     function verify(
         bytes calldata raw_proof,
-        bytes calldata init_transcript_blob
+        bytes calldata init_transcript_blob,
+        uint256[] calldata evaluation_points
     ) public {
         types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_transcript_blob);
-        (m_result, m_proof_size) = fri_verifier_calldata.parse_verify_proof_be(
+        (m_result, m_proof_size) = lpc_verifier_calldata.parse_verify_proof_be(
             raw_proof,
             0,
+            evaluation_points,
             tr_state,
             m_params
         );
         require(
             raw_proof.length == m_proof_size,
-            "FRI proof length if incorrect!"
+            "LPC proof length if incorrect!"
+        );
+        require(m_result, "LPC proof is not correct!");
+        require(
+            raw_proof.length ==
+                lpc_verifier_calldata.skip_proof_be(raw_proof, 0),
+            "LPC proof length if incorrect!"
         );
         require(
             raw_proof.length ==
-                fri_verifier_calldata.skip_proof_be(raw_proof, 0),
-            "FRI proof length if incorrect!"
+                lpc_verifier_calldata.skip_proof_be_check(raw_proof, 0),
+            "LPC proof length if incorrect!"
         );
-        require(
-            raw_proof.length ==
-                fri_verifier_calldata.skip_proof_be_check(
-                    raw_proof,
-                    0
-                ),
-            "FRI proof length if incorrect!"
-        );
-        require(m_result, "FRI proof is not correct!");
     }
 }

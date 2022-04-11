@@ -18,7 +18,6 @@
 pragma solidity >=0.8.4;
 
 import "../types.sol";
-import "../basic_marshalling.sol";
 
 library merkle_verifier {
     // Merkle proof has the following structure:
