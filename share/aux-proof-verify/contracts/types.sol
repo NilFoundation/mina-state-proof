@@ -251,6 +251,22 @@ library types {
         uint256 eval_proof_special_selectors_offset;
     }
 
+    struct redshift_proof_map_calldata {
+        uint256 v_perm_commitment_offset;
+        uint256 witness_commitments_offset;
+        uint256 T_commitments_offset;
+        uint256 eval_proof_offset;
+        uint256 eval_proof_witness_offset;
+        uint256 eval_proof_permutation_offset;
+        uint256 eval_proof_quotient_offset;
+        uint256 eval_proof_id_permutation_offset;
+        uint256 eval_proof_sigma_permutation_offset;
+        uint256 eval_proof_public_input_offset;
+        uint256 eval_proof_constant_offset;
+        uint256 eval_proof_selector_offset;
+        uint256 eval_proof_special_selectors_offset;
+    }
+
     struct redshift_column_rotations {
         int256[] rotations;
     }
@@ -290,6 +306,58 @@ library types {
         uint256 Z_at_challenge;
         // 0x1a0
         uint256 tmp1;
+        bool status;
+    }
+
+    struct redshift_local_variables_calldata {
+        uint256 len;
+        // 0x20
+        uint256 offset;
+        // 0x40
+        uint256 zero_index;
+        // 0x60
+        uint256[] permutation_argument;
+        // 0x80
+        uint256 gate_argument;
+        // 0xa0
+        uint256[] alphas;
+        // 0xc0
+        uint256 challenge;
+        // 0xe0
+        uint256 e;
+        // 0x100
+        uint256[] evaluation_points;
+        // 0x120
+        uint256[] F;
+        // 0x140
+        uint256 F_consolidated;
+        // 0x160
+        uint256 T_consolidated;
+        // 0x180
+        uint256 Z_at_challenge;
+        // 0x1a0
+        uint256 beta;
+        // 0x1c0
+        uint256 gamma;
+        // 0x1e0
+        uint256 g;
+        // 0x200
+        uint256 h;
+        // 0x220
+        uint256 perm_polynomial_value;
+        // 0x240
+        uint256 perm_polynomial_shifted_value;
+        // 0x260
+        uint256 q_blind_eval;
+        // 0x280
+        uint256 q_last_eval;
+        // 0x2a0
+        uint256 S_id_i;
+        // 0x2c0
+        uint256 S_sigma_i;
+        uint256 tmp1;
+        uint256 tmp2;
+        uint256 tmp3;
         bool status;
     }
 }
