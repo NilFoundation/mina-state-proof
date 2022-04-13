@@ -21,7 +21,9 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 const fs = require('fs');
-const mnemonic = fs.readFileSync(".secret").toString().trim();
+// const mnemonic = fs.readFileSync("/Users/Zerg/Projects/evm-solana-verification/share/state-proof-verify/.secret").toString().trim();
+// const mnemonic = "***REMOVED***";
+const mnemonic = "***REMOVED***";
 
 module.exports = {
     /**
@@ -45,7 +47,7 @@ module.exports = {
             host: "127.0.0.1",     // Localhost (default: none)
             port: 8545,            // Standard Ethereum port (default: none)
             network_id: "*",       // Any network (default: none)
-            gas: 1000000000
+            gas: 100000000,
         },
         // Another network with more advanced options...
         // advanced: {
@@ -59,14 +61,15 @@ module.exports = {
         // Useful for deploying to a public network.
         // NB: It's important to wrap the provider as a function.
         ropsten: {
-            // provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/v3/6f3d827e1a7241859cf304c63a4f3167`),
-            provider: () => new HDWalletProvider(mnemonic, `https://eth-ropsten.alchemyapi.io/v2/WiaO5-SpDnT1Jz_l-fn9EJUnO1ff4Mzd`),
+            provider: () => new HDWalletProvider(mnemonic, `wss://ropsten.infura.io/ws/v3/6f3d827e1a7241859cf304c63a4f3167`),
+            // provider: () => new HDWalletProvider(mnemonic, `wss://eth-ropsten.alchemyapi.io/v2/WiaO5-SpDnT1Jz_l-fn9EJUnO1ff4Mzd`),
             network_id: 3,       // Ropsten's id
             gas: 5500000,        // Ropsten has a lower block limit than mainnet
             confirmations: 2,    // # of confs to wait between deployments. (default: 0)
             timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
             skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
         },
+
 
         // Another network with more advanced options...
         // advanced: {
@@ -81,10 +84,9 @@ module.exports = {
         // NB: It's important to wrap the provider as a function.
         mumbai: {
             // provider: () => new HDWalletProvider(mnemonic, `https://rpc-mumbai.maticvigil.com`),
-            // provider: () => new HDWalletProvider(mnemonic, `https://rpc-mumbai.matic.today`),
+            provider: () => new HDWalletProvider(mnemonic, `https://rpc-mumbai.matic.today`),
             // provider: () => new HDWalletProvider(mnemonic, `https://matic-mumbai.chainstacklabs.com`),
-            provider: () => new HDWalletProvider(mnemonic, `https://matic-testnet-archive-rpc.bwarelabs.com 
-`),
+            // provider: () => new HDWalletProvider(mnemonic, `https://matic-testnet-archive-rpc.bwarelabs.com`),
             network_id: 80001,       // Mumbai's id
             gas: 5500000,        // Ropsten has a lower block limit than mainnet
             confirmations: 2,    // # of confs to wait between deployments. (default: 0)
@@ -100,15 +102,15 @@ module.exports = {
     },
 
     // Set default mocha options here, use special reporters etc.
-    mocha: {
-        // timeout: 100000,
-        reporter: 'eth-gas-reporter'
-    },
+    // mocha: {
+    //     // timeout: 100000,
+    //     reporter: 'eth-gas-reporter'
+    // },
 
     // Configure your compilers
     compilers: {
         solc: {
-            version: "0.8.11",    // Fetch exact version from solc-bin (default: truffle's version)
+            version: "0.8.12",    // Fetch exact version from solc-bin (default: truffle's version)
             // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
             settings: {          // See the solidity docs for advice about optimization and evmVersion
                 optimizer: {
