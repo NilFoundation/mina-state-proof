@@ -358,6 +358,8 @@ library types {
         uint256 tmp1;
         uint256 tmp2;
         uint256 tmp3;
+        uint256 idx1;
+        uint256 idx2;
         bool status;
     }
 }

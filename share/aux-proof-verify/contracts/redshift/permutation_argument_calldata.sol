@@ -34,8 +34,8 @@ library permutation_argument_calldata {
     uint256 constant PERM_POLYNOMIAL_SHIFTED_VALUE_OFFSET = 0x240;
     uint256 constant Q_BLIND_EVAL_OFFSET = 0x260;
     uint256 constant Q_LAST_EVAL_OFFSET = 0x280;
-    uint256 constant S_ID_I = 0x2a0;
-    uint256 constant S_SIGMA_I = 0x2c0;
+    uint256 constant S_ID_I_OFFSET = 0x2a0;
+    uint256 constant S_SIGMA_I_OFFSET = 0x2c0;
 
     function eval_permutations_at_challenge(
         types.lpc_params_type memory lpc_params,
@@ -59,7 +59,7 @@ library permutation_argument_calldata {
                                 // beta
                                 mload(add(local_vars, BETA_OFFSET)),
                                 // S_id[i].evaluate(challenge)
-                                mload(add(local_vars, S_ID_I)),
+                                mload(add(local_vars, S_ID_I_OFFSET)),
                                 modulus
                             ),
                             // gamma
@@ -86,7 +86,7 @@ library permutation_argument_calldata {
                                 // beta
                                 mload(add(local_vars, BETA_OFFSET)),
                                 // S_sigma[i].evaluate(challenge)
-                                mload(add(local_vars, S_SIGMA_I)),
+                                mload(add(local_vars, S_SIGMA_I_OFFSET)),
                                 modulus
                             ),
                             // gamma
@@ -148,14 +148,23 @@ library permutation_argument_calldata {
         local_vars.tmp3 =
             proof_map.eval_proof_sigma_permutation_offset +
             basic_marshalling_calldata.LENGTH_OCTETS;
-        for (uint256 i = 0; i < local_vars.len; i++) {
+        for (
+            local_vars.idx1 = 0;
+            local_vars.idx1 < local_vars.len;
+            local_vars.idx1++
+        ) {
             for (
-                uint256 j = 0;
-                j < common_data.columns_rotations[i].length;
-                j++
+                local_vars.idx2 = 0;
+                local_vars.idx2 <
+                common_data.columns_rotations[local_vars.idx1].length;
+                local_vars.idx2++
             ) {
-                if (common_data.columns_rotations[i][j] == 0) {
-                    local_vars.zero_index = j;
+                if (
+                    common_data.columns_rotations[local_vars.idx1][
+                        local_vars.idx2
+                    ] == 0
+                ) {
+                    local_vars.zero_index = local_vars.idx2;
                 }
             }
 
@@ -179,59 +188,65 @@ library permutation_argument_calldata {
                 local_vars.tmp3
             );
 
-            if (i < local_vars.tmp1) {
-                eval_permutations_at_challenge(
-                    lpc_params,
-                    local_vars,
-                    lpc_verifier_calldata.get_z_i_from_proof_be(
+            if (local_vars.idx1 < local_vars.tmp1) {
+                local_vars.offset = lpc_verifier_calldata
+                    .skip_n_proofs_in_vector_be(
                         blob,
-                        lpc_verifier_calldata.skip_n_proofs_in_vector_be(
-                            blob,
-                            proof_map.eval_proof_witness_offset,
-                            i
-                        ),
-                        local_vars.zero_index
-                    )
-                );
-            } else if (
-                i <
-                local_vars.tmp1 +
-                    basic_marshalling_calldata.get_length(
-                        blob,
-                        proof_map.eval_proof_public_input_offset
-                    )
-            ) {
-                eval_permutations_at_challenge(
-                    lpc_params,
-                    local_vars,
-                    lpc_verifier_calldata.get_z_i_from_proof_be(
-                        blob,
-                        lpc_verifier_calldata.skip_n_proofs_in_vector_be(
-                            blob,
-                            proof_map.eval_proof_public_input_offset,
-                            i - local_vars.tmp1
-                        ),
-                        local_vars.zero_index
-                    )
-                );
-            } else {
-                local_vars.offset =
-                    i -
-                    local_vars.tmp1 -
-                    basic_marshalling_calldata.get_length(
-                        blob,
-                        proof_map.eval_proof_public_input_offset
+                        proof_map.eval_proof_witness_offset,
+                        local_vars.idx1
                     );
                 eval_permutations_at_challenge(
                     lpc_params,
                     local_vars,
                     lpc_verifier_calldata.get_z_i_from_proof_be(
                         blob,
-                        lpc_verifier_calldata.skip_n_proofs_in_vector_be(
-                            blob,
-                            proof_map.eval_proof_constant_offset,
-                            local_vars.offset
-                        ),
+                        local_vars.offset,
+                        local_vars.zero_index
+                    )
+                );
+            } else if (
+                local_vars.idx1 <
+                local_vars.tmp1 +
+                    basic_marshalling_calldata.get_length(
+                        blob,
+                        proof_map.eval_proof_public_input_offset
+                    )
+            ) {
+                local_vars.offset = lpc_verifier_calldata
+                    .skip_n_proofs_in_vector_be(
+                        blob,
+                        proof_map.eval_proof_public_input_offset,
+                        local_vars.idx1 - local_vars.tmp1
+                    );
+                eval_permutations_at_challenge(
+                    lpc_params,
+                    local_vars,
+                    lpc_verifier_calldata.get_z_i_from_proof_be(
+                        blob,
+                        local_vars.offset,
+                        local_vars.zero_index
+                    )
+                );
+            } else {
+                local_vars.offset =
+                    local_vars.idx1 -
+                    local_vars.tmp1 -
+                    basic_marshalling_calldata.get_length(
+                        blob,
+                        proof_map.eval_proof_public_input_offset
+                    );
+                local_vars.offset = lpc_verifier_calldata
+                    .skip_n_proofs_in_vector_be(
+                        blob,
+                        proof_map.eval_proof_constant_offset,
+                        local_vars.offset
+                    );
+                eval_permutations_at_challenge(
+                    lpc_params,
+                    local_vars,
+                    lpc_verifier_calldata.get_z_i_from_proof_be(
+                        blob,
+                        local_vars.offset,
                         local_vars.zero_index
                     )
                 );

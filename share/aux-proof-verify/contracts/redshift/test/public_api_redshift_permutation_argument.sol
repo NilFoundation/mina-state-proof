@@ -97,13 +97,15 @@ contract TestPermutationArgument {
             local_vars.offset = basic_marshalling_calldata
                 .skip_octet_vector_32_be(blob, local_vars.offset);
         }
-
-        m_result = permutation_argument_calldata.verify_eval_be(
+        types.lpc_params_type memory lpc_params = m_lpc_params;
+        types.redshift_common_data memory common_data = m_common_data;
+        m_result =
+        permutation_argument_calldata.verify_eval_be(
             blob,
             tr_state,
             proof_map,
-            m_lpc_params,
-            m_common_data,
+            lpc_params,
+            common_data,
             local_vars
         );
     }
