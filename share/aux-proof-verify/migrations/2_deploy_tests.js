@@ -7,6 +7,7 @@ const TestUnifiedAdditionComponent = artifacts.require("TestUnifiedAdditionCompo
 const TestUnifiedAdditionComponentCalldataInput = artifacts.require("TestUnifiedAdditionComponentCalldataInput");
 const TestPoseidonComponent = artifacts.require("TestPoseidonComponent");
 const TestRedshiftVerifierUnifiedAddition = artifacts.require("TestRedshiftVerifierUnifiedAddition");
+const TestRedshiftVerifierUnifiedAdditionCalldataInput = artifacts.require("TestRedshiftVerifierUnifiedAdditionCalldataInput");
 const TestRedshiftVerifierPoseidon = artifacts.require("TestRedshiftVerifierPoseidon");
 
 module.exports = function (deployer) {
@@ -19,5 +20,6 @@ module.exports = function (deployer) {
   deployer.deploy(TestUnifiedAdditionComponentCalldataInput);
   deployer.deploy(TestPoseidonComponent);
   deployer.deploy(TestRedshiftVerifierUnifiedAddition);
+  deployer.deploy(TestRedshiftVerifierUnifiedAdditionCalldataInput);
   deployer.deploy(TestRedshiftVerifierPoseidon);
 };

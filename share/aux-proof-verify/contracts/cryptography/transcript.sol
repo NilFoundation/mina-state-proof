@@ -19,14 +19,13 @@
 pragma solidity >=0.8.4;
 pragma experimental ABIEncoderV2;
 
-import '../types.sol';
+import "../types.sol";
 
 /**
  * @title Transcript library
  * @dev Generates Plonk random challenges
  */
 library transcript {
-
     function init_transcript(
         types.transcript_data memory self,
         bytes memory init_blob
@@ -38,14 +37,18 @@ library transcript {
         types.transcript_data memory self,
         bytes memory blob
     ) internal pure {
-        self.current_challenge = keccak256(bytes.concat(self.current_challenge, blob));
+        self.current_challenge = keccak256(
+            bytes.concat(self.current_challenge, blob)
+        );
     }
 
     function update_transcript_b32(
         types.transcript_data memory self,
         bytes32 blob
     ) internal pure {
-        self.current_challenge = keccak256(bytes.concat(self.current_challenge, blob));
+        self.current_challenge = keccak256(
+            bytes.concat(self.current_challenge, blob)
+        );
     }
 
     function update_transcript_b32_by_offset(
@@ -53,12 +56,39 @@ library transcript {
         bytes memory blob,
         uint256 offset
     ) internal pure {
-        require(offset < blob.length, "update_transcript_b32_by_offset: offset < blob.length");
-        require(32 <= blob.length - offset, "update_transcript_b32_by_offset: 32 <= blob.length - offset");
+        require(
+            offset < blob.length,
+            "update_transcript_b32_by_offset: offset < blob.length"
+        );
+        require(
+            32 <= blob.length - offset,
+            "update_transcript_b32_by_offset: 32 <= blob.length - offset"
+        );
 
         bytes32 blob32;
         assembly {
             blob32 := mload(add(add(blob, 0x20), offset))
+        }
+        update_transcript_b32(self, blob32);
+    }
+
+    function update_transcript_b32_by_offset_calldata(
+        types.transcript_data memory self,
+        bytes calldata blob,
+        uint256 offset
+    ) internal pure {
+        require(
+            offset < blob.length,
+            "update_transcript_b32_by_offset: offset < blob.length"
+        );
+        require(
+            32 <= blob.length - offset,
+            "update_transcript_b32_by_offset: 32 <= blob.length - offset"
+        );
+
+        bytes32 blob32;
+        assembly {
+            blob32 := calldataload(add(blob.offset, offset))
         }
         update_transcript_b32(self, blob32);
     }
@@ -68,9 +98,13 @@ library transcript {
         uint256 length
     ) internal pure returns (uint256 result) {
         require(length <= 32);
-        self.current_challenge = keccak256(abi.encodePacked(self.current_challenge));
-        return (uint256(self.current_challenge) & (((uint256(1) << (length * 8)) - 1) <<
-                (uint256(256) - length * 8))) >>
+        self.current_challenge = keccak256(
+            abi.encodePacked(self.current_challenge)
+        );
+        return
+            (uint256(self.current_challenge) &
+                (((uint256(1) << (length * 8)) - 1) <<
+                    (uint256(256) - length * 8))) >>
             (uint256(256) - length * 8);
     }
 

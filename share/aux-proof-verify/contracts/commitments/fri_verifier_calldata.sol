@@ -434,7 +434,7 @@ library fri_verifier_calldata {
         }
 
         if (
-            polynomial.evaluate_by_ptr(
+            polynomial.evaluate_by_ptr_calldata(
                 blob,
                 offset + 8,
                 local_vars.final_poly_len,

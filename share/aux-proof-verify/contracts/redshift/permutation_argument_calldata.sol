@@ -117,7 +117,7 @@ library permutation_argument_calldata {
             tr_state,
             lpc_params.modulus
         );
-        transcript.update_transcript_b32_by_offset(
+        transcript.update_transcript_b32_by_offset_calldata(
             tr_state,
             blob,
             proof_map.v_perm_commitment_offset +

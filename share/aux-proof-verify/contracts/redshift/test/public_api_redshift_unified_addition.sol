@@ -68,7 +68,10 @@ contract TestRedshiftVerifierUnifiedAddition {
         bytes memory init_blob = hex"";
         types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
-        m_result = redshift_verifier_unified_addition_component.parse_verify_proof_be(blob, 0, tr_state, proof_map, m_lpc_params, m_common_data);
+        types.lpc_params_type memory lpc_params = m_lpc_params;
+        types.redshift_common_data memory common_data = m_common_data;
+        m_result =
+        redshift_verifier_unified_addition_component.parse_verify_proof_be(blob, 0, tr_state, proof_map, lpc_params, common_data);
         require(m_result, "Proof is not correct!");
     }
 }
