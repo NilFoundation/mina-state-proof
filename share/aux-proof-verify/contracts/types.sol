@@ -253,17 +253,29 @@ library types {
 
     struct redshift_proof_map_calldata {
         uint256 v_perm_commitment_offset;
+        // 0x20
         uint256 witness_commitments_offset;
+        // 0x40
         uint256 T_commitments_offset;
+        // 0x60
         uint256 eval_proof_offset;
+        // 0x80
         uint256 eval_proof_witness_offset;
+        // 0xa0
         uint256 eval_proof_permutation_offset;
+        // 0xc0
         uint256 eval_proof_quotient_offset;
+        // 0xe0
         uint256 eval_proof_id_permutation_offset;
+        // 0x100
         uint256 eval_proof_sigma_permutation_offset;
+        // 0x120
         uint256 eval_proof_public_input_offset;
+        // 0x140
         uint256 eval_proof_constant_offset;
+        // 0x160
         uint256 eval_proof_selector_offset;
+        // 0x180
         uint256 eval_proof_special_selectors_offset;
     }
 
@@ -361,5 +373,24 @@ library types {
         uint256 idx1;
         uint256 idx2;
         bool status;
+    }
+
+    struct gate_argument_local_vars {
+        uint256 modulus;
+        // 0x20
+        uint256 theta;
+        // 0x40
+        uint256 constraint_eval;
+        // 0x60
+        uint256 gate_eval;
+        // 0x80
+        uint256[][] witness_evaluations;
+        // 0xa0
+        uint256[] selector_evaluations;
+        // 0xc0
+        uint256 eval_proof_witness_offset;
+        // 0xe0
+        uint256 eval_proof_selector_offset;
+        uint256 offset;
     }
 }
