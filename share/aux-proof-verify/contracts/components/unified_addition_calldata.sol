@@ -39,7 +39,7 @@ library unified_addition_component_calldata {
         bytes calldata blob,
         types.gate_argument_local_vars memory gate_params,
         int256[][] memory columns_rotations
-    ) external pure returns (uint256 gates_evaluation) {
+    ) internal pure returns (uint256 gates_evaluation) {
         // TODO: check witnesses number in proof
 
         gate_params.witness_evaluations = new uint256[][](WITNESSES_N);
