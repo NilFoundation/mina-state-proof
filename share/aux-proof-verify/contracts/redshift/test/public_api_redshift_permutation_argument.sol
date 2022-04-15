@@ -17,17 +17,26 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import '../../types.sol';
-import '../../cryptography/transcript.sol';
-import '../proof_map_parser.sol';
-import '../verifier_unified_addition_component.sol';
+import "../../types.sol";
+import "../../cryptography/transcript.sol";
+import "../proof_map_parser_calldata.sol";
+import "../permutation_argument_calldata.sol";
 
-contract TestRedshiftVerifierUnifiedAddition {
+contract TestPermutationArgument {
     types.lpc_params_type m_lpc_params;
     types.redshift_common_data m_common_data;
-    bool m_result;
+    uint256[] public m_result;
 
-    function set_initial_params(uint256 modulus, uint256 r, uint256 max_degree, uint256 lambda, uint256 m, uint256 rows_amount, uint256 omega, uint256 columns_number) public {
+    function set_initial_params(
+        uint256 modulus,
+        uint256 r,
+        uint256 max_degree,
+        uint256 lambda,
+        uint256 m,
+        uint256 rows_amount,
+        uint256 omega,
+        uint256 columns_number
+    ) public {
         m_lpc_params.modulus = modulus;
         m_lpc_params.lambda = lambda;
         m_lpc_params.r = r;
@@ -58,20 +67,50 @@ contract TestRedshiftVerifierUnifiedAddition {
         m_lpc_params.fri_params.q = q;
     }
 
-    function set_column_rotations(int256[] calldata rotations, uint256 i) public {
+    function set_column_rotations(int256[] calldata rotations, uint256 i)
+        public
+    {
         m_common_data.columns_rotations[i] = rotations;
     }
 
-    function verify(bytes calldata blob) public {
-        (types.redshift_proof_map memory proof_map, uint256 proof_size) = redshift_proof_map_parser.parse_be(blob, 0);
-        require(proof_size == blob.length, "Proof length was detected incorrectly!");
+    function eval_argument(bytes calldata blob) public {
+        (
+            types.redshift_proof_map_calldata memory proof_map,
+            uint256 proof_size
+        ) = redshift_proof_map_parser_calldata.parse_be(blob, 0);
+        require(
+            proof_size == blob.length,
+            "Proof length was detected incorrectly!"
+        );
         bytes memory init_blob = hex"";
         types.transcript_data memory tr_state;
         transcript.init_transcript(tr_state, init_blob);
+        types.redshift_local_variables_calldata memory local_vars;
+        (local_vars.len, local_vars.offset) = basic_marshalling_calldata
+            .get_skip_length(blob, proof_map.witness_commitments_offset);
+        for (uint256 i = 0; i < local_vars.len; i++) {
+            transcript.update_transcript_b32_by_offset(
+                tr_state,
+                blob,
+                local_vars.offset + basic_marshalling_calldata.LENGTH_OCTETS
+            );
+            local_vars.offset = basic_marshalling_calldata
+                .skip_octet_vector_32_be(blob, local_vars.offset);
+        }
         types.lpc_params_type memory lpc_params = m_lpc_params;
         types.redshift_common_data memory common_data = m_common_data;
         m_result =
-        redshift_verifier_unified_addition_component.parse_verify_proof_be(blob, 0, tr_state, proof_map, lpc_params, common_data);
-        require(m_result, "Proof is not correct!");
+        permutation_argument_calldata.verify_eval_be(
+            blob,
+            tr_state,
+            proof_map,
+            lpc_params,
+            common_data,
+            local_vars
+        );
+    }
+
+    function get_result(uint256 i) public view returns (uint256 result) {
+        result = m_result[i];
     }
 }

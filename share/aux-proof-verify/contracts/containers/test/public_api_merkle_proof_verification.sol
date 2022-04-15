@@ -18,16 +18,17 @@
 pragma solidity >=0.8.4;
 
 import '../../types.sol';
-import '../merkle_verifier.sol';
+import '../merkle_verifier_calldata.sol';
 
 contract TestMerkleProofVerifier {
     bool m_result;
     uint256 m_proof_size;
 
     function verify(bytes calldata raw_proof, bytes32 verified_data) public {
-        (m_result, m_proof_size) = merkle_verifier.parse_verify_merkle_proof_be_calldata(raw_proof, 0, verified_data);
+        (m_result, m_proof_size) = merkle_verifier_calldata.parse_verify_merkle_proof_be(raw_proof, 0, verified_data);
         require(raw_proof.length == m_proof_size, "Merkle proof length if incorrect!");
-        require(raw_proof.length == merkle_verifier.skip_merkle_proof_be_calldata(raw_proof, 0), "Merkle proof length if incorrect!");
+        require(raw_proof.length == merkle_verifier_calldata.skip_merkle_proof_be(raw_proof, 0), "Merkle proof length if incorrect!");
+        require(raw_proof.length == merkle_verifier_calldata.skip_merkle_proof_be_check(raw_proof, 0), "Merkle proof length if incorrect!");
         require(m_result, "Merkle proof is not correct!");
     }
 }
