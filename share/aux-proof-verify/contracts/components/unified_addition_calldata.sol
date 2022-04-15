@@ -74,35 +74,20 @@ library unified_addition_component_calldata {
 
         assembly {
             let modulus := mload(gate_params)
-            let theta := mload(add(gate_params, THETA_OFFSET))
             let theta_acc := 1
             mstore(add(gate_params, GATE_EVAL_OFFSET), 0)
 
-            function get_W_i_by_rotation_idx(
-                idx,
-                rot_idx,
-                witness_evaluations_ptr
-            ) -> result {
+            function get_W_i_by_rotation_idx(idx, rot_idx, ptr) -> result {
                 result := mload(
                     add(
-                        add(
-                            mload(
-                                add(
-                                    add(witness_evaluations_ptr, 0x20),
-                                    mul(0x20, idx)
-                                )
-                            ),
-                            0x20
-                        ),
+                        add(mload(add(add(ptr, 0x20), mul(0x20, idx))), 0x20),
                         mul(0x20, rot_idx)
                     )
                 )
             }
 
-            function get_selector_i(idx, selector_evaluations_ptr) -> result {
-                result := mload(
-                    add(add(selector_evaluations_ptr, 0x20), mul(0x20, idx))
-                )
+            function get_selector_i(idx, ptr) -> result {
+                result := mload(add(add(ptr, 0x20), mul(0x20, idx)))
             }
 
             //==========================================================================================================
@@ -154,7 +139,11 @@ library unified_addition_component_calldata {
                 )
             )
             // theta_acc *= theta
-            theta_acc := mulmod(theta_acc, theta, modulus)
+            theta_acc := mulmod(
+                theta_acc,
+                mload(add(gate_params, THETA_OFFSET)),
+                modulus
+            )
 
             //==========================================================================================================
             // 2. (w_2 - w_0) * w_10 - (1 - w_7)
@@ -236,7 +225,11 @@ library unified_addition_component_calldata {
                 )
             )
             // theta_acc *= theta
-            theta_acc := mulmod(theta_acc, theta, modulus)
+            theta_acc := mulmod(
+                theta_acc,
+                mload(add(gate_params, THETA_OFFSET)),
+                modulus
+            )
 
             //==========================================================================================================
             // 3. w_7 * (2 * w_8 * w_1 - 3 * w_0 * w_0) + (1 - w_7) * ((w_2 - w_0) * w_8 - (w_3 - w_1))
@@ -440,7 +433,11 @@ library unified_addition_component_calldata {
                 )
             )
             // theta_acc *= theta
-            theta_acc := mulmod(theta_acc, theta, modulus)
+            theta_acc := mulmod(
+                theta_acc,
+                mload(add(gate_params, THETA_OFFSET)),
+                modulus
+            )
 
             //==========================================================================================================
             // 4. w_8 * w_8 - (w_0 + w_2 + w_4)
@@ -522,7 +519,11 @@ library unified_addition_component_calldata {
                 )
             )
             // theta_acc *= theta
-            theta_acc := mulmod(theta_acc, theta, modulus)
+            theta_acc := mulmod(
+                theta_acc,
+                mload(add(gate_params, THETA_OFFSET)),
+                modulus
+            )
 
             //==========================================================================================================
             // 5. w_5 - (w_8 * (w_0 - w_4) - w_1)
@@ -618,7 +619,11 @@ library unified_addition_component_calldata {
                 )
             )
             // theta_acc *= theta
-            theta_acc := mulmod(theta_acc, theta, modulus)
+            theta_acc := mulmod(
+                theta_acc,
+                mload(add(gate_params, THETA_OFFSET)),
+                modulus
+            )
 
             //==========================================================================================================
             // 6. (w_3 - w_1) * (w_7 - w_6)
@@ -684,7 +689,11 @@ library unified_addition_component_calldata {
                 )
             )
             // theta_acc *= theta
-            theta_acc := mulmod(theta_acc, theta, modulus)
+            theta_acc := mulmod(
+                theta_acc,
+                mload(add(gate_params, THETA_OFFSET)),
+                modulus
+            )
 
             //==========================================================================================================
             // 7. (w_3 - w_1) * w_9 - w_6
@@ -753,7 +762,11 @@ library unified_addition_component_calldata {
                 )
             )
             // theta_acc *= theta
-            theta_acc := mulmod(theta_acc, theta, modulus)
+            theta_acc := mulmod(
+                theta_acc,
+                mload(add(gate_params, THETA_OFFSET)),
+                modulus
+            )
 
             //==========================================================================================================
             mstore(
