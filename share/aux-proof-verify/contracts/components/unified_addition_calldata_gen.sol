@@ -32,8 +32,6 @@ library unified_addition_component_calldata_gen {
     uint256 constant WITNESS_EVALUATIONS_OFFSET = 0x80;
     uint256 constant SELECTOR_EVALUATIONS_OFFSET = 0xa0;
 
-    uint256 constant LENGTH_OCTETS = 8;
-
     // TODO: columns_rotations could be hard-coded
     function evaluate_gates_be(
         bytes calldata blob,
