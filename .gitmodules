@@ -61,3 +61,6 @@
 [submodule "libs/container"]
 	path = libs/container
 	url = git@github.com:nilfoundation/crypto3-containers.git
+[submodule "share/aux-proof-verify"]
+	path = share/aux-proof-verify
+	url = git@github.com:NilFoundation/evm-carasique-verification.git
