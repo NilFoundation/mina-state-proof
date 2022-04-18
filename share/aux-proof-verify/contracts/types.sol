@@ -391,6 +391,10 @@ library types {
         uint256 eval_proof_witness_offset;
         // 0xe0
         uint256 eval_proof_selector_offset;
+        // 0x100
+        uint256 gates_evaluation;
+        // 0x120
+        uint256 theta_acc;
         uint256 offset;
     }
 }

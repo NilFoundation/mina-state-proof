@@ -1,0 +1,81 @@
+// SPDX-License-Identifier: Apache-2.0.
+//---------------------------------------------------------------------------//
+// Copyright (c) 2022 Mikhail Komarov <nemo@nil.foundation>
+// Copyright (c) 2022 Ilias Khairullin <ilias@nil.foundation>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//---------------------------------------------------------------------------//
+pragma solidity >=0.8.4;
+
+import "../types.sol";
+import "../basic_marshalling_calldata.sol";
+import "../commitments/lpc_verifier_calldata.sol";
+// TODO: import all gate argument evaluation modules
+// import "./component_name/component_name_gate0.sol";
+// import "./component_name/component_name_gate1.sol";
+// ...
+
+// TODO: name main component module
+library component_name_split {
+    // TODO: specify constants
+    uint256 constant WITNESSES_N = 15;
+    uint256 constant WITNESSES_TOTAL_N = 0;
+    uint256 constant GATES_N = 11;
+
+    // TODO: columns_rotations could be hard-coded
+    function evaluate_gates_be(
+        bytes calldata blob,
+        types.gate_argument_local_vars memory gate_params,
+        int256[][] memory columns_rotations
+    ) internal pure returns (uint256 gates_evaluation) {
+        // TODO: check witnesses number in proof
+
+        gate_params.witness_evaluations = new uint256[][](WITNESSES_N);
+        gate_params.offset =
+            gate_params.eval_proof_witness_offset +
+            basic_marshalling_calldata.LENGTH_OCTETS;
+        for (uint256 i = 0; i < WITNESSES_N; i++) {
+            gate_params.witness_evaluations[i] = new uint256[](
+                columns_rotations[i].length
+            );
+            for (uint256 j = 0; j < columns_rotations[i].length; j++) {
+                gate_params.witness_evaluations[i][j] = lpc_verifier_calldata
+                    .get_z_i_from_proof_be(blob, gate_params.offset, j);
+            }
+            gate_params.offset = lpc_verifier_calldata.skip_proof_be(
+                blob,
+                gate_params.offset
+            );
+        }
+        gate_params.selector_evaluations = new uint256[](GATES_N);
+        gate_params.offset =
+            gate_params.eval_proof_selector_offset +
+            basic_marshalling_calldata.LENGTH_OCTETS;
+        for (uint256 i = 0; i < GATES_N; i++) {
+            gate_params.selector_evaluations[i] = lpc_verifier_calldata
+                .get_z_i_from_proof_be(blob, gate_params.offset, 0);
+            gate_params.offset = lpc_verifier_calldata.skip_proof_be(
+                blob,
+                gate_params.offset
+            );
+        }
+
+        gate_params.theta_acc = 1;
+        // TODO: evaluate gate argument on each gate of the circuit
+        // (gate_params.gates_evaluation, gate_params.theta_acc) = component_name_gate0.evaluate_gate_be(gate_params, columns_rotations);
+        // (gate_params.gates_evaluation, gate_params.theta_acc) = component_name_gate1.evaluate_gate_be(gate_params, columns_rotations);
+        // ...
+
+        gates_evaluation = gate_params.gates_evaluation;
+    }
+}
