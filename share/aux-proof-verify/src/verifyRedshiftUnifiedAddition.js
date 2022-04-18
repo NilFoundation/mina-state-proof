@@ -1,4 +1,4 @@
-const myModule = require('./main.js');
+const common = require('./common.js');
 const fs = require("fs");
 
 function verifyRedshiftUnifiedAddition(proof) {
@@ -9,7 +9,7 @@ function verifyRedshiftUnifiedAddition(proof) {
     contractAdress = contract_data.networks["3"].address;
     contractAbi = contract_data.abi;
 
-    x = myModule.sendProof(contractAdress, contractAbi, proof);
+    x = common.sendProof(contractAdress, contractAbi, proof);
     x.then(result => {
         if (result === true) {
             console.log("Verified");

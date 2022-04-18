@@ -1518,7 +1518,7 @@ function createExportWrapper(name, fixedasm) {
   };
 }
 
-var wasmBinaryFile = 'aux-proof-gen.wasm';
+var wasmBinaryFile = 'auxProofGen.wasm';
 if (!isDataURI(wasmBinaryFile)) {
   wasmBinaryFile = locateFile(wasmBinaryFile);
 }

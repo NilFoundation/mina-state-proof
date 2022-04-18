@@ -1,4 +1,4 @@
-const myModule = require("./aux-proof-gen.js");
+const myModule = require("./auxProofGen.js");
 const myModule2 = require('./verifyRedshiftUnifiedAddition.js');
 const fs = require("fs");
 const web3 = require('web3');

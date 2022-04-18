@@ -16,7 +16,8 @@
 
 #include <boost/random.hpp>
 #include <boost/random/random_device.hpp>
-#include <boost/json/src.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/optional.hpp>
 
@@ -25,10 +26,12 @@
 #include <boost/program_options.hpp>
 #endif
 
-#include <nil/crypto3/algebra/curves/pallas.hpp>
-#include <nil/crypto3/algebra/fields/arithmetic_params/pallas.hpp>
 #include <nil/crypto3/algebra/random_element.hpp>
 #include <nil/crypto3/algebra/curves/alt_bn128.hpp>
+#include <nil/crypto3/algebra/curves/vesta.hpp>
+#include <nil/crypto3/algebra/curves/pallas.hpp>
+#include <nil/crypto3/algebra/fields/arithmetic_params/pallas.hpp>
+#include <nil/crypto3/algebra/fields/arithmetic_params/vesta.hpp>
 #include <nil/crypto3/algebra/fields/arithmetic_params/alt_bn128.hpp>
 #include <nil/crypto3/algebra/curves/params/multiexp/alt_bn128.hpp>
 #include <nil/crypto3/algebra/curves/params/wnaf/alt_bn128.hpp>
@@ -48,6 +51,8 @@
 
 #include <nil/crypto3/zk/commitments/type_traits.hpp>
 #include <nil/crypto3/zk/snark/arithmetization/plonk/params.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier_index.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/redshift/preprocessor.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/redshift/prover.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/redshift/verifier.hpp>
@@ -92,22 +97,178 @@ void print_byteblob(std::ostream &os, TIter iter_begin, TIter iter_end) {
 
 template<typename Endianness, typename RedshiftProof>
 std::string marshalling_to_blob(const RedshiftProof &proof) {
-    using namespace nil::crypto3::marshalling;
+    using namespace crypto3::marshalling;
 
-    using proof_marshalling_type =
-        nil::crypto3::marshalling::types::redshift_proof<nil::marshalling::field_type<Endianness>, RedshiftProof>;
-
-    auto filled_redshift_proof =
-        nil::crypto3::marshalling::types::fill_redshift_proof<RedshiftProof, Endianness>(proof);
+    auto filled_redshift_proof = types::fill_redshift_proof<RedshiftProof, Endianness>(proof);
 
     std::vector<std::uint8_t> cv;
     cv.resize(filled_redshift_proof.length(), 0x00);
     auto write_iter = cv.begin();
-    nil::marshalling::status_type status = filled_redshift_proof.write(write_iter, cv.size());
+    if (filled_redshift_proof.write(write_iter, cv.size()) == nil::marshalling::status_type::success) {
+        std::stringstream st;
+        print_byteblob(st, cv.cbegin(), cv.cend());
+        return st.str();
+    } else {
+        return {};
+    }
+}
 
-    std::stringstream st;
-    print_byteblob(st, cv.cbegin(), cv.cend());
-    return st.str();
+template<typename Iterator>
+multiprecision::cpp_int get_cppui256(Iterator it) {
+    BOOST_ASSERT(it->second.template get_value<std::string>() != "");
+    return multiprecision::cpp_int(it->second.template get_value<std::string>());
+}
+
+zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> make_proof(boost::property_tree::ptree root) {
+    zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> proof;
+    size_t i = 0;
+    std::string base_path = "protocolStateProof.json.proof.";
+
+    auto best_chain = *root.get_child("data.bestChain").begin();
+    i = 0;
+    for (auto &row : best_chain.second.get_child(base_path + "messages.w_comm")) {
+        auto it = row.second.get_child("").begin()->second.get_child("").begin();
+        proof.commitments.w_comm[i].unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
+        ++i;
+    }
+    auto it = best_chain.second.get_child(base_path + "messages.z_comm").begin()->second.get_child("").begin();
+    proof.commitments.z_comm.unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
+
+    it = best_chain.second.get_child(base_path + "messages.t_comm").begin()->second.get_child("").begin();
+    proof.commitments.t_comm.unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
+    //    proof.commitments.lookup;    // TODO: where it is?
+
+    i = 0;
+    for (auto &row : best_chain.second.get_child(base_path + "openings.proof.lr")) {
+        auto it0 = row.second.begin()->second.get_child("").begin();
+        auto it1 = row.second.begin();
+        it1++;
+        it1 = it1->second.begin();
+        proof.proof.lr.push_back({{get_cppui256(it0++), get_cppui256(it0)}, {get_cppui256(it1++), get_cppui256(it1)}});
+        ++i;
+    }
+    it = best_chain.second.get_child(base_path + "openings.proof.delta").begin();
+    proof.proof.delta = {get_cppui256(it++), get_cppui256(it)};
+    it = best_chain.second.get_child(base_path + "openings.proof.sg").begin();
+    proof.proof.sg = {get_cppui256(it++), get_cppui256(it)};
+
+    proof.proof.z1 = multiprecision::cpp_int(best_chain.second.get<std::string>(base_path + "openings.proof.z_1"));
+    proof.proof.z2 = multiprecision::cpp_int(best_chain.second.get<std::string>(base_path + "openings.proof.z_2"));
+
+    std::size_t ev_i = 0;
+    for (auto &evals_it : best_chain.second.get_child(base_path + "openings.evals")) {
+
+        i = 0;
+        for (auto &row : evals_it.second.get_child("w")) {
+            proof.evals[ev_i].w[i] = get_cppui256(row.second.begin());
+        }
+
+        proof.evals[ev_i].z = get_cppui256(evals_it.second.get_child("z").begin());
+
+        i = 0;
+        for (auto &row : evals_it.second.get_child("s")) {
+            proof.evals[ev_i].s[i] = get_cppui256(row.second.begin());
+        }
+        proof.evals[ev_i].generic_selector = get_cppui256(evals_it.second.get_child("generic_selector").begin());
+        proof.evals[ev_i].poseidon_selector = get_cppui256(evals_it.second.get_child("poseidon_selector").begin());
+
+        ev_i++;
+    }
+
+    proof.ft_eval1 = multiprecision::cpp_int(best_chain.second.get<std::string>(base_path + "openings.ft_eval1"));
+    //            // public
+    //            std::vector<typename CurveType::scalar_field_type::value_type> public_p; // TODO: where it is?
+    //
+    //            // Previous challenges
+    //            std::vector<
+    //                std::tuple<std::vector<typename CurveType::scalar_field_type::value_type>, commitment_scheme>>
+    //                prev_challenges; // TODO: where it is?
+    return proof;
+}
+
+zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta>
+    make_verify_index(boost::property_tree::ptree root, boost::property_tree::ptree const_root) {
+    zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index;
+    size_t i = 0;
+    ver_index.domain = {const_root.get<std::size_t>("verify_index.domain.log_size_of_group"),
+                        multiprecision::cpp_int(const_root.get<std::string>("verify_index.domain.group_gen"))};
+
+    ver_index.max_poly_size = root.get<std::size_t>("data.blockchainVerificationKey.index.max_poly_size");
+    ver_index.max_quot_size = root.get<std::size_t>("data.blockchainVerificationKey.index.max_quot_size");
+    //    ver_index.srs = root.get<std::string>("data.blockchainVerificationKey.index.srs");    // TODO: null
+    i = 0;
+    for (auto &row : root.get_child("data.blockchainVerificationKey.commitments.sigma_comm")) {
+        auto it = row.second.begin();
+        ver_index.sigma_comm[i].unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
+        ++i;
+    }
+
+    i = 0;
+    for (auto &row : root.get_child("data.blockchainVerificationKey.commitments.coefficients_comm")) {
+        auto it = row.second.begin();
+        ver_index.coefficients_comm[i].unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
+        ++i;
+    }
+    auto it = root.get_child("data.blockchainVerificationKey.commitments.generic_comm").begin();
+    ver_index.generic_comm.unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
+
+    it = root.get_child("data.blockchainVerificationKey.commitments.psm_comm").begin();
+    ver_index.psm_comm.unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
+    it = root.get_child("data.blockchainVerificationKey.commitments.complete_add_comm").begin();
+    ver_index.complete_add_comm.unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
+    it = root.get_child("data.blockchainVerificationKey.commitments.mul_comm").begin();
+    ver_index.mul_comm.unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
+    it = root.get_child("data.blockchainVerificationKey.commitments.emul_comm").begin();
+    ver_index.emul_comm.unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
+    it = root.get_child("data.blockchainVerificationKey.commitments.endomul_scalar_comm").begin();
+    ver_index.endomul_scalar_comm.unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
+
+    // TODO: null in example
+    //    i = 0;
+    //    for (auto &row : root.get_child("data.blockchainVerificationKey.commitments.chacha_comm")) {
+    //        auto it = row.second.begin();
+    //        ver_index.chacha_comm[i].unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
+    //        ++i;
+    //    }
+    i = 0;
+    for (auto &row : root.get_child("data.blockchainVerificationKey.index.shifts")) {
+        ver_index.shifts[i] = multiprecision::cpp_int(row.second.get_value<std::string>());
+        ++i;
+    }
+
+    // Polynomial in coefficients form
+    // Const
+    ver_index.zkpm = {0x2C46205451F6C3BBEA4BABACBEE609ECF1039A903C42BFF639EDC5BA33356332_cppui256,
+                      0x1764D9CB4C64EBA9A150920807637D458919CB6948821F4D15EB1994EADF9CE3_cppui256,
+                      0x0140117C8BBC4CE4644A58F7007148577782213065BB9699BF5C391FBE1B3E6D_cppui256,
+                      0x0000000000000000000000000000000000000000000000000000000000000001_cppui256};
+    ver_index.w = multiprecision::cpp_int(const_root.get<std::string>("verify_index.w"));
+    ver_index.endo = multiprecision::cpp_int(const_root.get<std::string>("verify_index.endo"));
+
+    // ver_index.lookup_index = root.get_child("data.blockchainVerificationKey.index.lookup_index"); // TODO: null
+    // ver_index.linearization;       // TODO: where it is?
+    ver_index.powers_of_alpha.next_power = 24;
+
+    for (auto &row : const_root.get_child("verify_index.fr_sponge_params.round_constants")) {
+        auto it = row.second.begin();
+        ver_index.fr_sponge_params.round_constants.push_back(
+            {get_cppui256(it++), get_cppui256(it++), get_cppui256(it)});
+    }
+    for (auto &row : const_root.get_child("verify_index.fr_sponge_params.mds")) {
+        auto it = row.second.begin();
+        ver_index.fr_sponge_params.mds.push_back({get_cppui256(it++), get_cppui256(it++), get_cppui256(it)});
+    }
+
+    for (auto &row : const_root.get_child("verify_index.fq_sponge_params.round_constants")) {
+        auto it = row.second.begin();
+        ver_index.fq_sponge_params.round_constants.push_back(
+            {get_cppui256(it++), get_cppui256(it++), get_cppui256(it)});
+    }
+    for (auto &row : const_root.get_child("verify_index.fq_sponge_params.mds")) {
+        auto it = row.second.begin();
+        ver_index.fq_sponge_params.mds.push_back({get_cppui256(it++), get_cppui256(it++), get_cppui256(it)});
+    }
+    return ver_index;
 }
 
 extern "C" {
@@ -119,58 +280,71 @@ const char *proof_gen() {
     constexpr std::size_t PublicInputColumns = 1;
     constexpr std::size_t ConstantColumns = 0;
     constexpr std::size_t SelectorColumns = 1;
-    using ArithmetizationParams =
+    using arithmetization_params =
         zk::snark::plonk_arithmetization_params<WitnessColumns, PublicInputColumns, ConstantColumns, SelectorColumns>;
-    using ArithmetizationType = zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams>;
+    typedef zk::snark::plonk_constraint_system<BlueprintFieldType, arithmetization_params> arithmetization_type;
 
-    using component_type = zk::components::curve_element_unified_addition<ArithmetizationType, curve_type, 0, 1, 2, 3,
-                                                                          4, 5, 6, 7, 8, 9, 10>;
+    typedef zk::components::curve_element_unified_addition<arithmetization_type, curve_type, 0, 1, 2, 3, 4, 5, 6, 7, 8,
+                                                           9, 10>
+        component_type;
 
-    typename component_type::public_params_type public_params = {};
-    typename component_type::private_params_type private_params = {
-        algebra::random_element<curve_type::template g1_type<>>(),
-        algebra::random_element<curve_type::template g1_type<>>()};
-    zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams> desc;
+    auto P = algebra::random_element<curve_type::template g1_type<>>().to_affine();
+    auto Q = algebra::random_element<curve_type::template g1_type<>>().to_affine();
 
-    zk::blueprint<ArithmetizationType> bp(desc);
-    zk::blueprint_private_assignment_table<ArithmetizationType> private_assignment(desc);
-    zk::blueprint_public_assignment_table<ArithmetizationType> public_assignment(desc);
+    typename component_type::params_type params = {
+        {zk::snark::plonk_variable<BlueprintFieldType>(
+             0, 1, false, zk::snark::plonk_variable<BlueprintFieldType>::column_type::public_input),
+         zk::snark::plonk_variable<BlueprintFieldType>(
+             0, 2, false, zk::snark::plonk_variable<BlueprintFieldType>::column_type::public_input)},
+        {zk::snark::plonk_variable<BlueprintFieldType>(
+             0, 3, false, zk::snark::plonk_variable<BlueprintFieldType>::column_type::public_input),
+         zk::snark::plonk_variable<BlueprintFieldType>(
+             0, 4, false, zk::snark::plonk_variable<BlueprintFieldType>::column_type::public_input)}};
+
+    std::vector<typename BlueprintFieldType::value_type> public_input = {0, P.X, P.Y, Q.X, Q.Y};
+
+    typename component_type::allocated_data_type allocated;
+    zk::snark::plonk_table_description<BlueprintFieldType, arithmetization_params> desc;
+
+    zk::blueprint<arithmetization_type> bp(desc);
+    zk::blueprint_private_assignment_table<arithmetization_type> private_assignment(desc);
+    zk::blueprint_public_assignment_table<arithmetization_type> public_assignment(desc);
+    zk::blueprint_assignment_table<arithmetization_type> assignment_bp(private_assignment, public_assignment);
 
     std::size_t start_row = component_type::allocate_rows(bp);
-    component_type::generate_gates(bp, public_assignment, public_params, start_row);
-    component_type::generate_copy_constraints(bp, public_assignment, public_params, start_row);
-    component_type::generate_assignments(private_assignment, public_assignment, public_params, private_params,
-                                         start_row);
+    component_type::generate_circuit(bp, assignment_bp, params, allocated, start_row);
+    component_type::generate_assignments(assignment_bp, params, start_row);
 
     private_assignment.padding();
     public_assignment.padding();
 
-    zk::snark::plonk_assignment_table<BlueprintFieldType, ArithmetizationParams> assignments(private_assignment,
-                                                                                             public_assignment);
+    zk::snark::plonk_assignment_table<BlueprintFieldType, arithmetization_params> assignments(private_assignment,
+                                                                                              public_assignment);
 
-    using params = zk::snark::redshift_params<BlueprintFieldType, ArithmetizationParams, hashes::keccak_1600<256>,
-                                              hashes::keccak_1600<256>, 1>;
-    using types = zk::snark::detail::redshift_policy<BlueprintFieldType, params>;
+    using params_type = zk::snark::redshift_params<BlueprintFieldType, arithmetization_params, hashes::keccak_1600<256>,
+                                                   hashes::keccak_1600<256>, 1>;
+    using policy_type = zk::snark::detail::redshift_policy<BlueprintFieldType, params_type>;
 
-    using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename params::merkle_hash_type,
-                                                   typename params::transcript_hash_type, 2>;
+    using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename params_type::merkle_hash_type,
+                                                   typename params_type::transcript_hash_type, 2>;
 
     std::size_t table_rows_log = std::ceil(std::log2(desc.rows_amount));
 
     typename fri_type::params_type fri_params = create_fri_params<fri_type, BlueprintFieldType>(table_rows_log);
 
     std::size_t permutation_size =
-        zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams>::witness_columns +
-        zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams>::public_input_columns +
-        zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams>::constant_columns;
+        zk::snark::plonk_table_description<BlueprintFieldType, arithmetization_params>::witness_columns +
+        zk::snark::plonk_table_description<BlueprintFieldType, arithmetization_params>::public_input_columns +
+        zk::snark::plonk_table_description<BlueprintFieldType, arithmetization_params>::constant_columns;
 
-    typename types::preprocessed_public_data_type public_preprocessed_data =
-        zk::snark::redshift_public_preprocessor<BlueprintFieldType, params>::process(bp, public_assignment, desc,
-                                                                                     fri_params, permutation_size);
-    typename types::preprocessed_private_data_type private_preprocessed_data =
-        zk::snark::redshift_private_preprocessor<BlueprintFieldType, params>::process(bp, private_assignment, desc);
+    typename policy_type::preprocessed_public_data_type public_preprocessed_data =
+        zk::snark::redshift_public_preprocessor<BlueprintFieldType, params_type>::process(bp, public_assignment, desc,
+                                                                                          fri_params, permutation_size);
+    typename policy_type::preprocessed_private_data_type private_preprocessed_data =
+        zk::snark::redshift_private_preprocessor<BlueprintFieldType, params_type>::process(bp, private_assignment,
+                                                                                           desc);
 
-    auto proof = zk::snark::redshift_prover<BlueprintFieldType, params>::process(
+    auto proof = zk::snark::redshift_prover<BlueprintFieldType, params_type>::process(
         public_preprocessed_data, private_preprocessed_data, desc, bp, assignments, fri_params);
 
     //    if (!zk::snark::redshift_verifier<BlueprintFieldType, params>::process(public_preprocessed_data, proof, bp,
@@ -190,7 +364,6 @@ const char *proof_gen() {
 }
 }
 
-
 int main(int argc, char *argv[]) {
     typedef hashes::sha2<256> hash_type;
     typedef algebra::curves::alt_bn128<254> system_curve_type;
@@ -199,8 +372,7 @@ int main(int argc, char *argv[]) {
     typedef pubkey::eddsa<group_type, pubkey::eddsa_type::basic, void> signature_scheme_type;
     typedef typename pubkey::public_key<signature_scheme_type>::signature_type signature_type;
 
-//    state_type<hash_type, signature_scheme_type> state;
-    std::string string;
+    std::string string, line;
 
 #ifndef __EMSCRIPTEN__
     boost::program_options::options_description options("Solana 'Light-Client' State Proof Generator");
@@ -229,21 +401,26 @@ int main(int argc, char *argv[]) {
             boost::filesystem::load_string_file(vm["input"].as<std::string>(), string);
         }
     } else {
-        std::string line;
-
         while (std::getline(std::cin, line)) {
             string += line + "\n";
         }
     }
 #else
-//    while (std::getline(std::cin, line)) {
-//        string += line + "\n";
-//    }
+    while (std::getline(std::cin, line)) {
+        string += line + "\n";
+    }
 #endif
-//    {
-//        boost::json::monotonic_resource mr;
-//        state = boost::json::value_to<state_type<hash_type, signature_scheme_type>>(boost::json::parse(string, &mr));
-//    }
+
+    std::stringstream sstr(string, std::ios_base::in);
+
+    boost::property_tree::ptree root;
+    boost::property_tree::ptree const_root;
+    // Load the json file in this ptree
+    boost::property_tree::read_json(sstr, root);
+    boost::property_tree::read_json(sstr, const_root);
+
+    zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> proof = make_proof(root);
+    zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index = make_verify_index(root, const_root);
 
 #ifndef __EMSCRIPTEN__
     std::cout << proof_gen() << std::endl;

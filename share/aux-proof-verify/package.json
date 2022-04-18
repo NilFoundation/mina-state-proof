@@ -12,7 +12,7 @@
     "src": "src",
     "test": "test"
   },
-  "main": "src/main.js",
+  "main": "src/common.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nilfoundation/evm-mina-verification.git"
