@@ -53,13 +53,13 @@
 #include <nil/crypto3/zk/snark/arithmetization/plonk/params.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier_index.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/redshift/preprocessor.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/redshift/prover.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/redshift/verifier.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/redshift/params.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/placeholder/preprocessor.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/placeholder/prover.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/placeholder/verifier.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/placeholder/params.hpp>
 
 #include <nil/marshalling/endianness.hpp>
-#include <nil/crypto3/marshalling/zk/types/redshift/proof.hpp>
+#include <nil/crypto3/marshalling/zk/types/placeholder/proof.hpp>
 
 #include <fstream>
 
@@ -99,12 +99,12 @@ template<typename Endianness, typename RedshiftProof>
 std::string marshalling_to_blob(const RedshiftProof &proof) {
     using namespace crypto3::marshalling;
 
-    auto filled_redshift_proof = types::fill_redshift_proof<RedshiftProof, Endianness>(proof);
+    auto filled_placeholder_proof = types::fill_placeholder_proof<RedshiftProof, Endianness>(proof);
 
     std::vector<std::uint8_t> cv;
-    cv.resize(filled_redshift_proof.length(), 0x00);
+    cv.resize(filled_placeholder_proof.length(), 0x00);
     auto write_iter = cv.begin();
-    if (filled_redshift_proof.write(write_iter, cv.size()) == nil::marshalling::status_type::success) {
+    if (filled_placeholder_proof.write(write_iter, cv.size()) == nil::marshalling::status_type::success) {
         std::stringstream st;
         print_byteblob(st, cv.cbegin(), cv.cend());
         return st.str();
@@ -321,9 +321,9 @@ const char *proof_gen() {
     zk::snark::plonk_assignment_table<BlueprintFieldType, arithmetization_params> assignments(private_assignment,
                                                                                               public_assignment);
 
-    using params_type = zk::snark::redshift_params<BlueprintFieldType, arithmetization_params, hashes::keccak_1600<256>,
-                                                   hashes::keccak_1600<256>, 1>;
-    using policy_type = zk::snark::detail::redshift_policy<BlueprintFieldType, params_type>;
+    using params_type = zk::snark::placeholder_params<BlueprintFieldType, arithmetization_params, hashes::keccak_1600<256>,
+                                                   hashes::keccak_1600<256>, 40>;
+    using policy_type = zk::snark::detail::placeholder_policy<BlueprintFieldType, params_type>;
 
     using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename params_type::merkle_hash_type,
                                                    typename params_type::transcript_hash_type, 2>;
@@ -338,19 +338,19 @@ const char *proof_gen() {
         zk::snark::plonk_table_description<BlueprintFieldType, arithmetization_params>::constant_columns;
 
     typename policy_type::preprocessed_public_data_type public_preprocessed_data =
-        zk::snark::redshift_public_preprocessor<BlueprintFieldType, params_type>::process(bp, public_assignment, desc,
+        zk::snark::placeholder_public_preprocessor<BlueprintFieldType, params_type>::process(bp, public_assignment, desc,
                                                                                           fri_params, permutation_size);
     typename policy_type::preprocessed_private_data_type private_preprocessed_data =
-        zk::snark::redshift_private_preprocessor<BlueprintFieldType, params_type>::process(bp, private_assignment,
+        zk::snark::placeholder_private_preprocessor<BlueprintFieldType, params_type>::process(bp, private_assignment,
                                                                                            desc);
 
-    auto proof = zk::snark::redshift_prover<BlueprintFieldType, params_type>::process(
+    auto proof = zk::snark::placeholder_prover<BlueprintFieldType, params_type>::process(
         public_preprocessed_data, private_preprocessed_data, desc, bp, assignments, fri_params);
 
-    //    if (!zk::snark::redshift_verifier<BlueprintFieldType, params>::process(public_preprocessed_data, proof, bp,
-    //                                                                           fri_params)) {
-    //        return -1;
-    //    }
+    if (!zk::snark::placeholder_verifier<BlueprintFieldType, params_type>::process(public_preprocessed_data, proof, bp,
+                                                                           fri_params)) {
+        return "";
+    }
     using Endianness = nil::marshalling::option::big_endian;
 
 #ifndef __EMSCRIPTEN__
@@ -375,12 +375,12 @@ int main(int argc, char *argv[]) {
     std::string string, line;
 
 #ifndef __EMSCRIPTEN__
-    boost::program_options::options_description options("Solana 'Light-Client' State Proof Generator");
+    boost::program_options::options_description options("Mina State Proof Auxiliary Proof Generator");
     // clang-format off
     options.add_options()("help,h", "Display help message")
     ("version,v", "Display version")
-    ("output,o", boost::program_options::value< std::string >(),"Output file")
-    ("input,i", boost::program_options::value< std::string >(), "Input file");
+    ("output,o", boost::program_options::value<std::string>(),"Output file")
+    ("input,i", boost::program_options::value<std::string>(), "Input file");
     // clang-format on
 
     boost::program_options::positional_options_description p;
