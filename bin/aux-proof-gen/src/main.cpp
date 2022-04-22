@@ -287,7 +287,7 @@ const char *proof_gen() {
     constexpr std::size_t PublicInputColumns = 1;
     constexpr std::size_t ConstantColumns = 0;
     constexpr std::size_t SelectorColumns = 1;
-    constexpr std::size_t complexity = 50;
+    constexpr std::size_t complexity = 240;
     using ArithmetizationParams =
         zk::snark::plonk_arithmetization_params<WitnessColumns, PublicInputColumns, ConstantColumns, SelectorColumns>;
     typedef zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams> ArithmetizationType;
@@ -424,68 +424,79 @@ const char *proof_gen() {
 
     using Endianness = nil::marshalling::option::big_endian;
 
-#ifndef __EMSCRIPTEN__
-//    if (vm.count("output")) {
-//    }
-#else
-
-#endif
     std::string st = marshalling_to_blob<Endianness>(placeholder_proof_pr);
-    return st.c_str();
+
+    char * writable = new char[st.size() + 1];
+    std::copy(st.begin(), st.end(), writable);
+    return writable;
+}
+
+const char *parsing_json(const char *kimchi, const char *kimchi_const) {
+    std::stringstream ss1, ss2;
+    ss1 << kimchi;
+    ss2 << kimchi_const;
+    boost::property_tree::ptree root, const_root;
+    // Load the json file in this ptree
+    boost::property_tree::read_json(ss1, root);
+    boost::property_tree::read_json(ss2, const_root);
+
+    zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> proof = make_proof(root);
+    zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index = make_verify_index(root, const_root);
+    return "Parsing success!";
 }
 }
 
 int main(int argc, char *argv[]) {
-    typedef hashes::sha2<256> hash_type;
-    typedef algebra::curves::alt_bn128<254> system_curve_type;
-    typedef algebra::curves::curve25519 signature_curve_type;
-    typedef typename signature_curve_type::template g1_type<> group_type;
-    typedef pubkey::eddsa<group_type, pubkey::eddsa_type::basic, void> signature_scheme_type;
-    typedef typename pubkey::public_key<signature_scheme_type>::signature_type signature_type;
-
-    std::string string, line;
-
-#ifndef __EMSCRIPTEN__
-    boost::program_options::options_description options("Mina State Proof Auxiliary Proof Generator");
-    // clang-format off
-    options.add_options()("help,h", "Display help message")
-    ("version,v", "Display version")
-    ("output,o", boost::program_options::value<std::string>(),"Output file")
-    ("input,i", boost::program_options::value<std::string>(), "Input file");
-    // clang-format on
-
-    boost::program_options::positional_options_description p;
-    p.add("input", 1);
-
-    boost::program_options::variables_map vm;
-    boost::program_options::store(
-        boost::program_options::command_line_parser(argc, argv).options(options).positional(p).run(), vm);
-    boost::program_options::notify(vm);
-
-    if (vm.count("help")) {
-        std::cout << options << std::endl;
-        return 0;
-    }
-
-    if (vm.count("input")) {
-        if (boost::filesystem::exists(vm["input"].as<std::string>())) {
-            boost::filesystem::load_string_file(vm["input"].as<std::string>(), string);
-        }
-    } else {
-        while (std::getline(std::cin, line)) {
-            string += line + "\n";
-        }
-    }
-#else
-    while (std::getline(std::cin, line)) {
-        string += line + "\n";
-    }
-#endif
-
-    std::stringstream sstr(string, std::ios_base::in);
-
-    boost::property_tree::ptree root;
-    boost::property_tree::ptree const_root;
+//    typedef hashes::sha2<256> hash_type;
+//    typedef algebra::curves::alt_bn128<254> system_curve_type;
+//    typedef algebra::curves::curve25519 signature_curve_type;
+//    typedef typename signature_curve_type::template g1_type<> group_type;
+//    typedef pubkey::eddsa<group_type, pubkey::eddsa_type::basic, void> signature_scheme_type;
+//    typedef typename pubkey::public_key<signature_scheme_type>::signature_type signature_type;
+//
+//    std::string string, line;
+//
+//#ifndef __EMSCRIPTEN__
+//    boost::program_options::options_description options("Mina State Proof Auxiliary Proof Generator");
+//    // clang-format off
+//    options.add_options()("help,h", "Display help message")
+//    ("version,v", "Display version")
+//    ("output,o", boost::program_options::value<std::string>(),"Output file")
+//    ("input,i", boost::program_options::value<std::string>(), "Input file");
+//    // clang-format on
+//
+//    boost::program_options::positional_options_description p;
+//    p.add("input", 1);
+//
+//    boost::program_options::variables_map vm;
+//    boost::program_options::store(
+//        boost::program_options::command_line_parser(argc, argv).options(options).positional(p).run(), vm);
+//    boost::program_options::notify(vm);
+//
+//    if (vm.count("help")) {
+//        std::cout << options << std::endl;
+//        return 0;
+//    }
+//
+//    if (vm.count("input")) {
+//        if (boost::filesystem::exists(vm["input"].as<std::string>())) {
+//            boost::filesystem::load_string_file(vm["input"].as<std::string>(), string);
+//        }
+//    } else {
+//        while (std::getline(std::cin, line)) {
+//            string += line + "\n";
+//        }
+//    }
+//#else
+//    while (std::getline(std::cin, line)) {
+//        string += line + "\n";
+//    }
+//#endif
+//
+//    std::stringstream sstr(string, std::ios_base::in);
+//
+//    boost::property_tree::ptree root;
+//    boost::property_tree::ptree const_root;
     // Load the json file in this ptree
 //    boost::property_tree::read_json(sstr, root);
 //    boost::property_tree::read_json(sstr, const_root);
@@ -496,4 +507,156 @@ int main(int argc, char *argv[]) {
 #ifndef __EMSCRIPTEN__
     std::cout << proof_gen() << std::endl;
 #endif
+//    std::cout << proof_gen() << std::endl;
+//    using vesta = algebra::curves::pallas;
+//    using pallas = algebra::curves::vesta;
+//    using BlueprintFieldType = typename pallas::base_field_type;
+//    using BlueprintFieldTypePr = typename vesta::base_field_type;
+//    using hash_type = nil::crypto3::hashes::keccak_1600<256>;
+//    constexpr std::size_t Lambda = 1;
+//
+//    constexpr std::size_t WitnessColumns = 11;
+//    constexpr std::size_t PublicInputColumns = 1;
+//    constexpr std::size_t ConstantColumns = 0;
+//    constexpr std::size_t SelectorColumns = 1;
+//    constexpr std::size_t complexity = 50;
+//    using ArithmetizationParams =
+//        zk::snark::plonk_arithmetization_params<WitnessColumns, PublicInputColumns, ConstantColumns, SelectorColumns>;
+//    typedef zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams> ArithmetizationType;
+//
+//    using ArithmetizationParamsPr =
+//        zk::snark::plonk_arithmetization_params<WitnessColumns, PublicInputColumns, ConstantColumns, SelectorColumns>;
+//    typedef zk::snark::plonk_constraint_system<BlueprintFieldTypePr, ArithmetizationParamsPr> ArithmetizationTypePr;
+//
+//    typedef zk::components::curve_element_unified_addition<ArithmetizationType, pallas, 0, 1, 2, 3, 4, 5, 6, 7, 8,
+//                                                           9, 10>
+//        component_type;
+//    typedef zk::components::curve_element_unified_addition<ArithmetizationTypePr, vesta, 0, 1, 2, 3, 4, 5, 6, 7, 8,
+//                                                           9, 10>
+//        component_type_pr;
+//
+//    auto P = algebra::random_element<pallas::template g1_type<>>().to_affine();
+//    auto Q = algebra::random_element<pallas::template g1_type<>>().to_affine();
+//    auto P_pr = algebra::random_element<vesta::template g1_type<>>().to_affine();
+//    auto Q_pr = algebra::random_element<vesta::template g1_type<>>().to_affine();
+//
+//    std::vector<BlueprintFieldType::value_type> public_input = {0, P.X, P.Y, Q.X, Q.Y};
+//    std::vector<BlueprintFieldTypePr::value_type> public_input_pr = {0, P_pr.X, P_pr.Y, Q_pr.X, Q_pr.Y};
+//
+//    zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams> desc;
+//    zk::snark::plonk_table_description<BlueprintFieldTypePr, ArithmetizationParamsPr> desc_pr;
+//
+//    zk::blueprint<ArithmetizationType> bp(desc);
+//    zk::blueprint<ArithmetizationTypePr> bp_pr(desc_pr);
+//    zk::blueprint_private_assignment_table<ArithmetizationType> private_assignment(desc);
+//    zk::blueprint_public_assignment_table<ArithmetizationType> public_assignment(desc);
+//    zk::blueprint_private_assignment_table<ArithmetizationTypePr> private_assignment_pr(desc_pr);
+//    zk::blueprint_public_assignment_table<ArithmetizationTypePr> public_assignment_pr(desc_pr);
+//    zk::blueprint_assignment_table<ArithmetizationType> assignment_bp(private_assignment, public_assignment);
+//    zk::blueprint_assignment_table<ArithmetizationTypePr> assignment_bp_pr(private_assignment_pr, public_assignment_pr);
+//
+//    std::vector<std::size_t> rows = component_type::allocate_rows(bp, complexity);
+//    std::vector<std::size_t> rows_pr = component_type_pr::allocate_rows(bp_pr, 1);
+//
+//    std::vector<component_type::result_type> result(complexity);
+//    std::vector<component_type::params_type> component_params(complexity);
+//
+//    bp.allocate_rows(public_input.size());
+//    bp_pr.allocate_rows(public_input_pr.size());
+//    component_type::params_type tmp_params = {
+//        {
+//            assignment_bp.allocate_public_input(public_input[0]),
+//            assignment_bp.allocate_public_input(public_input[1])
+//        },
+//        {
+//            assignment_bp.allocate_public_input(public_input[2]),
+//            assignment_bp.allocate_public_input(public_input[3])
+//        }
+//    };
+//
+//    for (std::size_t i = 0; i < complexity; i++) {
+//        result[i] = component_type::result_type(rows[i]);
+//        component_params[i] = tmp_params;
+//    }
+//
+//    component_type::generate_circuit(bp, public_assignment, component_params, rows);
+//    component_type::generate_assignments(assignment_bp, component_params, rows);
+//
+//    std::vector<component_type_pr::params_type> component_params_pr(1);
+//    component_params_pr[0] = {
+//        {
+//            assignment_bp_pr.allocate_public_input(public_input_pr[0]),
+//            assignment_bp_pr.allocate_public_input(public_input_pr[1])
+//        },
+//        {
+//            assignment_bp_pr.allocate_public_input(public_input_pr[2]),
+//            assignment_bp_pr.allocate_public_input(public_input_pr[3])
+//        }
+//    };
+//
+//    component_type_pr::generate_circuit(bp_pr, public_assignment_pr, component_params_pr, rows_pr);
+//    component_type_pr::generate_assignments(assignment_bp_pr, component_params_pr, rows_pr);
+//
+//    assignment_bp.padding();
+//    assignment_bp_pr.padding();
+//
+//    zk::snark::plonk_assignment_table<BlueprintFieldType, ArithmetizationParams> assignments(private_assignment,
+//                                                                                             public_assignment);
+//    zk::snark::plonk_assignment_table<BlueprintFieldTypePr, ArithmetizationParamsPr> assignments_pr(private_assignment_pr,
+//                                                                                                    public_assignment_pr);
+//
+//    using params = zk::snark::placeholder_params<BlueprintFieldType, ArithmetizationParams, hash_type, hash_type, Lambda>;
+//    using types = zk::snark::detail::placeholder_policy<BlueprintFieldType, params>;
+//    using params_pr = zk::snark::placeholder_params<BlueprintFieldTypePr, ArithmetizationParamsPr, hash_type, hash_type, Lambda>;
+//    using types_pr = zk::snark::detail::placeholder_policy<BlueprintFieldTypePr, params_pr>;
+//
+//    using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename params::merkle_hash_type,
+//                                                   typename params::transcript_hash_type, 2>;
+//
+//    using fri_type_pr = typename zk::commitments::fri<BlueprintFieldTypePr, typename params_pr::merkle_hash_type,
+//                                                      typename params_pr::transcript_hash_type, 2>;
+//
+//    std::size_t table_rows_log = std::ceil(std::log2(desc.rows_amount));
+//    std::size_t table_rows_log_pr = std::ceil(std::log2(desc_pr.rows_amount));
+//
+//    typename fri_type::params_type fri_params = create_fri_params<fri_type, BlueprintFieldType>(table_rows_log);
+//    typename fri_type_pr::params_type fri_params_pr = create_fri_params<fri_type_pr, BlueprintFieldTypePr>(table_rows_log_pr);
+//
+//    std::size_t permutation_size = desc.witness_columns + desc.public_input_columns + desc.constant_columns;
+//    std::size_t permutation_size_pr = desc_pr.witness_columns + desc_pr.public_input_columns + desc_pr.constant_columns;
+//
+//    typename types::preprocessed_public_data_type public_preprocessed_data =
+//        zk::snark::placeholder_public_preprocessor<BlueprintFieldType, params>::process(bp, public_assignment, desc,
+//                                                                                        fri_params, permutation_size);
+//    typename types::preprocessed_private_data_type private_preprocessed_data =
+//        zk::snark::placeholder_private_preprocessor<BlueprintFieldType, params>::process(bp, private_assignment, desc);
+//
+//    auto placeholder_proof = zk::snark::placeholder_prover<BlueprintFieldType, params>::process(
+//        public_preprocessed_data, private_preprocessed_data, desc, bp, assignments, fri_params);
+//
+//    zk::snark::placeholder_verifier<BlueprintFieldType, params>::process(
+//        public_preprocessed_data, placeholder_proof, bp, fri_params);
+//
+//    typename types_pr::preprocessed_public_data_type public_preprocessed_data_pr =
+//        zk::snark::placeholder_public_preprocessor<BlueprintFieldTypePr, params_pr>::process(
+//            bp_pr, public_assignment_pr, desc_pr, fri_params_pr, permutation_size_pr);
+//    typename types_pr::preprocessed_private_data_type private_preprocessed_data_pr =
+//        zk::snark::placeholder_private_preprocessor<BlueprintFieldTypePr, params_pr>::process(
+//            bp_pr, private_assignment_pr, desc_pr);
+//
+//    auto placeholder_proof_pr = zk::snark::placeholder_prover<BlueprintFieldTypePr, params_pr>::process(
+//        public_preprocessed_data_pr, private_preprocessed_data_pr, desc_pr, bp_pr, assignments_pr, fri_params_pr);
+//
+//    bool verifier_res = zk::snark::placeholder_verifier<BlueprintFieldTypePr, params_pr>::process(
+//        public_preprocessed_data_pr, placeholder_proof_pr, bp_pr, fri_params_pr);
+//
+////    if (!verifier_res) {
+////        return "";
+////    }
+//
+//    using Endianness = nil::marshalling::option::big_endian;
+//
+//    std::string st = marshalling_to_blob<Endianness>(placeholder_proof_pr);
+//    std::cout << st << std::endl;
+//    std::cout << "Im here" << std::endl;
 }
