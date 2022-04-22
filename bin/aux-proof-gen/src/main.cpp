@@ -276,79 +276,99 @@ extern "C" {
 const char *proof_gen() {
     using curve_type = algebra::curves::pallas;
     using BlueprintFieldType = typename curve_type::base_field_type;
+    using hash_type = nil::crypto3::hashes::keccak_1600<256>;
+    constexpr std::size_t Lambda = 1;
+
     constexpr std::size_t WitnessColumns = 11;
     constexpr std::size_t PublicInputColumns = 1;
     constexpr std::size_t ConstantColumns = 0;
     constexpr std::size_t SelectorColumns = 1;
-    using arithmetization_params =
+    constexpr std::size_t complexity = 10;
+    using ArithmetizationParams =
         zk::snark::plonk_arithmetization_params<WitnessColumns, PublicInputColumns, ConstantColumns, SelectorColumns>;
-    typedef zk::snark::plonk_constraint_system<BlueprintFieldType, arithmetization_params> arithmetization_type;
+    typedef zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams> ArithmetizationType;
 
-    typedef zk::components::curve_element_unified_addition<arithmetization_type, curve_type, 0, 1, 2, 3, 4, 5, 6, 7, 8,
+    typedef zk::components::curve_element_unified_addition<ArithmetizationType, curve_type, 0, 1, 2, 3, 4, 5, 6, 7, 8,
                                                            9, 10>
         component_type;
 
     auto P = algebra::random_element<curve_type::template g1_type<>>().to_affine();
     auto Q = algebra::random_element<curve_type::template g1_type<>>().to_affine();
 
-    typename component_type::params_type params = {
-        {zk::snark::plonk_variable<BlueprintFieldType>(
-             0, 1, false, zk::snark::plonk_variable<BlueprintFieldType>::column_type::public_input),
-         zk::snark::plonk_variable<BlueprintFieldType>(
-             0, 2, false, zk::snark::plonk_variable<BlueprintFieldType>::column_type::public_input)},
-        {zk::snark::plonk_variable<BlueprintFieldType>(
-             0, 3, false, zk::snark::plonk_variable<BlueprintFieldType>::column_type::public_input),
-         zk::snark::plonk_variable<BlueprintFieldType>(
-             0, 4, false, zk::snark::plonk_variable<BlueprintFieldType>::column_type::public_input)}};
+    std::vector<BlueprintFieldType::value_type> public_input = {0, P.X, P.Y, Q.X, Q.Y};
 
-    std::vector<typename BlueprintFieldType::value_type> public_input = {0, P.X, P.Y, Q.X, Q.Y};
+    auto expected_result = P + Q;
+    std::cout << "exprected result: (" << expected_result.X.data << ", " << expected_result.Y.data << ")" << std::endl;
 
-    typename component_type::allocated_data_type allocated;
-    zk::snark::plonk_table_description<BlueprintFieldType, arithmetization_params> desc;
+    zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams> desc;
 
-    zk::blueprint<arithmetization_type> bp(desc);
-    zk::blueprint_private_assignment_table<arithmetization_type> private_assignment(desc);
-    zk::blueprint_public_assignment_table<arithmetization_type> public_assignment(desc);
-    zk::blueprint_assignment_table<arithmetization_type> assignment_bp(private_assignment, public_assignment);
+    zk::blueprint<ArithmetizationType> bp(desc);
+    zk::blueprint_private_assignment_table<ArithmetizationType> private_assignment(desc);
+    zk::blueprint_public_assignment_table<ArithmetizationType> public_assignment(desc);
+    zk::blueprint_assignment_table<ArithmetizationType> assignment_bp(private_assignment, public_assignment);
 
-    std::size_t start_row = component_type::allocate_rows(bp);
-    component_type::generate_circuit(bp, assignment_bp, params, allocated, start_row);
-    component_type::generate_assignments(assignment_bp, params, start_row);
+    std::vector<std::size_t> rows = component_type::allocate_rows(bp, complexity);
 
-    private_assignment.padding();
-    public_assignment.padding();
+    std::vector<component_type::result_type> result(complexity);
+    std::vector<component_type::params_type> component_params(complexity);
 
-    zk::snark::plonk_assignment_table<BlueprintFieldType, arithmetization_params> assignments(private_assignment,
-                                                                                              public_assignment);
+    bp.allocate_rows(public_input.size());
+    component_type::params_type tmp_params = {
+        {
+            assignment_bp.allocate_public_input(public_input[0]),
+            assignment_bp.allocate_public_input(public_input[1])
+        },
+        {
+            assignment_bp.allocate_public_input(public_input[2]),
+            assignment_bp.allocate_public_input(public_input[3])
+        }
+    };
 
-    using params_type = zk::snark::placeholder_params<BlueprintFieldType, arithmetization_params, hashes::keccak_1600<256>,
-                                                   hashes::keccak_1600<256>, 40>;
-    using policy_type = zk::snark::detail::placeholder_policy<BlueprintFieldType, params_type>;
+    for (std::size_t i = 0; i < complexity; i++) {
+        result[i] = component_type::result_type(rows[i]);
+        component_params[i] = tmp_params;
+    }
 
-    using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename params_type::merkle_hash_type,
-                                                   typename params_type::transcript_hash_type, 2>;
+    component_type::generate_circuit(bp, public_assignment, component_params, rows);
+    component_type::generate_assignments(assignment_bp, component_params, rows);
+
+    std::cout << "actual result: " << std::endl;
+    for (std::size_t i = 0; i < complexity; i++) {
+        std::cout << "(" << assignment_bp.var_value(result[i].X).data << ", "
+                  << assignment_bp.var_value(result[i].Y).data << ")" << std::endl;
+    }
+
+    assignment_bp.padding();
+
+    zk::snark::plonk_assignment_table<BlueprintFieldType, ArithmetizationParams> assignments(private_assignment,
+                                                                                             public_assignment);
+
+    using params = zk::snark::placeholder_params<BlueprintFieldType, ArithmetizationParams, hash_type, hash_type, Lambda>;
+    using types = zk::snark::detail::placeholder_policy<BlueprintFieldType, params>;
+
+    using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename params::merkle_hash_type,
+                                                   typename params::transcript_hash_type, 2>;
 
     std::size_t table_rows_log = std::ceil(std::log2(desc.rows_amount));
 
     typename fri_type::params_type fri_params = create_fri_params<fri_type, BlueprintFieldType>(table_rows_log);
 
-    std::size_t permutation_size =
-        zk::snark::plonk_table_description<BlueprintFieldType, arithmetization_params>::witness_columns +
-        zk::snark::plonk_table_description<BlueprintFieldType, arithmetization_params>::public_input_columns +
-        zk::snark::plonk_table_description<BlueprintFieldType, arithmetization_params>::constant_columns;
+    std::size_t permutation_size = desc.witness_columns + desc.public_input_columns + desc.constant_columns;
 
-    typename policy_type::preprocessed_public_data_type public_preprocessed_data =
-        zk::snark::placeholder_public_preprocessor<BlueprintFieldType, params_type>::process(bp, public_assignment, desc,
-                                                                                          fri_params, permutation_size);
-    typename policy_type::preprocessed_private_data_type private_preprocessed_data =
-        zk::snark::placeholder_private_preprocessor<BlueprintFieldType, params_type>::process(bp, private_assignment,
-                                                                                           desc);
+    typename types::preprocessed_public_data_type public_preprocessed_data =
+        zk::snark::placeholder_public_preprocessor<BlueprintFieldType, params>::process(bp, public_assignment, desc,
+                                                                                     fri_params, permutation_size);
+    typename types::preprocessed_private_data_type private_preprocessed_data =
+        zk::snark::placeholder_private_preprocessor<BlueprintFieldType, params>::process(bp, private_assignment, desc);
 
-    auto proof = zk::snark::placeholder_prover<BlueprintFieldType, params_type>::process(
+    auto placeholder_proof = zk::snark::placeholder_prover<BlueprintFieldType, params>::process(
         public_preprocessed_data, private_preprocessed_data, desc, bp, assignments, fri_params);
 
-    if (!zk::snark::placeholder_verifier<BlueprintFieldType, params_type>::process(public_preprocessed_data, proof, bp,
-                                                                           fri_params)) {
+    bool verifier_res = zk::snark::placeholder_verifier<BlueprintFieldType, params>::process(
+        public_preprocessed_data, placeholder_proof, bp, fri_params);
+    std::cout << "Proof check: " << verifier_res << std::endl;
+
+    if (!verifier_res) {
         return "";
     }
     using Endianness = nil::marshalling::option::big_endian;
@@ -359,7 +379,7 @@ const char *proof_gen() {
 #else
 
 #endif
-    std::string st = marshalling_to_blob<Endianness>(proof);
+    std::string st = marshalling_to_blob<Endianness>(placeholder_proof);
     return st.c_str();
 }
 }
