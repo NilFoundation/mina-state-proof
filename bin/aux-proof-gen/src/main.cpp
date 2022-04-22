@@ -274,8 +274,10 @@ zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta>
 extern "C" {
 
 const char *proof_gen() {
-    using pallas = algebra::curves::pallas;
-    using vesta = algebra::curves::vesta;
+//    using pallas = algebra::curves::pallas;
+//    using vesta = algebra::curves::vesta;
+    using vesta = algebra::curves::pallas;
+    using pallas = algebra::curves::vesta;
     using BlueprintFieldType = typename pallas::base_field_type;
     using BlueprintFieldTypePr = typename vesta::base_field_type;
     using hash_type = nil::crypto3::hashes::keccak_1600<256>;
@@ -285,7 +287,7 @@ const char *proof_gen() {
     constexpr std::size_t PublicInputColumns = 1;
     constexpr std::size_t ConstantColumns = 0;
     constexpr std::size_t SelectorColumns = 1;
-    constexpr std::size_t complexity = 240;
+    constexpr std::size_t complexity = 50;
     using ArithmetizationParams =
         zk::snark::plonk_arithmetization_params<WitnessColumns, PublicInputColumns, ConstantColumns, SelectorColumns>;
     typedef zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams> ArithmetizationType;
@@ -460,12 +462,12 @@ int main(int argc, char *argv[]) {
         boost::program_options::command_line_parser(argc, argv).options(options).positional(p).run(), vm);
     boost::program_options::notify(vm);
 
-    if (vm.count("help") || argc < 2) {
+    if (vm.count("help")) {
         std::cout << options << std::endl;
         return 0;
     }
 
-    if (vm["input"].as<std::string>() != "stdin" && vm.count("input")) {
+    if (vm.count("input")) {
         if (boost::filesystem::exists(vm["input"].as<std::string>())) {
             boost::filesystem::load_string_file(vm["input"].as<std::string>(), string);
         }
@@ -485,11 +487,11 @@ int main(int argc, char *argv[]) {
     boost::property_tree::ptree root;
     boost::property_tree::ptree const_root;
     // Load the json file in this ptree
-    boost::property_tree::read_json(sstr, root);
-    boost::property_tree::read_json(sstr, const_root);
-
-    zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> proof = make_proof(root);
-    zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index = make_verify_index(root, const_root);
+//    boost::property_tree::read_json(sstr, root);
+//    boost::property_tree::read_json(sstr, const_root);
+//
+//    zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> proof = make_proof(root);
+//    zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index = make_verify_index(root, const_root);
 
 #ifndef __EMSCRIPTEN__
     std::cout << proof_gen() << std::endl;
