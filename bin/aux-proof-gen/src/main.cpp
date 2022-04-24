@@ -440,11 +440,13 @@ int parse_proof(const char *kimchi) {
     return 0;
 }
 
-int parse_pconst(const char *kimchi_const) {
-    std::stringstream ss2;
-    ss2 << kimchi_const;
+int parse_pconst(const char *vk, const char *vk_const) {
+    std::stringstream ss1, ss2;
+    ss1 << vk;
+    ss2 << vk_const;
     boost::property_tree::ptree root, const_root;
     // Load the json file in this ptree
+    boost::property_tree::read_json(ss1, root);
     boost::property_tree::read_json(ss2, const_root);
 
     zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index = make_verify_index(root, const_root);
