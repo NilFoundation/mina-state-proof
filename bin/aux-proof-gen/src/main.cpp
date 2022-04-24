@@ -273,9 +273,7 @@ zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta>
 
 extern "C" {
 
-const char *proof_gen() {
-//    using pallas = algebra::curves::pallas;
-//    using vesta = algebra::curves::vesta;
+const char *generate_proof() {
     using vesta = algebra::curves::pallas;
     using pallas = algebra::curves::vesta;
     using BlueprintFieldType = typename pallas::base_field_type;
@@ -404,7 +402,7 @@ const char *proof_gen() {
 
     zk::snark::placeholder_verifier<BlueprintFieldType, params>::process(
         public_preprocessed_data, placeholder_proof, bp, fri_params);
-    
+
     typename types_pr::preprocessed_public_data_type public_preprocessed_data_pr =
         zk::snark::placeholder_public_preprocessor<BlueprintFieldTypePr, params_pr>::process(
             bp_pr, public_assignment_pr, desc_pr, fri_params_pr, permutation_size_pr);
@@ -431,18 +429,26 @@ const char *proof_gen() {
     return writable;
 }
 
-const char *parsing_json(const char *kimchi, const char *kimchi_const) {
-    std::stringstream ss1, ss2;
+int parse_proof(const char *kimchi) {
+    std::stringstream ss1;
     ss1 << kimchi;
-    ss2 << kimchi_const;
     boost::property_tree::ptree root, const_root;
     // Load the json file in this ptree
     boost::property_tree::read_json(ss1, root);
-    boost::property_tree::read_json(ss2, const_root);
 
     zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> proof = make_proof(root);
+    return 0;
+}
+
+int parse_pconst(const char *kimchi_const) {
+    std::stringstream ss2;
+    ss2 << kimchi_const;
+    boost::property_tree::ptree root, const_root;
+    // Load the json file in this ptree
+    boost::property_tree::read_json(ss2, const_root);
+
     zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index = make_verify_index(root, const_root);
-    return "Parsing success!";
+    return 0;
 }
 }
 

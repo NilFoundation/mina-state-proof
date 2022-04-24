@@ -13,13 +13,13 @@ elseif(CMAKE_CROSSCOMPILING)
         include(ExternalProject)
         set(Boost_LIBRARIES boost_random)
         externalproject_add(boost
-                PREFIX ${CMAKE_BINARY_DIR}/libs/boost
-                GIT_REPOSITORY git@github.com:boostorg/boost.git
-                GIT_TAG boost-1.77.0
-                BUILD_IN_SOURCE TRUE
-                CMAKE_ARGS -DCMAKE_CROSSCOMPILING_EMULATOR=${CMAKE_CROSSCOMPILING_EMULATOR} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-                BUILD_COMMAND cmake --build . --target ${Boost_LIBRARIES}
-                INSTALL_COMMAND "")
+                            PREFIX ${CMAKE_BINARY_DIR}/libs/boost
+                            GIT_REPOSITORY git@github.com:boostorg/boost.git
+                            GIT_TAG boost-1.77.0
+                            BUILD_IN_SOURCE TRUE
+                            CMAKE_ARGS -DCMAKE_CROSSCOMPILING_EMULATOR=${CMAKE_CROSSCOMPILING_EMULATOR} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+                            BUILD_COMMAND cmake --build . --target ${Boost_LIBRARIES}
+                            INSTALL_COMMAND "")
     else()
         set(Boost_LIBRARIES boost_random)
     endif()
@@ -66,21 +66,21 @@ target_link_libraries(${CURRENT_PROJECT_NAME}
                       ${Boost_LIBRARIES})
 
 target_include_directories(${CURRENT_PROJECT_NAME} PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 
-        $<$<BOOL:${Boost_FOUND}>:${Boost_INCLUDE_DIRS}>)
+                           $<$<BOOL:${Boost_FOUND}>:${Boost_INCLUDE_DIRS}>)
 
 if(APPLE OR NOT ${CMAKE_TARGET_ARCHITECTURE} STREQUAL ${CMAKE_HOST_SYSTEM_PROCESSOR})
     set_target_properties(${CURRENT_PROJECT_NAME} PROPERTIES
-            XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "${APPLE_CODE_SIGN_IDENTITY}"
-            XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM}")
+                          XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "${APPLE_CODE_SIGN_IDENTITY}"
+                          XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM}")
 elseif(CMAKE_CROSSCOMPILING AND CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
         set_target_properties(${CURRENT_PROJECT_NAME} PROPERTIES
-                COMPILE_FLAGS "-s USE_BOOST_HEADERS=1 -s ASYNCIFY=1 -s EXPORTED_FUNCTIONS=_proof_gen,_main,_parsing_json -s EXPORTED_RUNTIME_METHODS=ccall,cwrap"
-                LINK_FLAGS "-s USE_BOOST_HEADERS=1 -s ASYNCIFY=1 -s EXPORTED_FUNCTIONS=_proof_gen,_main,_parsing_json -s EXPORTED_RUNTIME_METHODS=ccall,cwrap"
-                LINK_DIRECTORIES "${CMAKE_BINARY_DIR}/libs/boost/src/boost/stage/lib")
+                              COMPILE_FLAGS "-s USE_BOOST_HEADERS=1 -s ASYNCIFY=1 -s EXPORTED_FUNCTIONS=_generate_proof,_main, _parse_proof,_parse_pconst -s EXPORTED_RUNTIME_METHODS=ccall,cwrap"
+                              LINK_FLAGS "-s USE_BOOST_HEADERS=1 -s ASYNCIFY=1 -s EXPORTED_FUNCTIONS=_generate_proof,_main, _parse_proof,_parse_pconst -s EXPORTED_RUNTIME_METHODS=ccall,cwrap"
+                              LINK_DIRECTORIES "${CMAKE_BINARY_DIR}/libs/boost/src/boost/stage/lib")
     endif()
 
     add_dependencies(${CURRENT_PROJECT_NAME} boost)
