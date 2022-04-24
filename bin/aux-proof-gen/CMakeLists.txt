@@ -78,8 +78,8 @@ if(APPLE OR NOT ${CMAKE_TARGET_ARCHITECTURE} STREQUAL ${CMAKE_HOST_SYSTEM_PROCES
 elseif(CMAKE_CROSSCOMPILING AND CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
         set_target_properties(${CURRENT_PROJECT_NAME} PROPERTIES
-                              COMPILE_FLAGS "-s USE_BOOST_HEADERS=1 -s ASYNCIFY=1 -s EXPORTED_FUNCTIONS=_generate_proof,_main, _parse_proof,_parse_pconst -s EXPORTED_RUNTIME_METHODS=ccall,cwrap"
-                              LINK_FLAGS "-s USE_BOOST_HEADERS=1 -s ASYNCIFY=1 -s EXPORTED_FUNCTIONS=_generate_proof,_main, _parse_proof,_parse_pconst -s EXPORTED_RUNTIME_METHODS=ccall,cwrap"
+                              COMPILE_FLAGS "-s USE_BOOST_HEADERS=1 -s ASYNCIFY=1 -s EXPORTED_FUNCTIONS=_generate_proof,_main,_parse_proof,_parse_pconst -s EXPORTED_RUNTIME_METHODS=ccall,cwrap"
+                              LINK_FLAGS "-s USE_BOOST_HEADERS=1 -s ASYNCIFY=1 -s EXPORTED_FUNCTIONS=_generate_proof,_main,_parse_proof,_parse_pconst -s EXPORTED_RUNTIME_METHODS=ccall,cwrap"
                               LINK_DIRECTORIES "${CMAKE_BINARY_DIR}/libs/boost/src/boost/stage/lib")
     endif()
 
