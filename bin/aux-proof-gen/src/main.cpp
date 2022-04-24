@@ -511,7 +511,7 @@ int main(int argc, char *argv[]) {
 //    zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index = make_verify_index(root, const_root);
 
 #ifndef __EMSCRIPTEN__
-    std::cout << proof_gen() << std::endl;
+    std::cout << generate_proof() << std::endl;
 #endif
 //    std::cout << proof_gen() << std::endl;
 //    using vesta = algebra::curves::pallas;
