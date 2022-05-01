@@ -16,16 +16,11 @@ Here we use the second option.
 		\begin{enumerate}
 			\item $\texttt{random\_oracle}(p_{\texttt{comm}}, \pi_i)$:
             \begin{enumerate}
-				\item Copy limbs of $\texttt{joint\_combiner}$ from PI
-				\item $\texttt{joint\_combiner} = \texttt{from\_limbs}(\texttt{joint\_combiner\_limbs})$
-				\item Copy limbs of $\beta, \gamma$ from PI
-                \item $\beta = \texttt{from\_limbs}(\beta\_limbs)$
-                \item $ \gamma = \texttt{from\_limbs}(\gamma\_limbs)$
-				\item Copy limbs of $\alpha$ from PI
-				\item $ \alpha_{c} = \texttt{from\_limbs}(\alpha\_limbs)$
+				\item Copy $\texttt{joint\_combiner}$ from PI
+				\item Copy $\beta, \gamma$ from PI
+				\item Copy $\alpha_c$ from PI
                 \item $\alpha = \phi(\alpha_c)$
-				\item Copy limbs of $\zeta$ from PI
-				\item $ \zeta_{c} = \texttt{from\_limbs}(\zeta\_limbs)$
+				\item Copy $\zeta_c$ from PI
                 \item $\zeta = \phi(\zeta_c)$
                 \item Initialize $H_{\mathbb{F}_r}$
                 \item Copy $H_{\mathbb{F}_q}.\texttt{digest}$ from PI
@@ -36,9 +31,9 @@ Here we use the second option.
 				\item $\texttt{lagrange} = [\zeta - domain.w, \dots, \zeta_w - domain.w]$ L195
 				\item $\texttt{lagrange} = [1 / \texttt{lagrange}[0], \dots]$
 				\item $\texttt{p\_eval}[0] = (\sum(pub[i] \cdot domain[i] \cdot (-lagrange[i])) 
-													\cdot (\zeta_1 - 1) \cdot frac{1}{|domain|}$
+													\cdot (\zeta_1 - 1) \cdot \frac{1}{|domain|}$
 				\item $\texttt{p\_eval}[1] = (\sum(pub[i] \cdot domain[i] \cdot (-lagrange[pub.len + i])) 
-													\cdot (\zeta_w^{n} - 1) \cdot frac{1}{|domain|}$
+													\cdot (\zeta_w^{n} - 1) \cdot \frac{1}{|domain|}$
 				\item $H_{\mathbb{F}_r}.\texttt{absorb}(p\_eval[0])$
 				\item $H_{\mathbb{F}_r}.\texttt{absorb}(evals[0])$ <- PI src -> plonk\_sponge.rs L41
 				\item $H_{\mathbb{F}_r}.\texttt{absorb}(p\_eval[1])$
