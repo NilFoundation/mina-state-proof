@@ -25,7 +25,7 @@ Here we use the second option.
                 \item Initialize $H_{\mathbb{F}_r}$
                 \item Copy $H_{\mathbb{F}_q}.\texttt{digest}$ from PI
                 \item $H_{\mathbb{F}_r}.\texttt{absorb}(H_{\mathbb{F}_q}.\texttt{digest})$
-                \item $\zeta_1 = \zeta^{n}$
+                \item $\zeta_1 = \zeta^{n}$ for $n = |domain|$
                 \item $\zeta_w = \zeta \cdot \omega$
 				\item $\texttt{all\_alphas} = [1, \alpha, \dots, \alpha^{next\_power}]$
 				\item $\texttt{lagrange} = [\zeta - domain.w, \dots, \zeta_w - domain.w]$ L195
