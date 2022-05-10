@@ -46,17 +46,12 @@ Here we use the second option.
                 \item $H_{\mathbb{F}_r}.\texttt{absorb}(\bar{L}(\zeta\omega))$
                 \item $v = \phi(H_{\mathbb{F}_r}.\texttt{squeeze}())$
                 \item $u = \phi(H_{\mathbb{F}_r}.\texttt{squeeze}())$
-                \item Compute evaluation of $\eta_i(\zeta), \eta_i(\zeta\omega)$ for $0 \leq i < N_{\texttt{prev}}$:
-                \begin{enumerate}
-                	\item $powers\_of\_evals = [\zeta^{max\_poly\_size}, \zeta_w^{max\_poly\_size}]$
-                	\item ...
-                \end{enumerate}
-                \item Compute evaluation of $\bar{L}(\zeta)$:
-                \begin{enumerate}
-                	\item ...
-                \end{enumerate}
+	       \item $powers\_of\_evals = [\zeta^{max\_poly\_size}, \zeta_w^{max\_poly\_size}]$
+                \item Compute evaluation of $\eta_i(\zeta), \eta_i(\zeta\omega)$ for $0 \leq i < N_{\texttt{prev}}$ \\
+			$\eta_i(X) = \sum_{j = 0}^{k = \log{d + 1} - 1}1 + \xi_{i, j} \cdot X^{2^j}$
+                \item Compute evaluation of $\bar{L}(\zeta)$\footnotemark
             \end{enumerate}
-   			\item Combine evals (ploynomial evals) L412
+   	  \item Combine (multiply) proof evaluations over the polynomials with $\zeta, \zeta\omega$
             \item $\textbf{f}_{\text{base}} \coloneqq
             	\{S_{\sigma_{N_{\texttt{perm}} - 1}, \texttt{comm}}, % permutation
             	\texttt{gate}_{\text{mult}, \texttt{comm}}, w_{0, \texttt{comm}}, 
@@ -83,9 +78,11 @@ Here we use the second option.
             	z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
             \item $\mathcal{P}_i = \{H_{\mathbb{F}_q}, \zeta, v, u, \textbf{PE}, o_{\pi_i} \}$
         \end{enumerate}
-        \item $\texttt{final\_check\_scalar\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
+        \item $\texttt{batch\_verify\_scalar\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
 \end{enumerate}
 \end{algorithm}
+
+\footnotetext{Details: \url{https://o1-labs.github.io/proof-systems/plonk/maller_15.html}}
 
 \begin{algorithm}[H]
 \caption{Verifier.Base\_Field}
@@ -135,29 +132,34 @@ Here we use the second option.
             	z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
             \item $\mathcal{P}_i = \{H_{\mathbb{F}_q}, \zeta, v, u, \textbf{PE}, o_{\pi_i} \}$
         \end{enumerate}
-	\item $\texttt{final\_check\_base\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
+	\item $\texttt{batch\_verify\_base\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
 \end{enumerate}
 \end{algorithm}
 
 \begin{algorithm}[H]
-    \caption{Final Check - Scalar Field}
+    \caption{Batch Verify - Scalar Field}
     \textbf{Input}: $\pi_0, \dots, \pi_{\texttt{batch\_size}}$, where $\pi_i = \{H_{i, \mathbb{F}_q}, \zeta_i, \zeta_i\omega, v_i, u_i,
     \textbf{PE}_i, o_{\pi_i} \}$ \\
     \textbf{Output}: \texttt{acc} or \texttt{rej}
     \begin{enumerate}
-        \item $\rho_1 \rightarrow \mathbb{F}_r$ <- should be calculated as poseidon from $H_{i, \mathbb{F}_q}$ state
-        \item $\rho_2 \rightarrow \mathbb{F}_r$
+        \item $\rho_1 \leftarrow \mathbb{F}_r$
+        \item $\rho_2 \leftarrow \mathbb{F}_r$
         \item $r_0 = r'_0 = 1$
+        \item $\texttt{scalars} = [0, \dots, 0]$
         \item for $0 \leq i < \texttt{batch\_size}$:
         \begin{enumerate}
-            \item $cip_i = \texttt{combined\_inner\_product}(\zeta_i, \zeta_i\omega, v_i, u_i, \textbf{PE}_i)$ <- PI check
-            \item Calculate opening challenges $\xi_{i, j}$ from limbs in $o_{\pi_i}$ <- PI?
+            \item $cip_i = \texttt{combined\_inner\_product}(\zeta_i, \zeta_i\omega, v_i, u_i, \textbf{PE}_i)$
+            \item Calculate opening challenges $\xi_{i, j}$ from $o_{\pi_i}$ and copy-constraint them
             \item Calculate inversion from $\xi_{i, j}$
-			\item Copy limbs $c_i\_limbs$ from PI
-            \item $c_i = \phi(c_i\_limbs)$
+	   \item Copy $c\_chal_i$ from PI
+            \item $c_i = \phi(c\_chal_i)$
             \item $h_i(X) \coloneqq \prod_{k=0}^{\log(d+1) - 1}(1 + \xi_{\log(d+1)-k}X^{2^k})$, where $d = \texttt{lr\_rounds}$
             \item $b_i = h_i(\zeta) + u_i \cdot h_i(\zeta\omega)$
-            \item $sg = -r_i \cdot opening.z1 - r'_i$
+            \item $sg_i = -r_i \cdot opening.z1 - r'_i$
+	   \item $\texttt{scalars} = \texttt{scalars} || sg_i$
+	   \item $\texttt{scalars}[i + 1] = \texttt{scalars}[i + 1] + \sum_j(s_j \cdot r'_i)$ for $s_j$ from $h_i$ coefficients
+	   \item $\texttt{scalars}[0] = \texttt{scalars}[0] - r_i \cdot openings.z2$
+	   \item $\texttt{scalars} = \texttt{scalars} || (-r_i \cdot opening.z1 \cdot b0)$
             \item $r_i = r_{i - 1} \cdot \rho_1$
             \item $r'_i = r'_{i - 1} \cdot \rho_2$
         \end{enumerate}
@@ -165,21 +167,19 @@ Here we use the second option.
 \end{algorithm}
 
 \begin{algorithm}[H]
-    \caption{Final Check - Base Field}
+    \caption{Batch Verify - Base Field}
     \textbf{Input}: $\pi_0, \dots, \pi_{\texttt{batch\_size}}$, where $\pi_i = \{H_{i, \mathbb{F}_q}, \zeta_i, \zeta_i\omega, v_i, u_i,
     \textbf{PE}_i, o_{\pi_i} \}$ \\
     \textbf{Output}: \texttt{acc} or \texttt{rej}
     \begin{enumerate}
+        \item $\texttt{bases} = [pk.H, pk.G_0, \dots, pk.G_n, \mathcal{O}, \dots, \mathcal{O}]$
         \item for $0 \leq i < \texttt{batch\_size}$:
         \begin{enumerate}
-        	\item Get limbs $cip_i$ from PI
+        	  \item Get $cip_i$ from PI
             \item $H_{i, \mathbb{F}_q}.\texttt{absorb}(cip_i - 2^{255})$
             \item $U_i = (H_{i, \mathbb{F}_q}.\texttt{squeeze}()).\texttt{to\_group}()$
-            \item Calculate opening challenges $\xi_{i, j}$ from $o_{\pi_i}$ <- PI output as limbs:
-            \begin{enumerate}
-            	\item ?????
-            \end{enumerate}
-            \item $H_{i, \mathbb{F}_q}.\texttt{absorb}(openings.\delta)$ L791
+            \item Calculate opening challenges $\xi_{i, j}$ from $o_{\pi_i}$
+            \item $H_{i, \mathbb{F}_q}.\texttt{absorb}(openings.\delta)$
             \item $h_i(X) \coloneqq \prod_{k=0}^{\log(d+1) - 1}(1 + \xi_{\log(d+1)-k}X^{2^k})$, where $d = \texttt{lr\_rounds}$
             \item $C_i = \sum\limits_{j}v_i^j(\sum\limits_{k}r_i^k f_{j, \texttt{comm}}))$, where $f_{j, \texttt{comm}}$ from $\textbf{PE}_i$.
             \item $Q_i = \sum (\xi_{i, j} \cdot L_{i, j} + \xi_{i, j}^{-1} \cdot R_j) + cip_i \cdot U_i + C_i$
