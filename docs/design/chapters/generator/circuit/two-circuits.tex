@@ -38,11 +38,7 @@ Here we use the second option.
 				\item $H_{\mathbb{F}_r}.\texttt{absorb}(evals[0])$ <- PI src -> plonk\_sponge.rs L41
 				\item $H_{\mathbb{F}_r}.\texttt{absorb}(p\_eval[1])$
 				\item $H_{\mathbb{F}_r}.\texttt{absorb}(evals[1])$ <- PI
-                %\item Fr: $H_{\mathbb{F}_r}.\texttt{absorb}(pub(\zeta) || w_{0}(\zeta) || ... || w_{N_{\text{wires}}}(\zeta)
-                %|| S_0(\zeta) || ... || S_{N_{\text{perm}}}(\zeta))$
-                %\item Fr: $H_{\mathbb{F}_r}.\texttt{absorb}(pub(\zeta\omega) || w_{0}(\zeta\omega) || ... || w_{N_{\text{wires}}}(\zeta\omega)
-                %|| S_0(\zeta\omega) || ... || S_{N_{\text{perm}}}(\zeta\omega))$
-                \item $Copy \bar{L}(\zeta\omega)$ from PI
+                \item Copy $\bar{L}(\zeta\omega)$ from PI
                 \item $H_{\mathbb{F}_r}.\texttt{absorb}(\bar{L}(\zeta\omega))$
                 \item $v = \phi(H_{\mathbb{F}_r}.\texttt{squeeze}())$
                 \item $u = \phi(H_{\mathbb{F}_r}.\texttt{squeeze}())$
@@ -78,7 +74,7 @@ Here we use the second option.
             	z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
             \item $\mathcal{P}_i = \{H_{\mathbb{F}_q}, \zeta, v, u, \textbf{PE}, o_{\pi_i} \}$
         \end{enumerate}
-        \item $\texttt{batch\_verify\_scalar\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
+        \item $\textbf{batch\_verify\_scalar\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
 \end{enumerate}
 \end{algorithm}
 
@@ -124,7 +120,7 @@ Here we use the second option.
             	s_{\text{ec\_endo}}, % ec endoscalar multiplication
             	s_{\text{ec\_vbase}} % ec variable base multiplication
             	\}$
-            \item $f_{\texttt{comm}} = \text{MSM}(\textbf{f}_{\text{base}}, \textbf{f}_{\text{scalars}})$
+            \item $f_{\texttt{comm}} = \textbf{MSM}(\textbf{f}_{\text{base}}, \textbf{f}_{\text{scalars}})$
 			\item Copy from PI $(\zeta^n - 1)$
             \item $\bar{L}_{\texttt{comm}} = f_{\texttt{comm}} - t_{\texttt{comm}} \cdot (\zeta^n - 1)$
             \item $\textbf{PE}$ is a set of elements of the form $(f_{\texttt{comm}}, f(\zeta), f(\zeta\omega))$ for the following polynomials:
@@ -132,9 +128,11 @@ Here we use the second option.
             	z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
             \item $\mathcal{P}_i = \{H_{\mathbb{F}_q}, \zeta, v, u, \textbf{PE}, o_{\pi_i} \}$
         \end{enumerate}
-	\item $\texttt{batch\_verify\_base\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
+	\item $\textbf{batch\_verify\_base\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
 \end{enumerate}
 \end{algorithm}
+
+Remind that $o_{\pi_i}$ contains openings from the prover. 
 
 \begin{algorithm}[H]
     \caption{Batch Verify - Scalar Field}
@@ -148,20 +146,32 @@ Here we use the second option.
         \item $\texttt{scalars} = [0, \dots, 0]$
         \item for $0 \leq i < \texttt{batch\_size}$:
         \begin{enumerate}
-            \item $cip_i = \texttt{combined\_inner\_product}(\zeta_i, \zeta_i\omega, v_i, u_i, \textbf{PE}_i)$
+            \item $cip_i = \textbf{combined\_inner\_product}(\zeta_i, \zeta_i\omega, v_i, u_i, \textbf{PE}_i)$
             \item Calculate opening challenges $\xi_{i, j}$ from $o_{\pi_i}$ and copy-constraint them
             \item Calculate inversion from $\xi_{i, j}$
 	   \item Copy $c\_chal_i$ from PI
             \item $c_i = \phi(c\_chal_i)$
             \item $h_i(X) \coloneqq \prod_{k=0}^{\log(d+1) - 1}(1 + \xi_{\log(d+1)-k}X^{2^k})$, where $d = \texttt{lr\_rounds}$
             \item $b_i = h_i(\zeta) + u_i \cdot h_i(\zeta\omega)$
-            \item $sg_i = -r_i \cdot opening.z1 - r'_i$
-	   \item $\texttt{scalars} = \texttt{scalars} || sg_i$
+	   \item $\texttt{scalars} = \texttt{scalars} \concat [-r_i \cdot o_{\pi_i}.z1 - r'_i]$
 	   \item $\texttt{scalars}[i + 1] = \texttt{scalars}[i + 1] + \sum_j(s_j \cdot r'_i)$ for $s_j$ from $h_i$ coefficients
-	   \item $\texttt{scalars}[0] = \texttt{scalars}[0] - r_i \cdot openings.z2$
-	   \item $\texttt{scalars} = \texttt{scalars} || (-r_i \cdot opening.z1 \cdot b0)$
-            \item $r_i = r_{i - 1} \cdot \rho_1$
-            \item $r'_i = r'_{i - 1} \cdot \rho_2$
+	   \item $\texttt{scalars}[0] = \texttt{scalars}[0] - r_i \cdot o_{\pi_i}.z2$
+	   \item $\texttt{scalars} = \texttt{scalars} \concat [-r_i \cdot o_{\pi_i}.z1 \cdot b_i]$
+            \item for each challenge $(\xi, \xi^{-1})$ from opening challenges:
+	   \begin{enumerate}
+		\item $\texttt{scalars} = \texttt{scalars} \concat [r_i \cdot c_i \cdot \xi^{-1}]$
+		\item $\texttt{scalars} = \texttt{scalars} \concat [r_i \cdot c_i \cdot \xi]$
+	   \end{enumerate}
+	   \item $u\_acc = 1$
+	   \item for each commitment part from evaluations:
+            \begin{enumerate}
+		\item $\texttt{scalars} = \texttt{scalars} \concat [r_i \cdot c_i \cdot u\_acc]$
+		\item $u\_acc = u\_acc \cdot u_i$
+	   \end{enumerate}
+	  \item $\texttt{scalars} = \texttt{scalars} \concat [r_i \cdot c_i \cdot cip_i]$
+	  \item $\texttt{scalars} = \texttt{scalars} \concat [r_i]$
+            \item $r_{i + 1} = r_{i} \cdot \rho_1$
+            \item $r'_{i + 1} = r'_{i} \cdot \rho_2$
         \end{enumerate}
     \end{enumerate}
 \end{algorithm}
@@ -178,17 +188,23 @@ Here we use the second option.
         	  \item Get $cip_i$ from PI
             \item $H_{i, \mathbb{F}_q}.\texttt{absorb}(cip_i - 2^{255})$
             \item $U_i = (H_{i, \mathbb{F}_q}.\texttt{squeeze}()).\texttt{to\_group}()$
-            \item Calculate opening challenges $\xi_{i, j}$ from $o_{\pi_i}$
-            \item $H_{i, \mathbb{F}_q}.\texttt{absorb}(openings.\delta)$
-            \item $h_i(X) \coloneqq \prod_{k=0}^{\log(d+1) - 1}(1 + \xi_{\log(d+1)-k}X^{2^k})$, where $d = \texttt{lr\_rounds}$
-            \item $C_i = \sum\limits_{j}v_i^j(\sum\limits_{k}r_i^k f_{j, \texttt{comm}}))$, where $f_{j, \texttt{comm}}$ from $\textbf{PE}_i$.
-            \item $Q_i = \sum (\xi_{i, j} \cdot L_{i, j} + \xi_{i, j}^{-1} \cdot R_j) + cip_i \cdot U_i + C_i$
-            \item $c_i = H_{i, \mathbb{F}_q}.\texttt{squeeze}()$ <- PI
-            \item Check $\hat{G}_i = <s, G>$, where $s$ is set of $h(X)$ coefficients. \\
-            \textbf{Remark}: This check can be done inside the \texttt{MSM} below using $r'_i$.
+            \item $H_{i, \mathbb{F}_q}.\texttt{absorb}(o_{\pi_i}.\delta)$
+            \item $\texttt{bases} = \texttt{bases} \concat [o_{\pi_i}.sg]$
+	   \item $\texttt{bases} = \texttt{bases} \concat [U_i]$
+	   \item for each opening $(L, R)$ from $opening.lr$:
+	   \begin{enumerate}
+		\item $\texttt{bases} = \texttt{bases} \concat [L]$
+		\item $\texttt{bases} = \texttt{bases} \concat [R]$
+	   \end{enumerate}
+	   \item for each commitment part $comm_i$ from evaluations:
+            \begin{enumerate}
+		\item $\texttt{bases} = \texttt{bases} \concat [comm_i]$
+	   \end{enumerate}
+            \item $\texttt{bases} = \texttt{bases} \concat [U_i]$
+	   \item $\texttt{bases} = \texttt{bases} \concat [o_{\pi_i}.\delta]$
         \end{enumerate}
-        \item Fq: $\texttt{res} = \sum\limits_i r^i (c_i Q_i + delta_i - ( z_{i, 1} (\hat{G}_i + b_i U_i) + z_{i, 2} H ))$
-        \item Fq: $\texttt{return res } == 0$
+        \item $\texttt{res} = \textbf{MSM}(\texttt{scalars}, \texttt{bases})$
+        \item $\texttt{return res } == 0$
     \end{enumerate}
 \end{algorithm}
 
