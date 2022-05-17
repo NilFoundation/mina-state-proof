@@ -16,52 +16,38 @@ Here we use the second option.
 		\begin{enumerate}
 			\item $\texttt{random\_oracle}(p_{\texttt{comm}}, \pi_i)$:
             \begin{enumerate}
-				\item Copy limbs of $\texttt{joint\_combiner}$ from PI
-				\item $\texttt{joint\_combiner} = \texttt{from\_limbs}(\texttt{joint\_combiner\_limbs})$
-				\item Copy limbs of $\beta, \gamma$ from PI
-                \item $\beta = \texttt{from\_limbs}(\beta\_limbs)$
-                \item $ \gamma = \texttt{from\_limbs}(\gamma\_limbs)$
-				\item Copy limbs of $\alpha$ from PI
-				\item $ \alpha_{c} = \texttt{from\_limbs}(\alpha\_limbs)$
+				\item Copy $\texttt{joint\_combiner}$ from PI
+				\item Copy $\beta, \gamma$ from PI
+				\item Copy $\alpha_c$ from PI
                 \item $\alpha = \phi(\alpha_c)$
-				\item Copy limbs of $\zeta$ from PI
-				\item $ \zeta_{c} = \texttt{from\_limbs}(\zeta\_limbs)$
+				\item Copy $\zeta_c$ from PI
                 \item $\zeta = \phi(\zeta_c)$
                 \item Initialize $H_{\mathbb{F}_r}$
                 \item Copy $H_{\mathbb{F}_q}.\texttt{digest}$ from PI
                 \item $H_{\mathbb{F}_r}.\texttt{absorb}(H_{\mathbb{F}_q}.\texttt{digest})$
-                \item $\zeta_1 = \zeta^{n}$
+                \item $\zeta_1 = \zeta^{n}$ for $n = |domain|$
                 \item $\zeta_w = \zeta \cdot \omega$
 				\item $\texttt{all\_alphas} = [1, \alpha, \dots, \alpha^{next\_power}]$
 				\item $\texttt{lagrange} = [\zeta - domain.w, \dots, \zeta_w - domain.w]$ L195
 				\item $\texttt{lagrange} = [1 / \texttt{lagrange}[0], \dots]$
 				\item $\texttt{p\_eval}[0] = (\sum(pub[i] \cdot domain[i] \cdot (-lagrange[i])) 
-													\cdot (\zeta_1 - 1) \cdot frac{1}{|domain|}$
+													\cdot (\zeta_1 - 1) \cdot \frac{1}{|domain|}$
 				\item $\texttt{p\_eval}[1] = (\sum(pub[i] \cdot domain[i] \cdot (-lagrange[pub.len + i])) 
-													\cdot (\zeta_w^{n} - 1) \cdot frac{1}{|domain|}$
+													\cdot (\zeta_w^{n} - 1) \cdot \frac{1}{|domain|}$
 				\item $H_{\mathbb{F}_r}.\texttt{absorb}(p\_eval[0])$
 				\item $H_{\mathbb{F}_r}.\texttt{absorb}(evals[0])$ <- PI src -> plonk\_sponge.rs L41
 				\item $H_{\mathbb{F}_r}.\texttt{absorb}(p\_eval[1])$
 				\item $H_{\mathbb{F}_r}.\texttt{absorb}(evals[1])$ <- PI
-                %\item Fr: $H_{\mathbb{F}_r}.\texttt{absorb}(pub(\zeta) || w_{0}(\zeta) || ... || w_{N_{\text{wires}}}(\zeta)
-                %|| S_0(\zeta) || ... || S_{N_{\text{perm}}}(\zeta))$
-                %\item Fr: $H_{\mathbb{F}_r}.\texttt{absorb}(pub(\zeta\omega) || w_{0}(\zeta\omega) || ... || w_{N_{\text{wires}}}(\zeta\omega)
-                %|| S_0(\zeta\omega) || ... || S_{N_{\text{perm}}}(\zeta\omega))$
-                \item $Copy \bar{L}(\zeta\omega)$ from PI
+                \item Copy $\bar{L}(\zeta\omega)$ from PI
                 \item $H_{\mathbb{F}_r}.\texttt{absorb}(\bar{L}(\zeta\omega))$
                 \item $v = \phi(H_{\mathbb{F}_r}.\texttt{squeeze}())$
                 \item $u = \phi(H_{\mathbb{F}_r}.\texttt{squeeze}())$
-                \item Compute evaluation of $\eta_i(\zeta), \eta_i(\zeta\omega)$ for $0 \leq i < N_{\texttt{prev}}$:
-                \begin{enumerate}
-                	\item $powers\_of\_evals = [\zeta^{max\_poly\_size}, \zeta_w^{max\_poly\_size}]$
-                	\item ...
-                \end{enumerate}
-                \item Compute evaluation of $\bar{L}(\zeta)$:
-                \begin{enumerate}
-                	\item ...
-                \end{enumerate}
+	       \item $powers\_of\_evals = [\zeta^{max\_poly\_size}, \zeta_w^{max\_poly\_size}]$
+                \item Compute evaluation of $\eta_i(\zeta), \eta_i(\zeta\omega)$ for $0 \leq i < N_{\texttt{prev}}$ \\
+			$\eta_i(X) = \sum_{j = 0}^{k = \log{d + 1} - 1}1 + \xi_{i, j} \cdot X^{2^j}$
+                \item Compute evaluation of $\bar{L}(\zeta)$\footnotemark
             \end{enumerate}
-   			\item Combine evals (ploynomial evals) L412
+   	  \item Combine (multiply) proof evaluations over the polynomials with $\zeta, \zeta\omega$
             \item $\textbf{f}_{\text{base}} \coloneqq
             	\{S_{\sigma_{N_{\texttt{perm}} - 1}, \texttt{comm}}, % permutation
             	\texttt{gate}_{\text{mult}, \texttt{comm}}, w_{0, \texttt{comm}}, 
@@ -88,9 +74,11 @@ Here we use the second option.
             	z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
             \item $\mathcal{P}_i = \{H_{\mathbb{F}_q}, \zeta, v, u, \textbf{PE}, o_{\pi_i} \}$
         \end{enumerate}
-        \item $\texttt{final\_check\_scalar\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
+        \item $\textbf{batch\_verify\_scalar\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
 \end{enumerate}
 \end{algorithm}
+
+\footnotetext{Details: \url{https://o1-labs.github.io/proof-systems/plonk/maller_15.html}}
 
 \begin{algorithm}[H]
 \caption{Verifier.Base\_Field}
@@ -132,7 +120,7 @@ Here we use the second option.
             	s_{\text{ec\_endo}}, % ec endoscalar multiplication
             	s_{\text{ec\_vbase}} % ec variable base multiplication
             	\}$
-            \item $f_{\texttt{comm}} = \text{MSM}(\textbf{f}_{\text{base}}, \textbf{f}_{\text{scalars}})$
+            \item $f_{\texttt{comm}} = \textbf{MSM}(\textbf{f}_{\text{base}}, \textbf{f}_{\text{scalars}})$
 			\item Copy from PI $(\zeta^n - 1)$
             \item $\bar{L}_{\texttt{comm}} = f_{\texttt{comm}} - t_{\texttt{comm}} \cdot (\zeta^n - 1)$
             \item $\textbf{PE}$ is a set of elements of the form $(f_{\texttt{comm}}, f(\zeta), f(\zeta\omega))$ for the following polynomials:
@@ -140,60 +128,83 @@ Here we use the second option.
             	z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
             \item $\mathcal{P}_i = \{H_{\mathbb{F}_q}, \zeta, v, u, \textbf{PE}, o_{\pi_i} \}$
         \end{enumerate}
-	\item $\texttt{final\_check\_base\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
+	\item $\textbf{batch\_verify\_base\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
 \end{enumerate}
 \end{algorithm}
 
+Remind that $o_{\pi_i}$ contains openings from the prover. 
+
 \begin{algorithm}[H]
-    \caption{Final Check - Scalar Field}
+    \caption{Batch Verify - Scalar Field}
     \textbf{Input}: $\pi_0, \dots, \pi_{\texttt{batch\_size}}$, where $\pi_i = \{H_{i, \mathbb{F}_q}, \zeta_i, \zeta_i\omega, v_i, u_i,
     \textbf{PE}_i, o_{\pi_i} \}$ \\
     \textbf{Output}: \texttt{acc} or \texttt{rej}
     \begin{enumerate}
-        \item $\rho_1 \rightarrow \mathbb{F}_r$ <- should be calculated as poseidon from $H_{i, \mathbb{F}_q}$ state
-        \item $\rho_2 \rightarrow \mathbb{F}_r$
+        \item $\rho_1 \leftarrow \mathbb{F}_r$
+        \item $\rho_2 \leftarrow \mathbb{F}_r$
         \item $r_0 = r'_0 = 1$
+        \item $\texttt{scalars} = [0, \dots, 0]$
         \item for $0 \leq i < \texttt{batch\_size}$:
         \begin{enumerate}
-            \item $cip_i = \texttt{combined\_inner\_product}(\zeta_i, \zeta_i\omega, v_i, u_i, \textbf{PE}_i)$ <- PI check
-            \item Calculate opening challenges $\xi_{i, j}$ from limbs in $o_{\pi_i}$ <- PI?
+            \item $cip_i = \textbf{combined\_inner\_product}(\zeta_i, \zeta_i\omega, v_i, u_i, \textbf{PE}_i)$
+            \item Calculate opening challenges $\xi_{i, j}$ from $o_{\pi_i}$ and copy-constraint them
             \item Calculate inversion from $\xi_{i, j}$
-			\item Copy limbs $c_i\_limbs$ from PI
-            \item $c_i = \phi(c_i\_limbs)$
+	   \item Copy $c\_chal_i$ from PI
+            \item $c_i = \phi(c\_chal_i)$
             \item $h_i(X) \coloneqq \prod_{k=0}^{\log(d+1) - 1}(1 + \xi_{\log(d+1)-k}X^{2^k})$, where $d = \texttt{lr\_rounds}$
             \item $b_i = h_i(\zeta) + u_i \cdot h_i(\zeta\omega)$
-            \item $sg = -r_i \cdot opening.z1 - r'_i$
-            \item $r_i = r_{i - 1} \cdot \rho_1$
-            \item $r'_i = r'_{i - 1} \cdot \rho_2$
+	   \item $\texttt{scalars} = \texttt{scalars} \concat [-r_i \cdot o_{\pi_i}.z1 - r'_i]$
+	   \item $\texttt{scalars}[i + 1] = \texttt{scalars}[i + 1] + \sum_j(s_j \cdot r'_i)$ for $s_j$ from $h_i$ coefficients
+	   \item $\texttt{scalars}[0] = \texttt{scalars}[0] - r_i \cdot o_{\pi_i}.z2$
+	   \item $\texttt{scalars} = \texttt{scalars} \concat [-r_i \cdot o_{\pi_i}.z1 \cdot b_i]$
+            \item for each challenge $(\xi, \xi^{-1})$ from opening challenges:
+	   \begin{enumerate}
+		\item $\texttt{scalars} = \texttt{scalars} \concat [r_i \cdot c_i \cdot \xi^{-1}]$
+		\item $\texttt{scalars} = \texttt{scalars} \concat [r_i \cdot c_i \cdot \xi]$
+	   \end{enumerate}
+	   \item $u\_acc = 1$
+	   \item for each commitment part from evaluations:
+            \begin{enumerate}
+		\item $\texttt{scalars} = \texttt{scalars} \concat [r_i \cdot c_i \cdot u\_acc]$
+		\item $u\_acc = u\_acc \cdot u_i$
+	   \end{enumerate}
+	  \item $\texttt{scalars} = \texttt{scalars} \concat [r_i \cdot c_i \cdot cip_i]$
+	  \item $\texttt{scalars} = \texttt{scalars} \concat [r_i]$
+            \item $r_{i + 1} = r_{i} \cdot \rho_1$
+            \item $r'_{i + 1} = r'_{i} \cdot \rho_2$
         \end{enumerate}
     \end{enumerate}
 \end{algorithm}
 
 \begin{algorithm}[H]
-    \caption{Final Check - Base Field}
+    \caption{Batch Verify - Base Field}
     \textbf{Input}: $\pi_0, \dots, \pi_{\texttt{batch\_size}}$, where $\pi_i = \{H_{i, \mathbb{F}_q}, \zeta_i, \zeta_i\omega, v_i, u_i,
     \textbf{PE}_i, o_{\pi_i} \}$ \\
     \textbf{Output}: \texttt{acc} or \texttt{rej}
     \begin{enumerate}
+        \item $\texttt{bases} = [pk.H, pk.G_0, \dots, pk.G_n, \mathcal{O}, \dots, \mathcal{O}]$
         \item for $0 \leq i < \texttt{batch\_size}$:
         \begin{enumerate}
-        	\item Get limbs $cip_i$ from PI
+        	  \item Get $cip_i$ from PI
             \item $H_{i, \mathbb{F}_q}.\texttt{absorb}(cip_i - 2^{255})$
             \item $U_i = (H_{i, \mathbb{F}_q}.\texttt{squeeze}()).\texttt{to\_group}()$
-            \item Calculate opening challenges $\xi_{i, j}$ from $o_{\pi_i}$ <- PI output as limbs:
+            \item $H_{i, \mathbb{F}_q}.\texttt{absorb}(o_{\pi_i}.\delta)$
+            \item $\texttt{bases} = \texttt{bases} \concat [o_{\pi_i}.sg]$
+	   \item $\texttt{bases} = \texttt{bases} \concat [U_i]$
+	   \item for each opening $(L, R)$ from $opening.lr$:
+	   \begin{enumerate}
+		\item $\texttt{bases} = \texttt{bases} \concat [L]$
+		\item $\texttt{bases} = \texttt{bases} \concat [R]$
+	   \end{enumerate}
+	   \item for each commitment part $comm_i$ from evaluations:
             \begin{enumerate}
-            	\item ?????
-            \end{enumerate}
-            \item $H_{i, \mathbb{F}_q}.\texttt{absorb}(openings.\delta)$ L791
-            \item $h_i(X) \coloneqq \prod_{k=0}^{\log(d+1) - 1}(1 + \xi_{\log(d+1)-k}X^{2^k})$, where $d = \texttt{lr\_rounds}$
-            \item $C_i = \sum\limits_{j}v_i^j(\sum\limits_{k}r_i^k f_{j, \texttt{comm}}))$, where $f_{j, \texttt{comm}}$ from $\textbf{PE}_i$.
-            \item $Q_i = \sum (\xi_{i, j} \cdot L_{i, j} + \xi_{i, j}^{-1} \cdot R_j) + cip_i \cdot U_i + C_i$
-            \item $c_i = H_{i, \mathbb{F}_q}.\texttt{squeeze}()$ <- PI
-            \item Check $\hat{G}_i = <s, G>$, where $s$ is set of $h(X)$ coefficients. \\
-            \textbf{Remark}: This check can be done inside the \texttt{MSM} below using $r'_i$.
+		\item $\texttt{bases} = \texttt{bases} \concat [comm_i]$
+	   \end{enumerate}
+            \item $\texttt{bases} = \texttt{bases} \concat [U_i]$
+	   \item $\texttt{bases} = \texttt{bases} \concat [o_{\pi_i}.\delta]$
         \end{enumerate}
-        \item Fq: $\texttt{res} = \sum\limits_i r^i (c_i Q_i + delta_i - ( z_{i, 1} (\hat{G}_i + b_i U_i) + z_{i, 2} H ))$
-        \item Fq: $\texttt{return res } == 0$
+        \item $\texttt{res} = \textbf{MSM}(\texttt{scalars}, \texttt{bases})$
+        \item $\texttt{return res } == 0$
     \end{enumerate}
 \end{algorithm}
 
