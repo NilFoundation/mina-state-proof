@@ -42,37 +42,37 @@ Here we use the second option.
                 \item $H_{\mathbb{F}_r}.\texttt{absorb}(\bar{L}(\zeta\omega))$
                 \item $v = \phi(H_{\mathbb{F}_r}.\texttt{squeeze}())$
                 \item $u = \phi(H_{\mathbb{F}_r}.\texttt{squeeze}())$
-	       \item $powers\_of\_evals = [\zeta^{max\_poly\_size}, \zeta_w^{max\_poly\_size}]$
+	       		\item $powers\_of\_evals = [\zeta^{max\_poly\_size}, \zeta_w^{max\_poly\_size}]$
                 \item Compute evaluation of $\eta_i(\zeta), \eta_i(\zeta\omega)$ for $0 \leq i < N_{\texttt{prev}}$ \\
-			$\eta_i(X) = \sum_{j = 0}^{k = \log{d + 1} - 1}1 + \xi_{i, j} \cdot X^{2^j}$
+					$\eta_i(X) = \sum_{j = 0}^{k = \log{d + 1} - 1}1 + \xi_{i, j} \cdot X^{2^j}$
+				\item Combine (multiply) proof evaluations over the polynomials with $\zeta, \zeta\omega$
                 \item Compute evaluation of $\bar{L}(\zeta)$\footnotemark
-            \end{enumerate}
-   	  \item Combine (multiply) proof evaluations over the polynomials with $\zeta, \zeta\omega$
-            \item $\textbf{f}_{\text{base}} \coloneqq
-            	\{S_{\sigma_{N_{\texttt{perm}} - 1}, \texttt{comm}}, % permutation
-            	\texttt{gate}_{\text{mult}, \texttt{comm}}, w_{0, \texttt{comm}}, 
-            	w_{1, \texttt{comm}}, w_{2, \texttt{comm}}, q_{\text{const}, \texttt{comm}}, % generic constraint
-            	\texttt{gate}_{\text{psdn}, \texttt{comm}}, \texttt{gate}_{\text{rc}, \texttt{comm}},$\\ % poseidon
-            	$\texttt{gate}_{\text{ec\_add}, \texttt{comm}}, % ec add
-            	\texttt{gate}_{\text{ec\_dbl}, \texttt{comm}}, % ec double
-            	\texttt{gate}_{\text{ec\_endo}, \texttt{comm}}, %ec endoscalar multiplication
-            	\texttt{gate}_{\text{ec\_vbase}, \texttt{comm}} % ec variable base multiplication
-            	\}$
-            \item $s_{\text{perm}} \coloneqq (w_0(\zeta) + \gamma + \beta \cdot S_{\sigma_0}(\zeta)) \cdot ...
-            	\cdot (w_5(\zeta) + \gamma + \beta \cdot S_{\sigma_{N_{\texttt{perm}}}}(\zeta))$
-            \item $\textbf{f}_{\text{scalars}} \coloneqq
-            	\{-z(\zeta\omega) \cdot \beta \cdot \alpha_0 \cdot zkp(\zeta) \cdot s_{\text{perm}}, % permutation
-            	w_0(\zeta) \cdot w_1(\zeta), w_0(\zeta), w_1(\zeta), 1$ \\ % generic constraint
-            	$s_{\text{psdn},} s_{\text{rc}}, % poseidon
-            	s_{\text{ec\_add}}, % ec add
-            	s_{\text{ec\_dbl}}, % ec double
-            	s_{\text{ec\_endo}}, % ec endoscalar multiplication
-            	s_{\text{ec\_vbase}} % ec variable base multiplication
-            	\}$
-            \item $\textbf{PE}$ is a set of elements of the form $(f_{\texttt{comm}}, f(\zeta), f(\zeta\omega))$ for the following polynomials:
-            	$\eta_0, \dots, \eta_{N_{\texttt{prev}}}, pub, w_0, \dots, w_{N_{\texttt{wires}}}, 
-            	z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
-            \item $\mathcal{P}_i = \{H_{\mathbb{F}_q}, \zeta, v, u, \textbf{PE}, o_{\pi_i} \}$
+			\end{enumerate}
+			\item $\textbf{f}_{\text{base}} \coloneqq
+				\{S_{\sigma_{N_{\texttt{perm}} - 1}, \texttt{comm}}, % permutation
+				\texttt{gate}_{\text{mult}, \texttt{comm}}, w_{0, \texttt{comm}}, 
+				w_{1, \texttt{comm}}, w_{2, \texttt{comm}}, q_{\text{const}, \texttt{comm}}, % generic constraint
+				\texttt{gate}_{\text{psdn}, \texttt{comm}}, \texttt{gate}_{\text{rc}, \texttt{comm}},$\\ % poseidon
+				$\texttt{gate}_{\text{ec\_add}, \texttt{comm}}, % ec add
+				\texttt{gate}_{\text{ec\_dbl}, \texttt{comm}}, % ec double
+				\texttt{gate}_{\text{ec\_endo}, \texttt{comm}}, %ec endoscalar multiplication
+				\texttt{gate}_{\text{ec\_vbase}, \texttt{comm}} % ec variable base multiplication
+				\}$
+			\item $s_{\text{perm}} \coloneqq (w_0(\zeta) + \gamma + \beta \cdot S_{\sigma_0}(\zeta)) \cdot ...
+				\cdot (w_5(\zeta) + \gamma + \beta \cdot S_{\sigma_{N_{\texttt{perm}}}}(\zeta))$
+			\item $\textbf{f}_{\text{scalars}} \coloneqq
+				\{-z(\zeta\omega) \cdot \beta \cdot \alpha_0 \cdot zkp(\zeta) \cdot s_{\text{perm}}, % permutation
+				w_0(\zeta) \cdot w_1(\zeta), w_0(\zeta), w_1(\zeta), 1$ \\ % generic constraint
+				$s_{\text{psdn},} s_{\text{rc}}, % poseidon
+				s_{\text{ec\_add}}, % ec add
+				s_{\text{ec\_dbl}}, % ec double
+				s_{\text{ec\_endo}}, % ec endoscalar multiplication
+				s_{\text{ec\_vbase}} % ec variable base multiplication
+				\}$
+			\item $\textbf{PE}$ is a set of elements of the form $(f_{\texttt{comm}}, f(\zeta), f(\zeta\omega))$ for the following polynomials:
+				$\eta_0, \dots, \eta_{N_{\texttt{prev}}}, pub, w_0, \dots, w_{N_{\texttt{wires}}}, 
+				z, S_{\sigma_0}, \dots, S_{\sigma_{N_{\texttt{perm}}}}, \bar{L}$
+			\item $\mathcal{P}_i = \{H_{\mathbb{F}_q}, \zeta, v, u, \textbf{PE}, o_{\pi_i} \}$
         \end{enumerate}
         \item $\textbf{batch\_verify\_scalar\_field}(\mathcal{P}_0, \dots, \mathcal{P}_{\texttt{batch\_size}})$
 \end{enumerate}
