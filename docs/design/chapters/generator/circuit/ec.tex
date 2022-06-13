@@ -1,55 +1,41 @@
 \section{Elliptic Curve Arithmetic}
 \label{section:ec}
 
-\subsection{Unified Incomplete Addition and Doubling}
+\subsection{Complete Addition and Doubling}
 
 \begin{center}
     \begin{table}[H]
         \begin{tabular}{llllllllllllllll}
             Row   & 0     & 1     & 2     & 3     & 4     & 5     & 6   & 7       & 8       & 9       & 10      & 11      & 12      & 13      & 14      \\
-            $i$ & $x_1$ & $y_1$ & $x_2$ & $y_2$ & $x_3$ & $y_3$ & $\texttt{inf}$ & $\texttt{same\_x}$ & $s$ & $\texttt{inv}_y$ & $\texttt{inv}_x$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ \\
+            $i$ & $x_1$ & $y_1$ & $x_2$ & $y_2$ & $x_3$ & $y_3$ & $\texttt{inv}_{x_1}$ & $\texttt{inv}_{x_2}$ & $\texttt{inv}_{x_2 - x_1}$ & $\delta$ & $\lambda$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ \\
         \end{tabular}
     \end{table}
 \end{center}
 
 Evaluations:
 \begin{itemize}
-	\item Addition case:
-	\begin{itemize}
 		\item $(x_3, y_3) = (x_1, y_1) + (x_2, y_2)$
-		\item $\texttt{inf} = 1$ if $(x_3, y_3)$ is a point-at-infinity, $\texttt{inf} = 0$ otherwise
-		\item $\texttt{same\_x} = 1$ if $x_1 = x_2$, $\texttt{same\_x} = 0$ otherwise
-		\item $s = \frac{y_1 - y_2}{x_1 - x_2}$ if $x_1 \neq x_2$, $s = 0$ otherwise
-		\item $\texttt{inv}_y = \frac{1}{y_2 - y_1}$ if $y_2 \neq y_1$, $\texttt{inv}_y = 0$ otherwise 
-		\item $\texttt{inv}_x = \frac{1}{x_2 - x_1}$ if $x_2 \neq x_1$, $\texttt{inv}_x= 0$ otherwise
-	\end{itemize}
-	\item Doubling case:
-	\begin{itemize}
-		\item $(x_3, y_3) = 2(x_1, y_1)$
-		\item $x_2 = x_1$, $y_2 = y_1$
-		\item $\texttt{inf} = 1$ if $(x_3, y_3)$ is a point-at-infinity, $\texttt{inf} = 0$ otherwise
-		\item $\texttt{same\_x} = 1$
-		\item $s = \frac{3x_1^2}{2y_1}$ if $y_1 \neq 0$, $s = 0$ otherwise
-		\item $\texttt{inv}_y = 0$ 
-		\item $\texttt{inv}_x= 0$
-	\end{itemize}
+		\item $\texttt{inv}_{a} = a^{-1}$, if $a \neq 0$, $\texttt{inv}_{a} = 0 $ otherwise
+		\item $\delta = \texttt{inv}_{y_1 + y_2}$, if $x_1 = x_2$, $\delta = 0$ otherwise
+		\item $\lambda = \frac{y_2 - y_1}{x_2 - x_1}$ if $x_1 \neq x_2$,
+		 $\lambda = \frac{3x_1^2}{2y_1}$, if $x_1 = x_2$ and$ y_1 \neq 0$, otherwise $\lambda = 0$
 \end{itemize}
 
 Constraints ($\textbf{max degree} = 3$):
-\begin{enumerate}
-	 \item $w_7 \cdot (w_2 - w_0) = 0$
-    \item $(w_2 - w_0) \cdot w_{10} - (1 - w_7) = 0$
-    \item $w_7 \cdot (2w_8 \cdot w_1 - 3w_0^2) + (1 - w_7) \cdot ((w_2 - w_0) \cdot w_8 - (w_3 - w_1))$
-    \item $w_8^2 = w_0 + w_2 + w_4$
-    \item $w_5 = w_8 \cdot (w_0 - w_4) - w_1$
-    \item $(w_3 - w_1) \cdot (w_7 - w_6) = 0$
-    \item $(w_3 - w_1) \cdot w_9 - w_6 = 0$
-\end{enumerate}
-
-Copy constraints:
-\begin{enumerate}
-	\item $w_6 = 0$
-\end{enumerate}
+\begin{itemize}
+\item $(w_2 - w_0)\cdot((w_2 - w_0)\cdot(w_{10}- (w_3 - w_1))$
+\item $(1 - (w_2- w_0)\cdot w_8)\cdot (2w_1\cdot w_10 - 3w_0 \cdot w_0)$
+\item $(w_0 \cdot w_2\cdot w_2 - w_0 \cdot w_2\cdot w_0) \cdot (w_{10} \cdot w_{10} - w_0 - w_2 - w_4))$
+\item $(w_0 \cdot w_2 \cdot w_2 - w_0 \cdot w_2 \cdot w_0) \cdot (w_{10}\cdot (w_0- w_4) - w_1 - w_5))$
+\item $(w_0 \cdot w_2\cdot w_3 + w_0 \cdot w_2\cdot w_1) \cdot w_{10} \cdot w_{10} - w_0 - w_2  - w_4))$
+\item $ (w_0 \cdot w_2\cdot w_3 + w_0 \cdot w_2\cdot w_1) \cdot(w_{10} \cdot (w_0 - w_4) - w_1 - w_5))$
+\item $(1 - w_0\cdot w_6)\cdot(w_4 -w_2)$
+\item $(1 - w_0 \cdot w_6)\cdot(w_5 - w_3)$
+\item $(1 - w_2 \cdot w_7)\cdot(w_4 - w_0)$
+\item$ (1 - w_2 \cdot w_7)\cdot(w_5 - w_1)$
+\item $(1 - (w_2 - w_0)\cdot w_8 - (w_3 + w_1)\cdot w_9) \cdot w_4$
+\item $(1 - (w_2 - w_0)\cdot w_8 - (w_3 + w_1) \cdot w_9) \cdot w_5$
+\end{itemize}
 
 \paragraph{Details.}
 
@@ -67,47 +53,9 @@ For point doubling $R = P + P = 2P$:
     \item $y_3 = s \cdot (x_1 - x_3) - y_1$
 \end{itemize}
 
-The gate does not handle cases $\mathcal{O} + P$ or $\mathcal{O} + \mathcal{O}$.
-To ensure that operations with point-at-infinity are not included in the circuit's trace, copy constraint $w_6 = 0$ ($\texttt{inf} = 0$) was introduced. 
-
-Constraints details:
-\begin{itemize}
-	 \item $x_2 - x_1$ zero check:
-	 \begin{enumerate}
-		 	\item $w_7 \cdot (w_2 - w_0) = 0 \longleftrightarrow 
-		 			\texttt{same\_x} \cdot (x_2 -x_1)$ \\
-		 		If $x_1 \neq x_2$, then $\texttt{same\_x} = 0$
-		    \item $(w_2 - w_0) \cdot w_{10} - (1 - w_7) = 0 \longleftrightarrow 
-		    		(x_2 - x_1) \cdot \texttt{inv}_x - (1 - \texttt{same\_x})$ \\
-		    	If $x_1 \neq x_2$, then $\texttt{inv}_x = (x_2 - x_1)^{-1}$
-	 \end{enumerate}
-	 \item Group law constraints:
-	 \begin{enumerate}
-	 	\item $w_7 \cdot (2w_8 \cdot w_1 - 3w_0^2) + (1 - w_7) \cdot ((w_2 - w_0 \cdot w_8 - (w_3 - w_1)) \longleftrightarrow$ \\
-			  $\texttt{same\_x} \cdot (2s \cdot y_1 - 3x_1^2) + (1 - \texttt{same\_x}) \cdot (x_2 - x_1 \cdot s - (y_2 - y_1))$ \\
-			If $x_1 = x_2$ then use doubling $2s \cdot y_1 = 3x_1^2$. Otherwise use addition $(x_2 - x_1) \cdot s = y_2 - y_1$.
-	 	\item $w_8^2 = w_0 + w_2 + w_4 \longleftrightarrow 
-	 			s^2 = x_1 + x_2 + x_3$ \\
-	 		Constrains $x_3$. It does not depend on $x_1, x_2$ equality.
-	 	\item $w_5 = w_8 \cdot (w_0 - w_4) - w_1 \longleftrightarrow 
-	 			y_3 = s \cdot (x_1 - x_3) - y_1$ \\
-	 		Constrains $y_3$. It does not depend on $x_1, x_2$ equality.
-	 \end{enumerate}
-	 \item $P + (-P)$ constraints:
-	 \begin{enumerate}
-		 \item $(w_3 - w_1) \cdot (w_7 - w_6) = 0 \longleftrightarrow 
-	    			(y_2 - y_1) \cdot (\texttt{same\_x} - \texttt{inf}) = 0$ \\ 
-	    	We can get inifinity point iff $x_1 = x_2$ and $y_1 \neq y_2$. \\
-	    	If $y_1 \neq y_2$ then $\texttt{inf} = \texttt{same\_x}$.
-	    \item $(w_3 - w_1) \cdot w_9 - w_6 = 0 \longleftrightarrow 
-	    			(y_2 - y_1) \cdot \texttt{inv}_y - \texttt{inf}$ \\
-	    	The prover sets $\texttt{inv}_y = 0$ for $y_1 = y_2$. \\
-	    	If $y_1 \neq y_2$ then $\texttt{inv}_y = (y_2 - y_1)^{-1}$
-	 \end{enumerate}
-\end{itemize}
 
 \subsection{Variable Base Scalar Multiplication}
-For $R  = [r]T$, $k = \frac{x - 2^{255}}{2}$:
+For $R  = [r]T$, $k = \frac{r - 2^{255}}{2}$:
 \footnote{Using the results from \url{https://arxiv.org/pdf/math/0208038.pdf}}
 \begin{enumerate}
     \item $P = [2]T$
@@ -118,7 +66,7 @@ For $R  = [r]T$, $k = \frac{x - 2^{255}}{2}$:
     \end{enumerate}
 \end{enumerate}
 
-The first and last steps of the alforithm are verified by the unified addition and doubling circuit. 
+The first step of the alforithm are verified by the complete addition circuit. 
 
 \begin{center}
     \begin{table}[H]
@@ -129,10 +77,12 @@ The first and last steps of the alforithm are verified by the unified addition a
             $\vdots$  & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
             $i + 100$ & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
             $i + 101$ & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $--$ & $--$ & $--$ \\
+            $i + 102$ & $x_5$    & $y_5$    & $t_0$    & $t_1$    & $t_2$    & $n'$    & $x_T$      & $y_T$    & $m$    & $x$    & $y$    & $--$    & $--$ & $--$ & $--$ \\
         \end{tabular}
     \end{table}
 \end{center}
 
+Let $a_{-1} = 0x224698fc0994a8dd8c46eb2100000000$ be a circuit's value for a scalar $-1$, $a_0 = 0x200000000000000000000000000000003369e57a0e5efd4c526a60b180000001$ for $0$ and $a_1 = 0x224698fc0994a8dd8c46eb2100000001$ for $1$. 
 Evaluations:
 \begin{itemize}
 	\item $b_i$ are bits of the $k$, first $b_1$ is the most significant bit of $k$, $n$ is an accumulator of $b_i$.
@@ -146,6 +96,12 @@ Evaluations:
 	\item $s_2 = \frac{y_2 - (2b_2 - 1) \cdot y_T}{x_2 - x_T}$
 	\item $s_3 = \frac{y_3 - (2b_3 - 1) \cdot y_T}{x_3 - x_T}$
 	\item $s_4 = \frac{y_4 - (2b_4 - 1) \cdot y_T}{x_4 - x_T}$
+	\item $m = (n' - a_{-1})\cdot(n' - a_0)\cdot(n' - a_1)$
+     \item $t_0 = \texttt{inv}_m$
+     \item $t_1 = \texttt{inv}_(n' - a_{-1})$
+     \item $t_2 = \texttt{inv}_(n'- a_1)$
+     \item $(x,y)$ - is the circuit's result.
+	
 \end{itemize}
 
 Constraints:
@@ -178,13 +134,48 @@ Constraints:
     
     \item $w_5 = 32 \cdot (w_4) + 16 \cdot \texttt{next}(w_{2}) + 8 \cdot \texttt{next}(w_{3}) + 4 \cdot \texttt{next}(w_{4}) + 2 \cdot \texttt{next}(w_{5}) + \texttt{next}(w_{6})$
     \end{itemize}
+
+Constraints for the last $3$ rows:
+\begin{itemize}
+     \item $\texttt{next}(w_2) \cdot (w_2 - 1) = 0$
+    \item $\texttt{next}(w_3) \cdot (w_3 - 1) = 0$
+    \item $\texttt{next}(w_4) \cdot (w_4 - 1) = 0$
+    \item $\texttt{next}(w_5) \cdot (w_5 - 1) = 0$
+    \item $\texttt{next}(w_6) \cdot (w_6 - 1) = 0$ \\
+
+    \item $(w_{2} - w_{0}) \cdot \texttt{next}(w_7) = w_3 - (2\texttt{next}(w_{2}) - 1) \cdot w_1$
+    \item $(w_{7} - w_{0}) \cdot \texttt{next}(w_8) = w_8 - (2\texttt{next}(w_{3}) - 1) \cdot w_1$
+    \item $(w_{10} - w_{0}) \cdot \texttt{next}(w_9) = w_{11} - (2\texttt{next}(w_{4}) - 1) \cdot w_1$
+    \item $(w_{12} - w_{0}) \cdot \texttt{next}(w_{10}) = w_{13} - (2\texttt{next}(w_{5}) - 1) \cdot w_1$
+    \item $(\texttt{next}(w_{0}) - w_{0}) \cdot \texttt{next}(w_{11}) = \texttt{next}(w_1) - (2\texttt{next}(w_{6}) - 1) \cdot w_1$ \\
     
+    
+    \item $(2\cdot w_{3} - \texttt{next}(w_7) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}))^2 =  (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0})^2 \cdot (w_7 - w_0 + \texttt{next}(w_7)^2)$
+    \item $(2\cdot w_{8} - \texttt{next}(w_8) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}))^2 =  (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0})^2 \cdot (w_9 - w_0 + \texttt{next}(w_8)^2)$
+    \item $(2\cdot w_{10} - \texttt{next}(w_9) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}))^2 =  (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0})^2 \cdot (w_{11} - w_0 + \texttt{next}(w_9)^2)$
+    \item $((2\cdot w_{12} - \texttt{next}(w_{10}) \cdot (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}))^2 =  (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0})^2 \cdot (w_{13} - w_0 + \texttt{next}(w_{10})^2)) \cdot (\texttt{next + 1}(w_8)\cdot \texttt{next + 1}(w_2))$
+    \item $((2\cdot w_{14} - \texttt{next}(w_{11}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}))^2 =  (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0})^2 \cdot (\texttt{next}(w_0) - w_0 + \texttt{next}(w_{11})^2))\cdot (\texttt{next + 1}(w_8)\cdot \texttt{next + 1}(w_2))$\\
+    
+    \item $(w_{8} + w_{3}) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}) = (w_2 - w_7) \cdot (2\cdot w_{3} - \texttt{next}(w_7) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}))$
+    \item $(w_{10} + w_{8}) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}) = (w_7 - w_9) \cdot (2\cdot w_{8} - \texttt{next}(w_8) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}))$
+    \item $(w_{12} + w_{10}) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}) = (w_9 - w_{11}) \cdot (2\cdot w_{10} - \texttt{next}(w_9) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}))$
+    \item $((w_{14} + w_{10}) \cdot  (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}) = (w_{11} - w_{13}) \cdot (2\cdot w_{12} - \texttt{next}(w_{10}) \cdot (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}))) \cdot  (\texttt{next + 1}(w_8)\cdot \texttt{next + 1}(w_2))$
+    \item $((\texttt{next}(w_{1}) + w_{14}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}) = (w_{13} - \texttt{next}(w_{0}) \cdot (2\cdot w_{14} - \texttt{next}(w_{11}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}))) \cdot  (\texttt{next + 1}(w_8)\cdot \texttt{next + 1}(w_2))$ \\
+    \item $w_5 = 32 \cdot (w_4) + 16 \cdot \texttt{next}(w_{2}) + 8 \cdot \texttt{next}(w_{3}) + 4 \cdot \texttt{next}(w_{4}) + 2 \cdot \texttt{next}(w_{5}) + \texttt{next}(w_{6})$
+    \item $(\texttt{next + 1}(w_8)\cdot \texttt{next + 1}(w_2) - 1) \cdot \texttt{next + 1}(w_8)$
+    \item $ (\texttt{next + 1}(w_5) - a_{-1})\cdot \texttt{next + 1}(w_3) - 1) \cdot (\texttt{next + 1}(w_5) - a_{-1})$
+     \item $(\texttt{next + 1}(w_5) - a_1)\cdot \texttt{next + 1}(w_4) - 1) \cdot (\texttt{next + 1}(w_5) - a_1)$
+	\item $(\texttt{next + 1}(W_8)\cdot \texttt{next + 1}(w_2)\cdot \texttt{next + 1}(w_0)) + ((\texttt{next + 1}(w_5) - a_{-1})\cdot \texttt{next + 1}(w_3) - (\texttt{next + 1}(w_5) - a_1)\cdot \texttt{next + 1}(w_4))\cdot (\texttt{next + 1}(w_5) - a_{-1})\cdot \texttt{next + 1}(w_3) - (\texttt{next + 1}(w_5) - a_1)\cdot \texttt{next + 1}(w_4)) \cdot \texttt{next + 1}(w_6) - \texttt{next + 1}(w_0)$
+      \item $(\texttt{next + 1}(w_8)\cdot \texttt{next + 1}(w_2)\cdot \texttt{next + 1}(w_1)) +((\texttt{next + 1}v(w_5) - a_{-1})\cdot \texttt{next + 1}(w_3) - (\texttt{next + 1}(w_5) - a_1)\cdot \texttt{next + 1}(w_4)) \cdot \texttt{next + 1}(w_7) - \texttt{next + 1}(w_1)$
+      \item $\texttt{next + 1}(w_8) - ((\texttt{next + 1}(w_5) -a_{-1})\cdot (\texttt{next + 1}(w_5) - a_0) \cdot
+(\texttt{next + 1}(w_5) - a_1))$ 
+\end{itemize}    
     Copy constraints:
     \begin{itemize}
-    \item $(x_T,y_T)$ in row $j$ are copy constrained with $(x_T,y_T)$ in row $j + 2$ 
+    \item $(x_T,y_T)$ in row $j$ are copy constrained with $(x_T,y_T)$ in row $j + 2$ and with last row.
     \item $(x_0,y_0)$ in row $i$ are copy constrained with values from the first doubling circuit
     \item $(x_0,y_0)$ in row $j, j \neq i$ are copy constrained with $(x_5,y_5)$ in row $j - 1$ 
-    \item $n = 0$ in row $i$ and $n$ in the row $j, j \neq i$ is copy contrained with $n'$ in the row $j-2$
+    \item $n = 0$ in row $i$ and $n$ in the row $j, j \neq i$ is copy contrained with $n'$ in the row $j-2$ and with last row.
     \end{itemize}
 
 \subsection{Variable Base Endo-Scalar Multiplication}
