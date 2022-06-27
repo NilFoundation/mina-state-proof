@@ -126,6 +126,8 @@ zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> make_proof(boost:
     std::string base_path = "data.genesisBlock.protocolStateProof.json.proof.";
 
     i = 0;
+    //data.genesisBlock.protocolStateProof.json.proof.messages.w_comm[0][0][0]
+    //data.genesisBlock.protocolStateProof.json.statement.proof_state.deferred_values.bulletproof_challenges[0].prechallenge.inner[0]
     for (auto &row : root.get_child(base_path + "messages.w_comm")) {
         auto it = row.second.get_child("").begin()->second.get_child("").begin();
         proof.commitments.w_comm[i].unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
@@ -176,13 +178,22 @@ zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> make_proof(boost:
     }
 
     proof.ft_eval1 = multiprecision::cpp_int(root.get<std::string>(base_path + "openings.ft_eval1"));
-    //            // public
-    //            std::vector<typename CurveType::scalar_field_type::value_type> public_p; // TODO: where it is?
-    //
-    //            // Previous challenges
-    //            std::vector<
-    //                std::tuple<std::vector<typename CurveType::scalar_field_type::value_type>, commitment_scheme>>
-    //                prev_challenges; // TODO: where it is?
+
+    std::string public_input_path = "data.genesisBlock.protocolStateProof.json.prev_evals.evals";
+
+    for (auto &evals_it : root.get_child(public_input_path)) {
+        //data.genesisBlock.protocolStateProof.json.prev_evals.evals[0].public_input
+        proof.public_input.emplace_back(multiprecision::cpp_int(evals_it.second.get_child("").begin()->second.get_value<std::string>("public_input")));
+    }
+    std::string challenges_path = "data.genesisBlock.protocolStateProof.json.statement.proof_state.deferred_values.bulletproof_challenges";
+
+    //data.genesisBlock.protocolStateProof.json.statement.proof_state.deferred_values.bulletproof_challenges[0].prechallenge.inner[0]
+    for (auto &evals_it : root.get_child(challenges_path)) {
+        for (auto &tt : evals_it.second.get_child("prechallenge.inner")) {
+//            std::cout << tt.second.get_value<std::string>("") << std::endl;
+//            proof.prev_challenges.emplace_back(std::make_pair())
+        }
+    }
     return proof;
 }
 
@@ -415,7 +426,7 @@ std::string generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curve
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
 
     constexpr static std::size_t alpha_powers_n = 5;
-    constexpr static std::size_t public_input_size = 3;
+    constexpr static std::size_t public_input_size = 2;
     constexpr static std::size_t max_poly_size = 32;
     constexpr static std::size_t eval_rounds = 5;
 
@@ -428,7 +439,7 @@ std::string generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curve
     constexpr static std::size_t batch_size = 1;
 
     constexpr static const std::size_t index_terms = 0;
-    constexpr static const std::size_t prev_chal_size = 1;
+    constexpr static const std::size_t prev_chal_size = 0;
 
     using commitment_params = zk::components::kimchi_commitment_params_type<eval_rounds, max_poly_size, srs_len>;
     using kimchi_params =
