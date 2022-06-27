@@ -43,6 +43,8 @@
 #include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/verifier_index.hpp>
 #include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/detail/binding.hpp>
 
+#include <nil/crypto3/math/algorithms/calculate_domain_set.hpp>
+
 #include <nil/crypto3/hash/algorithm/hash.hpp>
 #include <nil/crypto3/hash/keccak.hpp>
 #include <nil/crypto3/hash/sha2.hpp>
@@ -53,7 +55,7 @@
 #include <nil/crypto3/zk/commitments/type_traits.hpp>
 #include <nil/crypto3/zk/snark/arithmetization/plonk/params.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier_index.hpp>
+//#include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier_index.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/placeholder/preprocessor.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/placeholder/prover.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/placeholder/verifier.hpp>
@@ -185,7 +187,7 @@ zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> make_proof(boost:
     //                prev_challenges; // TODO: where it is?
     return proof;
 }
-
+/*
 zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta>
     make_verify_index(boost::property_tree::ptree root, boost::property_tree::ptree const_root) {
     zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index;
@@ -270,7 +272,7 @@ zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta>
         ver_index.fq_sponge_params.mds.push_back({get_cppui256(it++), get_cppui256(it++), get_cppui256(it)});
     }
     return ver_index;
-}
+}*/
 
 template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType, std::size_t EvalRounds>
 void prepare_proof(zk::snark::pickles_proof<CurveType> &original_proof,
@@ -555,7 +557,7 @@ int parse_pconst(const char *vk, const char *vk_const) {
     boost::property_tree::read_json(ss1, root);
     boost::property_tree::read_json(ss2, const_root);
 
-    zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index = make_verify_index(root, const_root);
+    //zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index = make_verify_index(root, const_root);
     return 0;
 }
 }
