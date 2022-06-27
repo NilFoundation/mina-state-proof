@@ -55,7 +55,7 @@
 #include <nil/crypto3/zk/commitments/type_traits.hpp>
 #include <nil/crypto3/zk/snark/arithmetization/plonk/params.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
-//#include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier_index.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier_index.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/placeholder/preprocessor.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/placeholder/prover.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/placeholder/verifier.hpp>
@@ -185,7 +185,7 @@ zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> make_proof(boost:
     //                prev_challenges; // TODO: where it is?
     return proof;
 }
-/*
+
 zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta>
     make_verify_index(boost::property_tree::ptree root, boost::property_tree::ptree const_root) {
     zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index;
@@ -270,7 +270,7 @@ zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta>
         ver_index.fq_sponge_params.mds.push_back({get_cppui256(it++), get_cppui256(it++), get_cppui256(it)});
     }
     return ver_index;
-}*/
+}
 
 template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType, std::size_t EvalRounds>
 void prepare_proof(zk::snark::pickles_proof<CurveType> &original_proof,
@@ -392,9 +392,13 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
     return std::make_tuple(desc, bp, fri_params, assignments, public_preprocessed_data, private_preprocessed_data);
 }
 
+#ifdef __EMSCRIPTEN__
 extern "C" {
 
 const char *generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> *pickles_proof) {
+#else
+std::string generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> *pickles_proof) {
+#endif
     using curve_type = algebra::curves::vesta;
     using BlueprintFieldType = typename curve_type::scalar_field_type;
     constexpr std::size_t WitnessColumns = 15;
@@ -530,10 +534,14 @@ const char *generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curve
         public_preprocessed_data, proof, bp, fri_params);
 
     //std::string st = marshalling_to_blob<Endianness>(proof);
-    std::string st = "";
+    std::string st;
+#ifdef __EMSCRIPTEN__
     char *writable = new char[st.size() + 1];
     std::copy(st.begin(), st.end(), writable);
     return writable;
+#else
+    return st;
+#endif
 }
 
 zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> parse_proof(const char *kimchi) {
@@ -555,10 +563,13 @@ int parse_pconst(const char *vk, const char *vk_const) {
     boost::property_tree::read_json(ss1, root);
     boost::property_tree::read_json(ss2, const_root);
 
-    //zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index = make_verify_index(root, const_root);
+    zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index = make_verify_index(root, const_root);
     return 0;
 }
+
+#ifdef __EMSCRIPTEN__
 }
+#endif
 
 int main(int argc, char *argv[]) {
 #ifndef __EMSCRIPTEN__
@@ -614,6 +625,6 @@ int main(int argc, char *argv[]) {
     //    }
     zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> proof = parse_proof(vp_input.c_str());
     parse_pconst(vi_input.c_str(), vi_const_input.c_str());
-    std::cout << generate_proof(&proof) << std::endl;
+    std::cout << std::string(generate_proof(&proof)) << std::endl;
 #endif
 }
