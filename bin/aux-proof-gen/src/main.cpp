@@ -59,8 +59,8 @@
 #include <nil/crypto3/zk/snark/systems/plonk/placeholder/verifier.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/placeholder/params.hpp>
 
-#include <nil/marshalling/endianness.hpp>
-#include <nil/crypto3/marshalling/zk/types/placeholder/proof.hpp>
+//#include <nil/marshalling/endianness.hpp>
+//#include <nil/crypto3/marshalling/zk/types/placeholder/proof.hpp>
 
 #include <fstream>
 
@@ -95,7 +95,7 @@ void print_byteblob(std::ostream &os, TIter iter_begin, TIter iter_end) {
     }
     os << std::endl << std::dec;
 }
-
+/*
 template<typename Endianness, typename RedshiftProof>
 std::string marshalling_to_blob(const RedshiftProof &proof) {
     using namespace crypto3::marshalling;
@@ -113,7 +113,7 @@ std::string marshalling_to_blob(const RedshiftProof &proof) {
         return {};
     }
 }
-
+*/
 template<typename Iterator>
 multiprecision::cpp_int get_cppui256(Iterator it) {
     BOOST_ASSERT(it->second.template get_value<std::string>() != "");
@@ -514,7 +514,7 @@ const char *generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curve
 
     auto result_check = [](AssignmentType &assignment, component_type::result_type &real_res) {};
 
-    using Endianness = nil::marshalling::option::big_endian;
+    //using Endianness = nil::marshalling::option::big_endian;
 
     using placeholder_params =
         zk::snark::placeholder_params<BlueprintFieldType, ArithmetizationParams, hash_type, hash_type, Lambda>;
@@ -529,8 +529,8 @@ const char *generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curve
     bool verifier_res = zk::snark::placeholder_verifier<BlueprintFieldType, placeholder_params>::process(
         public_preprocessed_data, proof, bp, fri_params);
 
-    std::string st = marshalling_to_blob<Endianness>(proof);
-
+    //std::string st = marshalling_to_blob<Endianness>(proof);
+    std::string st = "";
     char *writable = new char[st.size() + 1];
     std::copy(st.begin(), st.end(), writable);
     return writable;
