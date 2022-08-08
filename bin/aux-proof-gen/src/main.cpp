@@ -43,6 +43,8 @@
 #include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/verifier_index.hpp>
 #include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/detail/binding.hpp>
 
+#include <nil/crypto3/math/algorithms/calculate_domain_set.hpp>
+
 #include <nil/crypto3/hash/algorithm/hash.hpp>
 #include <nil/crypto3/hash/keccak.hpp>
 #include <nil/crypto3/hash/sha2.hpp>
@@ -70,17 +72,15 @@ using namespace nil::crypto3;
 template<typename fri_type, typename FieldType>
 typename fri_type::params_type create_fri_params(std::size_t degree_log) {
     typename fri_type::params_type params;
-    math::polynomial<typename FieldType::value_type> q = {0, 0, 1};
 
     constexpr std::size_t expand_factor = 0;
     std::size_t r = degree_log - 1;
 
     std::vector<std::shared_ptr<math::evaluation_domain<FieldType>>> domain_set =
-        zk::commitments::detail::calculate_domain_set<FieldType>(degree_log + expand_factor, r);
+        math::calculate_domain_set<FieldType>(degree_log + expand_factor, r);
 
     params.r = r;
     params.D = domain_set;
-    params.q = q;
     params.max_degree = (1 << degree_log) - 1;
 
     return params;
@@ -126,6 +126,8 @@ zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> make_proof(boost:
     std::string base_path = "data.genesisBlock.protocolStateProof.json.proof.";
 
     i = 0;
+    //data.genesisBlock.protocolStateProof.json.proof.messages.w_comm[0][0][0]
+    //data.genesisBlock.protocolStateProof.json.statement.proof_state.deferred_values.bulletproof_challenges[0].prechallenge.inner[0]
     for (auto &row : root.get_child(base_path + "messages.w_comm")) {
         auto it = row.second.get_child("").begin()->second.get_child("").begin();
         proof.commitments.w_comm[i].unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
@@ -176,13 +178,22 @@ zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> make_proof(boost:
     }
 
     proof.ft_eval1 = multiprecision::cpp_int(root.get<std::string>(base_path + "openings.ft_eval1"));
-    //            // public
-    //            std::vector<typename CurveType::scalar_field_type::value_type> public_p; // TODO: where it is?
-    //
-    //            // Previous challenges
-    //            std::vector<
-    //                std::tuple<std::vector<typename CurveType::scalar_field_type::value_type>, commitment_scheme>>
-    //                prev_challenges; // TODO: where it is?
+
+    std::string public_input_path = "data.genesisBlock.protocolStateProof.json.prev_evals.evals";
+
+    for (auto &evals_it : root.get_child(public_input_path)) {
+        //data.genesisBlock.protocolStateProof.json.prev_evals.evals[0].public_input
+        proof.public_input.emplace_back(multiprecision::cpp_int(evals_it.second.get_child("").begin()->second.get_value<std::string>("public_input")));
+    }
+    std::string challenges_path = "data.genesisBlock.protocolStateProof.json.statement.proof_state.deferred_values.bulletproof_challenges";
+
+    //data.genesisBlock.protocolStateProof.json.statement.proof_state.deferred_values.bulletproof_challenges[0].prechallenge.inner[0]
+    for (auto &evals_it : root.get_child(challenges_path)) {
+        for (auto &tt : evals_it.second.get_child("prechallenge.inner")) {
+//            std::cout << tt.second.get_value<std::string>("") << std::endl;
+//            proof.prev_challenges.emplace_back(std::make_pair())
+        }
+    }
     return proof;
 }
 
@@ -392,9 +403,13 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
     return std::make_tuple(desc, bp, fri_params, assignments, public_preprocessed_data, private_preprocessed_data);
 }
 
+#ifdef __EMSCRIPTEN__
 extern "C" {
 
 const char *generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> *pickles_proof) {
+#else
+std::string generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> *pickles_proof) {
+#endif
     using curve_type = algebra::curves::vesta;
     using BlueprintFieldType = typename curve_type::scalar_field_type;
     constexpr std::size_t WitnessColumns = 15;
@@ -411,7 +426,7 @@ const char *generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curve
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
 
     constexpr static std::size_t alpha_powers_n = 5;
-    constexpr static std::size_t public_input_size = 3;
+    constexpr static std::size_t public_input_size = 2;
     constexpr static std::size_t max_poly_size = 32;
     constexpr static std::size_t eval_rounds = 5;
 
@@ -424,7 +439,7 @@ const char *generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curve
     constexpr static std::size_t batch_size = 1;
 
     constexpr static const std::size_t index_terms = 0;
-    constexpr static const std::size_t prev_chal_size = 1;
+    constexpr static const std::size_t prev_chal_size = 0;
 
     using commitment_params = zk::components::kimchi_commitment_params_type<eval_rounds, max_poly_size, srs_len>;
     using kimchi_params =
@@ -530,10 +545,14 @@ const char *generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curve
         public_preprocessed_data, proof, bp, fri_params);
 
     //std::string st = marshalling_to_blob<Endianness>(proof);
-    std::string st = "";
+    std::string st;
+#ifdef __EMSCRIPTEN__
     char *writable = new char[st.size() + 1];
     std::copy(st.begin(), st.end(), writable);
     return writable;
+#else
+    return st;
+#endif
 }
 
 zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> parse_proof(const char *kimchi) {
@@ -558,7 +577,10 @@ int parse_pconst(const char *vk, const char *vk_const) {
     zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index = make_verify_index(root, const_root);
     return 0;
 }
+
+#ifdef __EMSCRIPTEN__
 }
+#endif
 
 int main(int argc, char *argv[]) {
 #ifndef __EMSCRIPTEN__
@@ -614,6 +636,6 @@ int main(int argc, char *argv[]) {
     //    }
     zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> proof = parse_proof(vp_input.c_str());
     parse_pconst(vi_input.c_str(), vi_const_input.c_str());
-    std::cout << generate_proof(&proof) << std::endl;
+    std::cout << std::string(generate_proof(&proof)) << std::endl;
 #endif
 }
