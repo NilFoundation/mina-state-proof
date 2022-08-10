@@ -55,14 +55,14 @@ For point doubling $R = P + P = 2P$:
 
 
 \subsection{Variable Base Scalar Multiplication}
-For $R  = [r]T$, $k = \frac{r - 2^{255}}{2}$:
+For $R  = [r]T$, $k = \frac{r - 2^{255} - 1}{2}$, $k = [k_0, k_1, \dots, k_{n - 1}]$, $n = 255$:
 \footnote{Using the results from \url{https://arxiv.org/pdf/math/0208038.pdf}}
 \begin{enumerate}
     \item $P = [2]T$
     \item for $i$ from $n - 1$ to $0$:
     \begin{enumerate}
         \item $Q = k_{i + 1} \: ? \: T : -T$
-        \item $R = P + Q + P$
+        \item $P = P + Q + P$
     \end{enumerate}
 \end{enumerate}
 
@@ -106,17 +106,17 @@ Evaluations:
 
 Constraints:
 \begin{itemize}
-    \item $\texttt{next}(w_2) \cdot (w_2 - 1) = 0$
-    \item $\texttt{next}(w_3) \cdot (w_3 - 1) = 0$
-    \item $\texttt{next}(w_4) \cdot (w_4 - 1) = 0$
-    \item $\texttt{next}(w_5) \cdot (w_5 - 1) = 0$
-    \item $\texttt{next}(w_6) \cdot (w_6 - 1) = 0$ \\
+    \item $\texttt{next}(w_2) \cdot (\texttt{next}(w_2) - 1) = 0$
+    \item $\texttt{next}(w_3) \cdot (\texttt{next}(w_3) - 1) = 0$
+    \item $\texttt{next}(w_4) \cdot (\texttt{next}(w_4) - 1) = 0$
+    \item $\texttt{next}(w_5) \cdot (\texttt{next}(w_5) - 1) = 0$
+    \item $\texttt{next}(w_6) \cdot (\texttt{next}(w_6) - 1) = 0$ \\
 
-    \item $(w_{2} - w_{0}) \cdot \texttt{next}(w_7) = w_3 - (2\texttt{next}(w_{2}) - 1) \cdot w_1$
-    \item $(w_{7} - w_{0}) \cdot \texttt{next}(w_8) = w_8 - (2\texttt{next}(w_{3}) - 1) \cdot w_1$
-    \item $(w_{10} - w_{0}) \cdot \texttt{next}(w_9) = w_{11} - (2\texttt{next}(w_{4}) - 1) \cdot w_1$
-    \item $(w_{12} - w_{0}) \cdot \texttt{next}(w_{10}) = w_{13} - (2\texttt{next}(w_{5}) - 1) \cdot w_1$
-    \item $(\texttt{next}(w_{0}) - w_{0}) \cdot \texttt{next}(w_{11}) = \texttt{next}(w_1) - (2\texttt{next}(w_{6}) - 1) \cdot w_1$ \\
+    \item $(w_{2} - w_{0}) \cdot \texttt{next}(w_7) = w_3 - (2 \cdot \texttt{next}(w_{2}) - 1) \cdot w_1$
+    \item $(w_{7} - w_{0}) \cdot \texttt{next}(w_8) = w_8 - (2 \cdot \texttt{next}(w_{3}) - 1) \cdot w_1$
+    \item $(w_{9} - w_{0}) \cdot \texttt{next}(w_9) = w_{10} - (2 \cdot \texttt{next}(w_{4}) - 1) \cdot w_1$
+    \item $(w_{11} - w_{0}) \cdot \texttt{next}(w_{10}) = w_{12} - (2 \cdot \texttt{next}(w_{5}) - 1) \cdot w_1$
+    \item $(w_{13} - w_{0}) \cdot \texttt{next}(w_{11}) = w_{14} - (2 \cdot \texttt{next}(w_{6}) - 1) \cdot w_1$ \\
     
     
     \item $(2\cdot w_{3} - \texttt{next}(w_7) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}))^2 =  (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0})^2 \cdot (w_7 - w_0 + \texttt{next}(w_7)^2)$
@@ -128,8 +128,8 @@ Constraints:
     \item $(w_{8} + w_{3}) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}) = (w_2 - w_7) \cdot (2\cdot w_{3} - \texttt{next}(w_7) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}))$
     \item $(w_{10} + w_{8}) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}) = (w_7 - w_9) \cdot (2\cdot w_{8} - \texttt{next}(w_8) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}))$
     \item $(w_{12} + w_{10}) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}) = (w_9 - w_{11}) \cdot (2\cdot w_{10} - \texttt{next}(w_9) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}))$
-    \item $(w_{14} + w_{10}) \cdot  (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}) = (w_{11} - w_{13}) \cdot (2\cdot w_{12} - \texttt{next}(w_{10}) \cdot (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}))$
-    \item $(\texttt{next}(w_{1}) + w_{14}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}) = (w_{13} - \texttt{next}(w_{0}) \cdot (2\cdot w_{14} - \texttt{next}(w_{11}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}))$ \\
+    \item $(w_{14} + w_{12}) \cdot  (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}) = (w_{11} - w_{13}) \cdot (2\cdot w_{12} - \texttt{next}(w_{10}) \cdot (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}))$
+    \item $(\texttt{next}(w_{1}) + w_{14}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}) = (w_{13} - \texttt{next}(w_{0})) \cdot (2\cdot w_{14} - \texttt{next}(w_{11}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}))$ \\
     
     
     \item $w_5 = 32 \cdot (w_4) + 16 \cdot \texttt{next}(w_{2}) + 8 \cdot \texttt{next}(w_{3}) + 4 \cdot \texttt{next}(w_{4}) + 2 \cdot \texttt{next}(w_{5}) + \texttt{next}(w_{6})$
@@ -137,42 +137,43 @@ Constraints:
 
 Constraints for the last $3$ rows:
 \begin{itemize}
-     \item $\texttt{next}(w_2) \cdot (w_2 - 1) = 0$
-    \item $\texttt{next}(w_3) \cdot (w_3 - 1) = 0$
-    \item $\texttt{next}(w_4) \cdot (w_4 - 1) = 0$
-    \item $\texttt{next}(w_5) \cdot (w_5 - 1) = 0$
-    \item $\texttt{next}(w_6) \cdot (w_6 - 1) = 0$ \\
+    \item $w_2 \cdot (w_2 - 1) = 0$
+    \item $w_3 \cdot (w_3 - 1) = 0$
+    \item $w_4 \cdot (w_4 - 1) = 0$
+    \item $w_5 \cdot (w_5 - 1) = 0$
+    \item $w_6 \cdot (w_6 - 1) = 0$ \\
 
-    \item $(w_{2} - w_{0}) \cdot \texttt{next}(w_7) = w_3 - (2\texttt{next}(w_{2}) - 1) \cdot w_1$
-    \item $(w_{7} - w_{0}) \cdot \texttt{next}(w_8) = w_8 - (2\texttt{next}(w_{3}) - 1) \cdot w_1$
-    \item $(w_{10} - w_{0}) \cdot \texttt{next}(w_9) = w_{11} - (2\texttt{next}(w_{4}) - 1) \cdot w_1$
-    \item $(w_{12} - w_{0}) \cdot \texttt{next}(w_{10}) = w_{13} - (2\texttt{next}(w_{5}) - 1) \cdot w_1$
-    \item $(\texttt{next}(w_{0}) - w_{0}) \cdot \texttt{next}(w_{11}) = \texttt{next}(w_1) - (2\texttt{next}(w_{6}) - 1) \cdot w_1$ \\
+    \item $(\texttt{prev}(w_{2}) - \texttt{prev}(w_{0})) \cdot w_7 = \texttt{prev}(w_3) - (2 \cdot w_{2} - 1) \cdot \texttt{prev}(w_1)$
+    \item $(\texttt{prev}(w_{7}) - \texttt{prev}(w_{0})) \cdot w_8 = \texttt{prev}(w_8) - (2 \cdot w_{3} - 1) \cdot \texttt{prev}(w_1)$
+    \item $(\texttt{prev}(w_{9}) - \texttt{prev}(w_{0})) \cdot w_9 = \texttt{prev}(w_{10}) - (2 \cdot w_{4} - 1) \cdot \texttt{prev}(w_1)$
+    \item $(\texttt{prev}(w_{11}) - \texttt{prev}(w_{0})) \cdot w_{10} = \texttt{prev}(w_{12}) - (2 \cdot w_{5} - 1) \cdot \texttt{prev}(w_1)$
+    \item $(\texttt{prev}(w_{13}) - \texttt{prev}(w_{0})) \cdot w_{11} = \texttt{prev}(w_{14}) - (2 \cdot w_{6} - 1) \cdot \texttt{prev}(w_1)$ \\
     
     
-    \item $(2\cdot w_{3} - \texttt{next}(w_7) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}))^2 =  (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0})^2 \cdot (w_7 - w_0 + \texttt{next}(w_7)^2)$
-    \item $(2\cdot w_{8} - \texttt{next}(w_8) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}))^2 =  (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0})^2 \cdot (w_9 - w_0 + \texttt{next}(w_8)^2)$
-    \item $(2\cdot w_{10} - \texttt{next}(w_9) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}))^2 =  (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0})^2 \cdot (w_{11} - w_0 + \texttt{next}(w_9)^2)$
-    \item $((2\cdot w_{12} - \texttt{next}(w_{10}) \cdot (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}))^2 =  (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0})^2 \cdot (w_{13} - w_0 + \texttt{next}(w_{10})^2)) \cdot (\texttt{next + 1}(w_8)\cdot \texttt{next + 1}(w_2))$
-    \item $((2\cdot w_{14} - \texttt{next}(w_{11}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}))^2 =  (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0})^2 \cdot (\texttt{next}(w_0) - w_0 + \texttt{next}(w_{11})^2))\cdot (\texttt{next + 1}(w_8)\cdot \texttt{next + 1}(w_2))$\\
+    \item $(2\cdot \texttt{prev}(w_{3}) - w_7 \cdot (2 \cdot \texttt{prev}(w_2) - (w_7)^2 + \texttt{prev}(w_{0})))^2           =  (2 \cdot \texttt{prev}(w_2) - (w_7)^2 + \texttt{prev}(w_{0}))^2 \cdot (\texttt{prev}(w_7) - \texttt{prev}(w_0) + (w_7)^2)$
+    \item $(2\cdot \texttt{prev}(w_{8}) - w_8 \cdot (2 \cdot \texttt{prev}(w_7) - (w_8)^2 + \texttt{prev}(w_{0})))^2           =  (2 \cdot \texttt{prev}(w_7) - (w_8)^2 + \texttt{prev}(w_{0}))^2 \cdot (\texttt{prev}(w_9) - \texttt{prev}(w_0) + (w_8)^2)$
+    \item $(2\cdot \texttt{prev}(w_{10}) - w_9 \cdot (2 \cdot \texttt{prev}(w_9) - (w_9)^2 + \texttt{prev}(w_{0})))^2          =  (2 \cdot \texttt{prev}(w_9) - (w_9)^2 + \texttt{prev}(w_{0}))^2 \cdot (\texttt{prev}(w_{11}) - \texttt{prev}(w_0) + (w_9)^2)$
+    \item $\biggl( \bigl(2\cdot \texttt{prev}(w_{12}) - w_{10} \cdot (2 \cdot \texttt{prev}(w_{11}) - (w_{10})^2 + \texttt{prev}(w_{0}))\bigr)^2 - \bigl((2 \cdot \texttt{prev}(w_{11}) - (w_{10})^2 + \texttt{prev}(w_{0}))^2 \cdot (\texttt{prev}(w_{13}) - \texttt{prev}(w_0) + (w_{10})^2)\bigr)\biggr) \cdot (\texttt{next}(w_8) \cdot \texttt{next}(w_2)) = 0$
+    \item $\biggl( \bigl(2\cdot \texttt{prev}(w_{14}) - w_{11} \cdot (2 \cdot \texttt{prev}(w_{13}) - (w_{11})^2 + \texttt{prev}(w_{0}))\bigr)^2 - \bigl(2 \cdot \texttt{prev}(w_{13}) - (w_{11})^2 + \texttt{prev}(w_{0}))^2 \cdot (w_0 - \texttt{prev}(w_0) + (w_{11})^2)\bigr) \biggr) \cdot (\texttt{next}(w_8) \cdot \texttt{next}(w_2)) = 0$\\
     
-    \item $(w_{8} + w_{3}) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}) = (w_2 - w_7) \cdot (2\cdot w_{3} - \texttt{next}(w_7) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}))$
-    \item $(w_{10} + w_{8}) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}) = (w_7 - w_9) \cdot (2\cdot w_{8} - \texttt{next}(w_8) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}))$
-    \item $(w_{12} + w_{10}) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}) = (w_9 - w_{11}) \cdot (2\cdot w_{10} - \texttt{next}(w_9) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}))$
-    \item $((w_{14} + w_{10}) \cdot  (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}) = (w_{11} - w_{13}) \cdot (2\cdot w_{12} - \texttt{next}(w_{10}) \cdot (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}))) \cdot  (\texttt{next + 1}(w_8)\cdot \texttt{next + 1}(w_2))$
-    \item $((\texttt{next}(w_{1}) + w_{14}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}) = (w_{13} - \texttt{next}(w_{0}) \cdot (2\cdot w_{14} - \texttt{next}(w_{11}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}))) \cdot  (\texttt{next + 1}(w_8)\cdot \texttt{next + 1}(w_2))$ \\
-    \item $w_5 = 32 \cdot (w_4) + 16 \cdot \texttt{next}(w_{2}) + 8 \cdot \texttt{next}(w_{3}) + 4 \cdot \texttt{next}(w_{4}) + 2 \cdot \texttt{next}(w_{5}) + \texttt{next}(w_{6})$
-    \item $(\texttt{next + 1}(w_8)\cdot \texttt{next + 1}(w_2) - 1) \cdot \texttt{next + 1}(w_8)$
-    \item $ (\texttt{next + 1}(w_5) - a_{-1})\cdot \texttt{next + 1}(w_3) - 1) \cdot (\texttt{next + 1}(w_5) - a_{-1})$
-     \item $(\texttt{next + 1}(w_5) - a_1)\cdot \texttt{next + 1}(w_4) - 1) \cdot (\texttt{next + 1}(w_5) - a_1)$
-	\item $(\texttt{next + 1}(W_8)\cdot \texttt{next + 1}(w_2)\cdot \texttt{next + 1}(w_0)) + ((\texttt{next + 1}(w_5) - a_{-1})\cdot \texttt{next + 1}(w_3) - (\texttt{next + 1}(w_5) - a_1)\cdot \texttt{next + 1}(w_4))\cdot (\texttt{next + 1}(w_5) - a_{-1})\cdot \texttt{next + 1}(w_3) - (\texttt{next + 1}(w_5) - a_1)\cdot \texttt{next + 1}(w_4)) \cdot \texttt{next + 1}(w_6) - \texttt{next + 1}(w_0)$
-      \item $(\texttt{next + 1}(w_8)\cdot \texttt{next + 1}(w_2)\cdot \texttt{next + 1}(w_1)) +((\texttt{next + 1}v(w_5) - a_{-1})\cdot \texttt{next + 1}(w_3) - (\texttt{next + 1}(w_5) - a_1)\cdot \texttt{next + 1}(w_4)) \cdot \texttt{next + 1}(w_7) - \texttt{next + 1}(w_1)$
-      \item $\texttt{next + 1}(w_8) - ((\texttt{next + 1}(w_5) -a_{-1})\cdot (\texttt{next + 1}(w_5) - a_0) \cdot
-(\texttt{next + 1}(w_5) - a_1))$ 
+    \item $(\texttt{prev}(w_{8}) + \texttt{prev}(w_{3})) \cdot (2 \cdot \texttt{prev}(w_2) - (w_7)^2 + \texttt{prev}(w_{0})) = (\texttt{prev}(w_2) - \texttt{prev}(w_7)) \cdot (2 \cdot \texttt{prev}(w_{3}) - w_7 \cdot (2 \cdot \texttt{prev}(w_2) - (w_7)^2 + \texttt{prev}(w_{0})))$
+    \item $(\texttt{prev}(w_{10}) + \texttt{prev}(w_{8})) \cdot (2 \cdot \texttt{prev}(w_7) - (w_8)^2 + \texttt{prev}(w_{0})) = (\texttt{prev}(w_7) - \texttt{prev}(w_9)) \cdot (2 \cdot \texttt{prev}(w_{8}) - w_8 \cdot (2 \cdot \texttt{prev}(w_7) - (w_8)^2 + \texttt{prev}(w_{0})))$
+    \item $(\texttt{prev}(w_{12}) + \texttt{prev}(w_{10})) \cdot (2 \cdot \texttt{prev}(w_9) - (w_9)^2 + \texttt{prev}(w_{0})) = (\texttt{prev}(w_9) - \texttt{prev}(w_{11})) \cdot (2 \cdot \texttt{prev}(w_{10}) - w_9 \cdot (2 \cdot \texttt{prev}(w_9) - (w_9)^2 + \texttt{prev}(w_{0})))$
+    \item $\biggl( \bigl(\texttt{prev}(w_{14}) + \texttt{prev}(w_{12})) \cdot  (2 \cdot \texttt{prev}(w_{11}) - (w_{10})^2 + \texttt{prev}(w_{0}))\bigr) - \bigl( (\texttt{prev}(w_{11}) - \texttt{prev}(w_{13})) \cdot (2 \cdot \texttt{prev}(w_{12}) - w_{10} \cdot (2 \cdot \texttt{prev}(w_{11}) - (w_{10})^2 + \texttt{prev}(w_{0})) \bigr) \biggr) \cdot  (\texttt{next}(w_8)\cdot \texttt{next}(w_2)) = 0$
+    \item $\biggl( \bigl( (w_{1} + \texttt{prev}(w_{14})) \cdot (2 \cdot \texttt{prev}(w_{13}) - (w_{11})^2 + \texttt{prev}(w_{0})) \bigr) - \bigl( (\texttt{prev}(w_{13}) - w_{0}) \cdot (2 \cdot \texttt{prev}(w_{14}) - w_{11} \cdot (2 \cdot \texttt{prev}(w_{13}) - (w_{11})^2 + \texttt{prev}(w_{0}))) \bigr) \biggr) \cdot  (\texttt{next}(w_8)\cdot \texttt{next}(w_2)) = 0$ \\
+
+    \item $\texttt{prev}(w_5) = 32 \cdot \texttt{prev}(w_4) + 16 \cdot w_{2} + 8 \cdot w_{3} + 4 \cdot w_{4} + 2 \cdot w_{5} + w_{6}$ \\
+
+    \item $(\texttt{next}(w_8) \cdot \texttt{next}(w_2) - 1) \cdot \texttt{next}(w_8)$
+    \item $((\texttt{next}(w_5) - a_{-1}) \cdot \texttt{next}(w_3) - 1) \cdot (\texttt{next}(w_5) - a_{-1}) = 0$
+    \item $((\texttt{next}(w_5) - a_1) \cdot \texttt{next}(w_4) - 1) \cdot (\texttt{next}(w_5) - a_1)$
+	\item $(\texttt{next}(W_8) \cdot \texttt{next}(w_2) \cdot w_0) + ((\texttt{next}(w_5) - a_{-1}) \cdot \texttt{next}(w_3) - (\texttt{next}(w_5) - a_1) \cdot \texttt{next}(w_4)) \cdot ((\texttt{next}(w_5) - a_{-1}) \cdot \texttt{next}(w_3) - (\texttt{next}(w_5) - a_1) \cdot \texttt{next}(w_4)) \cdot \texttt{next}(w_6) - \texttt{next}(w_0) = 0$
+    \item $(\texttt{next}(w_8)\cdot \texttt{next}(w_2) \cdot w_1) +((\texttt{next}(w_5) - a_{-1}) \cdot \texttt{next}(w_3) - (\texttt{next}(w_5) - a_1) \cdot \texttt{next}(w_4)) \cdot \texttt{next}(w_7) - \texttt{next}(w_1) = 0$
+    \item $\texttt{next}(w_8) - ((\texttt{next}(w_5) - a_{-1}) \cdot (\texttt{next}(w_5) - a_0) \cdot (\texttt{next}(w_5) - a_1))$ 
 \end{itemize}    
     Copy constraints:
     \begin{itemize}
-    \item $(x_T,y_T)$ in row $j$ are copy constrained with $(x_T,y_T)$ in row $j + 2$ and with last row.
+    \item $(x_T,y_T)$ in row $j$ are copy constrained with $(x_T,y_T)$ in row $j + 2$ (for $j \in \{i, i + 2, i + 4, \dots, i + 98\}$) and with last row.
     \item $(x_0,y_0)$ in row $i$ are copy constrained with values from the first doubling circuit
     \item $(x_0,y_0)$ in row $j, j \neq i$ are copy constrained with $(x_5,y_5)$ in row $j - 1$ 
     \item $n = 0$ in row $i$ and $n$ in the row $j, j \neq i$ is copy contrained with $n'$ in the row $j-2$ and with last row.
