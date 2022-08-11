@@ -176,8 +176,11 @@ Constraints for the last $3$ rows:
     \item $(x_T,y_T)$ in row $j$ are copy constrained with $(x_T,y_T)$ in row $j + 2$ (for $j \in \{i, i + 2, i + 4, \dots, i + 98\}$) and with last row.
     \item $(x_0,y_0)$ in row $i$ are copy constrained with values from the first doubling circuit
     \item $(x_0,y_0)$ in row $j, j \neq i$ are copy constrained with $(x_5,y_5)$ in row $j - 1$ 
-    \item $n = 0$ in row $i$ and $n$ in the row $j, j \neq i$ is copy contrained with $n'$ in the row $j-2$ and with last row.
-    \end{itemize}
+    \item $n = 0$ in row $i$ is copy-constrained with the zero value
+    \item $n$ in the row $j, j \neq i$ is copy contrained with $n'$ in the row $j-2$
+    \item $n'$ in the row $i + 102$ is copy constrained with $n'$ in the row $i + 100$
+    \item $b$ is copy constrained with $n'$ in the row $i + 100$.
+\end{itemize}
 
 \subsection{Variable Base Endo-Scalar Multiplication}
 
