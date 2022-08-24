@@ -35,9 +35,9 @@ Constraints:
     \item $w_{12} \cdot (w_{12} - 1) \cdot (w_{12} - 2)\cdot (w_{12} - 3)  = 0$
     \item $w_{13} \cdot (w_{13} - 1) \cdot (w_{13} - 2)\cdot (w_{13} - 3)  = 0$
     \item $w_{14} \cdot (w_{14} - 1) \cdot (w_{14} - 2)\cdot (w_{14} - 3)  = 0$
-    \item $w_{4} = 256 \cdot w_{2} + 128 \cdot c_f(w_6) + 64 \cdot c_f(w_7) + 32 \cdot c_f(w_8) + 16 \cdot c_f(w_9) + 8 \cdot c_f(w_{10}) + 4 \cdot c_f(w_{11}) + 2 \cdot c_f(w_{12}) + c_f(w_{13})$
-    \item $w_{5} = 256 \cdot w_{3} + 128 \cdot d_f(w_6) + 64 \cdot d_f(w_7) + 32 \cdot d_f(w_8) + 16 \cdot d_f(w_9) + 8 \cdot d_f(w_{10}) + 4 \cdot d_f(w_{11}) + 2 \cdot d_f(w_{12}) + d_f(w_{13})$
-    \item $w_{1} = 2^{16} \cdot w_{0} + 2^{14} \cdot w_6 + 2^{12} \cdot w_7 + 2^{10} \cdot w_8 + 2^8 \cdot w_9 + 2^6 \cdot w_{10} + 2^4 \cdot w_{11} + 2^2 \cdot w_{12} + w_{13}$
+    \item $w_{4} = 256 \cdot w_{2} + 128 \cdot c_f(w_7) + 64 \cdot c_f(w_8) + 32 \cdot c_f(w_9) + 16 \cdot c_f(w_{10}) + 8 \cdot c_f(w_{11}) + 4 \cdot c_f(w_{12}) + 2 \cdot c_f(w_{13}) + c_f(w_{14})$
+    \item $w_{5} = 256 \cdot w_{3} + 128 \cdot d_f(w_7) + 64 \cdot d_f(w_8) + 32 \cdot d_f(w_9) + 16 \cdot d_f(w_{10}) + 8 \cdot d_f(w_{11}) + 4 \cdot d_f(w_{12}) + 2 \cdot d_f(w_{13}) + d_f(w_{14})$
+    \item $w_{1} = 2^{16} \cdot w_{0} + 2^{14} \cdot w_7 + 2^{12} \cdot w_8 + 2^{10} \cdot w_9 + 2^8 \cdot w_{10} + 2^6 \cdot w_{11} + 2^4 \cdot w_{12} + 2^2 \cdot w_{13} + w_{14}$
 	\item for $i + 7$:
 	\begin{enumerate}
 		\item $w_{6} = \texttt{endo} \cdot w_{4} +  \cdot w_{5}$

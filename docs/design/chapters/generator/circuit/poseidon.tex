@@ -12,11 +12,11 @@ Denote $i$-th permutation state by $T_i = (T_{i, 0}, T_{i, 1}, T_{i, 2})$.
         \resizebox{\textwidth}{!}{
             \begin{tabular}{llllllllllllllll}
                 Row      & 0        & 1        & 2        & 3        & 4        & 5        & 6        & 7        & 8        & 9        & 10       & 11       & 12       & 13       & 14       \\
-                $i$ & $T_{0, 0}$ & $T_{0, 1}$ & $T_{0, 2}$ & $T_{4, 0}$ & $T_{4, 1}$ & $T_{4, 2}$ &
-                $T_{1, 0}$ & $T_{1, 1}$ & $T_{1, 2}$ & $T_{2, 0}$ & $T_{2, 1}$ & $T_{2, 2}$ & $T_{3, 0}$ & $T_{3, 1}$ & $T_{3, 2}$ \\
+                $i$ & $T_{0, 0}$ & $T_{0, 1}$ & $T_{0, 2}$ & 
+                $T_{1, 0}$ & $T_{1, 1}$ & $T_{1, 2}$ & $T_{2, 0}$ & $T_{2, 1}$ & $T_{2, 2}$ & $T_{3, 0}$ & $T_{3, 1}$ & $T_{3, 2}$ & $T_{4, 0}$ & $T_{4, 1}$ & $T_{4, 2}$ \\
                 $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
-                $i + 10$ & $T_{50, 0}$ & $T_{50, 1}$ & $T_{50, 2}$ & $T_{54, 0}$ & $T_{54, 1}$ & $T_{54, 2}$ &
-                $T_{51, 0}$ & $T_{51, 1}$ & $T_{51, 2}$ & $T_{52, 0}$ & $T_{52, 1}$ & $T_{52, 2}$ & $T_{53, 0}$ & $T_{53, 1}$ & $T_{53, 2}$ \\
+                $i + 10$ & $T_{50, 0}$ & $T_{50, 1}$ & $T_{50, 2}$ &
+                $T_{51, 0}$ & $T_{51, 1}$ & $T_{51, 2}$ & $T_{52, 0}$ & $T_{52, 1}$ & $T_{52, 2}$ & $T_{53, 0}$ & $T_{53, 1}$ & $T_{53, 2}$ & $T_{54, 0}$ & $T_{54, 1}$ & $T_{54, 2}$ \\
                 $i + 11$ & $T_{55, 0}$ & $T_{55, 1}$ & $T_{55, 2}$ & $\dots$ & $\dots$ & $\dots$ &
                 $\dots$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ & $\dots$ \\
             \end{tabular}}
@@ -33,12 +33,12 @@ We can expand the previous formula to:
 \begin{itemize}
     \item For $i$ from $\texttt{start}$ to $\texttt{start} + 5$:
     \begin{itemize}
-        \item $T_{i + 1, 0} = T_{i, 0}^5 \cdot \texttt{MDS}[0][0] + T_{i, 1}^5 \cdot
-        \texttt{MDS}[0][1] + T_{i, 2}^5 \cdot \texttt{MDS}[0][2] + \texttt{RC}_{i + 1, 0}$
-        \item $T_{i + 1, 1} = T_{i, 0}^5 \cdot \texttt{MDS}[1][0] + T_{i, 1}^5 \cdot
-        \texttt{MDS}[1][1] + T_{i, 2}^5 \cdot \texttt{MDS}[1][2] + \texttt{RC}_{i + 1, 1}$
-        \item $T_{i + 1, 2} = T_{i, 0}^5 \cdot \texttt{MDS}[2][0] + T_{i, 1}^5 \cdot
-        \texttt{MDS}[2][1] + T_{i, 2}^5 \cdot \texttt{MDS}[2][2] + \texttt{RC}_{i + 1, 2}$
+        \item $T_{i + 1, 0} = T_{i, 0}^7 \cdot \texttt{MDS}[0][0] + T_{i, 1}^7 \cdot
+        \texttt{MDS}[0][1] + T_{i, 2}^7 \cdot \texttt{MDS}[0][2] + \texttt{RC}_{i + 1, 0}$
+        \item $T_{i + 1, 1} = T_{i, 0}^7 \cdot \texttt{MDS}[1][0] + T_{i, 1}^7 \cdot
+        \texttt{MDS}[1][1] + T_{i, 2}^7 \cdot \texttt{MDS}[1][2] + \texttt{RC}_{i + 1, 1}$
+        \item $T_{i + 1, 2} = T_{i, 0}^7 \cdot \texttt{MDS}[2][0] + T_{i, 1}^7 \cdot
+        \texttt{MDS}[2][1] + T_{i, 2}^7 \cdot \texttt{MDS}[2][2] + \texttt{RC}_{i + 1, 2}$
     \end{itemize}
 \end{itemize}
 
