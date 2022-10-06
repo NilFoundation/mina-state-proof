@@ -39,9 +39,10 @@
 #include <nil/crypto3/zk/blueprint/plonk.hpp>
 #include <nil/crypto3/zk/assignment/plonk.hpp>
 #include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/verify_scalar.hpp>
-#include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/kimchi_params.hpp>
-#include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/verifier_index.hpp>
-#include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/detail/binding.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/pickles/detail.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier_index.hpp>
+#include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier.hpp>
 
 #include <nil/crypto3/math/algorithms/calculate_domain_set.hpp>
 
@@ -68,6 +69,15 @@
 
 using namespace nil;
 using namespace nil::crypto3;
+
+using curve_type = nil::crypto3::algebra::curves::vesta;
+using vesta_verifier_index_type = zk::snark::verifier_index<
+    curve_type,
+    nil::crypto3::zk::snark::arithmetic_sponge_params<curve_type::scalar_field_type::value_type>,
+    nil::crypto3::zk::snark::arithmetic_sponge_params<curve_type::base_field_type::value_type>,
+    nil::crypto3::zk::snark::kimchi_constant::COLUMNS,
+    nil::crypto3::zk::snark::kimchi_constant::PERMUTES
+    >;
 
 template<typename fri_type, typename FieldType>
 typename fri_type::params_type create_fri_params(std::size_t degree_log) {
@@ -120,28 +130,27 @@ multiprecision::cpp_int get_cppui256(Iterator it) {
     return multiprecision::cpp_int(it->second.template get_value<std::string>());
 }
 
-zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> make_proof(boost::property_tree::ptree root) {
-    zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> proof;
+zk::snark::proof_type<curve_type> make_proof(boost::property_tree::ptree root) {
+    typename zk::snark::proof_type<curve_type> proof;
     size_t i = 0;
-    std::string base_path = "data.genesisBlock.protocolStateProof.json.proof.";
+    std::string base_path = "protocolStateProof.json.proof.";
 
+    auto best_chain = *root.get_child("data.bestChain").begin();
     i = 0;
-    //data.genesisBlock.protocolStateProof.json.proof.messages.w_comm[0][0][0]
-    //data.genesisBlock.protocolStateProof.json.statement.proof_state.deferred_values.bulletproof_challenges[0].prechallenge.inner[0]
-    for (auto &row : root.get_child(base_path + "messages.w_comm")) {
+    for (auto &row : best_chain.second.get_child(base_path + "messages.w_comm")) {
         auto it = row.second.get_child("").begin()->second.get_child("").begin();
         proof.commitments.w_comm[i].unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
         ++i;
     }
-    auto it = root.get_child(base_path + "messages.z_comm").begin()->second.get_child("").begin();
+    auto it = best_chain.second.get_child(base_path + "messages.z_comm").begin()->second.get_child("").begin();
     proof.commitments.z_comm.unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
 
-    it = root.get_child(base_path + "messages.t_comm").begin()->second.get_child("").begin();
+    it = best_chain.second.get_child(base_path + "messages.t_comm").begin()->second.get_child("").begin();
     proof.commitments.t_comm.unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
     //    proof.commitments.lookup;    // TODO: where it is?
 
     i = 0;
-    for (auto &row : root.get_child(base_path + "openings.proof.lr")) {
+    for (auto &row : best_chain.second.get_child(base_path + "openings.proof.lr")) {
         auto it0 = row.second.begin()->second.get_child("").begin();
         auto it1 = row.second.begin();
         it1++;
@@ -149,61 +158,77 @@ zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> make_proof(boost:
         proof.proof.lr.push_back({{get_cppui256(it0++), get_cppui256(it0)}, {get_cppui256(it1++), get_cppui256(it1)}});
         ++i;
     }
-    it = root.get_child(base_path + "openings.proof.delta").begin();
+    it = best_chain.second.get_child(base_path + "openings.proof.delta").begin();
     proof.proof.delta = {get_cppui256(it++), get_cppui256(it)};
-    it = root.get_child(base_path + "openings.proof.sg").begin();
+    it = best_chain.second.get_child(base_path + "openings.proof.sg").begin();
     proof.proof.sg = {get_cppui256(it++), get_cppui256(it)};
 
-    proof.proof.z1 = multiprecision::cpp_int(root.get<std::string>(base_path + "openings.proof.z_1"));
-    proof.proof.z2 = multiprecision::cpp_int(root.get<std::string>(base_path + "openings.proof.z_2"));
+    proof.proof.z1 = multiprecision::cpp_int(best_chain.second.get<std::string>(base_path + "openings.proof.z_1"));
+    proof.proof.z2 = multiprecision::cpp_int(best_chain.second.get<std::string>(base_path + "openings.proof.z_2"));
 
     std::size_t ev_i = 0;
-    for (auto &evals_it : root.get_child(base_path + "openings.evals")) {
+    for (auto &evals_it : best_chain.second.get_child(base_path + "openings.evals")) {
 
         i = 0;
         for (auto &row : evals_it.second.get_child("w")) {
-            proof.evals[ev_i].w[i] = get_cppui256(row.second.begin());
+            for (auto &cell : row.second) {
+                proof.evals[ev_i].w[i].push_back(get_cppui256(&cell));
+            }
+            i++;
         }
 
-        proof.evals[ev_i].z = get_cppui256(evals_it.second.get_child("z").begin());
+        //proof.evals[ev_i].z.size();= get_cppui256(evals_it.second.get_child("z").begin());
+        for( auto z_it : evals_it.second.get_child("z") ){
+            proof.evals[ev_i].z.push_back(get_cppui256(&z_it));
+        }
 
         i = 0;
         for (auto &row : evals_it.second.get_child("s")) {
-            proof.evals[ev_i].s[i] = get_cppui256(row.second.begin());
+            for (auto &cell : row.second) {
+                proof.evals[ev_i].s[i].push_back(get_cppui256(&cell));
+            }
+            i++;
         }
-        proof.evals[ev_i].generic_selector = get_cppui256(evals_it.second.get_child("generic_selector").begin());
-        proof.evals[ev_i].poseidon_selector = get_cppui256(evals_it.second.get_child("poseidon_selector").begin());
 
+        //        proof.evals[ev_i].generic_selector = get_cppui256(evals_it.second.get_child("generic_selector").begin());
+        for( auto s_it : evals_it.second.get_child("generic_selector") ){
+            proof.evals[ev_i].generic_selector.push_back(get_cppui256(&s_it));
+        }
+
+        //        proof.evals[ev_i].poseidon_selector = get_cppui256(evals_it.second.get_child("poseidon_selector").begin());
+        for( auto p_it : evals_it.second.get_child("poseidon_selector") ){
+            proof.evals[ev_i].poseidon_selector.push_back(get_cppui256(&p_it));
+        }
         ev_i++;
     }
 
-    proof.ft_eval1 = multiprecision::cpp_int(root.get<std::string>(base_path + "openings.ft_eval1"));
-
-    std::string public_input_path = "data.genesisBlock.protocolStateProof.json.prev_evals.evals";
-
-    for (auto &evals_it : root.get_child(public_input_path)) {
-        //data.genesisBlock.protocolStateProof.json.prev_evals.evals[0].public_input
-        proof.public_input.emplace_back(multiprecision::cpp_int(evals_it.second.get_child("").begin()->second.get_value<std::string>("public_input")));
-    }
-    std::string challenges_path = "data.genesisBlock.protocolStateProof.json.statement.proof_state.deferred_values.bulletproof_challenges";
-
-    //data.genesisBlock.protocolStateProof.json.statement.proof_state.deferred_values.bulletproof_challenges[0].prechallenge.inner[0]
-    for (auto &evals_it : root.get_child(challenges_path)) {
-        for (auto &tt : evals_it.second.get_child("prechallenge.inner")) {
-//            std::cout << tt.second.get_value<std::string>("") << std::endl;
-//            proof.prev_challenges.emplace_back(std::make_pair())
-        }
-    }
+    proof.ft_eval1 = multiprecision::cpp_int(best_chain.second.get<std::string>(base_path + "openings.ft_eval1"));
+    //            // public
+    //            std::vector<typename CurveType::scalar_field_type::value_type> public_p; // TODO: where it is?
+    //
+    //            // Previous challenges
+    //            std::vector<
+    //                std::tuple<std::vector<typename CurveType::scalar_field_type::value_type>, commitment_scheme>>
+    //                prev_challenges; // TODO: where it is?
     return proof;
 }
 
-zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta>
-    make_verify_index(boost::property_tree::ptree root, boost::property_tree::ptree const_root) {
-    zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta> ver_index;
+vesta_verifier_index_type make_verify_index(boost::property_tree::ptree root, boost::property_tree::ptree const_root) {
+    using curve_type = typename nil::crypto3::algebra::curves::vesta;
+
+    vesta_verifier_index_type ver_index;
     size_t i = 0;
-    ver_index.domain = {
-        root.get<std::size_t>("data.blockchainVerificationKey.index.domain.log_size_of_group"),
-        multiprecision::cpp_int(root.get<std::string>("data.blockchainVerificationKey.index.domain.group_gen"))};
+
+    // TODO Is it right? Is it a good way to set domain generator?
+    // We need to assert, need to check that the input is indeed the root of unity
+
+    auto d_gen = multiprecision::cpp_int(const_root.get<std::string>("verify_index.domain.group_gen"));
+    auto d_size = const_root.get<std::size_t>("verify_index.domain.log_size_of_group");
+    // std::cout << d_gen << " " << d_size << std::endl;
+    ver_index.domain = nil::crypto3::math::basic_radix2_domain<typename curve_type::scalar_field_type>(d_size+1);
+    // std::cout << ver_index.domain.omega.data << std::endl;
+    ver_index.domain.omega = d_gen;
+
 
     ver_index.max_poly_size = root.get<std::size_t>("data.blockchainVerificationKey.index.max_poly_size");
     ver_index.max_quot_size = root.get<std::size_t>("data.blockchainVerificationKey.index.max_quot_size");
@@ -242,11 +267,12 @@ zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta>
     //        ver_index.chacha_comm[i].unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
     //        ++i;
     //    }
-    i = 0;
-    for (auto &row : root.get_child("data.blockchainVerificationKey.index.shifts")) {
-        ver_index.shifts[i] = multiprecision::cpp_int(row.second.get_value<std::string>());
-        ++i;
-    }
+    //i = 0;
+    // No member shifts
+    //for (auto &row : root.get_child("data.blockchainVerificationKey.index.shifts")) {
+    //    ver_index.shifts[i] = multiprecision::cpp_int(row.second.get_value<std::string>());
+    //    ++i;
+    //}
 
     // Polynomial in coefficients form
     // Const
@@ -257,34 +283,61 @@ zk::snark::verifier_index<nil::crypto3::algebra::curves::vesta>
     ver_index.w = multiprecision::cpp_int(const_root.get<std::string>("verify_index.w"));
     ver_index.endo = multiprecision::cpp_int(const_root.get<std::string>("verify_index.endo"));
 
-    // ver_index.lookup_index = root.get_child("data.blockchainVerificationKey.index.lookup_index"); // TODO: null
-    // ver_index.linearization;       // TODO: where it is?
+    //ver_index.lookup_index = root.get_child("data.blockchainVerificationKey.index.lookup_index"); // TODO: null
+    //ver_index.linearization;       // TODO: where it is?
     ver_index.powers_of_alpha.next_power = 24;
 
+    i = 0;
+    ver_index.fr_sponge_params.round_constants.resize(const_root.get_child("verify_index.fr_sponge_params.round_constants").size());
     for (auto &row : const_root.get_child("verify_index.fr_sponge_params.round_constants")) {
-        auto it = row.second.begin();
-        ver_index.fr_sponge_params.round_constants.push_back(
-            {get_cppui256(it++), get_cppui256(it++), get_cppui256(it)});
-    }
-    for (auto &row : const_root.get_child("verify_index.fr_sponge_params.mds")) {
-        auto it = row.second.begin();
-        ver_index.fr_sponge_params.mds.push_back({get_cppui256(it++), get_cppui256(it++), get_cppui256(it)});
+        size_t j = 0;
+        for (auto cell : row.second){
+            ver_index.fr_sponge_params.round_constants[i].push_back(get_cppui256(&cell));
+            j++;
+        }
+        i++;
     }
 
+    i = 0;
+    for (auto &row : const_root.get_child("verify_index.fr_sponge_params.mds")) {
+        size_t j = 0;
+        for (auto cell : row.second){
+            ver_index.fr_sponge_params.mds[i][j] = get_cppui256(&cell);
+            j++;
+        }
+        i++;
+    }
+
+    i = 0;
+    ver_index.fq_sponge_params.round_constants.resize(const_root.get_child("verify_index.fq_sponge_params.round_constants").size());
     for (auto &row : const_root.get_child("verify_index.fq_sponge_params.round_constants")) {
-        auto it = row.second.begin();
-        ver_index.fq_sponge_params.round_constants.push_back(
-            {get_cppui256(it++), get_cppui256(it++), get_cppui256(it)});
+        size_t j = 0;
+        for (auto cell : row.second){
+            ver_index.fq_sponge_params.round_constants[i].push_back(get_cppui256(&cell));
+            j++;
+        }
+        i++;
     }
+
+    i = 0;
     for (auto &row : const_root.get_child("verify_index.fq_sponge_params.mds")) {
-        auto it = row.second.begin();
-        ver_index.fq_sponge_params.mds.push_back({get_cppui256(it++), get_cppui256(it++), get_cppui256(it)});
+        size_t j = 0;
+        for (auto cell : row.second){
+            ver_index.fr_sponge_params.mds[i][j] = get_cppui256(&cell);
+            j++;
+        }
+        i++;
     }
+
+    // TODO: Add assertions about right size of
+    //      fr_sponge_params.mds,
+    //      fr_sponge_params.round_constants,
+
     return ver_index;
 }
 
 template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType, std::size_t EvalRounds>
-void prepare_proof(zk::snark::pickles_proof<CurveType> &original_proof,
+void prepare_proof(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> &original_proof,
                    zk::components::kimchi_proof_scalar<BlueprintFieldType, KimchiParamsType, EvalRounds> &circuit_proof,
                    std::vector<typename BlueprintFieldType::value_type> &public_input) {
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
@@ -408,7 +461,7 @@ extern "C" {
 
 const char *generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> *pickles_proof) {
 #else
-std::string generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> *pickles_proof) {
+std::string generate_proof(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> *pickles_proof) {
 #endif
     using curve_type = algebra::curves::vesta;
     using BlueprintFieldType = typename curve_type::scalar_field_type;
