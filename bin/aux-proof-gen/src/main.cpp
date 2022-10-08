@@ -847,9 +847,9 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
 
     constexpr static std::size_t public_input_size = 0;
-    constexpr static std::size_t max_poly_size = 8; // 32768 in json
+    constexpr static std::size_t max_poly_size = 16384; // 32768 in json
     constexpr static std::size_t srs_len = max_poly_size;
-    constexpr static std::size_t eval_rounds = 15;
+    constexpr static std::size_t eval_rounds = 14; // 15 in json
 
     constexpr static std::size_t witness_columns = 15;
     constexpr static std::size_t perm_size = 7;
@@ -970,9 +970,9 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
 
     constexpr static std::size_t public_input_size = 1;
-    constexpr static std::size_t max_poly_size = 8; // 32768 in json
+    constexpr static std::size_t max_poly_size = 16384; // 32768 in json
     constexpr static std::size_t srs_len = max_poly_size;
-    constexpr static std::size_t eval_rounds = 2;
+    constexpr static std::size_t eval_rounds = 14; // 15 in json
 
     constexpr static std::size_t witness_columns = 15;
     constexpr static std::size_t perm_size = 7;
