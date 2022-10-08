@@ -186,7 +186,7 @@ zk::snark::proof_type<curve_type> make_proof(boost::property_tree::ptree root) {
         for( auto z_it : evals_it.second.get_child("z") ){
             proof.evals[ev_i].z.push_back(get_cppui256(&z_it));
         }
-
+       
         i = 0;
         for (auto &row : evals_it.second.get_child("s")) {
             for (auto &cell : row.second) {
@@ -195,12 +195,12 @@ zk::snark::proof_type<curve_type> make_proof(boost::property_tree::ptree root) {
             i++;
         }
 
-        //        proof.evals[ev_i].generic_selector = get_cppui256(evals_it.second.get_child("generic_selector").begin());
+//        proof.evals[ev_i].generic_selector = get_cppui256(evals_it.second.get_child("generic_selector").begin());
         for( auto s_it : evals_it.second.get_child("generic_selector") ){
             proof.evals[ev_i].generic_selector.push_back(get_cppui256(&s_it));
         }
 
-        //        proof.evals[ev_i].poseidon_selector = get_cppui256(evals_it.second.get_child("poseidon_selector").begin());
+//        proof.evals[ev_i].poseidon_selector = get_cppui256(evals_it.second.get_child("poseidon_selector").begin());
         for( auto p_it : evals_it.second.get_child("poseidon_selector") ){
             proof.evals[ev_i].poseidon_selector.push_back(get_cppui256(&p_it));
         }
@@ -272,7 +272,7 @@ vesta_verifier_index_type make_verify_index(boost::property_tree::ptree root, bo
     //        ver_index.chacha_comm[i].unshifted.emplace_back(get_cppui256(it++), get_cppui256(it));
     //        ++i;
     //    }
-    //i = 0;
+    //i = 0; 
     // No member shifts
     //for (auto &row : root.get_child("data.blockchainVerificationKey.index.shifts")) {
     //    ver_index.shifts[i] = multiprecision::cpp_int(row.second.get_value<std::string>());
@@ -334,20 +334,20 @@ vesta_verifier_index_type make_verify_index(boost::property_tree::ptree root, bo
         i++;
     }
 
-    // TODO: Add assertions about right size of
-    //      fr_sponge_params.mds,
+    // TODO: Add assertions about right size of 
+    //      fr_sponge_params.mds, 
     //      fr_sponge_params.round_constants,
 
     return ver_index;
 }
 
 template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType, std::size_t EvalRounds>
-void prepare_proof(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> &original_proof,
+void prepare_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> &original_proof,
                    zk::components::kimchi_proof_scalar<BlueprintFieldType, KimchiParamsType, EvalRounds> &circuit_proof,
                    std::vector<typename BlueprintFieldType::value_type> &public_input) {
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
 
-    /*// eval_proofs
+    // eval_proofs
     for (std::size_t point_idx = 0; point_idx < 2; point_idx++) {
         // w
         for (std::size_t i = 0; i < KimchiParamsType::witness_columns; i++) {
@@ -393,7 +393,231 @@ void prepare_proof(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> &
 
     // ft_eval
     public_input.push_back(original_proof.ft_eval1);
-    circuit_proof.ft_eval = var(0, public_input.size() - 1, false, var::column_type::public_input);*/
+    circuit_proof.ft_eval = var(0, public_input.size() - 1, false, var::column_type::public_input);
+}
+
+template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType, std::size_t EvalRounds>
+void prepare_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> &original_proof,
+                   zk::components::kimchi_proof_base<BlueprintFieldType, KimchiParamsType> &circuit_proof,
+                   std::vector<typename BlueprintFieldType::value_type> &public_input) {
+    using var = zk::snark::plonk_variable<BlueprintFieldType>;
+
+    // COMMITMENTS
+    for (std::size_t i = 0; i < original_proof.commitments.w_comm.size(); i++) {
+        for (std::size_t j = 0; j < original_proof.commitments.w_comm[i].unshifted.size(); j++) {
+            public_input.push_back(original_proof.commitments.w_comm[i].unshifted[j].X);
+            circuit_proof.comm.witness[i].parts[j].X =
+                var(0, public_input.size() - 1, false, var::column_type::public_input);
+            public_input.push_back(original_proof.commitments.w_comm[i].unshifted[j].Y);
+            circuit_proof.comm.witness[i].parts[j].Y =
+                var(0, public_input.size() - 1, false, var::column_type::public_input);
+        }
+    }
+
+    for (std::size_t j = 0; j < original_proof.commitments.z_comm.unshifted.size(); j++) {
+        public_input.push_back(original_proof.commitments.z_comm.unshifted[j].X);
+        circuit_proof.comm.z.parts[j].X =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(original_proof.commitments.z_comm.unshifted[j].Y);
+        circuit_proof.comm.z.parts[j].Y =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
+
+    for (std::size_t j = 0; j < original_proof.commitments.t_comm.unshifted.size(); j++) {
+        public_input.push_back(original_proof.commitments.t_comm.unshifted[j].X);
+        circuit_proof.comm.t.parts[j].X =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(original_proof.commitments.t_comm.unshifted[j].Y);
+        circuit_proof.comm.t.parts[j].Y =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
+    
+    for (std::size_t i = 0; i < original_proof.commitments.lookup.sorted.size(); i++) {
+        for (std::size_t j = 0; j < original_proof.commitments.lookup.sorted[i].unshifted.size(); j++) {
+            public_input.push_back(original_proof.commitments.lookup.sorted[i].unshifted[j].X);
+            circuit_proof.comm.lookup_sorted[i].parts[j].X =
+                var(0, public_input.size() - 1, false, var::column_type::public_input);
+            public_input.push_back(original_proof.commitments.lookup.sorted[i].unshifted[j].Y);
+            circuit_proof.comm.lookup_sorted[i].parts[j].Y =
+                var(0, public_input.size() - 1, false, var::column_type::public_input);
+        }
+    }
+
+    for (std::size_t j = 0; j < original_proof.commitments.lookup.aggreg.unshifted.size(); j++) {
+        public_input.push_back(original_proof.commitments.lookup.aggreg.unshifted[j].X);
+        circuit_proof.comm.lookup_agg.parts[j].X =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(original_proof.commitments.lookup.aggreg.unshifted[j].Y);
+        circuit_proof.comm.lookup_agg.parts[j].Y =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
+
+    for (std::size_t j = 0; j < original_proof.commitments.lookup.runtime.unshifted.size(); j++) {
+        public_input.push_back(original_proof.commitments.lookup.runtime.unshifted[j].X);
+        circuit_proof.comm.lookup_runtime.parts[j].X =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(original_proof.commitments.lookup.runtime.unshifted[j].Y);
+        circuit_proof.comm.lookup_runtime.parts[j].Y =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
+
+    // OPENING PROOF
+    for (std::size_t i = 0; i < original_proof.proof.lr.size(); i++) {
+        public_input.push_back(std::get<0>(original_proof.proof.lr[i]).X);
+        circuit_proof.o.L[i].X =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(std::get<0>(original_proof.proof.lr[i]).Y);
+        circuit_proof.o.L[i].Y =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+
+        public_input.push_back(std::get<1>(original_proof.proof.lr[i]).X);
+        circuit_proof.o.R[i].X =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(std::get<1>(original_proof.proof.lr[i]).Y);
+        circuit_proof.o.R[i].Y =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
+
+    public_input.push_back(original_proof.proof.delta.X);
+    circuit_proof.o.delta.X =
+        var(0, public_input.size() - 1, false, var::column_type::public_input);
+    public_input.push_back(original_proof.proof.delta.Y);
+    circuit_proof.o.delta.Y =
+        var(0, public_input.size() - 1, false, var::column_type::public_input);
+
+    public_input.push_back(original_proof.proof.sg.X);
+    circuit_proof.o.G.X =
+        var(0, public_input.size() - 1, false, var::column_type::public_input);
+    public_input.push_back(original_proof.proof.sg.Y);
+    circuit_proof.o.G.Y =
+        var(0, public_input.size() - 1, false, var::column_type::public_input);
+}
+
+template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType>
+void prepare_index_base(vesta_verifier_index_type &original_index,
+                   zk::components::kimchi_verifier_index_base<CurveType, KimchiParamsType> &circuit_index,
+                   std::vector<typename BlueprintFieldType::value_type> &public_input) {
+    using var = zk::snark::plonk_variable<BlueprintFieldType>;
+
+    // COMMITMENTS
+    for (std::size_t i = 0; i < original_index.sigma_comm.size(); i++) {
+        for (std::size_t j = 0; j < original_index.sigma_comm[i].unshifted.size(); j++) {
+            public_input.push_back(original_index.sigma_comm[i].unshifted[j].X);
+            circuit_index.comm.sigma[i].parts[j].X =
+                var(0, public_input.size() - 1, false, var::column_type::public_input);
+            public_input.push_back(original_index.sigma_comm[i].unshifted[j].Y);
+            circuit_index.comm.sigma[i].parts[j].Y =
+                var(0, public_input.size() - 1, false, var::column_type::public_input);
+        }
+    }
+
+    for (std::size_t i = 0; i < original_index.coefficients_comm.size(); i++) {
+        for (std::size_t j = 0; j < original_index.coefficients_comm[i].unshifted.size(); j++) {
+            public_input.push_back(original_index.coefficients_comm[i].unshifted[j].X);
+            circuit_index.comm.coefficient[i].parts[j].X =
+                var(0, public_input.size() - 1, false, var::column_type::public_input);
+            public_input.push_back(original_index.coefficients_comm[i].unshifted[j].Y);
+            circuit_index.comm.coefficient[i].parts[j].Y =
+                var(0, public_input.size() - 1, false, var::column_type::public_input);
+        }
+    }
+
+    for (std::size_t j = 0; j < original_index.generic_comm.unshifted.size(); j++) {
+        public_input.push_back(original_index.generic_comm.unshifted[j].X);
+        circuit_index.comm.generic.parts[j].X =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(original_index.generic_comm.unshifted[j].Y);
+        circuit_index.comm.generic.parts[j].Y =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
+
+    for (std::size_t j = 0; j < original_index.psm_comm.unshifted.size(); j++) {
+        public_input.push_back(original_index.psm_comm.unshifted[j].X);
+        circuit_index.comm.psm.parts[j].X =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(original_index.psm_comm.unshifted[j].Y);
+        circuit_index.comm.psm.parts[j].Y =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
+
+    for (std::size_t j = 0; j < original_index.complete_add_comm.unshifted.size(); j++) {
+        public_input.push_back(original_index.complete_add_comm.unshifted[j].X);
+        circuit_index.comm.complete_add.parts[j].X =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(original_index.complete_add_comm.unshifted[j].Y);
+        circuit_index.comm.complete_add.parts[j].Y =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
+
+    for (std::size_t j = 0; j < original_index.mul_comm.unshifted.size(); j++) {
+        public_input.push_back(original_index.mul_comm.unshifted[j].X);
+        circuit_index.comm.var_base_mul.parts[j].X =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(original_index.mul_comm.unshifted[j].Y);
+        circuit_index.comm.var_base_mul.parts[j].Y =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
+
+    for (std::size_t j = 0; j < original_index.emul_comm.unshifted.size(); j++) {
+        public_input.push_back(original_index.emul_comm.unshifted[j].X);
+        circuit_index.comm.endo_mul.parts[j].X =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(original_index.emul_comm.unshifted[j].Y);
+        circuit_index.comm.endo_mul.parts[j].Y =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
+
+    for (std::size_t j = 0; j < original_index.endomul_scalar_comm.unshifted.size(); j++) {
+        public_input.push_back(original_index.endomul_scalar_comm.unshifted[j].X);
+        circuit_index.comm.endo_mul_scalar.parts[j].X =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(original_index.endomul_scalar_comm.unshifted[j].Y);
+        circuit_index.comm.endo_mul_scalar.parts[j].Y =
+            var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
+
+    for (std::size_t i = 0; i < original_index.chacha_comm.size(); i++) {
+        for (std::size_t j = 0; j < original_index.chacha_comm[i].unshifted.size(); j++) {
+            public_input.push_back(original_index.chacha_comm[i].unshifted[j].X);
+            circuit_index.comm.chacha[i].parts[j].X =
+                var(0, public_input.size() - 1, false, var::column_type::public_input);
+            public_input.push_back(original_index.chacha_comm[i].unshifted[j].Y);
+            circuit_index.comm.chacha[i].parts[j].Y =
+                var(0, public_input.size() - 1, false, var::column_type::public_input);
+        }
+    }
+
+    for (std::size_t i = 0; i < original_index.range_check_comm.size(); i++) {
+        for (std::size_t j = 0; j < original_index.range_check_comm[i].unshifted.size(); j++) {
+            public_input.push_back(original_index.range_check_comm[i].unshifted[j].X);
+            circuit_index.comm.range_check[i].parts[j].X =
+                var(0, public_input.size() - 1, false, var::column_type::public_input);
+            public_input.push_back(original_index.range_check_comm[i].unshifted[j].Y);
+            circuit_index.comm.range_check[i].parts[j].Y =
+                var(0, public_input.size() - 1, false, var::column_type::public_input);
+        }
+    }
+
+    // POINTS
+
+    public_input.push_back(original_index.srs.h.X);
+    circuit_index.H.X = var(0, public_input.size() - 1, false, var::column_type::public_input);
+    public_input.push_back(original_index.srs.h.Y);
+    circuit_index.H.Y = var(0, public_input.size() - 1, false, var::column_type::public_input);
+
+    for (std::size_t i = 0; i < original_index.srs.g.size(); i++) {
+        public_input.push_back(original_index.srs.g[i].X);
+        circuit_index.G[i].X = var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(original_index.srs.g[i].Y);
+        circuit_index.G[i].Y = var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
+
+    for (std::size_t i = 0; i < KimchiParamsType::public_input_size; i++) {
+        public_input.push_back(original_index.srs.lagrange_bases[0][i].X);
+        circuit_index.lagrange_bases[i].X = var(0, public_input.size() - 1, false, var::column_type::public_input);
+        public_input.push_back(original_index.srs.lagrange_bases[0][i].Y);
+        circuit_index.lagrange_bases[i].Y = var(0, public_input.size() - 1, false, var::column_type::public_input);
+    }
 }
 
 template<typename ComponentType, typename BlueprintFieldType, typename ArithmetizationParams, typename Hash,
@@ -464,9 +688,11 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
 #ifdef __EMSCRIPTEN__
 extern "C" {
 
-const char *generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> *pickles_proof) {
+const char *generate_proof(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> *pickles_proof,
+    vesta_verifier_index_type *pickles_index) {
 #else
-std::string generate_proof(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> *pickles_proof) {
+std::string generate_proof(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> *pickles_proof,
+    vesta_verifier_index_type *pickles_index) {
 #endif
     using curve_type = algebra::curves::vesta;
     using BlueprintFieldType = typename curve_type::base_field_type;
@@ -479,24 +705,22 @@ std::string generate_proof(zk::snark::proof_type<nil::crypto3::algebra::curves::
     using ArithmetizationType = zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams>;
     using AssignmentType = zk::blueprint_assignment_table<ArithmetizationType>;
     using hash_type = nil::crypto3::hashes::keccak_1600<256>;
-    constexpr std::size_t Lambda = 40;
+    constexpr std::size_t Lambda = 1;
 
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
 
-    constexpr static std::size_t alpha_powers_n = 5;
-    constexpr static std::size_t public_input_size = 2;
-    constexpr static std::size_t max_poly_size = 32;
-    constexpr static std::size_t eval_rounds = 5;
+    constexpr static std::size_t public_input_size = 0;
+    constexpr static std::size_t max_poly_size = 32768;
+    constexpr static std::size_t eval_rounds = 15;
 
     constexpr static std::size_t witness_columns = 15;
     constexpr static std::size_t perm_size = 7;
-    constexpr static std::size_t lookup_table_size = 1;
+    constexpr static std::size_t lookup_table_size = 0;
     constexpr static bool use_lookup = false;
 
     constexpr static std::size_t srs_len = 10;
     constexpr static std::size_t batch_size = 1;
 
-    constexpr static const std::size_t index_terms = 0;
     constexpr static const std::size_t prev_chal_size = 0;
 
     using commitment_params = zk::components::kimchi_commitment_params_type<eval_rounds, max_poly_size, srs_len>;
@@ -536,68 +760,24 @@ std::string generate_proof(zk::snark::proof_type<nil::crypto3::algebra::curves::
     using fq_data_type =
         typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_data<var>;
 
-    zk::components::kimchi_verifier_index_base<curve_type, kimchi_params> verifier_index;
-    typename BlueprintFieldType::value_type omega =
-        0x1B1A85952300603BBF8DD3068424B64608658ACBB72CA7D2BB9694ADFA504418_cppui256;
-    std::size_t domain_size = 128;
+    std::size_t domain_size = 1 << 15;
     // verifier_index.domain_size = domain_size;
     // verifier_index.omega = var(0, 0, false, var::column_type::public_input);
 
-    typename BlueprintFieldType::value_type joint_combiner = 0;
-    typename BlueprintFieldType::value_type beta = 0;
-    typename BlueprintFieldType::value_type gamma = 0;
-    typename BlueprintFieldType::value_type alpha =
-        0x0000000000000000000000000000000005321CB83A4BCD5C63F489B5BF95A8DC_cppui256;
-    typename BlueprintFieldType::value_type zeta =
-        0x0000000000000000000000000000000062F9AE3696EA8F0A85043221DE133E32_cppui256;
-    typename BlueprintFieldType::value_type fq_digest =
-        0x01D4E77CCD66755BDDFDBB6E4E8D8D17A6708B9CB56654D12070BD7BF4A5B33B_cppui256;
-
-    std::vector<typename BlueprintFieldType::value_type> public_input = {omega};
+    std::vector<typename BlueprintFieldType::value_type> public_input = {};
 
     std::array<zk::components::kimchi_proof_base<BlueprintFieldType, kimchi_params>, batch_size> proofs;
-
-    std::array<fq_output_type, batch_size> fq_outputs;
 
     for (std::size_t batch_id = 0; batch_id < batch_size; batch_id++) {
         zk::snark::proof_type<curve_type> kimchi_proof = pickles_proof[batch_id];
 
         zk::components::kimchi_proof_base<BlueprintFieldType, kimchi_params> proof;
 
-        // prepare_proof<curve_type, BlueprintFieldType, kimchi_params, eval_rounds>(kimchi_proof, proof, public_input);
-
-        fq_output_type fq_output;
-        std::array<var, eval_rounds> challenges;
-        for (std::size_t j = 0; j < eval_rounds; j++) {
-            public_input.emplace_back(10);
-            challenges[j] = var(0, public_input.size() - 1, false, var::column_type::public_input);
-        }
-        fq_output.challenges = challenges;
-
-        // joint_combiner
-        public_input.emplace_back(0x0000000000000000000000000000000005321CB83A4BCD5C63F489B5BF95A8DC_cppui256);
-        fq_output.joint_combiner = var(0, public_input.size() - 1, false, var::column_type::public_input);
-        // beta
-        public_input.emplace_back(0x0000000000000000000000000000000005321CB83A4BCD5C63F489B5BF95A8DC_cppui256);
-        fq_output.beta = var(0, public_input.size() - 1, false, var::column_type::public_input);
-        // gamma
-        public_input.emplace_back(0x0000000000000000000000000000000005321CB83A4BCD5C63F489B5BF95A8DC_cppui256);
-        fq_output.gamma = var(0, public_input.size() - 1, false, var::column_type::public_input);
-        // alpha
-        public_input.push_back(alpha);
-        fq_output.alpha = var(0, public_input.size() - 1, false, var::column_type::public_input);
-        // zeta
-        public_input.push_back(zeta);
-        fq_output.zeta = var(0, public_input.size() - 1, false, var::column_type::public_input);
-        // fq_digest
-        public_input.push_back(fq_digest);
-        fq_output.fq_digest = var(0, public_input.size() - 1, false, var::column_type::public_input);
-        // c
-        public_input.emplace_back(250);
-        fq_output.c = var(0, public_input.size() - 1, false, var::column_type::public_input);
-
-        fq_outputs[batch_id] = fq_output;
+        prepare_proof_base<curve_type, BlueprintFieldType, kimchi_params, eval_rounds>(kimchi_proof, proof, public_input);
     }
+
+    zk::components::kimchi_verifier_index_base<curve_type, kimchi_params> verifier_index;
+    prepare_index_base<curve_type, BlueprintFieldType, kimchi_params>(pickles_index[0], verifier_index, public_input);
 
     fr_data_type fr_data_public;
     fq_data_type fq_data_public;
@@ -711,8 +891,15 @@ int main(int argc, char *argv[]) {
     //            string += line + "\n";
     //        }
     //    }
-    zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> proof = parse_proof(vp_input.c_str());
-    parse_pconst(vi_input.c_str(), vi_const_input.c_str());
-    std::cout << std::string(generate_proof(&proof)) << std::endl;
+    // zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> proof = parse_proof(vp_input.c_str());
+    // parse_pconst(vi_input.c_str(), vi_const_input.c_str());
+    boost::property_tree::ptree root;
+    boost::property_tree::ptree const_root;
+    boost::property_tree::read_json(vm["vp_input"].as<std::string>(), root);
+    boost::property_tree::read_json(vm["vi_const_input"].as<std::string>(), const_root);
+    zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> proof = make_proof(root);
+    vesta_verifier_index_type ver_index = make_verify_index(root, const_root);
+
+    std::cout << std::string(generate_proof(&proof, &ver_index)) << std::endl;
 #endif
 }
