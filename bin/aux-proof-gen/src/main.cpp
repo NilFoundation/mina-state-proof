@@ -912,10 +912,10 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
         typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_sponge_output;
 
     using fr_data_type = typename zk::components::binding<ArithmetizationType, BlueprintFieldType,
-                                                          kimchi_params>::fr_data<var, batch_size>;
+                                                          kimchi_params>::template fr_data<var, batch_size>;
 
     using fq_data_type =
-        typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_data<var>;
+        typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::template fq_data<var>;
 
     std::vector<typename BlueprintFieldType::value_type> public_input = {};
 
@@ -1022,10 +1022,10 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
         typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_sponge_output;
 
     using fr_data_type = typename zk::components::binding<ArithmetizationType, BlueprintFieldType,
-                                                          kimchi_params>::fr_data<var, batch_size>;
+                                                          kimchi_params>::template fr_data<var, batch_size>;
 
     using fq_data_type =
-        typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_data<var>;
+        typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::template fq_data<var>;
 
     std::vector<typename BlueprintFieldType::value_type> public_input = {};
 
@@ -1114,6 +1114,7 @@ int main(int argc, char *argv[]) {
 #ifndef __EMSCRIPTEN__
 
     std::string vp_input, vi_input, vi_const_input, line;
+    bool generate_scalar = false, generate_base = false;
 
     boost::program_options::options_description options("Mina State Proof Auxiliary Proof Generator");
     // clang-format off
@@ -1122,7 +1123,9 @@ int main(int argc, char *argv[]) {
             ("output,o", boost::program_options::value<std::string>(),"Output file")
             ("vp_input", boost::program_options::value<std::string>(), "Input proof file")
             ("vi_input", boost::program_options::value<std::string>(), "Input index file")
-            ("vi_const_input", boost::program_options::value<std::string>(), "Input const index file");
+            ("vi_const_input", boost::program_options::value<std::string>(), "Input const index file")
+            ("scalar_proof", boost::program_options::bool_switch(), "Generate scalar part of the circuit")
+            ("base_proof", boost::program_options::bool_switch(), "Generate base part of the circuit");
     // clang-format on
 
     boost::program_options::positional_options_description p;
@@ -1157,6 +1160,25 @@ int main(int argc, char *argv[]) {
             boost::filesystem::load_string_file(vm["vi_const_input"].as<std::string>(), vi_const_input);
         }
     }
+
+    if (vm.count("vi_const_input")) {
+        if (boost::filesystem::exists(vm["vi_const_input"].as<std::string>())) {
+            boost::filesystem::load_string_file(vm["vi_const_input"].as<std::string>(), vi_const_input);
+        }
+    }
+
+    if (vm.count("vi_const_input")) {
+        if (boost::filesystem::exists(vm["vi_const_input"].as<std::string>())) {
+            boost::filesystem::load_string_file(vm["vi_const_input"].as<std::string>(), vi_const_input);
+        }
+    }
+
+    if (vm.count("scalar_proof")) {
+        generate_scalar = true;
+    }
+    if (vm.count("base_proof")) {
+        generate_base = true;
+    }
     //    else {
     //        while (std::getline(std::cin, line)) {
     //            string += line + "\n";
@@ -1171,12 +1193,12 @@ int main(int argc, char *argv[]) {
     zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> proof = make_proof(root);
     vesta_verifier_index_type ver_index = make_verify_index(root, const_root);
 
-    const bool generate_base = false;
-    constexpr const std::size_t eval_rounds = 7;
+    constexpr const std::size_t eval_rounds = 14;
 
     if (generate_base) {
         std::cout << std::string(generate_proof_base<eval_rounds>(&proof, &ver_index)) << std::endl;
-    } else {
+    } 
+    if (generate_scalar) {
         std::cout << std::string(generate_proof_scalar<eval_rounds>(&proof, &ver_index)) << std::endl;
     }
 #endif
