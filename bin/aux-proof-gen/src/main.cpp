@@ -65,8 +65,10 @@
 #include <nil/crypto3/zk/snark/systems/plonk/placeholder/verifier.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/placeholder/params.hpp>
 
-//#include <nil/marshalling/endianness.hpp>
-//#include <nil/crypto3/marshalling/zk/types/placeholder/proof.hpp>
+#include <nil/marshalling/endianness.hpp>
+#include <nil/crypto3/marshalling/zk/types/placeholder/proof.hpp>
+#include <nil/marshalling/status_type.hpp>
+#include <nil/marshalling/field_type.hpp>
 
 #include "ec_index_terms.hpp"
 
@@ -84,10 +86,7 @@ using vesta_verifier_index_type = zk::snark::verifier_index<
     nil::crypto3::zk::snark::kimchi_constant::PERMUTES
     >;
 
-inline std::vector<std::size_t> generate_random_step_list(const std::size_t r, const int max_step) {
-    using dist_type = std::uniform_int_distribution<int>;
-    static std::random_device random_engine;
-
+inline std::vector<std::size_t> generate_step_list(const std::size_t r, const int max_step) {
     std::vector<std::size_t> step_list;
     std::size_t steps_sum = 0;
     while (steps_sum != r) {
@@ -99,7 +98,7 @@ inline std::vector<std::size_t> generate_random_step_list(const std::size_t r, c
             step_list.emplace_back(1);
             steps_sum += step_list.back();
         } else {
-            step_list.emplace_back(dist_type(1, max_step)(random_engine));
+            step_list.emplace_back(max_step);
             steps_sum += step_list.back();
         }
     }
@@ -121,39 +120,59 @@ typename fri_type::params_type create_fri_params(std::size_t degree_log) {
     params.max_degree = (1 << degree_log) - 1;
 
     const std::size_t max_step = 3;
-    params.step_list = generate_random_step_list(r, max_step);
+    params.step_list = generate_step_list(r, max_step);
 
     return params;
 }
 
 template<typename TIter>
-void print_byteblob(std::ostream &os, TIter iter_begin, TIter iter_end) {
-    os << "0x";
-    os << std::hex;
+void print_hex_byteblob(std::ostream &os, TIter iter_begin, TIter iter_end, bool endl) {
+    os << "0x" << std::hex;
     for (TIter it = iter_begin; it != iter_end; it++) {
         os << std::setfill('0') << std::setw(2) << std::right << int(*it);
     }
-    os << std::endl << std::dec;
+    os << std::dec;
+    if (endl) {
+        os << std::endl;
+    }
 }
-/*
-template<typename Endianness, typename RedshiftProof>
-std::string marshalling_to_blob(const RedshiftProof &proof) {
-    using namespace crypto3::marshalling;
 
-    auto filled_placeholder_proof = types::fill_placeholder_proof<RedshiftProof, Endianness>(proof);
+template<typename Endianness, typename Proof>
+void proof_print(const Proof &proof, std::string output_file) {
+    using namespace nil::crypto3::marshalling;
+
+    using TTypeBase = nil::marshalling::field_type<Endianness>;
+    using proof_marshalling_type = zk::snark::placeholder_proof<TTypeBase, Proof>;
+    auto filled_placeholder_proof = crypto3::marshalling::types::fill_placeholder_proof<Endianness, Proof>(
+        proof);
 
     std::vector<std::uint8_t> cv;
     cv.resize(filled_placeholder_proof.length(), 0x00);
     auto write_iter = cv.begin();
-    if (filled_placeholder_proof.write(write_iter, cv.size()) == nil::marshalling::status_type::success) {
-        std::stringstream st;
-        print_byteblob(st, cv.cbegin(), cv.cend());
-        return st.str();
-    } else {
-        return {};
-    }
+    nil::marshalling::status_type status = filled_placeholder_proof.write(write_iter, cv.size());
+    std::ofstream out;
+    out.open(output_file);
+    print_hex_byteblob(out, cv.cbegin(), cv.cend(), false);
 }
-*/
+
+// template<typename Endianness, typename RedshiftProof>
+// std::string marshalling_to_blob(const RedshiftProof &proof) {
+//     using namespace crypto3::marshalling;
+
+//     auto filled_placeholder_proof = types::fill_placeholder_proof<RedshiftProof, Endianness>(proof);
+
+//     std::vector<std::uint8_t> cv;
+//     cv.resize(filled_placeholder_proof.length(), 0x00);
+//     auto write_iter = cv.begin();
+//     if (filled_placeholder_proof.write(write_iter, cv.size()) == nil::marshalling::status_type::success) {
+//         std::stringstream st;
+//         print_hex_byteblob(st, cv.cbegin(), cv.cend(), false);
+//         return st.str();
+//     } else {
+//         return {};
+//     }
+// }
+
 template<typename Iterator>
 multiprecision::cpp_int get_cppui256(Iterator it) {
     BOOST_ASSERT(it->second.template get_value<std::string>() != "");
@@ -824,10 +843,11 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
 
 #ifdef __EMSCRIPTEN__
 extern "C" {
-
+template<std::size_t EvalRounds>
 const char *generate_proof_base(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> *pickles_proof,
     vesta_verifier_index_type *pickles_index) {
 #else
+template<std::size_t EvalRounds>
 std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> *pickles_proof,
     vesta_verifier_index_type *pickles_index) {
 #endif
@@ -847,9 +867,9 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
 
     constexpr static std::size_t public_input_size = 0;
-    constexpr static std::size_t max_poly_size = 16384; // 32768 in json
+    constexpr static std::size_t max_poly_size = 1 << EvalRounds; // 32768 in json
     constexpr static std::size_t srs_len = max_poly_size;
-    constexpr static std::size_t eval_rounds = 14; // 15 in json
+    constexpr static std::size_t eval_rounds = EvalRounds; // 15 in json
 
     constexpr static std::size_t witness_columns = 15;
     constexpr static std::size_t perm_size = 7;
@@ -917,7 +937,7 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
 
     typename component_type::params_type params = {proofs, verifier_index, fr_data_public, fq_data_public};
 
-    auto result_check = [](AssignmentType &assignment, component_type::result_type &real_res) {};
+    auto result_check = [](AssignmentType &assignment, typename component_type::result_type &real_res) {};
 
     //using Endianness = nil::marshalling::option::big_endian;
 
@@ -930,6 +950,10 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
 
     auto proof = zk::snark::placeholder_prover<BlueprintFieldType, placeholder_params>::process(
         public_preprocessed_data, private_preprocessed_data, desc, bp, assignments, fri_params);
+
+    std::string output_path = "/root/mina-updated/mina-state-proof/bin/aux-proof-gen/src/data/output_base.json";
+    proof_print<nil::marshalling::option::big_endian>(
+        proof, output_path);
 
     bool verifier_res = zk::snark::placeholder_verifier<BlueprintFieldType, placeholder_params>::process(
         public_preprocessed_data, proof, bp, fri_params);
@@ -947,10 +971,11 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
 
 #ifdef __EMSCRIPTEN__
 extern "C" {
-
+template<std::size_t EvalRounds>
 const char *generate_proof_scalar(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> *pickles_proof,
     vesta_verifier_index_type *pickles_index) {
 #else
+template<std::size_t EvalRounds>
 std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> *pickles_proof,
     vesta_verifier_index_type *pickles_index) {
 #endif
@@ -970,9 +995,9 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
 
     constexpr static std::size_t public_input_size = 1;
-    constexpr static std::size_t max_poly_size = 16384; // 32768 in json
+    constexpr static std::size_t max_poly_size = 1 << EvalRounds; //16384 32768 in json
     constexpr static std::size_t srs_len = max_poly_size;
-    constexpr static std::size_t eval_rounds = 14; // 15 in json
+    constexpr static std::size_t eval_rounds = EvalRounds; // 15 in json
 
     constexpr static std::size_t witness_columns = 15;
     constexpr static std::size_t perm_size = 7;
@@ -1026,7 +1051,7 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
 
     typename component_type::params_type params = {fr_data_public, fq_data_public, verifier_index, proofs, fq_outputs};
 
-    auto result_check = [](AssignmentType &assignment, component_type::result_type &real_res) {};
+    auto result_check = [](AssignmentType &assignment, typename component_type::result_type &real_res) {};
 
     //using Endianness = nil::marshalling::option::big_endian;
 
@@ -1039,6 +1064,10 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
 
     auto proof = zk::snark::placeholder_prover<BlueprintFieldType, placeholder_params>::process(
         public_preprocessed_data, private_preprocessed_data, desc, bp, assignments, fri_params);
+
+    std::string output_path = "/root/mina-updated/mina-state-proof/bin/aux-proof-gen/src/data/output_scalar.json";
+    proof_print<nil::marshalling::option::big_endian>(
+        proof, output_path);
 
     bool verifier_res = zk::snark::placeholder_verifier<BlueprintFieldType, placeholder_params>::process(
         public_preprocessed_data, proof, bp, fri_params);
@@ -1142,12 +1171,13 @@ int main(int argc, char *argv[]) {
     zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> proof = make_proof(root);
     vesta_verifier_index_type ver_index = make_verify_index(root, const_root);
 
-    const bool generate_base = true;
+    const bool generate_base = false;
+    constexpr const std::size_t eval_rounds = 7;
 
     if (generate_base) {
-        std::cout << std::string(generate_proof_base(&proof, &ver_index)) << std::endl;
+        std::cout << std::string(generate_proof_base<eval_rounds>(&proof, &ver_index)) << std::endl;
     } else {
-        std::cout << std::string(generate_proof_scalar(&proof, &ver_index)) << std::endl;
+        std::cout << std::string(generate_proof_scalar<eval_rounds>(&proof, &ver_index)) << std::endl;
     }
 #endif
 }
