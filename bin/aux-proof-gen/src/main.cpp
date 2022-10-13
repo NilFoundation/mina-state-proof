@@ -1124,8 +1124,8 @@ int main(int argc, char *argv[]) {
             ("vp_input", boost::program_options::value<std::string>(), "Input proof file")
             ("vi_input", boost::program_options::value<std::string>(), "Input index file")
             ("vi_const_input", boost::program_options::value<std::string>(), "Input const index file")
-            ("scalar_proof", boost::program_options::bool_switch(), "Generate scalar part of the circuit")
-            ("base_proof", boost::program_options::bool_switch(), "Generate base part of the circuit");
+            ("scalar_proof", boost::program_options::bool_switch(&generate_scalar)->default_value(false), "Generate scalar part of the circuit")
+            ("base_proof", boost::program_options::bool_switch(&generate_base)->default_value(false), "Generate base part of the circuit");
     // clang-format on
 
     boost::program_options::positional_options_description p;
@@ -1173,12 +1173,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (vm.count("scalar_proof")) {
-        generate_scalar = true;
-    }
-    if (vm.count("base_proof")) {
-        generate_base = true;
-    }
     //    else {
     //        while (std::getline(std::cin, line)) {
     //            string += line + "\n";
