@@ -14,8 +14,6 @@
 // limitations under the License.
 //---------------------------------------------------------------------------//
 
-#include <boost/random.hpp>
-#include <boost/random/random_device.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/circular_buffer.hpp>
@@ -27,7 +25,6 @@
 #include <boost/program_options.hpp>
 #endif
 
-#include <nil/crypto3/algebra/random_element.hpp>
 #include <nil/crypto3/algebra/curves/alt_bn128.hpp>
 #include <nil/crypto3/algebra/curves/vesta.hpp>
 #include <nil/crypto3/algebra/curves/pallas.hpp>
@@ -422,11 +419,10 @@ void prepare_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::curves::v
             var(0, public_input.size() - 1, false, var::column_type::public_input);
     }
 
-    typename BlueprintFieldType::value_type random_value = 
-            algebra::random_element<BlueprintFieldType>();
+    typename BlueprintFieldType::value_type scalar_value = 2;
 
     for (std::size_t i = 0; i < KimchiParamsType::public_input_size; i++) {
-        public_input.push_back(random_value);
+        public_input.push_back(scalar_value);
         circuit_proof.public_input[i] = var(0, public_input.size() - 1, false, var::column_type::public_input);
     }
 
@@ -443,9 +439,9 @@ void prepare_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::curves::v
     circuit_proof.ft_eval = var(0, public_input.size() - 1, false, var::column_type::public_input);
 
     // opening proof
-    public_input.push_back(random_value);
+    public_input.push_back(scalar_value);
     circuit_proof.opening.z1 = var(0, public_input.size() - 1, false, var::column_type::public_input);
-    public_input.push_back(random_value);
+    public_input.push_back(scalar_value);
     circuit_proof.opening.z2 = var(0, public_input.size() - 1, false, var::column_type::public_input);
 }
 
@@ -525,7 +521,7 @@ void prepare_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::ves
 
     for (std::size_t j = 0; j < circuit_proof.comm.table.parts.size(); j++) {
         typename CurveType::template g1_type<algebra::curves::coordinates::affine>::value_type point =
-            algebra::random_element<typename CurveType::template g1_type<algebra::curves::coordinates::affine>>();
+            original_proof.commitments.z_comm.unshifted[0];
         public_input.push_back(point.X);
         circuit_proof.comm.table.parts[j].X =
             var(0, public_input.size() - 1, false, var::column_type::public_input);
@@ -568,7 +564,7 @@ void prepare_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::ves
         var(0, public_input.size() - 1, false, var::column_type::public_input);
 
     for (std::size_t i = 0; i < kimchi_constants::f_comm_msm_size; i++) {
-        typename BlueprintFieldType::value_type x  = algebra::random_element<BlueprintFieldType>();
+        typename BlueprintFieldType::value_type x  = 3;
         public_input.push_back(x);
         circuit_proof.scalars[i] = var(0, public_input.size() - 1, false, var::column_type::public_input);
     }
@@ -694,7 +690,7 @@ void prepare_index_base(vesta_verifier_index_type &original_index,
     }
 
     typename CurveType::template g1_type<algebra::curves::coordinates::affine>::value_type point =
-        algebra::random_element<typename CurveType::template g1_type<algebra::curves::coordinates::affine>>();
+        original_index.sigma_comm[0].unshifted[0];
 
     for (std::size_t i = 0; i < circuit_index.comm.selectors.size(); i++) {
         for (std::size_t j = 0; j < circuit_index.comm.selectors[i].parts.size(); j++) {
