@@ -104,7 +104,7 @@ inline std::vector<std::size_t> generate_step_list(const std::size_t r, const in
 }
 
 template<typename fri_type, typename FieldType>
-typename fri_type::params_type create_fri_params(std::size_t degree_log) {
+typename fri_type::params_type create_fri_params(std::size_t degree_log, std::size_t max_step) {
     typename fri_type::params_type params;
 
     constexpr std::size_t expand_factor = 0;
@@ -117,7 +117,6 @@ typename fri_type::params_type create_fri_params(std::size_t degree_log) {
     params.D = domain_set;
     params.max_degree = (1 << degree_log) - 1;
 
-    const std::size_t max_step = 3;
     params.step_list = generate_step_list(r, max_step);
 
     return params;
@@ -779,7 +778,7 @@ template<typename ComponentType, typename BlueprintFieldType, typename Arithmeti
              std::is_same<typename BlueprintFieldType::value_type,
                           typename std::iterator_traits<typename PublicInput::iterator>::value_type>::value,
              bool>::type = true>
-auto prepare_component(typename ComponentType::params_type params, const PublicInput &public_input,
+auto prepare_component(typename ComponentType::params_type params, const PublicInput &public_input, const std::size_t max_step,
                        const FunctorResultCheck &result_check) {
 
     using ArithmetizationType = zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams>;
@@ -822,7 +821,7 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
 
     std::size_t table_rows_log = std::ceil(std::log2(desc.rows_amount));
 
-    typename fri_type::params_type fri_params = create_fri_params<fri_type, BlueprintFieldType>(table_rows_log);
+    typename fri_type::params_type fri_params = create_fri_params<fri_type, BlueprintFieldType>(table_rows_log, max_step);
 
     std::size_t permutation_size = desc.witness_columns + desc.public_input_columns + desc.constant_columns;
 
@@ -842,11 +841,11 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
 extern "C" {
 template<std::size_t EvalRounds>
 const char *generate_proof_base(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> *pickles_proof,
-    vesta_verifier_index_type *pickles_index) {
+    vesta_verifier_index_type *pickles_index, const std::size_t fri_max_step, std::string output_path) {
 #else
 template<std::size_t EvalRounds>
 std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> *pickles_proof,
-    vesta_verifier_index_type *pickles_index) {
+    vesta_verifier_index_type *pickles_index, const std::size_t fri_max_step, std::string output_path) {
 #endif
     using curve_type = algebra::curves::vesta;
     using BlueprintFieldType = typename curve_type::base_field_type;
@@ -943,14 +942,14 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
 
     auto [desc, bp, fri_params, assignments, public_preprocessed_data, private_preprocessed_data] =
         prepare_component<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(
-            params, public_input, result_check);
+            params, public_input, fri_max_step, result_check);
 
     auto proof = zk::snark::placeholder_prover<BlueprintFieldType, placeholder_params>::process(
         public_preprocessed_data, private_preprocessed_data, desc, bp, assignments, fri_params);
 
-    std::string output_path = "/root/mina-updated/mina-state-proof/bin/aux-proof-gen/src/data/output_base.json";
+    std::string output_path_full = output_path + "_base";
     proof_print<nil::marshalling::option::big_endian>(
-        proof, output_path);
+        proof, output_path_full);
 
     bool verifier_res = zk::snark::placeholder_verifier<BlueprintFieldType, placeholder_params>::process(
         public_preprocessed_data, proof, bp, fri_params);
@@ -970,11 +969,11 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
 extern "C" {
 template<std::size_t EvalRounds>
 const char *generate_proof_scalar(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> *pickles_proof,
-    vesta_verifier_index_type *pickles_index) {
+    vesta_verifier_index_type *pickles_index, const std::size_t fri_max_step, std::string output_path) {
 #else
 template<std::size_t EvalRounds>
 std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> *pickles_proof,
-    vesta_verifier_index_type *pickles_index) {
+    vesta_verifier_index_type *pickles_index, const std::size_t fri_max_step, std::string output_path) {
 #endif
     using curve_type = algebra::curves::vesta;
     using BlueprintFieldType = typename curve_type::scalar_field_type;
@@ -1057,7 +1056,7 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
 
     auto [desc, bp, fri_params, assignments, public_preprocessed_data, private_preprocessed_data] =
         prepare_component<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(
-            params, public_input, result_check);
+            params, public_input, fri_max_step, result_check);
 
     auto proof = zk::snark::placeholder_prover<BlueprintFieldType, placeholder_params>::process(
         public_preprocessed_data, private_preprocessed_data, desc, bp, assignments, fri_params);
@@ -1105,9 +1104,9 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
     std::cout << "proof.eval_proof.challenge=" << proof.eval_proof.challenge.data << std::endl;
 
     profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::process_split(std::cout, bp, public_preprocessed_data);
-    std::string output_path = "/root/mina-updated/mina-state-proof/bin/aux-proof-gen/src/data/output_scalar.json";
+    std::string output_path_full = output_path + "_scalar";
     proof_print<nil::marshalling::option::big_endian>(
-        proof, output_path);
+        proof, output_path_full);
 
     bool verifier_res = zk::snark::placeholder_verifier<BlueprintFieldType, placeholder_params>::process(
         public_preprocessed_data, proof, bp, fri_params);
@@ -1154,18 +1153,21 @@ int main(int argc, char *argv[]) {
 #ifndef __EMSCRIPTEN__
 
     std::string vp_input, vi_input, vi_const_input, line;
+    std::string output = "/root/mina-updated/mina-state-proof/bin/aux-proof-gen/src/data/output_base";
     bool generate_scalar = false, generate_base = false;
+    std::size_t fri_max_step;
 
     boost::program_options::options_description options("Mina State Proof Auxiliary Proof Generator");
     // clang-format off
     options.add_options()("help,h", "Display help message")
             ("version,v", "Display version")
-            ("output,o", boost::program_options::value<std::string>(),"Output file")
+            ("output,o", boost::program_options::value<std::string>(&output),"Output file")
             ("vp_input", boost::program_options::value<std::string>(), "Input proof file")
             ("vi_input", boost::program_options::value<std::string>(), "Input index file")
             ("vi_const_input", boost::program_options::value<std::string>(), "Input const index file")
             ("scalar_proof", boost::program_options::bool_switch(&generate_scalar)->default_value(false), "Generate scalar part of the circuit")
-            ("base_proof", boost::program_options::bool_switch(&generate_base)->default_value(false), "Generate base part of the circuit");
+            ("base_proof", boost::program_options::bool_switch(&generate_base)->default_value(false), "Generate base part of the circuit")
+            ("max_step", boost::program_options::value<std::size_t>(&fri_max_step)->default_value(3), "Step for FRI folding (default 3)");
     // clang-format on
 
     boost::program_options::positional_options_description p;
@@ -1230,10 +1232,10 @@ int main(int argc, char *argv[]) {
     constexpr const std::size_t eval_rounds = 1;
 
     if (generate_base) {
-        std::cout << std::string(generate_proof_base<eval_rounds>(&proof, &ver_index)) << std::endl;
+        std::cout << std::string(generate_proof_base<eval_rounds>(&proof, &ver_index, fri_max_step, output)) << std::endl;
     } 
     if (generate_scalar) {
-        std::cout << std::string(generate_proof_scalar<eval_rounds>(&proof, &ver_index)) << std::endl;
+        std::cout << std::string(generate_proof_scalar<eval_rounds>(&proof, &ver_index, fri_max_step, output)) << std::endl;
     }
 #endif
 }
