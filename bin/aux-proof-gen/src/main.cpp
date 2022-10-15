@@ -68,6 +68,7 @@
 #include <nil/marshalling/field_type.hpp>
 
 #include "ec_index_terms.hpp"
+#include "profiling_plonk_circuit.hpp"
 
 #include <fstream>
 
@@ -1061,6 +1062,49 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
     auto proof = zk::snark::placeholder_prover<BlueprintFieldType, placeholder_params>::process(
         public_preprocessed_data, private_preprocessed_data, desc, bp, assignments, fri_params);
 
+    std::cout << "modulus = " << BlueprintFieldType::modulus << std::endl;
+    std::cout << "fri_params.r = " << fri_params.r << std::endl;
+    std::cout << "fri_params.max_degree = " << fri_params.max_degree << std::endl;
+    for (auto i: fri_params.step_list) {
+        std::cout << "step=" << i << std::endl;
+    }
+    //    std::cout << "fri_params.q = ";
+    //    for (const auto &coeff : fri_params.q) {
+    //        std::cout << coeff.data << ", ";
+    //    }
+    //    std::cout << std::endl;
+    std::cout << "fri_params.D_omegas = ";
+    for (const auto &dom : fri_params.D) {
+        std::cout
+            << static_cast<nil::crypto3::math::basic_radix2_domain<BlueprintFieldType> &>(*dom).omega.data
+            << ", ";
+    }
+    std::cout << std::endl;
+    std::cout << "lpc_params.lambda = "
+              << placeholder_params::batched_commitment_params_type::lambda << std::endl;
+    std::cout << "lpc_params.m = " << placeholder_params::batched_commitment_params_type::m
+              << std::endl;
+    std::cout << "common_data.rows_amount = " << desc.rows_amount << std::endl;
+    std::cout << "common_data.omega = "
+              << static_cast<nil::crypto3::math::basic_radix2_domain<BlueprintFieldType> &>(
+                     *public_preprocessed_data.common_data.basic_domain)
+                     .omega.data
+              << std::endl;
+    std::cout << "max_leaf_size = "
+              << std::max({
+                     proof.eval_proof.witness.z.size(),
+                     proof.eval_proof.quotient.z.size(),
+                     proof.eval_proof.id_permutation.z.size(),
+                     proof.eval_proof.sigma_permutation.z.size(),
+                     proof.eval_proof.public_input.z.size(),
+                     proof.eval_proof.constant.z.size(),
+                     proof.eval_proof.selector.z.size(),
+                     proof.eval_proof.special_selectors.z.size(),
+                 })
+              << std::endl;
+    std::cout << "proof.eval_proof.challenge=" << proof.eval_proof.challenge.data << std::endl;
+
+    profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::process_split(std::cout, bp, public_preprocessed_data);
     std::string output_path = "/root/mina-updated/mina-state-proof/bin/aux-proof-gen/src/data/output_scalar.json";
     proof_print<nil::marshalling::option::big_endian>(
         proof, output_path);
@@ -1183,7 +1227,7 @@ int main(int argc, char *argv[]) {
     zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> proof = make_proof(root);
     vesta_verifier_index_type ver_index = make_verify_index(root, const_root);
 
-    constexpr const std::size_t eval_rounds = 14;
+    constexpr const std::size_t eval_rounds = 1;
 
     if (generate_base) {
         std::cout << std::string(generate_proof_base<eval_rounds>(&proof, &ver_index)) << std::endl;
