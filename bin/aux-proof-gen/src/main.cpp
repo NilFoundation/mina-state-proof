@@ -1,5 +1,6 @@
 //---------------------------------------------------------------------------//
 // Copyright (c) 2018-2021 Mikhail Komarov <nemo@nil.foundation>
+// Copyright (c) 2022 Ilia Shirobokov <i.shirobokov@nil.foundation>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,13 +28,12 @@
 
 #include <nil/crypto3/algebra/curves/alt_bn128.hpp>
 #include <nil/crypto3/algebra/curves/vesta.hpp>
-#include <nil/crypto3/algebra/curves/pallas.hpp>
-#include <nil/crypto3/algebra/fields/arithmetic_params/pallas.hpp>
+#include <nil/crypto3/algebra/curves/vesta.hpp>
+#include <nil/crypto3/algebra/fields/arithmetic_params/vesta.hpp>
 #include <nil/crypto3/algebra/fields/arithmetic_params/vesta.hpp>
 #include <nil/crypto3/algebra/fields/arithmetic_params/alt_bn128.hpp>
 #include <nil/crypto3/algebra/curves/params/multiexp/alt_bn128.hpp>
 #include <nil/crypto3/algebra/curves/params/wnaf/alt_bn128.hpp>
-#include <nil/crypto3/algebra/curves/detail/subgroup_check.hpp>
 
 #include <nil/crypto3/zk/blueprint/plonk.hpp>
 #include <nil/crypto3/zk/assignment/plonk.hpp>
@@ -177,6 +177,24 @@ multiprecision::cpp_int get_cppui256(Iterator it) {
     return multiprecision::cpp_int(it->second.template get_value<std::string>());
 }
 
+template<typename CurveType>
+void check_coord(multiprecision::cpp_int &x, multiprecision::cpp_int &y) {
+    if (x == 0 && y == 1) { // circuit uses (0, 0) as point-at-infinity
+            y = 0;
+    }
+
+    typename CurveType::base_field_type::value_type x_field = x;
+    typename CurveType::base_field_type::value_type y_field = y;
+    
+    typename CurveType::base_field_type::value_type left_side = y_field * y_field;
+    typename CurveType::base_field_type::value_type right_side = x_field * x_field * x_field;
+    right_side += 5;
+    if (left_side != right_side) {
+        x = 0;
+        y = 0;
+    }
+}
+
 zk::snark::proof_type<curve_type> make_proof(boost::property_tree::ptree root) {
     typename zk::snark::proof_type<curve_type> proof;
     size_t i = 0;
@@ -189,6 +207,7 @@ zk::snark::proof_type<curve_type> make_proof(boost::property_tree::ptree root) {
         auto x = get_cppui256(it);
         it++;
         auto y = get_cppui256(it);
+        check_coord<curve_type>(x, y);
         proof.commitments.w_comm[i].unshifted.emplace_back(x, y);
         ++i;
     }
@@ -196,12 +215,14 @@ zk::snark::proof_type<curve_type> make_proof(boost::property_tree::ptree root) {
     auto x = get_cppui256(it);
     it++;
     auto y = get_cppui256(it);
+    check_coord<curve_type>(x, y);
     proof.commitments.z_comm.unshifted.emplace_back(x, y);
 
     it = best_chain.second.get_child(base_path + "messages.t_comm").begin()->second.get_child("").begin();
     x = get_cppui256(it);
     it++;
     y = get_cppui256(it);
+    check_coord<curve_type>(x, y);
     proof.commitments.t_comm.unshifted.emplace_back(x, y);
     //    proof.commitments.lookup;    // TODO: where it is?
 
@@ -211,12 +232,18 @@ zk::snark::proof_type<curve_type> make_proof(boost::property_tree::ptree root) {
         auto x0 = get_cppui256(it0);
         it0++;
         auto y0 = get_cppui256(it0);
+        if (x0 == 0 && y0 == 1) { // circuit uses (0, 0) as point-at-infinity
+            y0 = 0;
+        }
         auto it1 = row.second.begin();
         it1++;
         it1 = it1->second.begin();
         auto x1 = get_cppui256(it1);
         it1++;
         auto y1 = get_cppui256(it1);
+        if (x1 == 0 && y1 == 1) { // circuit uses (0, 0) as point-at-infinity
+            y1 = 0;
+        }
         proof.proof.lr.push_back({{x0, y0}, {x1, y1}});
         ++i;
     }
@@ -224,11 +251,13 @@ zk::snark::proof_type<curve_type> make_proof(boost::property_tree::ptree root) {
     x = get_cppui256(it);
     it++;
     y = get_cppui256(it);
+    check_coord<curve_type>(x, y);
     proof.proof.delta = {x, y};
     it = best_chain.second.get_child(base_path + "openings.proof.sg").begin();
     x = get_cppui256(it);
     it++;
     y = get_cppui256(it);
+    check_coord<curve_type>(x, y);
     proof.proof.sg = {x, y};
 
     proof.proof.z1 = multiprecision::cpp_int(best_chain.second.get<std::string>(base_path + "openings.proof.z_1"));
@@ -307,6 +336,7 @@ vesta_verifier_index_type make_verify_index(boost::property_tree::ptree root, bo
         auto x = get_cppui256(it);
         it++;
         auto y = get_cppui256(it);
+        check_coord<curve_type>(x, y);
         ver_index.sigma_comm[i].unshifted.emplace_back(x, y);
         ++i;
     }
@@ -317,6 +347,7 @@ vesta_verifier_index_type make_verify_index(boost::property_tree::ptree root, bo
         auto x = get_cppui256(it);
         it++;
         auto y = get_cppui256(it);
+        check_coord<curve_type>(x, y);
         ver_index.coefficients_comm[i].unshifted.emplace_back(x, y);
         ++i;
     }
@@ -324,32 +355,38 @@ vesta_verifier_index_type make_verify_index(boost::property_tree::ptree root, bo
     auto x = get_cppui256(it);
     it++;
     auto y = get_cppui256(it);
+    check_coord<curve_type>(x, y);
     ver_index.generic_comm.unshifted.emplace_back(x, y);
 
     it = root.get_child("data.blockchainVerificationKey.commitments.psm_comm").begin();
     x = get_cppui256(it);
     it++;
     y = get_cppui256(it);
+    check_coord<curve_type>(x, y);
     ver_index.psm_comm.unshifted.emplace_back(x, y);
     it = root.get_child("data.blockchainVerificationKey.commitments.complete_add_comm").begin();
     x = get_cppui256(it);
     it++;
     y = get_cppui256(it);
+    check_coord<curve_type>(x, y);
     ver_index.complete_add_comm.unshifted.emplace_back(x, y);
     it = root.get_child("data.blockchainVerificationKey.commitments.mul_comm").begin();
     x = get_cppui256(it);
     it++;
     y = get_cppui256(it);
+    check_coord<curve_type>(x, y);
     ver_index.mul_comm.unshifted.emplace_back(x, y);
     it = root.get_child("data.blockchainVerificationKey.commitments.emul_comm").begin();
     x = get_cppui256(it);
     it++;
     y = get_cppui256(it);
+    check_coord<curve_type>(x, y);
     ver_index.emul_comm.unshifted.emplace_back(x, y);
     it = root.get_child("data.blockchainVerificationKey.commitments.endomul_scalar_comm").begin();
     x = get_cppui256(it);
     it++;
     y = get_cppui256(it);
+    check_coord<curve_type>(x, y);
     ver_index.endomul_scalar_comm.unshifted.emplace_back(x, y);
 
     // TODO: null in example
@@ -780,9 +817,9 @@ void prepare_index_base(vesta_verifier_index_type &original_index,
     }
 
     // POINTS
-    public_input.push_back(original_index.srs.h.X);
+    public_input.push_back(point.X); // todo srs.h is not used during parsing
     circuit_index.H.X = var(0, public_input.size() - 1, false, var::column_type::public_input);
-    public_input.push_back(original_index.srs.h.Y);
+    public_input.push_back(point.Y);
     circuit_index.H.Y = var(0, public_input.size() - 1, false, var::column_type::public_input);
 
     for (std::size_t i = 0; i < KimchiParamsType::commitment_params_type::srs_len; i++) {
@@ -793,9 +830,9 @@ void prepare_index_base(vesta_verifier_index_type &original_index,
     }
 
     for (std::size_t i = 0; i < KimchiParamsType::public_input_size; i++) {
-        public_input.push_back(original_index.srs.lagrange_bases[0][i].X);
+        public_input.push_back(point.X); // todo srs.lagrange_bases is not used during parsing
         circuit_index.lagrange_bases[i].X = var(0, public_input.size() - 1, false, var::column_type::public_input);
-        public_input.push_back(original_index.srs.lagrange_bases[0][i].Y);
+        public_input.push_back(point.Y);
         circuit_index.lagrange_bases[i].Y = var(0, public_input.size() - 1, false, var::column_type::public_input);
     }
 }
@@ -975,6 +1012,12 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
 
     fr_data_type fr_data_public;
     fq_data_type fq_data_public;
+
+    public_input.push_back(3);
+    for (std::size_t i = 0; i < fr_data_public.scalars.size(); i++) {
+        var s(0, public_input.size() - 1, false, var::column_type::public_input);
+        fr_data_public.scalars[i] = s;
+    }
 
     typename component_type::params_type params = {proofs, verifier_index, fr_data_public, fq_data_public};
 
@@ -1214,6 +1257,8 @@ int main(int argc, char *argv[]) {
     bool generate_scalar = false, generate_base = false;
     std::size_t fri_max_step;
 
+    std::cout<<"test"<<std::endl;
+
     boost::program_options::options_description options("Mina State Proof Auxiliary Proof Generator");
     // clang-format off
     options.add_options()("help,h", "Display help message")
@@ -1269,22 +1314,22 @@ int main(int argc, char *argv[]) {
     // parse_pconst(vi_input.c_str(), vi_const_input.c_str());
     boost::property_tree::ptree root;
     boost::property_tree::ptree const_root;
-    // boost::property_tree::read_json(vm["vp_input"].as<std::string>(), root);
-    // boost::property_tree::read_json(vm["vi_const_input"].as<std::string>(), const_root);
-    std::string vp = "/mnt/d/gits/mina-state-proof/bin/aux-proof-gen/src/data/kimchi.json";
-    std::string vc = "/mnt/d/gits/mina-state-proof/bin/aux-proof-gen/src/data/kimchi_const.json";
-    output = "/mnt/d/Downloads/output_test";
-    boost::property_tree::read_json(vp, root);
-    boost::property_tree::read_json(vc, const_root);
+    boost::property_tree::read_json(vm["vp_input"].as<std::string>(), root);
+    boost::property_tree::read_json(vm["vi_const_input"].as<std::string>(), const_root);
+    // std::string vp = "/mnt/d/gits/mina-state-proof/bin/aux-proof-gen/src/data/kimchi.json";
+    // std::string vc = "/mnt/d/gits/mina-state-proof/bin/aux-proof-gen/src/data/kimchi_const.json";
+    // output = "/mnt/d/Downloads/output_test";
+    // boost::property_tree::read_json(vp, root);
+    // boost::property_tree::read_json(vc, const_root);
     zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> proof = make_proof(root);
     vesta_verifier_index_type ver_index = make_verify_index(root, const_root);
 
     constexpr const std::size_t eval_rounds = 1;
 
-    // TEST
-    //generate_scalar = true;
-    generate_base = true;
-    fri_max_step = 1;
+    // // TEST
+    // //generate_scalar = true;
+    // generate_base = true;
+    // fri_max_step = 1;
 
     if (generate_base) {
         std::cout << std::string(generate_proof_base<eval_rounds>(proof, ver_index, fri_max_step, output)) << std::endl;
