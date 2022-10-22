@@ -27,10 +27,10 @@
 #endif
 
 #include <nil/crypto3/algebra/curves/alt_bn128.hpp>
-#include <nil/crypto3/algebra/curves/vesta.hpp>
-#include <nil/crypto3/algebra/curves/vesta.hpp>
-#include <nil/crypto3/algebra/fields/arithmetic_params/vesta.hpp>
-#include <nil/crypto3/algebra/fields/arithmetic_params/vesta.hpp>
+#include <nil/crypto3/algebra/curves/pallas.hpp>
+#include <nil/crypto3/algebra/curves/pallas.hpp>
+#include <nil/crypto3/algebra/fields/arithmetic_params/pallas.hpp>
+#include <nil/crypto3/algebra/fields/arithmetic_params/pallas.hpp>
 #include <nil/crypto3/algebra/fields/arithmetic_params/alt_bn128.hpp>
 #include <nil/crypto3/algebra/curves/params/multiexp/alt_bn128.hpp>
 #include <nil/crypto3/algebra/curves/params/wnaf/alt_bn128.hpp>
@@ -76,8 +76,8 @@
 using namespace nil;
 using namespace nil::crypto3;
 
-using curve_type = nil::crypto3::algebra::curves::vesta;
-using vesta_verifier_index_type = zk::snark::verifier_index<
+using curve_type = nil::crypto3::algebra::curves::pallas;
+using pallas_verifier_index_type = zk::snark::verifier_index<
     curve_type,
     nil::crypto3::zk::snark::arithmetic_sponge_params<curve_type::scalar_field_type::value_type>,
     nil::crypto3::zk::snark::arithmetic_sponge_params<curve_type::base_field_type::value_type>,
@@ -310,10 +310,10 @@ zk::snark::proof_type<curve_type> make_proof(boost::property_tree::ptree root) {
     return proof;
 }
 
-vesta_verifier_index_type make_verify_index(boost::property_tree::ptree root, boost::property_tree::ptree const_root) {
-    using curve_type = typename nil::crypto3::algebra::curves::vesta;
+pallas_verifier_index_type make_verify_index(boost::property_tree::ptree root, boost::property_tree::ptree const_root) {
+    using curve_type = typename nil::crypto3::algebra::curves::pallas;
 
-    vesta_verifier_index_type ver_index;
+    pallas_verifier_index_type ver_index;
     size_t i = 0;
 
     // TODO Is it right? Is it a good way to set domain generator?
@@ -466,7 +466,7 @@ vesta_verifier_index_type make_verify_index(boost::property_tree::ptree root, bo
 }
 
 template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType, std::size_t EvalRounds>
-void prepare_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> &original_proof,
+void prepare_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &original_proof,
                    zk::components::kimchi_proof_scalar<BlueprintFieldType, KimchiParamsType, EvalRounds> &circuit_proof,
                    std::vector<typename BlueprintFieldType::value_type> &public_input) {
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
@@ -529,7 +529,7 @@ void prepare_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::curves::v
 }
 
 template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType, std::size_t EvalRounds>
-void prepare_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> &original_proof,
+void prepare_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &original_proof,
                    zk::components::kimchi_proof_base<BlueprintFieldType, KimchiParamsType> &circuit_proof,
                    std::vector<typename BlueprintFieldType::value_type> &public_input) {
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
@@ -603,6 +603,7 @@ void prepare_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::ves
     }
 
     for (std::size_t j = 0; j < circuit_proof.comm.table.parts.size(); j++) {
+        assert(circuit_proof.comm.table.parts.size() > j);
         typename CurveType::template g1_type<algebra::curves::coordinates::affine>::value_type point =
             original_proof.commitments.z_comm.unshifted[0];
         public_input.push_back(point.X);
@@ -653,7 +654,7 @@ void prepare_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::ves
 }
 
 template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType>
-void prepare_index_base(vesta_verifier_index_type &original_index,
+void prepare_index_base(pallas_verifier_index_type &original_index,
                    zk::components::kimchi_verifier_index_base<CurveType, KimchiParamsType> &circuit_index,
                    std::vector<typename BlueprintFieldType::value_type> &public_input) {
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
@@ -838,7 +839,7 @@ void prepare_index_base(vesta_verifier_index_type &original_index,
 }
 
 template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType>
-void prepare_index_scalar(vesta_verifier_index_type &original_index,
+void prepare_index_scalar(pallas_verifier_index_type &original_index,
                    zk::components::kimchi_verifier_index_scalar<BlueprintFieldType> &circuit_index,
                    std::vector<typename BlueprintFieldType::value_type> &public_input) {
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
@@ -864,72 +865,75 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
                        const FunctorResultCheck &result_check) {
 
     using ArithmetizationType = zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams>;
-    using component_type = ComponentType;
+            using component_type = ComponentType;
 
-    zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams> desc;
+            zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams> desc;
 
-    zk::blueprint<ArithmetizationType> bp(desc);
-    zk::blueprint_private_assignment_table<ArithmetizationType> private_assignment(desc);
-    zk::blueprint_public_assignment_table<ArithmetizationType> public_assignment(desc);
-    zk::blueprint_assignment_table<ArithmetizationType> assignment_bp(private_assignment, public_assignment);
+            zk::blueprint<ArithmetizationType> bp(desc);
+            zk::blueprint_private_assignment_table<ArithmetizationType> private_assignment(desc);
+            zk::blueprint_public_assignment_table<ArithmetizationType> public_assignment(desc);
+            zk::blueprint_assignment_table<ArithmetizationType> assignment_bp(private_assignment, public_assignment);
 
-    std::size_t start_row = zk::components::allocate<component_type>(bp);
-    if (public_input.size() > component_type::rows_amount) {
-        bp.allocate_rows(public_input.size() - component_type::rows_amount);
-    }
+            std::size_t start_row = zk::components::allocate<component_type>(bp);
+            if (public_input.size() > component_type::rows_amount) {
+                bp.allocate_rows(public_input.size() - component_type::rows_amount);
+            }
 
-    for (std::size_t i = 0; i < public_input.size(); i++) {
-        auto allocated_pi = assignment_bp.allocate_public_input(public_input[i]);
-    }
+            for (std::size_t i = 0; i < public_input.size(); i++) {
+                auto allocated_pi = assignment_bp.allocate_public_input(public_input[i]);
+            }
 
-    zk::components::generate_circuit<component_type>(bp, public_assignment, params, start_row);
-    typename component_type::result_type component_result =
-        component_type::generate_assignments(assignment_bp, params, start_row);
-    std::bind(result_check, assignment_bp, component_result);
+            zk::components::generate_circuit<component_type>(bp, public_assignment, params, start_row);
+            typename component_type::result_type component_result =
+                component_type::generate_assignments(assignment_bp, params, start_row);
+            
+            result_check(assignment_bp, component_result);
 
-    assignment_bp.padding();
-    std::cout << "Usable rows: " << desc.usable_rows_amount << std::endl;
-    std::cout << "Padded rows: " << desc.rows_amount << std::endl;
+            assignment_bp.padding();
+            std::cout << "Usable rows: " << desc.usable_rows_amount << std::endl;
+            std::cout << "Padded rows: " << desc.rows_amount << std::endl;
 
-    zk::snark::plonk_assignment_table<BlueprintFieldType, ArithmetizationParams> assignments(private_assignment,
-                                                                                             public_assignment);
+            zk::snark::plonk_assignment_table<BlueprintFieldType, ArithmetizationParams> assignments(private_assignment,
+                                                                                                     public_assignment);
 
-    using placeholder_params =
-        zk::snark::placeholder_params<BlueprintFieldType, ArithmetizationParams, Hash, Hash, Lambda>;
-    using types = zk::snark::detail::placeholder_policy<BlueprintFieldType, placeholder_params>;
+            using placeholder_params =
+                zk::snark::placeholder_params<BlueprintFieldType, ArithmetizationParams, Hash, Hash, Lambda>;
+            using types = zk::snark::detail::placeholder_policy<BlueprintFieldType, placeholder_params>;
 
-    using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename placeholder_params::merkle_hash_type,
-                                                   typename placeholder_params::transcript_hash_type, 2, 1>;
+            using fri_type =
+                typename zk::commitments::fri<BlueprintFieldType, typename placeholder_params::merkle_hash_type,
+                                              typename placeholder_params::transcript_hash_type, 2, 1>;
 
-    std::size_t table_rows_log = std::ceil(std::log2(desc.rows_amount));
+            std::size_t table_rows_log = std::ceil(std::log2(desc.rows_amount));
 
-    typename fri_type::params_type fri_params = create_fri_params<fri_type, BlueprintFieldType>(table_rows_log, max_step);
+            typename fri_type::params_type fri_params = create_fri_params<fri_type, BlueprintFieldType>(table_rows_log, max_step);
 
-    std::size_t permutation_size = desc.witness_columns + desc.public_input_columns + desc.constant_columns;
+            std::size_t permutation_size = desc.witness_columns + desc.public_input_columns + desc.constant_columns;
 
-    typename zk::snark::placeholder_public_preprocessor<BlueprintFieldType, placeholder_params>::preprocessed_data_type
-        public_preprocessed_data =
-            zk::snark::placeholder_public_preprocessor<BlueprintFieldType, placeholder_params>::process(
-                bp, public_assignment, desc, fri_params, permutation_size);
-    typename zk::snark::placeholder_private_preprocessor<BlueprintFieldType, placeholder_params>::preprocessed_data_type
-        private_preprocessed_data =
-            zk::snark::placeholder_private_preprocessor<BlueprintFieldType, placeholder_params>::process(
-                bp, private_assignment, desc, fri_params);
+            typename zk::snark::placeholder_public_preprocessor<
+                BlueprintFieldType, placeholder_params>::preprocessed_data_type public_preprocessed_data =
+                zk::snark::placeholder_public_preprocessor<BlueprintFieldType, placeholder_params>::process(
+                    bp, public_assignment, desc, fri_params, permutation_size);
+            typename zk::snark::placeholder_private_preprocessor<
+                BlueprintFieldType, placeholder_params>::preprocessed_data_type private_preprocessed_data =
+                zk::snark::placeholder_private_preprocessor<BlueprintFieldType, placeholder_params>::process(
+                    bp, private_assignment, desc, fri_params);
 
-    return std::make_tuple(desc, bp, fri_params, assignments, public_preprocessed_data, private_preprocessed_data);
+            return std::make_tuple(desc, bp, fri_params, assignments, public_preprocessed_data,
+                                   private_preprocessed_data);
 }
 
 #ifdef __EMSCRIPTEN__
 extern "C" {
 template<std::size_t EvalRounds>
-const char *generate_proof_base(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> &pickles_proof,
-    vesta_verifier_index_type &pickles_index, const std::size_t fri_max_step, std::string output_path) {
+const char *generate_proof_base(zk::snark::pickles_proof<nil::crypto3::algebra::curves::pallas> &pickles_proof,
+    pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step, std::string output_path) {
 #else
 template<std::size_t EvalRounds>
-std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> &pickles_proof,
-    vesta_verifier_index_type &pickles_index, const std::size_t fri_max_step, std::string output_path) {
+std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &pickles_proof,
+    pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step, std::string output_path) {
 #endif
-    using curve_type = algebra::curves::vesta;
+    using curve_type = algebra::curves::pallas;
     using BlueprintFieldType = typename curve_type::base_field_type;
     constexpr std::size_t WitnessColumns = 15;
     constexpr std::size_t PublicInputColumns = 1;
@@ -1062,14 +1066,14 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
 #ifdef __EMSCRIPTEN__
 extern "C" {
 template<std::size_t EvalRounds>
-const char *generate_proof_scalar(zk::snark::pickles_proof<nil::crypto3::algebra::curves::vesta> &pickles_proof,
-    vesta_verifier_index_type &pickles_index, const std::size_t fri_max_step, std::string output_path) {
+const char *generate_proof_scalar(zk::snark::pickles_proof<nil::crypto3::algebra::curves::pallas> &pickles_proof,
+    pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step, std::string output_path) {
 #else
 template<std::size_t EvalRounds>
-std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> &pickles_proof,
-    vesta_verifier_index_type &pickles_index, const std::size_t fri_max_step, std::string output_path) {
+std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &pickles_proof,
+    pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step, std::string output_path) {
 #endif
-    using curve_type = algebra::curves::vesta;
+    using curve_type = algebra::curves::pallas;
     using BlueprintFieldType = typename curve_type::scalar_field_type;
     constexpr std::size_t WitnessColumns = 15;
     constexpr std::size_t PublicInputColumns = 1;
@@ -1085,14 +1089,13 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
 
     constexpr static std::size_t public_input_size = 1;
-    constexpr static std::size_t max_poly_size = 1 << EvalRounds; //16384 32768 in json
+    constexpr static std::size_t max_poly_size = 1 << EvalRounds; // 32768 in json
     constexpr static std::size_t srs_len = max_poly_size;
     constexpr static std::size_t eval_rounds = EvalRounds; // 15 in json
 
     constexpr static std::size_t witness_columns = 15;
     constexpr static std::size_t perm_size = 7;
     constexpr static std::size_t lookup_table_size = 0;
-    constexpr static bool use_lookup = false;
 
     constexpr static std::size_t batch_size = 1;
 
@@ -1117,7 +1120,7 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
     using fq_data_type =
         typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::template fq_data<var>;
 
-    std::vector<typename BlueprintFieldType::value_type> public_input = {};
+    std::vector<typename BlueprintFieldType::value_type> public_input = {0};
 
     std::array<zk::components::kimchi_proof_scalar<BlueprintFieldType, kimchi_params, eval_rounds>, batch_size> proofs;
 
@@ -1131,6 +1134,7 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
 
     zk::components::kimchi_verifier_index_scalar<BlueprintFieldType> verifier_index;
     prepare_index_scalar<curve_type, BlueprintFieldType, kimchi_params>(pickles_index, verifier_index, public_input);
+    verifier_index.domain_size = max_poly_size;
 
     using fq_output_type =
         typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_sponge_output;
@@ -1183,27 +1187,27 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
     }
     std::cout << std::endl;
     std::cout << "lpc_params.lambda = "
-              << placeholder_params::batched_commitment_params_type::lambda << std::endl;
+            << placeholder_params::batched_commitment_params_type::lambda << std::endl;
     std::cout << "lpc_params.m = " << placeholder_params::batched_commitment_params_type::m
-              << std::endl;
+            << std::endl;
     std::cout << "common_data.rows_amount = " << desc.rows_amount << std::endl;
     std::cout << "common_data.omega = "
-              << static_cast<nil::crypto3::math::basic_radix2_domain<BlueprintFieldType> &>(
-                     *public_preprocessed_data.common_data.basic_domain)
-                     .omega.data
-              << std::endl;
+            << static_cast<nil::crypto3::math::basic_radix2_domain<BlueprintFieldType> &>(
+                    *public_preprocessed_data.common_data.basic_domain)
+                    .omega.data
+            << std::endl;
     std::cout << "max_leaf_size = "
-              << std::max({
-                     proof.eval_proof.witness.z.size(),
-                     proof.eval_proof.quotient.z.size(),
-                     proof.eval_proof.id_permutation.z.size(),
-                     proof.eval_proof.sigma_permutation.z.size(),
-                     proof.eval_proof.public_input.z.size(),
-                     proof.eval_proof.constant.z.size(),
-                     proof.eval_proof.selector.z.size(),
-                     proof.eval_proof.special_selectors.z.size(),
-                 })
-              << std::endl;
+            << std::max({
+                    proof.eval_proof.witness.z.size(),
+                    proof.eval_proof.quotient.z.size(),
+                    proof.eval_proof.id_permutation.z.size(),
+                    proof.eval_proof.sigma_permutation.z.size(),
+                    proof.eval_proof.public_input.z.size(),
+                    proof.eval_proof.constant.z.size(),
+                    proof.eval_proof.selector.z.size(),
+                    proof.eval_proof.special_selectors.z.size(),
+                })
+            << std::endl;
     std::cout << "proof.eval_proof.challenge=" << proof.eval_proof.challenge.data << std::endl;
 
     profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::process_split(std::cout, bp, public_preprocessed_data);
@@ -1222,7 +1226,7 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
 #endif
 }
 
-zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> parse_proof(const char *kimchi) {
+zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> parse_proof(const char *kimchi) {
     std::stringstream ss1;
     ss1 << kimchi;
     boost::property_tree::ptree root, const_root;
@@ -1241,7 +1245,7 @@ int parse_pconst(const char *vk, const char *vk_const) {
     boost::property_tree::read_json(ss1, root);
     boost::property_tree::read_json(ss2, const_root);
 
-    vesta_verifier_index_type ver_index = make_verify_index(root, const_root);
+    pallas_verifier_index_type ver_index = make_verify_index(root, const_root);
     return 0;
 }
 
@@ -1310,7 +1314,7 @@ int main(int argc, char *argv[]) {
     //            string += line + "\n";
     //        }
     //    }
-    // zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> proof = parse_proof(vp_input.c_str());
+    // zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> proof = parse_proof(vp_input.c_str());
     // parse_pconst(vi_input.c_str(), vi_const_input.c_str());
     boost::property_tree::ptree root;
     boost::property_tree::ptree const_root;
@@ -1321,13 +1325,13 @@ int main(int argc, char *argv[]) {
     // output = "/mnt/d/Downloads/output_test";
     // boost::property_tree::read_json(vp, root);
     // boost::property_tree::read_json(vc, const_root);
-    zk::snark::proof_type<nil::crypto3::algebra::curves::vesta> proof = make_proof(root);
-    vesta_verifier_index_type ver_index = make_verify_index(root, const_root);
+    zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> proof = make_proof(root);
+    pallas_verifier_index_type ver_index = make_verify_index(root, const_root);
 
     constexpr const std::size_t eval_rounds = 1;
 
-    // // TEST
-    // //generate_scalar = true;
+    // TEST
+    // generate_scalar = true;
     // generate_base = true;
     // fri_max_step = 1;
 
