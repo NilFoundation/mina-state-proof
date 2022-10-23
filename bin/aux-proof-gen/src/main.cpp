@@ -253,7 +253,7 @@ zk::snark::proof_type<curve_type> make_proof(boost::property_tree::ptree root) {
     y = get_cppui256(it);
     check_coord<curve_type>(x, y);
     proof.proof.delta = {x, y};
-    it = best_chain.second.get_child(base_path + "openings.proof.sg").begin();
+    it = best_chain.second.get_child(base_path + "openings.proof.challenge_polynomial_commitment").begin();
     x = get_cppui256(it);
     it++;
     y = get_cppui256(it);
@@ -263,38 +263,52 @@ zk::snark::proof_type<curve_type> make_proof(boost::property_tree::ptree root) {
     proof.proof.z1 = multiprecision::cpp_int(best_chain.second.get<std::string>(base_path + "openings.proof.z_1"));
     proof.proof.z2 = multiprecision::cpp_int(best_chain.second.get<std::string>(base_path + "openings.proof.z_2"));
 
+    auto evals_it = best_chain.second.get_child(base_path + "openings.evals");
+    i = 0;
     std::size_t ev_i = 0;
-    for (auto &evals_it : best_chain.second.get_child(base_path + "openings.evals")) {
-
-        i = 0;
-        for (auto &row : evals_it.second.get_child("w")) {
-            for (auto &cell : row.second) {
+    for (auto &row : evals_it.get_child("w")) {
+        ev_i = 0;
+        for (auto &eval_at_point : row.second) {
+            for (auto &cell : eval_at_point.second) {
                 proof.evals[ev_i].w[i].push_back(get_cppui256(&cell));
             }
-            i++;
+            ev_i++;
         }
+        i++;
+    }
 
-        //proof.evals[ev_i].z.size();= get_cppui256(evals_it.second.get_child("z").begin());
-        for( auto z_it : evals_it.second.get_child("z") ){
-            proof.evals[ev_i].z.push_back(get_cppui256(&z_it));
+    ev_i = 0;
+    for(auto &z_it : evals_it.get_child("z")){
+        for (auto &cell : z_it.second) {
+            proof.evals[ev_i].z.push_back(get_cppui256(&cell));
         }
-       
-        i = 0;
-        for (auto &row : evals_it.second.get_child("s")) {
-            for (auto &cell : row.second) {
+        ev_i++;
+    }
+    
+    i = 0;
+    for (auto &row : evals_it.get_child("s")) {
+        ev_i = 0;
+        for (auto &eval_at_point : row.second) {
+            for (auto &cell : eval_at_point.second) {
                 proof.evals[ev_i].s[i].push_back(get_cppui256(&cell));
             }
-            i++;
+            ev_i++;
         }
+        i++;
+    }
 
-//        proof.evals[ev_i].generic_selector = get_cppui256(evals_it.second.get_child("generic_selector").begin());
-        for( auto s_it : evals_it.second.get_child("generic_selector") ){
-            proof.evals[ev_i].generic_selector.push_back(get_cppui256(&s_it));
+    ev_i = 0;
+    for(auto &gs_it : evals_it.get_child("generic_selector") ){
+        for (auto &cell : gs_it.second) {
+            proof.evals[ev_i].generic_selector.push_back(get_cppui256(&cell));
         }
+        ev_i++;
+    }
 
-//        proof.evals[ev_i].poseidon_selector = get_cppui256(evals_it.second.get_child("poseidon_selector").begin());
-        for( auto p_it : evals_it.second.get_child("poseidon_selector") ){
-            proof.evals[ev_i].poseidon_selector.push_back(get_cppui256(&p_it));
+    ev_i = 0;
+    for(auto &ps_it : evals_it.get_child("poseidon_selector") ){
+        for (auto &cell : ps_it.second) {
+            proof.evals[ev_i].poseidon_selector.push_back(get_cppui256(&cell));
         }
         ev_i++;
     }
@@ -1309,31 +1323,14 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    //    else {
-    //        while (std::getline(std::cin, line)) {
-    //            string += line + "\n";
-    //        }
-    //    }
-    // zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> proof = parse_proof(vp_input.c_str());
-    // parse_pconst(vi_input.c_str(), vi_const_input.c_str());
     boost::property_tree::ptree root;
     boost::property_tree::ptree const_root;
     boost::property_tree::read_json(vm["vp_input"].as<std::string>(), root);
     boost::property_tree::read_json(vm["vi_const_input"].as<std::string>(), const_root);
-    // std::string vp = "/mnt/d/gits/mina-state-proof/bin/aux-proof-gen/src/data/kimchi.json";
-    // std::string vc = "/mnt/d/gits/mina-state-proof/bin/aux-proof-gen/src/data/kimchi_const.json";
-    // output = "/mnt/d/Downloads/output_test";
-    // boost::property_tree::read_json(vp, root);
-    // boost::property_tree::read_json(vc, const_root);
     zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> proof = make_proof(root);
     pallas_verifier_index_type ver_index = make_verify_index(root, const_root);
 
     constexpr const std::size_t eval_rounds = 1;
-
-    // TEST
-    // generate_scalar = true;
-    // generate_base = true;
-    // fri_max_step = 1;
 
     if (generate_base) {
         std::cout << std::string(generate_proof_base<eval_rounds>(proof, ver_index, fri_max_step, output)) << std::endl;
