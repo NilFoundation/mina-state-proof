@@ -1275,8 +1275,6 @@ int main(int argc, char *argv[]) {
     bool generate_scalar = false, generate_base = false;
     std::size_t fri_max_step;
 
-    std::cout<<"test"<<std::endl;
-
     boost::program_options::options_description options("Mina State Proof Auxiliary Proof Generator");
     // clang-format off
     options.add_options()("help,h", "Display help message")
