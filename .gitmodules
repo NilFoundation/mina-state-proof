@@ -64,3 +64,6 @@
 [submodule "share/aux-proof-verify"]
 	path = share/aux-proof-verify
 	url = git@github.com:NilFoundation/evm-carasique-verification.git
+[submodule "share/proof-market"]
+	path = share/proof-market
+	url = ssh://git@github.com/NilFoundation/proof-market
