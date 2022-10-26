@@ -3,7 +3,6 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 pwd
 cd ..
-pwd
 BASEDIR=$(pwd)
 STATE_PATH="${BASEDIR}/bin/aux-proof-gen/src/data/mina_state.json"
 echo order is matched
