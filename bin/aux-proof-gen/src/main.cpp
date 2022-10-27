@@ -1287,7 +1287,7 @@ int main(int argc, char *argv[]) {
     zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> proof = make_proof(root);
     pallas_verifier_index_type ver_index = make_verify_index(root, const_root);
 
-    constexpr const std::size_t eval_rounds = 1;
+    constexpr const std::size_t eval_rounds = 15;
 
     if (generate_base) {
         std::cout << std::string(generate_proof_base<eval_rounds>(proof, ver_index, fri_max_step, output)) << std::endl;
