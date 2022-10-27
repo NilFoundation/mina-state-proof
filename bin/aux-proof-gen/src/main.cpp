@@ -1062,9 +1062,10 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
         std::cout << "Verification failed" << std::endl;
     }
 
+    profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::process_split(std::cout, bp, public_preprocessed_data);
+    profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::initialize_parameters(fri_params, proof, public_preprocessed_data);
     std::string output_path_full = output_path + "_base";
-    proof_print<nil::marshalling::option::big_endian>(
-        proof, output_path_full);
+    proof_print<nil::marshalling::option::big_endian>(proof, output_path_full);
 
     //std::string st = marshalling_to_blob<Endianness>(proof);
     std::string st;
@@ -1182,48 +1183,10 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
         std::cout << "Verification failed" << std::endl;
     }
 
-    std::cout << "modulus = " << BlueprintFieldType::modulus << std::endl;
-    std::cout << "fri_params.r = " << fri_params.r << std::endl;
-    std::cout << "fri_params.max_degree = " << fri_params.max_degree << std::endl;
-    for (auto i: fri_params.step_list) {
-        std::cout << "step=" << i << std::endl;
-    }
-    //    std::cout << "fri_params.q = ";
-    //    for (const auto &coeff : fri_params.q) {
-    //        std::cout << coeff.data << ", ";
-    //    }
-    //    std::cout << std::endl;
-    std::cout << "fri_params.D_omegas = ";
-    for (const auto &dom : fri_params.D) {
-        std::cout
-            << static_cast<nil::crypto3::math::basic_radix2_domain<BlueprintFieldType> &>(*dom).omega.data
-            << ", ";
-    }
-    std::cout << std::endl;
-    std::cout << "lpc_params.lambda = "
-            << placeholder_params::batched_commitment_params_type::lambda << std::endl;
-    std::cout << "lpc_params.m = " << placeholder_params::batched_commitment_params_type::m
-            << std::endl;
-    std::cout << "common_data.rows_amount = " << desc.rows_amount << std::endl;
-    std::cout << "common_data.omega = "
-            << static_cast<nil::crypto3::math::basic_radix2_domain<BlueprintFieldType> &>(
-                    *public_preprocessed_data.common_data.basic_domain)
-                    .omega.data
-            << std::endl;
-    std::cout << "max_leaf_size = "
-            << std::max({
-                    proof.eval_proof.variable_values.z.size(),
-                    proof.eval_proof.fixed_values.z.size(),
-                    proof.eval_proof.permutation.z.size(),
-                    proof.eval_proof.quotient.z.size(),
-                })
-            << std::endl;
-    std::cout << "proof.eval_proof.challenge=" << proof.eval_proof.challenge.data << std::endl;
-
     profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::process_split(std::cout, bp, public_preprocessed_data);
+    profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::initialize_parameters(fri_params, proof, public_preprocessed_data);
     std::string output_path_full = output_path + "_scalar";
-    proof_print<nil::marshalling::option::big_endian>(
-        proof, output_path_full);
+    proof_print<nil::marshalling::option::big_endian>(proof, output_path_full);
 
     //std::string st = marshalling_to_blob<Endianness>(proof);
     std::string st;

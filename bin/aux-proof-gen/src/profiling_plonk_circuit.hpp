@@ -49,6 +49,57 @@ namespace nil {
             using preprocessed_public_data_type = typename zk::snark::placeholder_public_preprocessor<
                     FieldType, placeholder_params>::preprocessed_data_type;
 
+            template<typename FriType, typename ProofType>
+            static void initialize_parameters(const FriType &fri_params, const ProofType &proof, const preprocessed_public_data_type &public_preprocessed_data) {
+                std::cout << "modulus = " << FieldType::modulus << std::endl;
+                std::cout << "fri_params.r = " << fri_params.r << std::endl;
+                std::cout << "fri_params.max_degree = " << fri_params.max_degree << std::endl;
+                std::cout << "fri_params.step_list = " << fri_params.step_list.size() << std::endl;
+                for (auto i : fri_params.step_list) {
+                    std::cout << i << ", ";
+                }
+                std::cout << std::endl;
+                std::cout << "fri_params.q = 0 0 1 (now it's always x^2)" << std::endl;
+                std::cout << "fri_params.D_omegas = ";
+                for (const auto &dom : fri_params.D) {
+                    std::cout << static_cast<nil::crypto3::math::basic_radix2_domain<FieldType> &>(*dom).omega.data
+                              << ", ";
+                }
+                std::cout << std::endl;
+                std::cout << "lpc_params.lambda = " << placeholder_params::batched_commitment_params_type::lambda
+                          << std::endl;
+                std::cout << "lpc_params.m = " << placeholder_params::batched_commitment_params_type::m << std::endl;
+                std::cout << "common_data.omega = "
+                          << static_cast<nil::crypto3::math::basic_radix2_domain<FieldType> &>(
+                                 *public_preprocessed_data.common_data.basic_domain)
+                                 .omega.data
+                          << std::endl;
+                std::cout << "max_leaf_size = "
+                          << std::max({
+                                 proof.eval_proof.witness.z.size(),
+                                 proof.eval_proof.quotient.z.size(),
+                                 proof.eval_proof.id_permutation.z.size(),
+                                 proof.eval_proof.sigma_permutation.z.size(),
+                                 proof.eval_proof.public_input.z.size(),
+                                 proof.eval_proof.constant.z.size(),
+                                 proof.eval_proof.selector.z.size(),
+                                 proof.eval_proof.special_selectors.z.size(),
+                             })
+                          << std::endl;
+                std::cout << "common_data.rows_amount = " << public_preprocessed_data.common_data.rows_amount << std::endl;
+                std::cout << "common_data.columns_rotations ("
+                          << public_preprocessed_data.common_data.columns_rotations.size() << " number) = {"
+                          << std::endl;
+                for (const auto &column_rotations : public_preprocessed_data.common_data.columns_rotations) {
+                    std::cout << "[";
+                    for (auto rot : column_rotations) {
+                        std::cout << int(rot) << ", ";
+                    }
+                    std::cout << "]," << std::endl;
+                }
+                std::cout << "}" << std::endl;
+            }
+
             template<typename Container, typename ContainerIt>
             static bool is_last_element(const Container &c, ContainerIt it) {
                 return it == (std::cend(c) - 1);
@@ -61,10 +112,21 @@ namespace nil {
                               std::cend(public_preprocessed_data.common_data.columns_rotations.at(var.index)),
                               var.rotation) -
                     std::begin(public_preprocessed_data.common_data.columns_rotations.at(var.index));
-                os << "get_W_i_by_rotation_idx(" << var.index << "," << rotation_idx
-                   << ","
-                      "mload(add(gate_params, WITNESS_EVALUATIONS_OFFSET))"
-                      ")";
+                os << "get_eval_i_by_rotation_idx(" << var.index << "," << rotation_idx
+                   << ", mload(add(gate_params, ";
+                if (zk::snark::plonk_variable<FieldType>::column_type::witness == var.type) {
+                    os << "WITNESS_EVALUATIONS_OFFSET";
+                }
+                if (zk::snark::plonk_variable<FieldType>::column_type::constant == var.type) {
+                    os << "CONSTANT_EVALUATIONS_OFFSET";
+                }
+                if (zk::snark::plonk_variable<FieldType>::column_type::public_input == var.type) {
+                    os << "PUBLIC_INPUT_EVALUATIONS_OFFSET";
+                }
+                if (zk::snark::plonk_variable<FieldType>::column_type::selector == var.type) {
+                    os << "SELECTOR_EVALUATIONS_OFFSET";
+                }
+                os << ")))";
             }
 
             template<typename Vars, typename VarsIt>
@@ -83,9 +145,7 @@ namespace nil {
                     if (!is_last_element(vars, it)) {
                         os << ",";
                         print_term(os, vars, it + 1, public_preprocessed_data);
-                        os << ","
-                              "modulus"
-                              ")";
+                        os << ", modulus)";
                     }
                 }
             }
@@ -103,25 +163,20 @@ namespace nil {
                           "add(gate_params, CONSTRAINT_EVAL_OFFSET),"
                           "addmod("
                           "mload(add(gate_params, CONSTRAINT_EVAL_OFFSET)),";
-                    if (it->coeff != FieldType::value_type::one()) {
-                        if (it->vars.size()) {
-                            os << "mulmod(0x" << std::hex << it->coeff.data << std::dec << ",";
-                        } else {
-                            os << "0x" << std::hex << it->coeff.data << std::dec;
-                        }
+//                    if (it->coeff != FieldType::value_type::one()) {
+                    if (it->vars.size()) {
+                        os << "mulmod(0x" << std::hex << it->coeff.data << std::dec << ",";
+                    } else {
+                        os << "0x" << std::hex << it->coeff.data << std::dec;
                     }
+//                    }
                     print_term(os, it->vars, std::cbegin(it->vars), public_preprocessed_data);
-                    if (it->coeff != FieldType::value_type::one()) {
+//                    if (it->coeff != FieldType::value_type::one()) {
                         if (it->vars.size()) {
-                            os << ","
-                                  "modulus"
-                                  ")";
+                            os << ",modulus)";
                         }
-                    }
-                    os << ","
-                          "modulus"
-                          "))"
-                       << std::endl;
+//                    }
+                    os << ",modulus))" << std::endl;
                     print_terms(os, terms, it + 1, public_preprocessed_data);
                 }
             }
@@ -135,54 +190,28 @@ namespace nil {
             }
 
             static void print_gate_evaluation(std::ostream &os) {
-                os << "mstore("
-                      "add(gate_params, GATE_EVAL_OFFSET),"
-                      "addmod("
+                os << "mstore(add(gate_params, GATE_EVAL_OFFSET),addmod("
                       "mload(add(gate_params, GATE_EVAL_OFFSET)),"
-                      "mulmod("
-                      "mload(add(gate_params, CONSTRAINT_EVAL_OFFSET)),"
-                      "theta_acc,"
-                      "modulus"
-                      "),"
-                      "modulus"
-                      ")"
-                      ")"
+                      "mulmod(mload(add(gate_params, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))"
                    << std::endl;
             }
 
             static void print_theta_acc(std::ostream &os) {
-                os << "theta_acc := mulmod("
-                      "theta_acc,"
-                      "mload(add(gate_params, THETA_OFFSET)),"
-                      "modulus"
-                      ")"
-                   << std::endl;
+                os << "theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)" << std::endl;
             }
 
             static void print_selector(std::ostream &os,
                                        const nil::crypto3::zk::snark::plonk_gate<
                                            FieldType, nil::crypto3::zk::snark::plonk_constraint<FieldType>> &gate) {
-                os << "mstore("
-                      "add(gate_params, GATE_EVAL_OFFSET),"
-                      "mulmod("
-                      "mload(add(gate_params, GATE_EVAL_OFFSET)),"
+                os << "mstore(add(gate_params, GATE_EVAL_OFFSET),mulmod(mload(add(gate_params, GATE_EVAL_OFFSET)),"
                       "get_selector_i("
                    << gate.selector_index
-                   << ","
-                      "mload(add(gate_params, SELECTOR_EVALUATIONS_OFFSET))"
-                      "),"
-                      "modulus"
-                      ")"
-                      ")"
+                   << ",mload(add(gate_params, SELECTOR_EVALUATIONS_OFFSET))),modulus))"
                    << std::endl;
             }
 
             static void print_argument_evaluation(std::ostream &os) {
-                os << "gates_evaluation := addmod("
-                      "gates_evaluation,"
-                      "mload(add(gate_params, GATE_EVAL_OFFSET)),"
-                      "modulus"
-                      ")"
+                os << "gates_evaluation := addmod(gates_evaluation,mload(add(gate_params, GATE_EVAL_OFFSET)),modulus)"
                    << std::endl;
             }
 
@@ -207,12 +236,16 @@ namespace nil {
                 }
             }
 
-            static void process_split(std::ostream &os, const zk::blueprint<ArithmetizationType> &bp,
+//            template <typename ParamsType>
+            static void process_split(std::ostream &os, zk::snark::plonk_constraint_system<FieldType, ArithmetizationParams>
+                                                            &bp,
                                       const preprocessed_public_data_type &public_preprocessed_data) {
+                std::size_t gate_index = 0;
                 for (const auto &gate : bp.gates()) {
                     std::ofstream gate_out;
-                    gate_out.open("gate" + std::to_string(gate.selector_index) + ".txt");
+                    gate_out.open("gate" + std::to_string(gate_index) + ".txt");
                     print_gate(gate_out, gate, public_preprocessed_data);
+                    ++gate_index;
                 }
             }
         };
