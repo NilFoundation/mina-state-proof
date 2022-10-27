@@ -76,14 +76,10 @@ namespace nil {
                           << std::endl;
                 std::cout << "max_leaf_size = "
                           << std::max({
-                                 proof.eval_proof.witness.z.size(),
-                                 proof.eval_proof.quotient.z.size(),
-                                 proof.eval_proof.id_permutation.z.size(),
-                                 proof.eval_proof.sigma_permutation.z.size(),
-                                 proof.eval_proof.public_input.z.size(),
-                                 proof.eval_proof.constant.z.size(),
-                                 proof.eval_proof.selector.z.size(),
-                                 proof.eval_proof.special_selectors.z.size(),
+                                proof.eval_proof.variable_values.z.size(),
+                                proof.eval_proof.fixed_values.z.size(),
+                                proof.eval_proof.permutation.z.size(),
+                                proof.eval_proof.quotient.z.size(),
                              })
                           << std::endl;
                 std::cout << "common_data.rows_amount = " << public_preprocessed_data.common_data.rows_amount << std::endl;
