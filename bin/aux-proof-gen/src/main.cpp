@@ -1057,9 +1057,9 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
         public_preprocessed_data, proof, bp, fri_params);
 
     if (verifier_res) {
-        std::cout << "Verification passed" << std::endl;
+        std::cout << "Inner verification passed" << std::endl;
     } else {
-        std::cout << "Verification failed" << std::endl;
+        std::cout << "Inner verification failed" << std::endl;
     }
 
     profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::process_split(std::cout, bp, public_preprocessed_data);
@@ -1178,9 +1178,9 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
         public_preprocessed_data, proof, bp, fri_params);
 
     if (verifier_res) {
-        std::cout << "Verification passed" << std::endl;
+        std::cout << "Inner verification passed" << std::endl;
     } else {
-        std::cout << "Verification failed" << std::endl;
+        std::cout << "Inner verification failed" << std::endl;
     }
 
     profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::process_split(std::cout, bp, public_preprocessed_data);
@@ -1197,6 +1197,31 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
 #else
     return st;
 #endif
+}
+
+void concatenate_proofs(std::string output_path) {
+    std::string output_path_scalar = output_path + "_scalar";
+    std::string output_path_base = output_path + "_base";
+    std::string output_path_full = output_path + "_full";
+    
+    std::ifstream file_scalar(output_path_scalar, std::ios::binary);
+    std::ifstream file_base(output_path_base, std::ios::binary);
+    std::ofstream file_full(output_path_full, std::ios::binary);
+
+    file_scalar.ignore(2);
+
+    file_full << file_base.rdbuf();
+    file_full << file_scalar.rdbuf();
+}
+
+template<std::size_t EvalRounds>
+void generate_proof_heterogenous(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &pickles_proof,
+    pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step, std::string output_path) { 
+
+    generate_proof_scalar<EvalRounds>(pickles_proof, pickles_index, fri_max_step, output_path);
+    generate_proof_base<EvalRounds>(pickles_proof, pickles_index, fri_max_step, output_path);
+
+    concatenate_proofs(output_path);
 }
 
 zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> parse_proof(const char *kimchi) {
@@ -1231,7 +1256,7 @@ int main(int argc, char *argv[]) {
 
     std::string vp_input, vi_input, vi_const_input, line;
     std::string output = "/root/mina-updated/mina-state-proof/bin/aux-proof-gen/src/data/output_base";
-    bool generate_scalar = false, generate_base = false;
+    bool generate_scalar = false, generate_base = false, generate_heterogenous = false;
     std::size_t fri_max_step;
 
     boost::program_options::options_description options("Mina State Proof Auxiliary Proof Generator");
@@ -1244,6 +1269,7 @@ int main(int argc, char *argv[]) {
             ("vi_const_input", boost::program_options::value<std::string>(), "Input const index file")
             ("scalar_proof", boost::program_options::bool_switch(&generate_scalar)->default_value(false), "Generate scalar part of the circuit")
             ("base_proof", boost::program_options::bool_switch(&generate_base)->default_value(false), "Generate base part of the circuit")
+            ("heterogenous_proof", boost::program_options::bool_switch(&generate_heterogenous)->default_value(false), "Generate mina state proof")
             ("max_step", boost::program_options::value<std::size_t>(&fri_max_step)->default_value(3), "Step for FRI folding (default 3)");
     // clang-format on
 
@@ -1294,6 +1320,9 @@ int main(int argc, char *argv[]) {
     } 
     if (generate_scalar) {
         std::cout << std::string(generate_proof_scalar<eval_rounds>(proof, ver_index, fri_max_step, output)) << std::endl;
+    }
+    if (generate_heterogenous) {
+        generate_proof_heterogenous<eval_rounds>(proof, ver_index, fri_max_step, output);
     }
 #endif
 }
