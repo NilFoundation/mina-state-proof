@@ -643,6 +643,5 @@ blockchain/history
 #truffle
 yarn.lock
 package-lock.json
-.secret
 
 # End of https://www.toptal.com/developers/gitignore/api/latex,macos,vim,c++,cmake,jetbrains+all

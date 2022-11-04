@@ -61,9 +61,6 @@
 [submodule "libs/container"]
 	path = libs/container
 	url = git@github.com:nilfoundation/crypto3-containers.git
-[submodule "share/aux-proof-verify"]
-	path = share/aux-proof-verify
-	url = git@github.com:NilFoundation/evm-carasique-verification.git
 [submodule "libs/actor/blueprint"]
 	path = libs/actor/blueprint
 	url = git@github.com:nilfoundation/actor-blueprint.git
@@ -100,3 +97,6 @@
 [submodule "libs/actor/shim/epoll"]
 	path = libs/actor/shim/epoll
 	url = https://github.com/NilFoundation/epoll-shim.git
+[submodule "share/aux-proof-verify"]
+	path = share/aux-proof-verify
+	url = git@github.com:NilFoundation/evm-placeholder-verification.git
