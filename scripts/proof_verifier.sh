@@ -1,10 +1,9 @@
 #!/bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
-pwd
 cd ..
 BASEDIR=$(pwd)
-PROOF_PATH="${BASEDIR}/share/aux-proof-verify/proof.data"
+PROOF_PATH="${BASEDIR}/share/aux-proof-verify/loaded_proof.data"
 ADDRESS_PATH="${BASEDIR}/share/aux-proof-verify/address.data"
 VERIFIER=${BASEDIR}/share/aux-proof-verify/web3_verify.py
 DEPLOY=${BASEDIR}/share/aux-proof-verify/web3_deploy.py

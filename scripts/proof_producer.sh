@@ -1,11 +1,9 @@
 #!/bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
-pwd
 cd ..
 BASEDIR=$(pwd)
 STATE_PATH="${BASEDIR}/bin/aux-proof-gen/src/data/mina_state.json"
-echo order is matched
 echo fetching current mina state
 (cd $SCRIPT_DIR && python get_mina_state.py $STATE_PATH)
 echo 'generating proof (it takes a while...)'
