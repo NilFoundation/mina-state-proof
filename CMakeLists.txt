@@ -42,6 +42,8 @@ option(BUILD_SHARED_LIBS "Build shared library" TRUE)
 
 add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/libs")
 add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/libs/marshalling")
+add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/libs/actor/shim")
+add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/libs/actor")
 add_subdirectories("${CMAKE_CURRENT_LIST_DIR}/bin")
 
 add_custom_target(aux-proof-verify
