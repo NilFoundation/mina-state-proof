@@ -1294,8 +1294,5 @@ int main(int argc, char *argv[]) {
     if (generate_heterogenous) {
         generate_proof_heterogenous<eval_rounds>(proof, ver_index, fri_max_step, output);
     }
-    if (generate_heterogenous) {
-        generate_proof_heterogenous<eval_rounds>(proof, ver_index, fri_max_step, output);
-    }
 #endif
 }
