@@ -1239,7 +1239,7 @@ int main(int argc, char *argv[]) {
             ("scalar_proof", boost::program_options::bool_switch(&generate_scalar)->default_value(false), "Generate scalar part of the circuit")
             ("base_proof", boost::program_options::bool_switch(&generate_base)->default_value(false), "Generate base part of the circuit")
             ("heterogenous_proof", boost::program_options::bool_switch(&generate_heterogenous)->default_value(false), "Generate mina state proof")
-            ("max_step", boost::program_options::value<std::size_t>(&fri_max_step)->default_value(3), "Step for FRI folding (default 3)");
+            ("max_step", boost::program_options::value<std::size_t>(&fri_max_step)->default_value(1), "Step for FRI folding (default 3)");
     // clang-format on
 
     boost::program_options::positional_options_description p;
