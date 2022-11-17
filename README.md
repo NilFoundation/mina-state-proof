@@ -36,7 +36,7 @@ Compiler/environment requirements are as follows:
 #### Proof Requester
 -  Create an order requesting Mina state proof (for the latest Mina's state) on proof market
 ```
-python3 share/proof-market/bid_push.py
+python3 share/proof-market/bid_push.py --sender=UserName --cost=1
 ```
 Save the bid id for the future use.
 
@@ -48,7 +48,7 @@ python3 share/proof-market/proof_get_bid_id.py bid_id
 ### Proof Producer
 - Match the above order and commit to produce the proof
 ```
-python3 share/proof-market/ask_push.py
+python3 share/proof-market/ask_push.py --sender=ProofProducerName --cost=1
 ```
 
 - Get mina state (via RPC from a mina node) 
@@ -63,7 +63,7 @@ BASEDIR=$(pwd)
 
 - Send the state proof to the proof market
 ```
-python3 share/proof-market/proof_push.py
+python3 share/proof-market/proof_push.py --id=bid_id --proof=proof_path
 ```
 
 ### Tests

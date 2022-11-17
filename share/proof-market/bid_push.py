@@ -3,6 +3,7 @@ import sys
 import requests
 import os
 import logging
+import argparse
 
 secret = open(os.path.dirname(os.path.abspath(__file__)) + "/.secret", "r").read()
 user = open(os.path.dirname(os.path.abspath(__file__)) + "/.user", "r").read()
@@ -34,4 +35,14 @@ def push(data=None):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(message)s')
-    push()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--sender', help="Sender's identifier", default="James")
+    parser.add_argument('--cost', help="Proof cost", default="0.5")
+    args = parser.parse_args()
+    data = {"circuit_id": 2, 
+                "sender": args.sender,
+                "wait_period": 1000,
+                "cost": float(args.cost), 
+                "eval_time": random.randint(5, 100),
+                }
+    push(data)

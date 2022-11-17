@@ -3,6 +3,7 @@ import sys
 import requests
 import logging
 import os
+import argparse
 
 secret = open(os.path.dirname(os.path.abspath(__file__)) + "/.secret", "r").read()
 user = open(os.path.dirname(os.path.abspath(__file__)) + "/.user", "r").read()
@@ -24,5 +25,10 @@ def push(data=None):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(message)s')
-    push()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--id', help="Bid's id", default="1")
+    parser.add_argument('--proof', help="Path to proof file", default="proof.json")
+    args = parser.parse_args()
+    data = {"bid_id": args.id, "proof": open(args.proof).read()}
+    push(data)
         
