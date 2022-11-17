@@ -1183,13 +1183,13 @@ void concatenate_proofs(std::string output_path) {
     file_full << file_scalar.rdbuf();
 }
 
-template<std::size_t EvalRounds>
+template<std::size_t EvalRoundsScalar, std::size_t EvalRoundsBase>
 void generate_proof_heterogenous(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &pickles_proof,
                                  pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step,
                                  std::string output_path) {
 
-    generate_proof_scalar<EvalRounds>(pickles_proof, pickles_index, fri_max_step, output_path);
-    generate_proof_base<EvalRounds>(pickles_proof, pickles_index, fri_max_step, output_path);
+    generate_proof_scalar<EvalRoundsScalar>(pickles_proof, pickles_index, fri_max_step, output_path);
+    generate_proof_base<EvalRoundsBase>(pickles_proof, pickles_index, fri_max_step, output_path);
 
     concatenate_proofs(output_path);
 }
@@ -1282,17 +1282,18 @@ int main(int argc, char *argv[]) {
     zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> proof = make_proof(root);
     pallas_verifier_index_type ver_index = make_verify_index(root, const_root);
 
-    constexpr const std::size_t eval_rounds = 15;
+    constexpr const std::size_t eval_rounds_scalar = 15;
+    constexpr const std::size_t eval_rounds_base = 10;
 
     if (generate_base) {
-        std::cout << std::string(generate_proof_base<eval_rounds>(proof, ver_index, fri_max_step, output)) << std::endl;
+        std::cout << std::string(generate_proof_base<eval_rounds_base>(proof, ver_index, fri_max_step, output)) << std::endl;
     }
     if (generate_scalar) {
-        std::cout << std::string(generate_proof_scalar<eval_rounds>(proof, ver_index, fri_max_step, output))
+        std::cout << std::string(generate_proof_scalar<eval_rounds_scalar>(proof, ver_index, fri_max_step, output))
                   << std::endl;
     }
     if (generate_heterogenous) {
-        generate_proof_heterogenous<eval_rounds>(proof, ver_index, fri_max_step, output);
+        generate_proof_heterogenous<eval_rounds_scalar, eval_rounds_base>(proof, ver_index, fri_max_step, output);
     }
 #endif
 }
