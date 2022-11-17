@@ -33,7 +33,38 @@ Compiler/environment requirements are as follows:
 
 ### Usage
 
-`bin/aux-proof-gen/aux-proof-gen ../share/mina/genesis_proof_*`
+#### Proof Requester
+-  Create an order requesting Mina state proof (for the latest Mina's state) on proof market
+```
+python3 share/proof-market/bid_push.py
+```
+Save the bid id for the future use.
+
+- Get the generated proof and verify it on EVM
+```
+python3 share/proof-market/proof_get_bid_id.py bid_id
+```
+
+### Proof Producer
+- Match the above order and commit to produce the proof
+```
+python3 share/proof-market/ask_push.py
+```
+
+- Get mina state (via RPC from a mina node) 
+```
+python3 scripts/get_mina_state.py --url=http://localhost:3085/graphql --output=/bin/aux-proof-gen/src/data/mina_state.json
+```
+- Generate proof for the mina state retrieved above
+```
+BASEDIR=$(pwd)
+./build/bin/aux-proof-gen/aux-proof-gen --vp_input=${BASEDIR}/bin/aux-proof-gen/src/data/mina_state.json --vi_input=${BASEDIR}/bin/aux-proof-gen/src/data/mina_state.json --vi_const_input=${BASEDIR}/bin/aux-proof-gen/src/data/kimchi_const.json --output=${BASEDIR}/bin/aux-proof-gen/src/data/proof  --heterogenous_proof
+```
+
+- Send the state proof to the proof market
+```
+python3 share/proof-market/proof_push.py
+```
 
 ### Tests
 
