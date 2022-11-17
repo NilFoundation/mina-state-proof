@@ -1,0 +1,1960 @@
+{
+    "data": {
+        "blockchainVerificationKey": {
+            "commitments": {
+                "sigma_comm": [
+                    [
+                        "0x10272075B9910ED61E5C4B30EC20EAB12358A071F519607578C0949F35777CC2",
+                        "0x00A76FF255C3A0F15CF15814BF5DF8BA6AA2AD2D219B47379D5A3A09B05E9EE5"
+                    ],
+                    [
+                        "0x23FFC011010D367ECE3A6FF24F7768357AF4069FA0A04F5F3D07B0E8724389D0",
+                        "0x097EFFFA6F723C959ED5CFB49088782CD24DBF6585C9EC9DFAD656CB3AE2E0D4"
+                    ],
+                    [
+                        "0x3E57E5BA718B52F4673C38F872EAF27AB466754BE1DC52AD74EDBEC03F0DAF5E",
+                        "0x278E1000E672A2C231088D493F97CB5A46FF821D6E399EB4EB6A11CC8A836467"
+                    ],
+                    [
+                        "0x0D11A31AE7B95BB911A80B70175E2AD520212B5FBED00D081F239EECDA3840BB",
+                        "0x3234571A3FD9EC184829A4B5E2C736E0F3489A31EF25E84B903991A908D79C6C"
+                    ],
+                    [
+                        "0x21BA300916BB408ADEE9005896217BFCF1DAA138E1664F8814141EEE1DC2BD5D",
+                        "0x15B79DDD207481B75E3074DC30762E5B098B160371F15D8A1830D96B03461AB2"
+                    ],
+                    [
+                        "0x3EA608664AEE1CEAE9CE585EF6D405ECD831405F7CF8D23BE87BB7F704CB2A30",
+                        "0x2759D42BD8271657B721F1CABE2DE7FAED3570037A18A1721EF6EC800DFFDA03"
+                    ],
+                    [
+                        "0x1AE9F328AD2DA91B3986AFCE5CA8560B2BBE26DDCF5BF9A4268F3DADEF857C5A",
+                        "0x12E508373F9773B521F4D530A57AE8F3227E5CD2BBD4ADB59310B3CC6BAF40DF"
+                    ]
+                ],
+                "coefficients_comm": [
+                    [
+                        "0x21659C6506E7F6F63808DBD2E3C891AD0B255AB1F9A78DA7DC20277848599129",
+                        "0x28E1BF8581C059F62AB66645AA3638974A241E09B1AFB9D89FC3EC786BE3CB7B"
+                    ],
+                    [
+                        "0x23DD3FFD24E62288EA9EDF66F8B7931B9E37B6208303EAFF0823BE4B553AC4C3",
+                        "0x150BBC800966572C3E3BE78111B3F1864CA3E8F07B9CB257A1E50D47DF4AD80D"
+                    ],
+                    [
+                        "0x040AD2EA995C828CA6C1008502A2104A19753F0B985AEC3686ED014EA4A584AC",
+                        "0x20212232908FE77DED4BC5A13E53E4BC9A12CF3A57DA765B6D0CEAA68F3EC8D0"
+                    ],
+                    [
+                        "0x1E86002010BBFDF60932CD8EF8CE4C1F7E7F8684859191B622A92E6C95A32524",
+                        "0x2FECF45F2FB3CB2A01025E5391712C0F18C1414A11DE5FD3EDADA11A912B28CB"
+                    ],
+                    [
+                        "0x10935BC2CDE89319A296B9C78393DD59C889AF735D2F991243C767674B8B92F2",
+                        "0x18809235AA7E56B11E8BDDDBC76262945DA3899334AD997BB5D19AF54BA527F5"
+                    ],
+                    [
+                        "0x304907E96ED6398F4D82D1E554CDE84AF17EE1E230AFF0EAF143DD4B99933E9B",
+                        "0x265CB45107B92323ADB58A5D9BB606652C208D27AFF4855A4852310C2CB9F670"
+                    ],
+                    [
+                        "0x1F009A34D8072FF511C1B96F4D3B7F2C71BE0DB5C2F18F4CD51FE53356E862F8",
+                        "0x3DDB202771A85ACBD3DE6CC6028C03FDEE94DAC16FD84F14DF5B7CB230F6CE13"
+                    ],
+                    [
+                        "0x1FF8E5B584D6E0F862EC1B00C6704AC7D9D14596B3766427F94C38DB8D45809C",
+                        "0x26D54CE7527B24781AF6F88865AFF3D6BAF2A32BBD8AC8AB85CBF93B20330823"
+                    ],
+                    [
+                        "0x303B3100799C457D8D2D40C27D24132CA7D3B24B508091AF5098DC34F67AD289",
+                        "0x10449D6FAD9C5579FAA187CCAA93010CDB4657770F779AEAE3AE688C0CDCF2A4"
+                    ],
+                    [
+                        "0x1A1C93F061BC2E1CEC2630A2CDD57F736195F3BFEB23D13A7730DED879EEDF89",
+                        "0x3B801374996A4230A74BD98865B3C1350799A67C4715EE051529916B0D0E8ED2"
+                    ],
+                    [
+                        "0x3E0155A559A262AFE303E4965C0296148EF9DFD9D591403858B7C300BFDEAAFD",
+                        "0x09CBA3A10EFE9FAE35B24062AB13382A5105AB3A504CE835EE59D2FE4E3349C4"
+                    ],
+                    [
+                        "0x2BEF61E9C42DF7401B69B2ED7D8CB0FAD3314DFE5D414909C25825CF23DB888C",
+                        "0x2ABA4F950D71404B15F7E62BA2BEA8F84FE6AD14DD169DBF27AA39F7CF264B30"
+                    ],
+                    [
+                        "0x3D2EF7ACDADE4405F88B3B233B85F041FFD9D5BA759F1D278296103E974291BF",
+                        "0x3C9B209E31CC3B92456B48FE1805AE699C05D255A87D67C605FBD06245EC3396"
+                    ],
+                    [
+                        "0x3691A68FF19B3DCF986EFA4D6073DC2C42413200C42B9A74050E117F91AFAFD1",
+                        "0x3C17DDC2C5470B5A1D643695CD50D38BA172C53FEB2C00F0827E25D65ED6D90C"
+                    ],
+                    [
+                        "0x38A9ADB17E9FB81D3A1D4BC80AA0275D23974CB142EB2A16D02D199927345D3C",
+                        "0x023F86F8DD65D09A7AE27B2D3578B458F0F8A869287F39B6AD09C0A81420AACD"
+                    ]
+                ],
+                "generic_comm": [
+                    "0x1AEA7ECA18F8E07417EDE349BBA47AD1723DD689ECCCC88ABC64F01649016185",
+                    "0x1B5DBCB7C92CA826FDF6C6163DB31927C8DE4599328767FC27C8B1B7277C757E"
+                ],
+                "psm_comm": [
+                    "0x10429FC03A720C98F15F8AE321C1BDBBE5E2297B7E714168071FB2DCF0D87CA2",
+                    "0x2819BCA446CCD8BE8CF8BA6A08DBE9CA4E6696FC013B935F27E6F8D9A4636E5B"
+                ],
+                "complete_add_comm": [
+                    "0x2C9B6D4B226CAF8358B027BA271A20DB3BDE02F151A242AE4D75A97F67EC272A",
+                    "0x3AE53430F7625623D299342E0B5C8DF8E653739995246AA64DD70344546ED749"
+                ],
+                "mul_comm": [
+                    "0x23D4E8B43F301C702AA326113DB6DBD74B1CF3B91C1553531ED0E931E07384D8",
+                    "0x1633CCD151C53A5D98077BF16C9DC85E83EB7F670ABBCD0BCE923B091DE73061"
+                ],
+                "emul_comm": [
+                    "0x04A82CFACDD12B221AEA161E0624A9A92FCADDB32BDF55D1A6CB8CCDCBE961C0",
+                    "0x26D36BFB94AB53BC44C32C4152DA13C77FCDC117B3DD084DC51CDB7DECBDFD4E"
+                ],
+                "endomul_scalar_comm": [
+                    "0x097D3418F6CA32CCDB362BB96681F2841351953E6D84B0F1F2896F4DA33FACA9",
+                    "0x2523515C26EEB31D472D1D2178802730D391EB8E6EDD695AD6C572FB2D05A82E"
+                ]
+            },
+            "index": {
+                "domain": {
+                    "log_size_of_group": 15,
+                    "group_gen": "0x130D1D6482B9C33536E280AE674431F85F4A103EF6AF12C7AC4CDF0AD3EDB265"
+                },
+                "max_poly_size": 32768,
+                "max_quot_size": 163835,
+                "public": 47,
+                "prev_challenges": 2,
+                "srs": null,
+                "evals": {
+                    "sigma_comm": [
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x10272075B9910ED61E5C4B30EC20EAB12358A071F519607578C0949F35777CC2",
+                                        "0x00A76FF255C3A0F15CF15814BF5DF8BA6AA2AD2D219B47379D5A3A09B05E9EE5"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x23FFC011010D367ECE3A6FF24F7768357AF4069FA0A04F5F3D07B0E8724389D0",
+                                        "0x097EFFFA6F723C959ED5CFB49088782CD24DBF6585C9EC9DFAD656CB3AE2E0D4"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x3E57E5BA718B52F4673C38F872EAF27AB466754BE1DC52AD74EDBEC03F0DAF5E",
+                                        "0x278E1000E672A2C231088D493F97CB5A46FF821D6E399EB4EB6A11CC8A836467"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x0D11A31AE7B95BB911A80B70175E2AD520212B5FBED00D081F239EECDA3840BB",
+                                        "0x3234571A3FD9EC184829A4B5E2C736E0F3489A31EF25E84B903991A908D79C6C"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x21BA300916BB408ADEE9005896217BFCF1DAA138E1664F8814141EEE1DC2BD5D",
+                                        "0x15B79DDD207481B75E3074DC30762E5B098B160371F15D8A1830D96B03461AB2"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x3EA608664AEE1CEAE9CE585EF6D405ECD831405F7CF8D23BE87BB7F704CB2A30",
+                                        "0x2759D42BD8271657B721F1CABE2DE7FAED3570037A18A1721EF6EC800DFFDA03"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x1AE9F328AD2DA91B3986AFCE5CA8560B2BBE26DDCF5BF9A4268F3DADEF857C5A",
+                                        "0x12E508373F9773B521F4D530A57AE8F3227E5CD2BBD4ADB59310B3CC6BAF40DF"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        }
+                    ],
+                    "coefficients_comm": [
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x21659C6506E7F6F63808DBD2E3C891AD0B255AB1F9A78DA7DC20277848599129",
+                                        "0x28E1BF8581C059F62AB66645AA3638974A241E09B1AFB9D89FC3EC786BE3CB7B"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x23DD3FFD24E62288EA9EDF66F8B7931B9E37B6208303EAFF0823BE4B553AC4C3",
+                                        "0x150BBC800966572C3E3BE78111B3F1864CA3E8F07B9CB257A1E50D47DF4AD80D"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x040AD2EA995C828CA6C1008502A2104A19753F0B985AEC3686ED014EA4A584AC",
+                                        "0x20212232908FE77DED4BC5A13E53E4BC9A12CF3A57DA765B6D0CEAA68F3EC8D0"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x1E86002010BBFDF60932CD8EF8CE4C1F7E7F8684859191B622A92E6C95A32524",
+                                        "0x2FECF45F2FB3CB2A01025E5391712C0F18C1414A11DE5FD3EDADA11A912B28CB"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x10935BC2CDE89319A296B9C78393DD59C889AF735D2F991243C767674B8B92F2",
+                                        "0x18809235AA7E56B11E8BDDDBC76262945DA3899334AD997BB5D19AF54BA527F5"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x304907E96ED6398F4D82D1E554CDE84AF17EE1E230AFF0EAF143DD4B99933E9B",
+                                        "0x265CB45107B92323ADB58A5D9BB606652C208D27AFF4855A4852310C2CB9F670"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x1F009A34D8072FF511C1B96F4D3B7F2C71BE0DB5C2F18F4CD51FE53356E862F8",
+                                        "0x3DDB202771A85ACBD3DE6CC6028C03FDEE94DAC16FD84F14DF5B7CB230F6CE13"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x1FF8E5B584D6E0F862EC1B00C6704AC7D9D14596B3766427F94C38DB8D45809C",
+                                        "0x26D54CE7527B24781AF6F88865AFF3D6BAF2A32BBD8AC8AB85CBF93B20330823"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x303B3100799C457D8D2D40C27D24132CA7D3B24B508091AF5098DC34F67AD289",
+                                        "0x10449D6FAD9C5579FAA187CCAA93010CDB4657770F779AEAE3AE688C0CDCF2A4"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x1A1C93F061BC2E1CEC2630A2CDD57F736195F3BFEB23D13A7730DED879EEDF89",
+                                        "0x3B801374996A4230A74BD98865B3C1350799A67C4715EE051529916B0D0E8ED2"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x3E0155A559A262AFE303E4965C0296148EF9DFD9D591403858B7C300BFDEAAFD",
+                                        "0x09CBA3A10EFE9FAE35B24062AB13382A5105AB3A504CE835EE59D2FE4E3349C4"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x2BEF61E9C42DF7401B69B2ED7D8CB0FAD3314DFE5D414909C25825CF23DB888C",
+                                        "0x2ABA4F950D71404B15F7E62BA2BEA8F84FE6AD14DD169DBF27AA39F7CF264B30"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x3D2EF7ACDADE4405F88B3B233B85F041FFD9D5BA759F1D278296103E974291BF",
+                                        "0x3C9B209E31CC3B92456B48FE1805AE699C05D255A87D67C605FBD06245EC3396"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x3691A68FF19B3DCF986EFA4D6073DC2C42413200C42B9A74050E117F91AFAFD1",
+                                        "0x3C17DDC2C5470B5A1D643695CD50D38BA172C53FEB2C00F0827E25D65ED6D90C"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        },
+                        {
+                            "unshifted": [
+                                [
+                                    "Finite",
+                                    [
+                                        "0x38A9ADB17E9FB81D3A1D4BC80AA0275D23974CB142EB2A16D02D199927345D3C",
+                                        "0x023F86F8DD65D09A7AE27B2D3578B458F0F8A869287F39B6AD09C0A81420AACD"
+                                    ]
+                                ]
+                            ],
+                            "shifted": null
+                        }
+                    ],
+                    "generic_comm": {
+                        "unshifted": [
+                            [
+                                "Finite",
+                                [
+                                    "0x1AEA7ECA18F8E07417EDE349BBA47AD1723DD689ECCCC88ABC64F01649016185",
+                                    "0x1B5DBCB7C92CA826FDF6C6163DB31927C8DE4599328767FC27C8B1B7277C757E"
+                                ]
+                            ]
+                        ],
+                        "shifted": null
+                    },
+                    "psm_comm": {
+                        "unshifted": [
+                            [
+                                "Finite",
+                                [
+                                    "0x10429FC03A720C98F15F8AE321C1BDBBE5E2297B7E714168071FB2DCF0D87CA2",
+                                    "0x2819BCA446CCD8BE8CF8BA6A08DBE9CA4E6696FC013B935F27E6F8D9A4636E5B"
+                                ]
+                            ]
+                        ],
+                        "shifted": null
+                    },
+                    "complete_add_comm": {
+                        "unshifted": [
+                            [
+                                "Finite",
+                                [
+                                    "0x2C9B6D4B226CAF8358B027BA271A20DB3BDE02F151A242AE4D75A97F67EC272A",
+                                    "0x3AE53430F7625623D299342E0B5C8DF8E653739995246AA64DD70344546ED749"
+                                ]
+                            ]
+                        ],
+                        "shifted": null
+                    },
+                    "mul_comm": {
+                        "unshifted": [
+                            [
+                                "Finite",
+                                [
+                                    "0x23D4E8B43F301C702AA326113DB6DBD74B1CF3B91C1553531ED0E931E07384D8",
+                                    "0x1633CCD151C53A5D98077BF16C9DC85E83EB7F670ABBCD0BCE923B091DE73061"
+                                ]
+                            ]
+                        ],
+                        "shifted": null
+                    },
+                    "emul_comm": {
+                        "unshifted": [
+                            [
+                                "Finite",
+                                [
+                                    "0x04A82CFACDD12B221AEA161E0624A9A92FCADDB32BDF55D1A6CB8CCDCBE961C0",
+                                    "0x26D36BFB94AB53BC44C32C4152DA13C77FCDC117B3DD084DC51CDB7DECBDFD4E"
+                                ]
+                            ]
+                        ],
+                        "shifted": null
+                    },
+                    "endomul_scalar_comm": {
+                        "unshifted": [
+                            [
+                                "Finite",
+                                [
+                                    "0x097D3418F6CA32CCDB362BB96681F2841351953E6D84B0F1F2896F4DA33FACA9",
+                                    "0x2523515C26EEB31D472D1D2178802730D391EB8E6EDD695AD6C572FB2D05A82E"
+                                ]
+                            ]
+                        ],
+                        "shifted": null
+                    },
+                    "chacha_comm": null
+                },
+                "shifts": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000001",
+                    "0x00B9CDC8FD0BD4B27E2A74AF7AEBD5734D52D75BDF85EBF1CAD03413E914A2E3",
+                    "0x007CF68160D84012626E0046A932AD12E68B3394D6E2A001A537FFB40D3527C6",
+                    "0x0077D45AECB939AE97A3952B48189964AA209609F19BE4A4B89F339A33440F6D",
+                    "0x0077C7E54505D4771F6AF1FED2195500481EF1F3C0397B0AC819E678BD2309B4",
+                    "0x00B3AF68ECC6AE7A4727F0708EDF4736BE1C99281FA380846E42264C62407484",
+                    "0x00381CA4536FC0ED935D50A74A87136F1A0675B618898DBCE67E564AB20174A1"
+                ],
+                "lookup_index": null
+            },
+            "data": {
+                "constraints": 32768
+            }
+        },
+        "bestChain": [
+            {
+                "protocolStateProof": {
+                    "json": {
+                        "statement": {
+                            "proof_state": {
+                                "deferred_values": {
+                                    "plonk": {
+                                        "alpha": {
+                                            "inner": [
+                                                "-5641318116343570801",
+                                                "5383064906128953436"
+                                            ]
+                                        },
+                                        "beta": [
+                                            "8791905980679478613",
+                                            "5715865332806365046"
+                                        ],
+                                        "gamma": [
+                                            "-6745778050526008231",
+                                            "-4146449599307902979"
+                                        ],
+                                        "zeta": {
+                                            "inner": [
+                                                "-6899124532125841006",
+                                                "844887616716174061"
+                                            ]
+                                        },
+                                        "joint_combiner": null
+                                    },
+                                    "combined_inner_product": [
+                                        "Shifted_value",
+                                        "0x24D00726CDCC1C769E8719B7130E1DCFBBBEA13A466128A63DB69106CA7CBF98"
+                                    ],
+                                    "b": [
+                                        "Shifted_value",
+                                        "0x17482A2F8940EE0AEB43B460947D36C574AEB93E9B6C312956208BC80FF57AD2"
+                                    ],
+                                    "xi": {
+                                        "inner": [
+                                            "8023533045073697874",
+                                            "8028582938705473041"
+                                        ]
+                                    },
+                                    "bulletproof_challenges": [
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-1085677721896619054",
+                                                    "-4229277174362689418"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-6319423414745753137",
+                                                    "6679696929682236484"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-2508143120965616010",
+                                                    "7630516265308509042"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "3036419195775523346",
+                                                    "8072400298206986892"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "1995824905488342541",
+                                                    "-6888369921311627344"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "1744691631311764153",
+                                                    "-2390045580807552976"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "1966952456825707481",
+                                                    "3111265821536520564"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "2991314539326144922",
+                                                    "8041633473834751754"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-1450573968130969291",
+                                                    "2178415436232300995"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "4070367622827609296",
+                                                    "-6182425951730527472"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-8788129246612337373",
+                                                    "5087532249010864953"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "8899074464974303011",
+                                                    "-986705442224933353"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-4278476395892614087",
+                                                    "-5205114877438789722"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-2219298075117190317",
+                                                    "-2507159277449443357"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "6076432265242712782",
+                                                    "-5876567491072422550"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "6727840865596075749",
+                                                    "3097538639022378395"
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    "branch_data": {
+                                        "proofs_verified": [
+                                            "N2"
+                                        ],
+                                        "domain_log2": "\u0010"
+                                    }
+                                },
+                                "sponge_digest_before_evaluations": [
+                                    "5747791739527198109",
+                                    "-5522253156051096195",
+                                    "5852476702872472069",
+                                    "4578905469423210482"
+                                ],
+                                "messages_for_next_wrap_proof": {
+                                    "challenge_polynomial_commitment": [
+                                        "0x2060651E37B2BE73C135D4B01014DF0BFB2BC34CC7ACC79662729C28DCFD731F",
+                                        "0x3E6D1FEF0A79A5A8551773F9B0FC4151EC62D3B4D95A55AB4C3FE1152F0D337A"
+                                    ],
+                                    "old_bulletproof_challenges": [
+                                        [
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "4200626045428990097",
+                                                        "-3202844421742329252"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-1210466097266989478",
+                                                        "8920270731699306675"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "7671700780754679364",
+                                                        "-2599363049873814390"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "7148218168437609753",
+                                                        "-3776240583176273500"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-4035192459208857765",
+                                                        "2907300326291197773"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-7507994857285280964",
+                                                        "-2428036662105161892"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-9188337202658065500",
+                                                        "-664200310034730296"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-8338869108957212914",
+                                                        "-5620492163117272444"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-6115227579895718816",
+                                                        "-2881016003594209375"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-2272111161301422661",
+                                                        "898622418965702353"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-1458747404728406179",
+                                                        "-6924448960968519773"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-1239924145599436911",
+                                                        "-3583237640832155285"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "2230868616635209334",
+                                                        "7294677350171156381"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "2275602825150044670",
+                                                        "4688824411896163805"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "3502559055368464036",
+                                                        "2467048272950024476"
+                                                    ]
+                                                }
+                                            }
+                                        ],
+                                        [
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "233909400883500474",
+                                                        "-8673994854789812152"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "6424300325779948341",
+                                                        "-391677662385178965"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-3638804756504722138",
+                                                        "7918389849403747142"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "1217639691322872098",
+                                                        "2934555755918384848"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "7619849665197219214",
+                                                        "-1323467494171721916"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "25628330297986516",
+                                                        "-5184448193177332313"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-8966772507514993808",
+                                                        "8535857971587473380"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-7816522449389418396",
+                                                        "3211880870040674773"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-305216689255031550",
+                                                        "5906419130494357766"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "997690661794086553",
+                                                        "6311558686023616121"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "5416790155945538983",
+                                                        "-318356931808360249"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-2256357888149697410",
+                                                        "-8035453466900346547"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-4320829369922914953",
+                                                        "6115295134697528863"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "-98992865701160526",
+                                                        "6115427038941736405"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "prechallenge": {
+                                                    "inner": [
+                                                        "4898686321219987995",
+                                                        "2899445835450445616"
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    ]
+                                }
+                            },
+                            "messages_for_next_step_proof": {
+                                "app_state": null,
+                                "challenge_polynomial_commitments": [
+                                    [
+                                        "0x312797B7504ACDF31604B4F18D35EA3F883A5D162143D74AAC5C0364C2A5DFB4",
+                                        "0x2407B3A1CDE43D96712FDD0AD0D6C67527AA3880093144DBB1BEE9720016BF29"
+                                    ],
+                                    [
+                                        "0x053ECD84013F7B527348B5BE9CF6324378C13E4EE9F760BEAC36C3880DB7AB9B",
+                                        "0x23A84F530D1BC695A6CC57684BF50ED07F0738B2D6ADB7AA6EC11893EC0964EF"
+                                    ]
+                                ],
+                                "old_bulletproof_challenges": [
+                                    [
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "2413680679406630996",
+                                                    "-985404527242261808"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "2209104692797544972",
+                                                    "848441959971073485"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "6219104448023680525",
+                                                    "608486597035399037"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "6798211436685909866",
+                                                    "1038067578166997044"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-2837658498543689385",
+                                                    "-7724063087858398439"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-5963844743847211795",
+                                                    "3196583263301234972"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "2413755807441992322",
+                                                    "-4650510816938363190"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "8752305149627354286",
+                                                    "6958765999969851151"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-8473339060064692243",
+                                                    "3808113890309795541"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-6639225443634597104",
+                                                    "3411395235215411060"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "2246779233019832470",
+                                                    "-6551929997691959880"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "7978657234571333871",
+                                                    "3354619036138463585"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-2662731561035558212",
+                                                    "8086881202593845655"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "1623918730775577302",
+                                                    "-4209934577215082818"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-1530026600528330227",
+                                                    "8278528469286274536"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "283349077144338717",
+                                                    "-8699956177990282548"
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-5948286762976073031",
+                                                    "3913620533516803836"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "6451156200849374208",
+                                                    "-7149474906925249401"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "2545802753099625135",
+                                                    "-3046285123411643010"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "1476045778313053942",
+                                                    "7088211501506636392"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-5780902958823199474",
+                                                    "684672559108579835"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-479599555522051695",
+                                                    "6277689784759994790"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-6174909374622547011",
+                                                    "-2876420228592515736"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-5612139484668830099",
+                                                    "-141685165274757211"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-9057284384873862529",
+                                                    "-218923106050670804"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-4381571242292214582",
+                                                    "-7982158890774157783"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-2589693721356185105",
+                                                    "47703702537737607"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "6933529253212730047",
+                                                    "-453811945482877525"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-7749055720453093542",
+                                                    "-3329383869546507530"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-4722006655881085948",
+                                                    "-2216518060947545516"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "-4147613965780683501",
+                                                    "1618424163113385480"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "prechallenge": {
+                                                "inner": [
+                                                    "5242665654050011345",
+                                                    "1974270862881305038"
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                ]
+                            }
+                        },
+                        "prev_evals": {
+                            "evals": {
+                                "public_input": [
+                                    "0x2F9DD330ED0E1AD4E909CFDFE8521377FB4D1D3F0F41A10B5B190BC0953E289D",
+                                    "0x3D00EC3B3B1A05664F55436B70A27BD6638248F69D5B7FA888B1D17385B26BB7"
+                                ],
+                                "evals": {
+                                    "w": [
+                                        [
+                                            [
+                                                "0x2B2939A6FF122BA26E0D2DDC22408CEE26CD8C4A4CD86CF1B927AD1A5ED45D98"
+                                            ],
+                                            [
+                                                "0x361C3EABC52019C61C7F82DEAD25E3D63C2E985006CEEFEC8D0DD5C30F2AD14E"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x2DD55400F1FC66EDB4F6EA66633C1C03CF7501F29CF1A5D89FD1ADDB13E2C9A2"
+                                            ],
+                                            [
+                                                "0x350207FC5E3D7314D6D14C63A16D886474FCF06E7A92080140981590AF9C3DBA"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x2FA66635A9D76B09A70902E35095980A1FC641DF9B2BFA0B62E2CE149E0F43EE"
+                                            ],
+                                            [
+                                                "0x3EB5AC0DB92D5C25F512C8FD90464CE7978E95D9C63EC8B6CABF290E184B8609"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x38996F986BF917880B36A57338E5BC4767A4DCF6EA26B935F0052F19950A13BB"
+                                            ],
+                                            [
+                                                "0x07794CD67EC7CCCE47347986612BC000C43F643DCEDEF42519894A425A1D8866"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x08C2A3F23B0BE05878DE79BC06BE6B23CCC254C133C8395E69418CA8115E11C4"
+                                            ],
+                                            [
+                                                "0x0E227C4D980275DE8B459D3C2234BC5CCB59CFAD116CAD152BB9E19C03CF8231"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x325DA0857D4C90D1D0A984126E3A8B79E25CD84D29465CA58F3827CE2F7F3C17"
+                                            ],
+                                            [
+                                                "0x2AFC6C29004A5B8DEFCADC3CF285C3256F87B8349411FE32144D75733A2290CF"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x1FDDBD6D68C46E388DA75072940C1FFFCEB9EC7873209F44395D4D9C3905671A"
+                                            ],
+                                            [
+                                                "0x1B41DE8EB7BC162FE105569FFD8BB66EEBAE0EEAF72D6995B44F699B16EAEFD2"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x3AD34DA74C6C401B7A76B848E498D4BB8B80D33DFF7F125FEDC0489FE14C4A31"
+                                            ],
+                                            [
+                                                "0x15B52547652A1B27362B954DE91220FB37CB3806EF7BC1C81E396A173B437B13"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x2BF37C852FA1287332F566F1033A7CA800387887567D781D60C1633E55DDBC26"
+                                            ],
+                                            [
+                                                "0x0E798C76B73DB2795EBDE1E9D1D481E4722819D19F5D0532E7B9F387E38179FF"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x22961957D73B788256AEAC997C0620323024DD5ED0254DACF2E34A8682DD91F7"
+                                            ],
+                                            [
+                                                "0x1921204E23CDD4D3010348B4A7CAF368A25DDFF4CAE9C8097AD2C6B5E62050D8"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x39333FAB2640D70456F469AA3860E13BD1769B0695043EDC2F712B3F936EC19A"
+                                            ],
+                                            [
+                                                "0x38D3611743EC20DE89375453D71E6FB02E2A30C01FEB3EFB20892ADE8503C105"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x29C4EDDE030EAFF787ACDED417E114D94F5FE668743CABD6482875F37DAD3881"
+                                            ],
+                                            [
+                                                "0x2FA4AFFEF32B552BA12852B117CE3BC2595BBF526E748E3DE6888C1CFF960221"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x071073C3B1049C7ADC0B8AB4F68968D8AB3F7314CEFE41D5ED06C54394B195E5"
+                                            ],
+                                            [
+                                                "0x3C2E41C0233FBB0067B76259EA8EB574EC8E8F3837E3042CC6E1F4E06E2FB777"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x09071168396ECFE92CBA46198474DED249B78BDAAD41356C1F7FBD0B35B37335"
+                                            ],
+                                            [
+                                                "0x36503E89BC7F98A818283D31A64CA5E12B8D100B0015F92F55CD92DC56E04C26"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x3AB19B02D0A528D9602065CD53C2CEEA9FCDA8BE227D04CDD8F12EA9CE55CCD0"
+                                            ],
+                                            [
+                                                "0x3F6DC737278C8BC7B4548DF4D9A1AC8EFD448F90A87E50368F26CE27A6521777"
+                                            ]
+                                        ]
+                                    ],
+                                    "z": [
+                                        [
+                                            "0x148911F6D44C52DA39D36151D0D18DCA4C5734516862F5A43BE722B506ACEE1A"
+                                        ],
+                                        [
+                                            "0x3DFECEE5CD7BBD8AA52B2F7703BBD7AE84E4802DABE514506CB3428A42DAEE50"
+                                        ]
+                                    ],
+                                    "s": [
+                                        [
+                                            [
+                                                "0x38191D6ADFA3303089FA4A8C72DE9FAC48BAC128235B48E47D9334815D5C89AF"
+                                            ],
+                                            [
+                                                "0x2D7DB46140D6E277C7532C7544AD9C784B1E1D43B1874E1DE0BAB69065ECE5BB"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x0B3A60959703F499F4C4D5D858F1C01AA41407612B6BB4F2DDC0BEF9A86D2B87"
+                                            ],
+                                            [
+                                                "0x34682BA6D910F511D193FEC47B233E6CE15C9950C931F59D50A8C8DF4343BC3F"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x324C18B0B791B116EBE54A8AA7E6367BE21B77629DC817DE201166E8D5FA8FF3"
+                                            ],
+                                            [
+                                                "0x00B83BE2C79E3B057FD962A10C70E5D5130F9844853563CB72DD32EE56C0255B"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x1EA2C0CC739252069BE0C530A5C5196A37A5854ECACD2C34EC7CB9A5FD3A2A32"
+                                            ],
+                                            [
+                                                "0x0EE23636C328EEEC53BA8F96866E271B51DBCF2B1A7649C1CCB60C024C6B78D7"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x213BDA38B8A26CB2D9D3542CE3010F84864E6D8EC0FB023571465E34181A6BB6"
+                                            ],
+                                            [
+                                                "0x35F308CC19FF2203C8C03FCF3919FFEA6132B633682611106ADB52721D27E506"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x17DB0F28DBE39785A894A340B9F115E19678460EBFE4FFC1CE99DBCC89A9662F"
+                                            ],
+                                            [
+                                                "0x07D2D0B259BAA8FC26A266F941334FF72E1C28CA76CE918D9138B532DC9EAB3F"
+                                            ]
+                                        ]
+                                    ],
+                                    "generic_selector": [
+                                        [
+                                            "0x2E95898F9337D3413710EB84FD008159D400F5E6CBB97F0FD0665FE2E9522E5B"
+                                        ],
+                                        [
+                                            "0x141418B06D1D96AAC91A0B092F446BDA3D1883A13C6828E9F2AA7FD121E8FD54"
+                                        ]
+                                    ],
+                                    "poseidon_selector": [
+                                        [
+                                            "0x37BA2BB62DDF1B2EC2AF302FFE5B64BEDD836701031F4833BBB3375DCCEED09F"
+                                        ],
+                                        [
+                                            "0x30C0D78C70046751E21CCE11AF797A4D23270A1B822C5896E9D4EDF2E851B72E"
+                                        ]
+                                    ],
+                                    "lookup": null
+                                }
+                            },
+                            "ft_eval1": "0x2DBD150DA05308C71A4DCF4DA78EF9EB8B594528530EACF6A9E1562AA3009084"
+                        },
+                        "proof": {
+                            "messages": {
+                                "w_comm": [
+                                    [
+                                        [
+                                            "0x3B79BCC1E827CD36176F2D94ECC15855774FFC32AB762558C29AE04F6F763D1E",
+                                            "0x1C04092D0BFCA6078098AD2DB6FFC881184EF1A14990480EDAAE3864C3A3E2A9"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x37BF956476A9875D7A183061777F000F2FBB9665E3661822C5373148BCA933A1",
+                                            "0x3F16F6D4F91BC78687D85B4E9D16497FC57DE20E1C059B45B4AED15B89C5A3D8"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x37F9B77BBCA0FC36179B99AE4FD8F3DA29665C6864CCCBAA084A390A8DA5CFC5",
+                                            "0x1AA618B0402C5BF79CC71D0AA216CE5B6AF662E782E419BE10E350C04132F467"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x3AB1A1D1C95FF8F231C2FD28F1634DF5367D71B92214A141D87A226E72D541DC",
+                                            "0x2A2967E2F158920747002699BDFB0338905868AF5CD9B60BB419BCEBBC734714"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x1368EB16C37CD808122B8D0324C2AD75363BE276D9A9AAB2614DF6F83D74D06C",
+                                            "0x21EB8DE13E540C0FF3281D5339B05740CF2198A380F1665B8592CE64E549A0C4"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x24E8F0531A661D8785DF300C7DF5AF4A78ADAAD6D7533E2ED502E7C03CE8B096",
+                                            "0x147FC4D99E75AC75F3B537373B4AFA580977B031A7822078DBAF4BA9A2646057"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x1B92BF8E86A8407C03678FA2EF9D0E283D0519B27D33EB443426AD207E624428",
+                                            "0x365E04BCFF07A7CA9CAE4DD49BD870D5CECE2FDB756CE6CDC71EDD4EE5A02266"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x3EDE21AD94BC305C554A4690FBAF1B7BD67B77AE8F8B2895785DFE3349F95EB3",
+                                            "0x2C1CB49D5397266B715BCA0449F077C4A95F9C4E6B1A2B49D071204EBF1DA8E1"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x31A30D6F690F57FB713798A2B68772C57EFEE749000092D4DE6E6623678534C2",
+                                            "0x1BAAC29070905E1D1046BA80067FAF7EE4698F0EBBCC2308DB298FA4BADFEFA8"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x187588ED96512C73599720F324EF87773B753A3BCBF71BBBAC4219C09D35D794",
+                                            "0x34FECBB38CADE2FF6CCB0599D9FFDBE665735CD414D224B41AAE0479E6472F32"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x013408FBF9C313436AAE72EF9E0CC47DB5A0BCAF4A0BCB76E547FE619FD21E48",
+                                            "0x1CE2005E86A94A8978C0ED8C33D14A166C416F121993D58E7A78091738E58FF4"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x2A617DAA73ECA483A3E9B0465407C7FBF1464BA5B928C57DF17307162F2CA1AF",
+                                            "0x05D53FB0EAACCE1EBE7092F078EC5C21D75F4D94AD4DE1B34D1AE74C8F91413B"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x15C42C06C5825F23609F9E6E2EF7B5089CC780D19FC258DAEEB8D52F31C3FBD2",
+                                            "0x07142265CDD2AE5694794AD20455A0221FE21839D3BFD15D148B49B84F766FD0"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x3191EF5604B6D95F84AC51D70B6E9A7E2182514FD7DDCA9CA31D78068EB8CC8B",
+                                            "0x3967CC934828F40893DBCA7EF6BF7474F81298EEC33EDFAF663A04CB9E135900"
+                                        ]
+                                    ],
+                                    [
+                                        [
+                                            "0x08101A0FA7F8F8B3F72E42E2822C4E308AB6A1A06365E3FA87A033C26A789731",
+                                            "0x29B152E4A2D1C39A26C9DC67390234E47B90BD9E302147DEDC98B42F7B3BAE91"
+                                        ]
+                                    ]
+                                ],
+                                "z_comm": [
+                                    [
+                                        "0x2E394D321428AF55F9958A029F633E17126C425939DAC5B9B9B05F393C900C06",
+                                        "0x0D072B98FF0647C28C58A5F9D7E71A09632A5CDF9432ECA6C3954BA95E8D906B"
+                                    ]
+                                ],
+                                "t_comm": [
+                                    [
+                                        "0x1862DD4C5EE19A531D1876BDBF32847D75E20A5BE49EA1D6DB7B4605D971AF55",
+                                        "0x10EFB421EC114AEEAB299C91B95789D9028EF5B9419F716E039AB974C7F9EFDE"
+                                    ],
+                                    [
+                                        "0x19BF4038CC287E1A960B8007F170EDFA1B301410CD07B6376E9722D4448FF1DC",
+                                        "0x16B2621A8A8330E42002796C8E7E7D52E3913363F5002F2EE1600C694C05BC70"
+                                    ],
+                                    [
+                                        "0x0D0BC550E53AB74B401CDCB910F799C7A5E4A26B9E0CDDE74D7C3D6FA7A8561A",
+                                        "0x1FC55CCAF039689CF5537C6F93769B2BDC702FF09BAF701EE2D8ADCFEEF054AB"
+                                    ],
+                                    [
+                                        "0x36CC9333A437AAFC68EF2781661DB098443F720974CC7D882D10C97B7E72FA36",
+                                        "0x0FB84A58F72AE9BB622BF6CA127EA1A4C991FB7DE438C5F9E9B80A1DC46D7C7B"
+                                    ],
+                                    [
+                                        "0x3F3294FBE5A3FB4BF755F1E66AAB9D9C30ED1280AFE7737FC2115947F94DEFB7",
+                                        "0x22A1F010255EDE5919084560217BA663485404F8E7C1B0679ABBBD250985973D"
+                                    ],
+                                    [
+                                        "0x03FB591B4716545E4A7BE0095FA962AB8E0F661660662C5D396B7B5A9AF65EB1",
+                                        "0x00EAC9EBCD22BAA3E1AA493812966E609FC4EBA075B2AB93F8178F73330FD641"
+                                    ],
+                                    [
+                                        "0x1BA2593DD56B15B341BFCC3C604FA69BD55841029927942AA456660D76CB0E3D",
+                                        "0x0E19D8F6BE5FE4802D25B2D6A945F689E1BF7933093EAA7B1E52D799DF731D0A"
+                                    ]
+                                ],
+                                "lookup": null
+                            },
+                            "openings": {
+                                "proof": {
+                                    "lr": [
+                                        [
+                                            [
+                                                "0x062B217AAC6D2680177634E2E2DC2BF473986F813E22FCD7A5CE3BEA4E8AB990",
+                                                "0x00801F2FD87D89235A263C5FB6687917EC5A8F58A5B42C07E6D3C2E90ED9006C"
+                                            ],
+                                            [
+                                                "0x3F9FB05F0C41CE0B6C33A719F8F902AB6D257F7A51FC5CE377BF2B0146D1F324",
+                                                "0x108EDA92F4A987FD126F86F7B0937FB65FB5FB922D74BD5AB61693A829CF49F2"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x20788BBEF66AE23F976BE931968A4D8F1E66D56E12BC67E73E4AAD6EA08E26B8",
+                                                "0x03263B20C7D5F9114048E8541D4C5B63FBE4A5D5A2F61E9F7FAD1909FC86DD74"
+                                            ],
+                                            [
+                                                "0x1CE7E405B28396516B45907C58CB9E0EAE7C29F646294186A46D5F4B9015C4E4",
+                                                "0x3AFEF8169BBAC3A7E3C34D840F272A6A85BED8C8FC62EA95EC22C936F65D0AFF"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x3414FB10B44556A4E4741D238BAD2A1382ECD124BAFFC02E89CD033DF614CCD9",
+                                                "0x0C5EA3D2447F98D8E74939EE360FE4992574A02254514844B68394B61E2EEAA0"
+                                            ],
+                                            [
+                                                "0x05ACE24719659EC9D9DC0579B02CC62A7E2CB931C0A0EA7A03D19682DE81781C",
+                                                "0x324BDF661A9FDBDD79735EF45FD10617CB119FCC9397C2ACB21CF8D3FD3E00D5"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x03EC02566036FE16AAAA58F17646DB35D4258E002A72D14E77B8A954A12C086F",
+                                                "0x24D90CA607E5F7C1226CE397017049C69FA25D9A2F45E841B8974D6CB9D0CCE8"
+                                            ],
+                                            [
+                                                "0x0A03633A8A97308FD51B8B13A996495722894EDB383E64F2751FB7E3F7091EEE",
+                                                "0x329C25B1B957AA87E85CCB07EEBBFFF9334C97768A08DE4393258F8D9CEBAFD4"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x3FABF7B3CEACFA9A04986F07885D96DBFB8924AB7C99FFD7A4F5DFAAE7916EAF",
+                                                "0x295FD6D95D315099C22B7D19694817AEFE8AC3BD85F789F4D845FA788A9736F3"
+                                            ],
+                                            [
+                                                "0x35026BB439E23264115B4324B9EE9221038DB9CE60598CB687DAA9805D6978E0",
+                                                "0x2CEC95E6F27D01342C073D80F84AC356A7CD7A91F94B43A0961F144895BEDFE4"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x31E8AFDB77C30987133A0A8016CC403D26E532C14DD7D764ED9B37FA339C7E49",
+                                                "0x1D6784DDB74A27ABCC487732E53873C385D9C338BFF0645240F0F37B82B4A139"
+                                            ],
+                                            [
+                                                "0x152B6C6AF4C5484F42C46A15330BEDADBC766CE321776DBCB44E314CAFD56E07",
+                                                "0x2E099ABCE94590B1365C791DB498971B2CE286C93FAC3D1A523EF793A5050EBE"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x117B407041A981C0A53F404DD8F85E8ACD8E2A72FA99E2811FAE9E3FF6CA5805",
+                                                "0x120DC247135D9FC5A454350B5EE528E37235B9B0151BAD2D12FC9145836F7B82"
+                                            ],
+                                            [
+                                                "0x2377DD899DACF5CEC3B4B73563ADF1A92614D45CE8DCFF5AE1DF3B3F1E3B0A59",
+                                                "0x31935C1C652E9C2E4565560DB6E8946802EAFE9653C35F7B21C4BF9949ECC748"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x0D7F677651515A1FDE0096C9083E57E09DFD7DC11386AE1D30FB2BA3B1DFBF25",
+                                                "0x1809D4AB1C9672ED0DD4FB6DAA913B4802584D73C3A9158133EC222A46A4C566"
+                                            ],
+                                            [
+                                                "0x23546580471857D0584FD6131A89AAEE201E98B1A842B21960A48AD36F46F98C",
+                                                "0x0FDB6A4355A758137DE39587ACA5BE1F7D4320E31BD8C02F7D28642CED6B1629"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x319D6AEF8A730441F5443562491F48E9854B333A17389178CAC3788783557339",
+                                                "0x194BAF9AA3FD63F13143F8068A2E46B701CAEF2804AB58FBA645BF8F0B1A1C4F"
+                                            ],
+                                            [
+                                                "0x3922AB465CA9484A663450705F8D1990A871FBBDF35D8F90F00A20968827DFBD",
+                                                "0x200DB9E91F95602C5F4695B8074D57BF269FA38FAA7935CA4688B58D85B843D0"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x3D4267AAC2F2F91078F741DC8FC0E378E2907B914DF0128167071953F454BDE6",
+                                                "0x01D05EF26046E91EE8374224BFDBE7A7BA540811538C778F6678B44E00454A3E"
+                                            ],
+                                            [
+                                                "0x1D2AAE82625270D68AD5DEA250DB79EAC7E437277CEC26A370DA63A992B0714C",
+                                                "0x20F6EEAC3A0023C59B07CA270D2C9CE41B0DB547546F4793C7256C1F58B84B65"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x2A73C847E2C16085CB4EB77130E9291669747167503749DA1737EB125B32C344",
+                                                "0x23074256C16D15072EC50D84A4D0E29AE31DFF9B71D1F7964B32CE180ECF4D77"
+                                            ],
+                                            [
+                                                "0x3FF2BB3730CC2304F5A39AAF409F5E74BE7518DD8C91A7C42D618D696E0F8E0B",
+                                                "0x0AA363B0DE8A85003EF8B4E2489B87928B2192998C9E7904303BB9392B65667C"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x1AE62341B96BEF9679C79A2A749C52B2FE707D38FAF338FF8D4D6708098893CF",
+                                                "0x04F4EDCF2299F1E452FC35585213AA61EF6CF04445E0606C75E8609CE5512D36"
+                                            ],
+                                            [
+                                                "0x3522B7D235550F7DE536DDA9458F71CA58F850CBB503C6A0E867C23FD504CA7D",
+                                                "0x14B4D99414D67ED1AA337D92A301C9097035A328AA370A6A3330551F634EF067"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x037BF44F812985269DF18433CCE7A7D1010C701602DF86CDA33FCC6D443DDC9B",
+                                                "0x0C32680333988E5F30793955FA5C9770C4552AFC544B6C6344FDAF2354B8EA9C"
+                                            ],
+                                            [
+                                                "0x3FFDF0687D9892008C8D16C77B86C26DE915F4AC7B02595A65C6F21745DACA65",
+                                                "0x0CCCCE62E77EE0890ED3FB1FC5E39E8B85E2EE8DA26CDCD976C2959ABAEAE658"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x32D8B58235F15AD5F9260BD0FAC162853D8CD85EFBC8780B7BD5B72D1BAEEA57",
+                                                "0x20A13634345731990F9B799E9BC4CF5DB25D9999DAC2431FC1F7ABC36DE44261"
+                                            ],
+                                            [
+                                                "0x31E2EEBDFC5662EA03A558B231B0E62BBE16D4D5366B75516B19E455DD4690E3",
+                                                "0x16371F8E11E2A4D7C12899110CF151808DFE8E7CE046D8C34BFFAEB46A3C275A"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x1FC68132582FA26E537ED8166DE82AECADF4FE534CFA97F7862929D1BEA0D1FB",
+                                                "0x10E80B187D932150A94A4105345CCA3C15B289AF37DC344852725DEE0BF89090"
+                                            ],
+                                            [
+                                                "0x29CAE3F788FFBE8910332A9E345E282569D23AED60B8B3A776B26BCCFD59717B",
+                                                "0x07AF64932BBD8188D95848014562B5D60AB4B84D1C38D79841DE8CA2BA6A1D9B"
+                                            ]
+                                        ]
+                                    ],
+                                    "z_1": "0x353A59CF33E5E244EAEC6B0DA43ADE22E630319A993CA1CF0654E586F2C3EADC",
+                                    "z_2": "0x1670EA3A20069839DB923C19C498776BB74D39272D8C7F8020FEE1630A94A634",
+                                    "delta": [
+                                        "0x142441BF1D3AD33368E520D5BA2BCD161A5BBCF1F93689CC6C7A21D087D472D0",
+                                        "0x19FD90CD90A90A48703CE2E7F4818E986C3CF8BD6BA82D8B4F8D92B1C7384EA1"
+                                    ],
+                                    "challenge_polynomial_commitment": [
+                                        "0x350B55D4CAAF428D3C34C636819FE7EA667C212D2DCFDF55D9916EA9FD47BD28",
+                                        "0x0E894AC585AB457B4DEE9F61EE192ED2FE0743B83F8D74A4830324BE277FC033"
+                                    ]
+                                },
+                                "evals": {
+                                    "w": [
+                                        [
+                                            [
+                                                "0x2FAB0EA92126E6FEC577BE45B30B6C76319B8F7DF97D1F6C23E8E1FAA78AE8F1"
+                                            ],
+                                            [
+                                                "0x066FC00F385761EACAEB78B40E956AA96E756EFA11083246B42EE407BCD43F09"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x37ECA82FE3797333CCBEA5C8231306477CF00F0EA321AF9A75213C6BA7C5070A"
+                                            ],
+                                            [
+                                                "0x3B2E93BF616DBB4923F8BA852D93260740A64DB2553DAB7166D2CBE697A1A4D7"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x22A685A4CB34E189A0701B54AF3B7752AD961EFA20CA7BBFDD5D6A75F10AC17C"
+                                            ],
+                                            [
+                                                "0x3F491380640BA443D686A2AACF09065E2CC42C9BE5C268FAB2FAC95AEE110030"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x1AB42A4A7C9C1AC1F04529D8B63B3BAC198936AA2C691C875AF65A822A3ECAA5"
+                                            ],
+                                            [
+                                                "0x2CBA3D676E70D9040CDB60D2A4641480414A94899C8FC5CA82E85CA26AFC364B"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x1FB116DD29495EDCA4930CEFC00ED2675872121FBADAE406B52791280AE12653"
+                                            ],
+                                            [
+                                                "0x0BB0EA67846DBC575DFA94D4B6315FA82BBD8E23E4AF09C62010F9F1F5D74E5F"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x3260D5D578ADC6D3ABA172BD2992F61877B026744C826AE5B025D2B90A86A40E"
+                                            ],
+                                            [
+                                                "0x077720727EFC00A203E485ACD9676FA4E63C077E2EADDBE7198938932F8C5EDB"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x0BB40A540A03DFE3059837A05C79E69FD8EF16B8FBC0F10449938DB847B12697"
+                                            ],
+                                            [
+                                                "0x1F54A4B99159FCBC83D9CF3997F95E44E35922F18062D5287854104E568B7EEE"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x21A00868B3599067975B15A79BFC81DFB419FD7A4DA17BB03F55EB97896FF2F2"
+                                            ],
+                                            [
+                                                "0x0F2AA053E2196B782724D40833B91DC89497778DD2F99DDB71360CF95BC319D3"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x191749FC5A8441DC6EDBBC7194FE15213F409F29C3B7C4CE0CA25BE9BA12CB4E"
+                                            ],
+                                            [
+                                                "0x0FF1749C0E25E6896868E01C51A7F261DE152C7014AD1CCBB0005202A1DB9654"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x37AC7006845A6E19C303D4A577C4F45DE7F2F5597FF9CBAEFE316D350952AC7D"
+                                            ],
+                                            [
+                                                "0x2E895F42EECCF73953EE00C2F81D46A94D2BD107C806E36347087BE0F32E4CA4"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x0BB6E1F1D39ED6C2F75567B342E8626153441DC8B7BD4F065BDF31E0B7A5E5B3"
+                                            ],
+                                            [
+                                                "0x3B312705F0BF67538240D3EBCDF136D1C0381D6F914B4D3AC921669C2445005F"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x3614D6B72E98540B216ADE90D3E2E4FB7CF1332FC783517B14D4D3EACC609310"
+                                            ],
+                                            [
+                                                "0x034FBDA7C52A22B24BDD43FFBF3C5260A2C85C38DED383C6FF0982AEEE0CF96F"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x24FB130EBB55D626EB6EF036384CD8F50FBF94A1D6645DAEC1999031C2569F87"
+                                            ],
+                                            [
+                                                "0x19E74D208DBB38617055A2701FC6DB1A0CCDC8B269EF19CA6A5561B522A6CF74"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x141F6DBDD98B29AE680E09C28ABEEAD25D0ECE1A75CB10313B1E7941E3A7F8AC"
+                                            ],
+                                            [
+                                                "0x0798110E744B833FC436F3C27345388510135560F49287258AF378DEC938A299"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x199F7BFF257C8E72DE52F75E6468BBDB41D911C68434621F01F7AF973DCD5126"
+                                            ],
+                                            [
+                                                "0x0D5D29B4C8279B754738356F7BE84B1AC27558494FB325D12E38D4EEF2968FFB"
+                                            ]
+                                        ]
+                                    ],
+                                    "z": [
+                                        [
+                                            "0x118D0CBEE46F38F28E9733C133D530108D81BDE87E3A53AB65A3DC92BD73BF7E"
+                                        ],
+                                        [
+                                            "0x31AAFFF53E1117E6D1DC66DE3A90E3B7AEB5409470BB6B2782835899CABE199B"
+                                        ]
+                                    ],
+                                    "s": [
+                                        [
+                                            [
+                                                "0x15F0DD9FE9914503B4693C5C3D4D13A5497AD5632A8FFEBFB1C96953331724B5"
+                                            ],
+                                            [
+                                                "0x062057C3BDFA429088BC554E1835855448D897BA34A847BAE6D40149F8C385C5"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x209A61656AC3FC886E812D52CDF1B8E7A35C0F9C0CC17205DB4483972B1F7D65"
+                                            ],
+                                            [
+                                                "0x16763B76668C622DE237769063691FB95865DBC159C07FBE9338099CEF7DB717"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x2F993ECFD985A05CFACC6E12307EE5ECA4AC58465A5AE9603F53006B129180C6"
+                                            ],
+                                            [
+                                                "0x1D94225E17D88AA563231FAB5D3A82F16E420AD1A6CEA3EF8DD1DB842C0B90EF"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x3BE198F9B487F6C803ED60DB7F08E7B7E63FCB89F77BB4C441E39D90727F1D9B"
+                                            ],
+                                            [
+                                                "0x115AD118BE0A3EC5F864FD39548E0C9AD4F059FB5534BA2EC95875C99EC4C7DB"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x2DFE15DEAFB0F94329CA22F51DF6E37752F7C996D217E424AB4B612BB8BCE43D"
+                                            ],
+                                            [
+                                                "0x17B5F935FC3C10015E624DD11569EE3675FCE867BA306376539E56AF276566D6"
+                                            ]
+                                        ],
+                                        [
+                                            [
+                                                "0x3E002454D96C6EF22AB5796D987937BCD04E4AC928173812A647164960BF71FD"
+                                            ],
+                                            [
+                                                "0x00D5784601CEB256148A1268AF283EF6C3C3D7AB183331366DC1E5BBE9A6E5AE"
+                                            ]
+                                        ]
+                                    ],
+                                    "generic_selector": [
+                                        [
+                                            "0x2C4C713C9D99CCB7AB8A2D842A78E525C29A1C6914BE0764FF6143659DDBC805"
+                                        ],
+                                        [
+                                            "0x3F05DD654E3763E8F4F04ED66E0FAF2760FC59E74EDAE05E8C200F6F7082414C"
+                                        ]
+                                    ],
+                                    "poseidon_selector": [
+                                        [
+                                            "0x2DCCDB036923DE331E9C1BEE249EB949A3DE9B482D5F7BF18C28511B994A89C5"
+                                        ],
+                                        [
+                                            "0x240F654C1E15368CB50F21E27A22426694FC077E7CA2CB8A0E5EDDE3E3A44608"
+                                        ]
+                                    ],
+                                    "lookup": null
+                                },
+                                "ft_eval1": "0x2A4B52E6A2C691D3612CA9B25C0C3BC1AF5CBEF9EE19997BAFCC0C75EE2F3F6A"
+                            }
+                        }
+                    }
+                },
+                "protocolState": {
+                    "previousStateHash": "3NKxi6J9Dya47D7muLceiygaEgXfVbQYtL898eq9UZQeEnA5Xnvg",
+                    "consensusState": {
+                        "blockHeight": "9951",
+                        "blockchainLength": "9951",
+                        "epoch": "2",
+                        "epochCount": "2",
+                        "hasAncestorInSameCheckpointWindow": true,
+                        "lastVrfOutput": "48HCfQLkC5iH4U8KewC8rDeDQECDJckBooPumLRbdkUAo4S5wN3J",
+                        "minWindowDensity": "29",
+                        "nextEpochData": {
+                            "epochLength": "1719",
+                            "ledger": {
+                                "hash": "jwdhv3qvTXfPuG8rqqoDPaKwdPgZ2qfpebyKs1wRgtpuuhsK929",
+                                "totalCurrency": "1023358801000001000"
+                            },
+                            "lockCheckpoint": "3NKxi6J9Dya47D7muLceiygaEgXfVbQYtL898eq9UZQeEnA5Xnvg",
+                            "seed": "2vc5nL1ZbFsKCEz3oBPkFHRwwzbwmM5pxHgQhRRV1Tkvm84HmVuR",
+                            "startCheckpoint": "3NKoGKHcgJLLebSpxQ5qehkV9gxM3pWwzdaZuqKcMEBA54xGkQ8o"
+                        },
+                        "slot": "3014",
+                        "slotSinceGenesis": "17294",
+                        "totalCurrency": "1025328001000001000",
+                        "stakingEpochData": {
+                            "epochLength": "4144",
+                            "ledger": {
+                                "hash": "jwvfuVfVfT6tNkMPDT5NAiGRER74oYcxX9rGtkJif7NLUXgjbH6",
+                                "totalCurrency": "1018136641000001000"
+                            },
+                            "lockCheckpoint": "3NLkM3UFqy2PbEtzdGkpAJwx6psDGy1zucxsJgYMtysy2zK2uwS2",
+                            "seed": "2vbCL2AkqFziFLABZmcxuo3MiV6gLh3Erjj8GEKpkRfxoBJFvSya",
+                            "startCheckpoint": "3NKhEWoffcQiyMBXWvGv6or8rjxmXLfKxdTRnafZCiKHwfTPK19N"
+                        }
+                    },
+                    "blockchainState": {
+                        "date": "1666888921000",
+                        "snarkedLedgerHash": "jwtoRYQxgoQoK1trMgikEUs6iLM148f6wgFVYpasBLbD3cYD4mF",
+                        "stagedLedgerHash": "jxeXz2qqQdg12vV4HqEGNPNtFSyLLgPZCBycTAz6uZktVdKKzss",
+                        "stagedLedgerProofEmitted": false,
+                        "utcDate": "1666888921000"
+                    }
+                }
+            }
+        ]
+    }
+}
