@@ -40,9 +40,21 @@ python3 share/proof-market/bid_push.py --sender=UserName --cost=1
 ```
 Save the bid id for the future use.
 
-- Get the generated proof and verify it on EVM
+- Get the generated proof
 ```
-python3 share/proof-market/proof_get_bid_id.py bid_id
+python3 share/proof-market/proof_get_bid_id.py --id=bid_id --output=proof_path
+```
+
+- (optional) Deploy verification instructions to EVM
+```
+python3 share/aux-proof-verify/web3_deploy.py --url=eth-node-url --address-output=contract_address.txt
+```
+
+The script writes the deployed contract address to output_path.
+
+- Verify the proof on EVM
+```
+python3 share/aux-proof-verify/web3_verify.py --url=eth-node-url --address=contract-address --proof-path=proof.json
 ```
 
 ### Proof Producer

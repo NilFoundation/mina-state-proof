@@ -4,6 +4,7 @@ import json
 import sys
 import os
 import logging
+import argparse
 
 secret = open(os.path.dirname(os.path.abspath(__file__)) + "/.secret", "r").read()
 user = open(os.path.dirname(os.path.abspath(__file__)) + "/.user", "r").read()
@@ -20,7 +21,11 @@ def get(bid_id):
 	
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(message)s')
-    if len(sys.argv) == 2:
-        get(sys.argv[1])
-    else:
-        logging.error(f"Error:\t Invalid number of arguments")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--id', help="Bid's id", default="1")
+    parser.add_argument('--output', help="Output file path", default="proof.json")
+    args = parser.parse_args()
+    proof_json = get(args.id)
+    proof = proof_json["proof"]
+    with open(args.output, "w") as f:
+        f.write(proof)

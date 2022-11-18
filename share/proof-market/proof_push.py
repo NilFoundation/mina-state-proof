@@ -29,6 +29,6 @@ if __name__ == "__main__":
     parser.add_argument('--id', help="Bid's id", default="1")
     parser.add_argument('--proof', help="Path to proof file", default="proof.json")
     args = parser.parse_args()
-    data = {"bid_id": args.id, "proof": open(args.proof).read()}
+    data = {"bid_id": int(args.id), "proof": open(args.proof).read()}
     push(data)
         
