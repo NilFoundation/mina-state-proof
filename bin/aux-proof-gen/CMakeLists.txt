@@ -6,6 +6,17 @@ include(CMSetupVersion)
 
 cm_project(aux-proof-gen WORKSPACE_NAME ${CMAKE_WORKSPACE_NAME} LANGUAGES ASM C CXX)
 
+option(ZK_PLACEHOLDER_PROFILING_ENABLED "Build with placeholder profiling" FALSE)
+option(ZK_PLACEHOLDER_DEBUG_ENABLED "Build with placeholder testing inside" FALSE)
+
+if(ZK_PLACEHOLDER_PROFILING)
+    add_definitions(-DZK_PLACEHOLDER_PROFILING_ENABLED)
+endif()
+
+if(ZK_PLACEHOLDER_DEBUG)
+    add_definitions(-DZK_PLACEHOLDER_DEBUG_ENABLED)
+endif()
+
 if(NOT Boost_FOUND AND NOT CMAKE_CROSSCOMPILING)
     find_package(Boost COMPONENTS REQUIRED filesystem log log_setup program_options thread system)
 elseif(CMAKE_CROSSCOMPILING)
@@ -51,6 +62,7 @@ target_link_libraries(${CURRENT_PROJECT_NAME}
                       crypto3::block
                       crypto3::blueprint
                       crypto3::codec
+                      crypto3::circuit_json
                       crypto3::math
                       crypto3::multiprecision
                       crypto3::pkpad
