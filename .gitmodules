@@ -100,3 +100,6 @@
 [submodule "share/aux-proof-verify"]
 	path = share/aux-proof-verify
 	url = git@github.com:NilFoundation/evm-placeholder-verification.git
+[submodule "libs/circuit_json"]
+	path = libs/circuit_json
+	url = git@github.com:NilFoundation/proof-market-circuit-json.git
