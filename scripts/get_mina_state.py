@@ -71,7 +71,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     url = args.url
     output_path = args.output
-    res = state_query_to_graphql(output_path)
+    res = state_query_to_graphql(output_path, url)
     with open(output_path, 'w') as f:
         sys.stdout = f  # Change the standard output to the file we created.
         print(json.dumps(res, indent=4))

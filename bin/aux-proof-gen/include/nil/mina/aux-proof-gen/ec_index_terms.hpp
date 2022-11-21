@@ -135,7 +135,7 @@ namespace nil {
 
                     constexpr static const std::size_t endo_mul_scalar_array_size = count_delimiters(endo_mul_scalar_str);
 
-                    constexpr static const std::size_t constatnt_term_array_size = count_delimiters(constant_term_str);
+                    constexpr static const std::size_t constant_term_array_size = count_delimiters(constant_term_str);
 
                 public:
                     constexpr static const std::array<std::size_t, poseidon_gates_count> 
@@ -169,8 +169,8 @@ namespace nil {
                     constexpr static const std::size_t endo_mul_scalar_rows = 
                         rpn_component_rows<endo_mul_scalar_array_size, ArithmetizationType>(endo_mul_scalar_str);
 
-                    constexpr static const std::size_t constatnt_term_rows = 
-                        rpn_component_rows<constatnt_term_array_size, ArithmetizationType>(constant_term_str);
+                    constexpr static const std::size_t constant_term_rows = 
+                        rpn_component_rows<constant_term_array_size, ArithmetizationType>(constant_term_str);
 
                     constexpr static const std::size_t size = 19;
                     constexpr static const std::array<index_term_type, size> terms = {{

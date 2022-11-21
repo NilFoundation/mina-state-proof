@@ -14,6 +14,6 @@ ganache -l 100000000000 --miner.callGasLimit 100000000000 -p 8545
 CODENAME=focal
 echo "deb [trusted=yes] http://packages.o1test.net/ CODENAME unstable" | tee /etc/apt/sources.list.d/mina-unstable.list
 apt-get update
-apt-get install -y mina-berkeley=1.3.2beta2-release-2.0.0-0b63498
+apt-get install -y --allow-downgrades  mina-berkeley=1.3.2beta2-release-2.0.0-0b63498
 mina libp2p generate-keypair -privkey-path /root/mina_keys
 mina daemon --peer-list-url https://storage.googleapis.com/seed-lists/berkeley_seeds.txt --libp2p-keypair /root/mina_keys
