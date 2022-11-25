@@ -516,6 +516,8 @@ void prepare_proof_scalar(
 
     typename BlueprintFieldType::value_type scalar_value = 2;
 
+    circuit_proof.public_input.resize(KimchiParamsType::public_input_size);
+
     for (std::size_t i = 0; i < KimchiParamsType::public_input_size; i++) {
         public_input.push_back(scalar_value);
         circuit_proof.public_input[i] = var(0, public_input.size() - 1, false, var::column_type::public_input);
