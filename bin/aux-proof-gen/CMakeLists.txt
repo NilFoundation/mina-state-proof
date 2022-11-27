@@ -62,13 +62,13 @@ target_link_libraries(${CURRENT_PROJECT_NAME}
                       crypto3::block
                       crypto3::blueprint
                       crypto3::codec
-                      crypto3::circuit_json
                       crypto3::math
                       crypto3::multiprecision
                       crypto3::pkpad
                       crypto3::pubkey
                       crypto3::random
                       crypto3::zk
+                      crypto3::circuit_json
 
                       marshalling::core
                       marshalling::crypto3_algebra
