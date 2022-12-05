@@ -16,7 +16,7 @@ library selection {
                 state.consensus candidate_state = candidate.consensus_state();
 
                 // sub window density must not be greater than initial genesis subwindow density value.
-                for (uint256 itr = 0; itr < candidate_state.sub_window_densities().length; itr++) {
+                for (uint256 itr = 0; itr < candidate_state.sub_window_densities.length; itr++) {
                     if (candidate_state.sub_window_densities[itr] > config().slots_per_sub_window) {continue;
                     }
                 }
@@ -91,8 +91,8 @@ library selection {
 
     function compute_projective_window(selection tip_state) returns (uint256[]) {
         // compute shift count
-        uint256 shift_count = min(max(max_slot - tip_state.curr_global_slot.slot_number.saturating_sub(1), 0), config()
-            .sub_windows_per_window);
+        uint256 shift_count = min(max(max_slot - tip_state.curr_global_slot.slot_number - 1, 0),
+            config().sub_windows_per_window);
         // initialize projected window based off of chain_a
         uint256[] projected_window = tip_state.sub_window_densities;
 
@@ -114,7 +114,7 @@ library selection {
     /// Calculates the relate minimum window density wrt to candidate chain.
     function relative_min_window_density(selection candidate) returns (uint32) {
         state.consensus tip_state = consensus_state();
-        let chain_b = candidate.consensus_state();
+        state.consensus chain_b = candidate.consensus_state();
 
         uint256 max_slot = max(tip_state.curr_global_slot.slot_number, chain_b.curr_global_slot.slot_number);
 
@@ -123,7 +123,7 @@ library selection {
             return tip_state.min_window_density;
         }
 
-        uint256[] projected_window = compute_projective_window();
+        uint256[] projected_window = compute_projective_window(tip_state);
 
         // compute projected window density
         uint256 projected_window_density = 0;
