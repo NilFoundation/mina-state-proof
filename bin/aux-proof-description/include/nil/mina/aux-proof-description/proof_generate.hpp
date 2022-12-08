@@ -139,8 +139,6 @@ namespace nil {
 
             using ArithmetizationType = zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams>;
             using component_type = ComponentType;
-            std::cout << "Usable rows: " << desc.usable_rows_amount << std::endl;
-            std::cout << "Padded rows: " << desc.rows_amount << std::endl;
 
             zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams> desc_internal;
             desc_internal.rows_amount = desc.rows_amount;

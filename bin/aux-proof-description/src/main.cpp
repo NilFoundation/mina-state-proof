@@ -40,6 +40,7 @@
 
 #include <nil/crypto3/math/algorithms/calculate_domain_set.hpp>
 
+#include <nil/crypto3/hash/algorithm/hash.hpp>
 #include <nil/crypto3/hash/keccak.hpp>
 
 #include <nil/crypto3/zk/snark/arithmetization/plonk/params.hpp>
@@ -52,6 +53,7 @@
 #include <nil/marshalling/field_type.hpp>
 
 #include <nil/mina/aux-proof-description/ec_index_terms.hpp>
+#include <nil/mina/aux-proof-description/proof_generate.hpp>
 
 #include <fstream>
 
@@ -919,13 +921,21 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
     if (circuit_description_flag) {
         std::ofstream out;
         out.open(output_path + "/base_circuit.json");
-        auto [public_assignment, desc, bp] =
+        auto [public_assignment_in, desc_in, bp_in] =
             prepare_component<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(
                 params, public_input, fri_max_step);
+
+        auto [desc, bp, fri_params, assignments, public_preprocessed_data, private_preprocessed_data] =
+                prepare_component_preprocessed<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(params, public_input,
+                                                                                                                       desc_in, bp_in, public_assignment_in);
+
+        typename zk::snark::placeholder_public_preprocessor<
+                BlueprintFieldType, placeholder_params>::preprocessed_data_type::common_data_type common_data 
+                    = public_preprocessed_data.common_data;
         boost::json::value jv = {
             {"curve_type", "pallas"},
             {"hash", "keccak_1600<256>"},
-            {"public_assignment", public_assignment},
+            {"common_data", common_data},
             {"desc", desc},
             {"bp", bp},
         };
@@ -1041,13 +1051,21 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
     if (circuit_description_flag) {
         std::ofstream out;
         out.open(output_path + "/scalar_circuit.json");
-        auto [public_assignment, desc, bp] =
+        auto [public_assignment_in, desc_in, bp_in] =
             prepare_component<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(
                 params, public_input, fri_max_step);
+
+        auto [desc, bp, fri_params, assignments, public_preprocessed_data, private_preprocessed_data] =
+                prepare_component_preprocessed<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(params, public_input,
+                                                                                                                       desc_in, bp_in, public_assignment_in);
+
+        typename zk::snark::placeholder_public_preprocessor<
+                BlueprintFieldType, placeholder_params>::preprocessed_data_type::common_data_type common_data 
+                    = public_preprocessed_data.common_data;
         boost::json::value jv = {
             {"curve_type", "pallas"},
             {"hash", "keccak_1600<256>"},
-            {"public_assignment", public_assignment},
+            {"common_data", common_data},
             {"desc", desc},
             {"bp", bp},
         };
@@ -1186,8 +1204,8 @@ int main(int argc, char *argv[]) {
     zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> proof = make_proof(root);
     pallas_verifier_index_type ver_index = make_verify_index(root, const_root);
 
-    constexpr const std::size_t eval_rounds_scalar = 15;
-    constexpr const std::size_t eval_rounds_base = 10;
+    constexpr const std::size_t eval_rounds_scalar = 1;
+    constexpr const std::size_t eval_rounds_base = 1;
 
     if (generate_base) {
         generate_proof_base<eval_rounds_base>(proof, ver_index, fri_max_step, output, circuit_description,
