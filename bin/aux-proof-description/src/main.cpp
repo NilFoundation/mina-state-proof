@@ -27,16 +27,9 @@
 #include <boost/program_options.hpp>
 #endif
 
-#include <nil/crypto3/algebra/curves/alt_bn128.hpp>
-#include <nil/crypto3/algebra/curves/pallas.hpp>
 #include <nil/crypto3/algebra/curves/pallas.hpp>
 #include <nil/crypto3/algebra/fields/arithmetic_params/pallas.hpp>
-#include <nil/crypto3/algebra/fields/arithmetic_params/pallas.hpp>
-#include <nil/crypto3/algebra/fields/arithmetic_params/alt_bn128.hpp>
-#include <nil/crypto3/algebra/curves/params/multiexp/alt_bn128.hpp>
-#include <nil/crypto3/algebra/curves/params/wnaf/alt_bn128.hpp>
 
-#include <nil/crypto3/zk/blueprint/plonk.hpp>
 #include <nil/crypto3/zk/assignment/plonk.hpp>
 #include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/verifier_base_field.hpp>
 #include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/verify_scalar.hpp>
@@ -44,36 +37,23 @@
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/detail.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier_index.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier.hpp>
 
 #include <nil/crypto3/math/algorithms/calculate_domain_set.hpp>
 
 #include <nil/crypto3/hash/algorithm/hash.hpp>
 #include <nil/crypto3/hash/keccak.hpp>
-#include <nil/crypto3/hash/sha2.hpp>
 
-#include <nil/crypto3/pubkey/algorithm/sign.hpp>
-#include <nil/crypto3/pubkey/eddsa.hpp>
-
-#include <nil/crypto3/zk/commitments/type_traits.hpp>
 #include <nil/crypto3/zk/snark/arithmetization/plonk/params.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier_index.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/placeholder/preprocessor.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/placeholder/prover.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/placeholder/verifier.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/placeholder/params.hpp>
+
 #include <nil/crypto3/circuit_json/json_serialization.hpp>
 #include <nil/crypto3/circuit_json/json_deserialization.hpp>
 
 #include <nil/marshalling/endianness.hpp>
-#include <nil/crypto3/marshalling/zk/types/placeholder/proof.hpp>
-#include <nil/marshalling/status_type.hpp>
 #include <nil/marshalling/field_type.hpp>
 
-#include <nil/mina/aux-proof-gen/ec_index_terms.hpp>
-#include <nil/mina/aux-proof-gen/profiling_plonk_circuit.hpp>
-#include <nil/mina/aux-proof-gen/proof_generate.hpp>
+#include <nil/mina/aux-proof-description/ec_index_terms.hpp>
+#include <nil/mina/aux-proof-description/proof_generate.hpp>
 
 #include <fstream>
 
@@ -123,41 +103,6 @@ typename fri_type::params_type create_fri_params(std::size_t degree_log, std::si
 
     return params;
 }
-
-template<typename Endianness, typename Proof>
-void proof_print(const Proof &proof, std::string output_file) {
-    using namespace nil::crypto3::marshalling;
-
-    using TTypeBase = nil::marshalling::field_type<Endianness>;
-    using proof_marshalling_type = zk::snark::placeholder_proof<TTypeBase, Proof>;
-    auto filled_placeholder_proof = crypto3::marshalling::types::fill_placeholder_proof<Endianness, Proof>(proof);
-
-    std::vector<std::uint8_t> cv;
-    cv.resize(filled_placeholder_proof.length(), 0x00);
-    auto write_iter = cv.begin();
-    nil::marshalling::status_type status = filled_placeholder_proof.write(write_iter, cv.size());
-    std::ofstream out;
-    out.open(output_file);
-    print_hex_byteblob(out, cv.cbegin(), cv.cend(), false);
-}
-
-// template<typename Endianness, typename RedshiftProof>
-// std::string marshalling_to_blob(const RedshiftProof &proof) {
-//     using namespace crypto3::marshalling;
-
-//     auto filled_placeholder_proof = types::fill_placeholder_proof<RedshiftProof, Endianness>(proof);
-
-//     std::vector<std::uint8_t> cv;
-//     cv.resize(filled_placeholder_proof.length(), 0x00);
-//     auto write_iter = cv.begin();
-//     if (filled_placeholder_proof.write(write_iter, cv.size()) == nil::marshalling::status_type::success) {
-//         std::stringstream st;
-//         print_hex_byteblob(st, cv.cbegin(), cv.cend(), false);
-//         return st.str();
-//     } else {
-//         return {};
-//     }
-// }
 
 template<typename Iterator>
 multiprecision::cpp_int get_cppui256(Iterator it) {
@@ -842,13 +787,13 @@ void prepare_index_scalar(pallas_verifier_index_type &original_index,
 }
 
 template<typename ComponentType, typename BlueprintFieldType, typename ArithmetizationParams, typename Hash,
-         std::size_t Lambda, typename FunctorResultCheck, typename PublicInput,
+         std::size_t Lambda, typename PublicInput,
          typename std::enable_if<
              std::is_same<typename BlueprintFieldType::value_type,
                           typename std::iterator_traits<typename PublicInput::iterator>::value_type>::value,
              bool>::type = true>
 auto prepare_component(typename ComponentType::params_type params, const PublicInput &public_input,
-                       const std::size_t max_step, const FunctorResultCheck &result_check) {
+                       const std::size_t max_step) {
 
     using ArithmetizationType = zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams>;
     using component_type = ComponentType;
@@ -873,8 +818,6 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
     typename component_type::result_type component_result =
         component_type::generate_assignments(assignment_bp, params, start_row);
 
-    result_check(assignment_bp, component_result);
-
     assignment_bp.padding();
     std::cout << "Usable rows: " << desc.usable_rows_amount << std::endl;
     std::cout << "Padded rows: " << desc.rows_amount << std::endl;
@@ -882,30 +825,7 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
     zk::snark::plonk_assignment_table<BlueprintFieldType, ArithmetizationParams> assignments(private_assignment,
                                                                                              public_assignment);
 
-    using placeholder_params =
-        zk::snark::placeholder_params<BlueprintFieldType, ArithmetizationParams, Hash, Hash, Lambda>;
-    using types = zk::snark::detail::placeholder_policy<BlueprintFieldType, placeholder_params>;
-
-    using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename placeholder_params::merkle_hash_type,
-                                                   typename placeholder_params::transcript_hash_type, 2, 1>;
-
-    std::size_t table_rows_log = std::ceil(std::log2(desc.rows_amount));
-
-    typename fri_type::params_type fri_params =
-        create_fri_params<fri_type, BlueprintFieldType>(table_rows_log, max_step);
-
-    std::size_t permutation_size = desc.witness_columns + desc.public_input_columns + desc.constant_columns;
-
-    typename zk::snark::placeholder_public_preprocessor<BlueprintFieldType, placeholder_params>::preprocessed_data_type
-        public_preprocessed_data =
-            zk::snark::placeholder_public_preprocessor<BlueprintFieldType, placeholder_params>::process(
-                bp, public_assignment, desc, fri_params, permutation_size);
-    typename zk::snark::placeholder_private_preprocessor<BlueprintFieldType, placeholder_params>::preprocessed_data_type
-        private_preprocessed_data =
-            zk::snark::placeholder_private_preprocessor<BlueprintFieldType, placeholder_params>::process(
-                bp, private_assignment, desc, fri_params);
-
-    return std::make_tuple(desc, bp, fri_params, assignments, public_preprocessed_data, private_preprocessed_data);
+    return std::make_tuple(public_assignment, desc, bp);
 }
 
 #ifdef __EMSCRIPTEN__
@@ -916,8 +836,9 @@ const char *generate_proof_base(zk::snark::pickles_proof<nil::crypto3::algebra::
                                 std::string output_path) {
 #else
 template<std::size_t EvalRounds>
-std::string generate_proof_base(std::string circuit_description_path, std::string public_input_path,
-                                const std::size_t fri_max_step, std::string output_path) {
+std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &pickles_proof,
+                                pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step,
+                                std::string output_path, bool circuit_description_flag, bool public_input_flag) {
 #endif
     using curve_type = algebra::curves::pallas;
     using BlueprintFieldType = typename curve_type::base_field_type;
@@ -973,10 +894,15 @@ std::string generate_proof_base(std::string circuit_description_path, std::strin
 
     for (std::size_t batch_id = 0; batch_id < batch_size; batch_id++) {
         zk::components::kimchi_proof_base<BlueprintFieldType, kimchi_params> proof;
+
+        prepare_proof_base<curve_type, BlueprintFieldType, kimchi_params, eval_rounds>(pickles_proof, proof,
+                                                                                       public_input);
+
         proofs[batch_id] = proof;
     }
 
     zk::components::kimchi_verifier_index_base<curve_type, kimchi_params> verifier_index;
+    prepare_index_base<curve_type, BlueprintFieldType, kimchi_params>(pickles_index, verifier_index, public_input);
 
     fr_data_type fr_data_public;
     fq_data_type fq_data_public;
@@ -992,26 +918,37 @@ std::string generate_proof_base(std::string circuit_description_path, std::strin
     using placeholder_params =
         zk::snark::placeholder_params<BlueprintFieldType, ArithmetizationParams, hash_type, hash_type, Lambda>;
 
-    boost::filesystem::load_string_file(circuit_description_path + "/base_circuit.json", circuit_description_path);
-    boost::filesystem::load_string_file(public_input_path + "/base_public_input.json", public_input_path);
-    boost::json::value jv = boost::json::parse(circuit_description_path);
-    boost::json::value jv_public_input = boost::json::parse(public_input_path);
-    zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams> desc_new =
-        boost::json::value_to<zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams>>(
-            jv.at("desc"));
-    zk::blueprint_public_assignment_table<ArithmetizationType> public_assignment_new =
-        zk::generate_tmp(jv.at("public_assignment"), desc_new);
-    zk::blueprint<ArithmetizationType> bp_new(
-        boost::json::value_to<zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams>>(
-            jv.at("bp")),
-        desc_new);
-    std::vector<typename BlueprintFieldType::value_type> public_input_new =
-        boost::json::value_to<std::vector<typename BlueprintFieldType::value_type>>(jv_public_input.at("public_input"));
+    if (circuit_description_flag) {
+        std::ofstream out;
+        out.open(output_path + "/base_circuit.json");
+        auto [public_assignment_in, desc_in, bp_in] =
+            prepare_component<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(
+                params, public_input, fri_max_step);
 
-    proof_generate<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(
-        params, public_input_new, desc_new, bp_new, public_assignment_new,
-        output_path + "/base_proof.data");
+        auto [desc, bp, fri_params, assignments, public_preprocessed_data, private_preprocessed_data] =
+                prepare_component_preprocessed<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(params, public_input,
+                                                                                                                       desc_in, bp_in, public_assignment_in);
 
+        typename zk::snark::placeholder_public_preprocessor<
+                BlueprintFieldType, placeholder_params>::preprocessed_data_type::common_data_type common_data 
+                    = public_preprocessed_data.common_data;
+        boost::json::value jv = {
+            {"curve_type", "pallas"},
+            {"hash", "keccak_1600<256>"},
+            {"common_data", common_data},
+            {"desc", desc},
+            {"bp", bp},
+        };
+        circuit_json::pretty_print(out, jv);
+    }
+    if (public_input_flag) {
+        std::ofstream out;
+        out.open(output_path + "/base_public_input.json");
+        boost::json::value jv = {
+            {"public_input", public_input},
+        };
+        circuit_json::pretty_print(out, jv);
+    }
     std::string st;
 #ifdef __EMSCRIPTEN__
     char *writable = new char[st.size() + 1];
@@ -1030,8 +967,9 @@ const char *generate_proof_scalar(zk::snark::pickles_proof<nil::crypto3::algebra
                                   std::string output_path) {
 #else
 template<std::size_t EvalRounds>
-std::string generate_proof_scalar(std::string circuit_description_path, std::string public_input_path,
-                                  const std::size_t fri_max_step, std::string output_path) {
+std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &pickles_proof,
+                                  pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step,
+                                  std::string output_path, bool circuit_description_flag, bool public_input_flag) {
 #endif
     using curve_type = algebra::curves::pallas;
     using BlueprintFieldType = typename curve_type::scalar_field_type;
@@ -1087,10 +1025,15 @@ std::string generate_proof_scalar(std::string circuit_description_path, std::str
 
     for (std::size_t batch_id = 0; batch_id < batch_size; batch_id++) {
         zk::components::kimchi_proof_scalar<BlueprintFieldType, kimchi_params, eval_rounds> proof;
+
+        prepare_proof_scalar<curve_type, BlueprintFieldType, kimchi_params, eval_rounds>(pickles_proof, proof,
+                                                                                         public_input);
+
         proofs[batch_id] = proof;
     }
 
     zk::components::kimchi_verifier_index_scalar<BlueprintFieldType> verifier_index;
+    prepare_index_scalar<curve_type, BlueprintFieldType, kimchi_params>(pickles_index, verifier_index, public_input);
     verifier_index.domain_size = max_poly_size;
 
     using fq_output_type =
@@ -1102,27 +1045,40 @@ std::string generate_proof_scalar(std::string circuit_description_path, std::str
 
     typename component_type::params_type params = {fr_data_public, fq_data_public, verifier_index, proofs, fq_outputs};
 
-    boost::filesystem::load_string_file(circuit_description_path + "/scalar_circuit.json", circuit_description_path);
-    boost::filesystem::load_string_file(public_input_path + "/scalar_public_input.json", public_input_path);
+    using placeholder_params =
+        zk::snark::placeholder_params<BlueprintFieldType, ArithmetizationParams, hash_type, hash_type, Lambda>;
 
-    boost::json::value jv = boost::json::parse(circuit_description_path);
-    boost::json::value jv_public_input = boost::json::parse(public_input_path);
-    zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams> desc_new =
-        boost::json::value_to<zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams>>(
-            jv.at("desc"));
-    zk::blueprint_public_assignment_table<ArithmetizationType> public_assignment_new =
-        zk::generate_tmp(jv.at("public_assignment"), desc_new);
-    zk::blueprint<ArithmetizationType> bp_new(
-        boost::json::value_to<zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams>>(
-            jv.at("bp")),
-        desc_new);
-    std::vector<typename BlueprintFieldType::value_type> public_input_new =
-        boost::json::value_to<std::vector<typename BlueprintFieldType::value_type>>(jv_public_input.at("public_input"));
+    if (circuit_description_flag) {
+        std::ofstream out;
+        out.open(output_path + "/scalar_circuit.json");
+        auto [public_assignment_in, desc_in, bp_in] =
+            prepare_component<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(
+                params, public_input, fri_max_step);
 
-    proof_generate<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(
-        params, public_input_new, desc_new, bp_new, public_assignment_new,
-        output_path + "/scalar_proof.data");
+        auto [desc, bp, fri_params, assignments, public_preprocessed_data, private_preprocessed_data] =
+                prepare_component_preprocessed<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(params, public_input,
+                                                                                                                       desc_in, bp_in, public_assignment_in);
 
+        typename zk::snark::placeholder_public_preprocessor<
+                BlueprintFieldType, placeholder_params>::preprocessed_data_type::common_data_type common_data 
+                    = public_preprocessed_data.common_data;
+        boost::json::value jv = {
+            {"curve_type", "pallas"},
+            {"hash", "keccak_1600<256>"},
+            {"common_data", common_data},
+            {"desc", desc},
+            {"bp", bp},
+        };
+        circuit_json::pretty_print(out, jv);
+    }
+    if (public_input_flag) {
+        std::ofstream out;
+        out.open(output_path + "/scalar_public_input.json");
+        boost::json::value jv = {
+            {"public_input", public_input},
+        };
+        circuit_json::pretty_print(out, jv);
+    }
     std::string st;
 #ifdef __EMSCRIPTEN__
     char *writable = new char[st.size() + 1];
@@ -1134,9 +1090,9 @@ std::string generate_proof_scalar(std::string circuit_description_path, std::str
 }
 
 void concatenate_proofs(std::string output_path) {
-    std::string output_path_scalar = output_path + "scalar_proof.data";
-    std::string output_path_base = output_path + "base_proof.data";
-    std::string output_path_full = output_path + "full_proof.data";
+    std::string output_path_scalar = output_path + "_scalar";
+    std::string output_path_base = output_path + "_base";
+    std::string output_path_full = output_path + "_full";
     std::ifstream file_scalar(output_path_scalar, std::ios::binary);
     std::ifstream file_base(output_path_base, std::ios::binary);
     std::ofstream file_full(output_path_full, std::ios::binary);
@@ -1148,20 +1104,50 @@ void concatenate_proofs(std::string output_path) {
 }
 
 template<std::size_t EvalRoundsScalar, std::size_t EvalRoundsBase>
-void generate_proof_heterogenous(std::string circuit_description_path, std::string public_input_path,
-                                 const std::size_t fri_max_step, std::string output_path) {
+void generate_proof_heterogenous(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &pickles_proof,
+                                 pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step,
+                                 std::string output_path, bool circuit_description, bool public_input) {
 
-    generate_proof_scalar<EvalRoundsScalar>(circuit_description_path, public_input_path, fri_max_step, output_path);
-    generate_proof_base<EvalRoundsBase>(circuit_description_path, public_input_path, fri_max_step, output_path);
+    generate_proof_scalar<EvalRoundsScalar>(pickles_proof, pickles_index, fri_max_step, output_path,
+                                            circuit_description, public_input);
+    generate_proof_base<EvalRoundsBase>(pickles_proof, pickles_index, fri_max_step, output_path, circuit_description,
+                                        public_input);
 
     concatenate_proofs(output_path);
 }
 
+zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> parse_proof(const char *kimchi) {
+    std::stringstream ss1;
+    ss1 << kimchi;
+    boost::property_tree::ptree root, const_root;
+    // Load the json file in this ptree
+    boost::property_tree::read_json(ss1, root);
+
+    return make_proof(root);
+}
+
+int parse_pconst(const char *vk, const char *vk_const) {
+    std::stringstream ss1, ss2;
+    ss1 << vk;
+    ss2 << vk_const;
+    boost::property_tree::ptree root, const_root;
+    // Load the json file in this ptree
+    boost::property_tree::read_json(ss1, root);
+    boost::property_tree::read_json(ss2, const_root);
+
+    pallas_verifier_index_type ver_index = make_verify_index(root, const_root);
+    return 0;
+}
+
+#ifdef __EMSCRIPTEN__
+}
+#endif
+
 int main(int argc, char *argv[]) {
 #ifndef __EMSCRIPTEN__
 
-    std::string public_input, circuit_description, line, output;
-    bool generate_scalar, generate_base, generate_heterogenous;
+    std::string vp_input, vi_input, vi_const_input, line, output;
+    bool generate_scalar, generate_base, generate_heterogenous, circuit_description, public_input;
     std::size_t fri_max_step;
 
     boost::program_options::options_description options("Mina State Proof Auxiliary Proof Generator");
@@ -1169,16 +1155,23 @@ int main(int argc, char *argv[]) {
     options.add_options()("help,h", "Display help message")
             ("version,v", "Display version")
             ("output,o", boost::program_options::value<std::string>(&output), "Output file")
-            ("public_input", boost::program_options::value<std::string>(), "Path for public input files")
-            ("circuit_description", boost::program_options::value<std::string>(), "Path circuit description files")
+            ("vp_input", boost::program_options::value<std::string>(), "Input proof file")
+            ("vi_input", boost::program_options::value<std::string>(), "Input index file")
+            ("vi_const_input", boost::program_options::value<std::string>(), "Input const index file")
             ("scalar_proof", boost::program_options::bool_switch(&generate_scalar)->default_value(false), "Generate scalar part of the circuit")
             ("base_proof", boost::program_options::bool_switch(&generate_base)->default_value(false), "Generate base part of the circuit")
             ("heterogenous_proof", boost::program_options::bool_switch(&generate_heterogenous)->default_value(false), "Generate mina state proof")
+            ("circuit_description", boost::program_options::bool_switch(&circuit_description)->default_value(false), "Generate circuit json description")
+            ("public_input", boost::program_options::bool_switch(&public_input)->default_value(false), "Generate public input json")
             ("max_step", boost::program_options::value<std::size_t>(&fri_max_step)->default_value(1), "Step for FRI folding (default 3)");
+    // clang-format on
+
+    boost::program_options::positional_options_description p;
+    p.add("vp_input", 1);
 
     boost::program_options::variables_map vm;
     boost::program_options::store(
-        boost::program_options::command_line_parser(argc, argv).options(options).run(), vm);
+        boost::program_options::command_line_parser(argc, argv).options(options).positional(p).run(), vm);
     boost::program_options::notify(vm);
 
     if (vm.count("help")) {
@@ -1186,27 +1179,45 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    if (vm.count("public_input")) {
-        public_input = vm["public_input"].as<std::string>();
+    if (vm.count("vp_input")) {
+        if (boost::filesystem::exists(vm["vp_input"].as<std::string>())) {
+            boost::filesystem::load_string_file(vm["vp_input"].as<std::string>(), vp_input);
+        }
     }
 
-    if (vm.count("circuit_description")) {
-        circuit_description = vm["circuit_description"].as<std::string>();
+    if (vm.count("vi_input")) {
+        if (boost::filesystem::exists(vm["vi_input"].as<std::string>())) {
+            boost::filesystem::load_string_file(vm["vi_input"].as<std::string>(), vi_input);
+        }
     }
 
-    constexpr const std::size_t eval_rounds_scalar = 15;
-    constexpr const std::size_t eval_rounds_base = 10;
+    if (vm.count("vi_const_input")) {
+        if (boost::filesystem::exists(vm["vi_const_input"].as<std::string>())) {
+            boost::filesystem::load_string_file(vm["vi_const_input"].as<std::string>(), vi_const_input);
+        }
+    }
+
+    boost::property_tree::ptree root;
+    boost::property_tree::ptree const_root;
+    boost::property_tree::read_json(vm["vp_input"].as<std::string>(), root);
+    boost::property_tree::read_json(vm["vi_const_input"].as<std::string>(), const_root);
+    zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> proof = make_proof(root);
+    pallas_verifier_index_type ver_index = make_verify_index(root, const_root);
+
+    constexpr const std::size_t eval_rounds_scalar = 1;
+    constexpr const std::size_t eval_rounds_base = 1;
 
     if (generate_base) {
-        std::cout << std::string(generate_proof_base<eval_rounds_base>(circuit_description, public_input, fri_max_step, output)) <<
-        std::endl;
+        generate_proof_base<eval_rounds_base>(proof, ver_index, fri_max_step, output, circuit_description,
+                                              public_input);
     }
     if (generate_scalar) {
-        std::cout << std::string(generate_proof_scalar<eval_rounds_scalar>(circuit_description, public_input, fri_max_step, output))
-                  << std::endl;
+        generate_proof_scalar<eval_rounds_scalar>(proof, ver_index, fri_max_step, output, circuit_description,
+                                                  public_input);
     }
     if (generate_heterogenous) {
-        generate_proof_heterogenous<eval_rounds_scalar, eval_rounds_base>(circuit_description, public_input, fri_max_step, output);
+        generate_proof_heterogenous<eval_rounds_scalar, eval_rounds_base>(proof, ver_index, fri_max_step, output,
+                                                                          circuit_description, public_input);
     }
 #endif
 }

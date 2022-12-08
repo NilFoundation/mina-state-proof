@@ -60,6 +60,7 @@ def state_query_to_graphql(output_path, url):
     protocol_state = request_res["data"]["bestChain"][0]
     request_res["data"]["bestChain"] = [protocol_state]
     print("Fetching data for block height: {}".format(protocol_state["protocolState"]["consensusState"]["blockHeight"]))
+    print("Hash: {}".format(protocol_state["protocolState"]["blockchainState"]["snarkedLedgerHash"]))
     return request_res
 
 if __name__ == "__main__":
