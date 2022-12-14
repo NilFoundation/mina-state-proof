@@ -51,14 +51,24 @@ namespace nil {
 
                 virtual void initialize(configuration_type &vm) override;
 
-                std::string input_string() const;
+                std::string output() const;
+                std::string vi_input() const;
+                std::string vi_const_input() const;
+                bool scalar_proof() const;
+                bool base_proof() const;
+                std::size_t max_step() const;
 
                 boost::filesystem::path default_config_path() const;
 
             protected:
                 boost::shared_ptr<path> path_aspect;
 
-                std::string json_string;
+                std::string _output;
+                std::string _vi_input;
+                std::string _vi_const_input;
+                bool _scalar_proof;
+                bool _base_proof;
+                std::size_t _max_step;
             };
         }    // namespace aspects
     }        // namespace proof

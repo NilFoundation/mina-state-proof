@@ -87,6 +87,7 @@
 #include "profiling_plonk_circuit.hpp"
 
 #include <fstream>
+#include <boost/filesystem/string_file.hpp>
 
 using namespace nil;
 using namespace nil::actor;
@@ -989,18 +990,122 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
     return std::make_tuple(desc, bp, fri_params, assignments, public_preprocessed_data, private_preprocessed_data);
 }
 
-#ifdef __EMSCRIPTEN__
-extern "C" {
 template<std::size_t EvalRounds>
-const char *generate_proof_scalar(zk::snark::pickles_proof<nil::crypto3::algebra::curves::pallas> &pickles_proof,
-                                  pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step,
-                                  std::string output_path) {
-#else
+std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &pickles_proof,
+                                pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step,
+                                std::string output_path) {
+    using curve_type = nil::crypto3::algebra::curves::pallas;
+    using BlueprintFieldType = typename curve_type::base_field_type;
+    constexpr std::size_t WitnessColumns = 15;
+    constexpr std::size_t PublicInputColumns = 1;
+    constexpr std::size_t ConstantColumns = 1;
+    constexpr std::size_t SelectorColumns = 30;
+    using ArithmetizationParams =
+        zk::snark::plonk_arithmetization_params<WitnessColumns, PublicInputColumns, ConstantColumns, SelectorColumns>;
+    using ArithmetizationType = zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams>;
+    using AssignmentType = zk::blueprint_assignment_table<ArithmetizationType>;
+    using hash_type = nil::crypto3::hashes::keccak_1600<256>;
+    constexpr std::size_t Lambda = 1;
+
+    using var = zk::snark::plonk_variable<BlueprintFieldType>;
+
+    constexpr static std::size_t public_input_size = 0;
+    constexpr static std::size_t max_poly_size = 1 << EvalRounds;    // 32768 in json
+    constexpr static std::size_t srs_len = max_poly_size;
+    constexpr static std::size_t eval_rounds = EvalRounds;    // 15 in json
+
+    constexpr static std::size_t witness_columns = 15;
+    constexpr static std::size_t perm_size = 7;
+    constexpr static std::size_t lookup_table_size = 0;
+    constexpr static bool use_lookup = false;
+
+    constexpr static std::size_t batch_size = 1;
+
+    constexpr static const std::size_t prev_chal_size = 0;
+
+    using commitment_params = zk::components::kimchi_commitment_params_type<eval_rounds, max_poly_size, srs_len>;
+    using index_terms_list = zk::components::index_terms_scalars_list_ec_test<ArithmetizationType>;
+    using circuit_description =
+        zk::components::kimchi_circuit_description<index_terms_list, witness_columns, perm_size>;
+    using kimchi_params = zk::components::kimchi_params_type<curve_type, commitment_params, circuit_description,
+                                                             public_input_size, prev_chal_size>;
+
+    using component_type = zk::components::base_field<ArithmetizationType, curve_type, kimchi_params, commitment_params,
+                                                      batch_size, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14>;
+
+    using fq_output_type =
+        typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_sponge_output;
+
+    using fr_data_type = typename zk::components::binding<ArithmetizationType, BlueprintFieldType,
+                                                          kimchi_params>::template fr_data<var, batch_size>;
+
+    using fq_data_type =
+        typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::template fq_data<var>;
+
+    std::vector<typename BlueprintFieldType::value_type> public_input = {};
+
+    std::vector<zk::components::kimchi_proof_base<BlueprintFieldType, kimchi_params>> proofs(batch_size);
+
+    for (std::size_t batch_id = 0; batch_id < batch_size; batch_id++) {
+        zk::components::kimchi_proof_base<BlueprintFieldType, kimchi_params> proof;
+
+        prepare_proof_base<curve_type, BlueprintFieldType, kimchi_params, eval_rounds>(pickles_proof, proof,
+                                                                                       public_input);
+
+        proofs[batch_id] = proof;
+    }
+
+    zk::components::kimchi_verifier_index_base<curve_type, kimchi_params> verifier_index;
+    prepare_index_base<curve_type, BlueprintFieldType, kimchi_params>(pickles_index, verifier_index, public_input);
+
+    fr_data_type fr_data_public;
+    fq_data_type fq_data_public;
+
+    public_input.push_back(3);
+    for (std::size_t i = 0; i < fr_data_public.scalars.size(); i++) {
+        var s(0, public_input.size() - 1, false, var::column_type::public_input);
+        fr_data_public.scalars[i] = s;
+    }
+
+    typename component_type::params_type params = {proofs, verifier_index, fr_data_public, fq_data_public};
+
+    using placeholder_params =
+        zk::snark::placeholder_params<BlueprintFieldType, ArithmetizationParams, hash_type, hash_type, Lambda>;
+
+    auto result_check = [](AssignmentType &assignment, typename component_type::result_type &real_res) {};
+
+    auto [desc, bp, fri_params, assignments, public_preprocessed_data, private_preprocessed_data] =
+        prepare_component<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(
+            params, public_input, fri_max_step, result_check);
+
+    auto proof = zk::snark::placeholder_prover<BlueprintFieldType, placeholder_params>::process(
+        public_preprocessed_data, private_preprocessed_data, desc, bp, assignments, fri_params);
+
+    bool verifier_res = zk::snark::placeholder_verifier<BlueprintFieldType, placeholder_params>::process(
+        public_preprocessed_data, proof, bp, fri_params);
+
+    if (verifier_res) {
+        std::cout << "Inner verification passed" << std::endl;
+    } else {
+        std::cout << "Inner verification failed" << std::endl;
+    }
+
+    // profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::process_split(
+    //     std::cout, bp, public_preprocessed_data);
+    // profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::initialize_parameters(
+    //     fri_params, proof, public_preprocessed_data);
+    std::string output_path_full = output_path + "_base";
+    proof_print<nil::marshalling::option::big_endian>(proof, output_path_full);
+
+    // std::string st = marshalling_to_blob<Endianness>(proof);
+    std::string st;
+    return st;
+}
+
 template<std::size_t EvalRounds>
 std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &pickles_proof,
                                   pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step,
                                   std::string output_path) {
-#endif
     using curve_type = crypto3::algebra::curves::pallas;
     using BlueprintFieldType = typename curve_type::scalar_field_type;
     constexpr std::size_t WitnessColumns = 15;
@@ -1107,13 +1212,7 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
 
     // std::string st = marshalling_to_blob<Endianness>(proof);
     std::string st;
-#ifdef __EMSCRIPTEN__
-    char *writable = new char[st.size() + 1];
-    std::copy(st.begin(), st.end(), writable);
-    return writable;
-#else
     return st;
-#endif
 }
 
 zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> parse_proof(const char *kimchi) {
@@ -1139,41 +1238,40 @@ int parse_pconst(const char *vk, const char *vk_const) {
     return 0;
 }
 
-#ifdef __EMSCRIPTEN__
-}
-#endif
-
-nil::actor::future<> proof_new() {
+nil::actor::future<> proof_new(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> proof,
+                               pallas_verifier_index_type ver_index, bool scalar_proof, bool base_proof, std::size_t max_step, std::string output_path) {
     return nil::actor::async([&] {
-        std::string output = "/root/mina-updated/mina-state-proof/bin/aux-proof-gen/src/data/output";
-        boost::property_tree::ptree root;
-        boost::property_tree::ptree const_root;
-        boost::property_tree::read_json("/root/kimchi.json", root);
-        boost::property_tree::read_json("/root/kimchi_const.json", const_root);
-        zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> proof = make_proof(root);
-        pallas_verifier_index_type ver_index = make_verify_index(root, const_root);
-        constexpr const std::size_t eval_rounds_base = 10;
-        constexpr const std::size_t eval_rounds_scalar = 15;
-        std::size_t fri_max_step = 1;
-//        std::cout << std::string(generate_proof_base<eval_rounds_base>(proof, ver_index, fri_max_step, output)) << std::endl;
-        std::cout << std::string(generate_proof_scalar<eval_rounds_scalar>(proof, ver_index, fri_max_step, output)) << std::endl;
+        if (base_proof) {
+            constexpr const std::size_t eval_rounds_base = 10;
+            generate_proof_base<eval_rounds_base>(proof, ver_index, max_step, output_path);
+        }
+        if (scalar_proof) {
+            constexpr const std::size_t eval_rounds_scalar = 15;
+            generate_proof_scalar<eval_rounds_scalar>(proof, ver_index, max_step, output_path);
+        }
     });
 }
 
 struct prover {
-    typedef nil::crypto3::hashes::sha2<256> hash_type;
-    // typedef nil::crypto3::algebra::curves::ed25519 signature_curve_type;
-    // typedef typename signature_curve_type::template g1_type<> group_type;
-    // typedef nil::crypto3::pubkey::eddsa<group_type, nil::crypto3::pubkey::eddsa_type::basic, void> signature_scheme_type;
-    // typedef typename nil::crypto3::pubkey::public_key<signature_scheme_type>::signature_type signature_type;
-
     prover(boost::application::context &context) : context_(context) {
     }
 
     int operator()() {
         BOOST_APPLICATION_FEATURE_SELECT
+        boost::property_tree::ptree data;
+        boost::property_tree::ptree const_data;
+        boost::property_tree::read_json(context_.find<nil::proof::aspects::proof>()->vi_input(), data);
+        boost::property_tree::read_json(context_.find<nil::proof::aspects::proof>()->vi_const_input(), const_data);
+        zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> proof = make_proof(data);
+        pallas_verifier_index_type ver_index = make_verify_index(data, const_data);
+        bool scalar_proof = context_.find<nil::proof::aspects::proof>()->scalar_proof();
+        bool base_proof = context_.find<nil::proof::aspects::proof>()->base_proof();
+        std::size_t max_step = context_.find<nil::proof::aspects::proof>()->max_step();
+        std::string output_path = context_.find<nil::proof::aspects::proof>()->output();
             (void)nil::actor::engine().when_started().then(
-                    []() {return proof_new();}).then_wrapped([](auto &&f) {
+                    [=]() {
+                             return proof_new(proof, ver_index, scalar_proof, base_proof, max_step, output_path);
+                             }).then_wrapped([](auto &&f) {
                     try {
                         engine().exit(0);
                     } catch (std::exception &ex) {

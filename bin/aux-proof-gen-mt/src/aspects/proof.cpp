@@ -71,47 +71,40 @@ namespace nil {
             }
 
             void proof::initialize(configuration_type &vm) {
-//                if (vm.count("vi_input")) {
-//                    if (vm["vi_input"].as<std::string>().size() < PATH_MAX ||
-//                        vm["vi_input"].as<std::string>().size() < FILENAME_MAX) {
-//                        if (boost::filesystem::exists(vm["input"].as<std::string>())) {
-//                            boost::filesystem::load_string_file(vm["input"].as<std::string>(), vi_input);
-//                        }
-//                    } else {
-//                        vi_input = vm["vi_input"].as<std::string>();
-//                    }
-//                } else {
-//                    std::string line;
-//
-//                    while (std::getline(std::cin, line)) {
-//                        vi_input += line + "\n";
-//                    }
-//                }
-//
-//                if (vm.count("vi_const_input")) {
-//                    if (vm["vi_const_input"].as<std::string>().size() < PATH_MAX ||
-//                        vm["vi_const_input"].as<std::string>().size() < FILENAME_MAX) {
-//                        if (boost::filesystem::exists(vm["vi_const_input"].as<std::string>())) {
-//                            boost::filesystem::load_string_file(vm["vi_const_input"].as<std::string>(), vi_input);
-//                        }
-//                    } else {
-//                        vi_const_input = vm["vi_input"].as<std::string>();
-//                    }
-//                } else {
-//                    std::string line;
-//
-//                    while (std::getline(std::cin, line)) {
-//                        vi_const_input += line + "\n";
-//                    }
-//                }
+                _vi_input = vm["vi_input"].as<std::string>();
+                _vi_const_input = vm["vi_const_input"].as<std::string>();
+                _output = vm["output"].as<std::string>();
+                _scalar_proof = vm["scalar_proof"].as<bool>();
+                _base_proof = vm["base_proof"].as<bool>();
+                _max_step = vm["max_step"].as<std::size_t>();
             }
 
             boost::filesystem::path proof::default_config_path() const {
                 return path_aspect->config_path() / "config.ini";
             }
 
-            std::string proof::input_string() const {
-                return json_string;
+            std::string proof::output() const {
+                return _output;
+            }
+
+            std::string proof::vi_input() const {
+                return _vi_input;
+            }
+
+            std::string proof::vi_const_input() const {
+                return _vi_const_input;
+            }
+
+            bool proof::scalar_proof() const {
+                return _scalar_proof;
+            }
+
+            bool proof::base_proof() const {
+                return _base_proof;
+            }
+
+            std::size_t proof::max_step() const {
+                return _max_step;
             }
         }    // namespace aspects
     }        // namespace proof
