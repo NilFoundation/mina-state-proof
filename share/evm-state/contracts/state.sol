@@ -69,13 +69,13 @@ library state {
         /// Total supply of currency
         uint256 total_currency;
         /// Current global slot number relative to the current hard fork
-        global_slot curr_global_slot;
+        consensus.global_slot curr_global_slot;
         /// Absolute global slot number since genesis
         uint256 global_slot_since_genesis;
         /// Epoch data for previous epoch
-        epoch_data staking_epoch_data;
+        consensus.epoch_data staking_epoch_data;
         /// Epoch data for current epoch
-        epoch_data next_epoch_data;
+        consensus.epoch_data next_epoch_data;
         /// If the block has an ancestor in the same checkpoint window
         bool has_ancestor_in_same_checkpoint_window;
         /// Compressed public key of winning account
