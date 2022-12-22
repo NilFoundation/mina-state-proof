@@ -1,11 +1,13 @@
 pragma solidity ^0.8.0;
 
-import "@nilfoundation/evm-placeholder-verification/verifier.sol";
+import "@openzeppelin/contracts/ownership/Ownable.sol";
+
+import "@nilfoundation/evm-placeholder-verification/contracts/verifier.sol";
 
 import "./state.sol";
 import "./mina_state.sol";
 
-contract mina {
+contract mina is Ownable {
     struct account {
         uint256 account;
         uint256[] values;
@@ -18,8 +20,12 @@ contract mina {
     mapping(uint256 => bool) mina_account_inclusion_proofs;
     mapping(uint256 => bool) checklist;
 
-    constructor(address verifier) public {
-        verifier = verifier;
+    constructor(address ver) public {
+        verifier = IVerifier(ver);
+    }
+
+    function set_verifier(address ver) public onlyOwner {
+        verifier = IVerifier(ver);
     }
 
     function poseidon_hash(uint256 input) public view returns (uint256) {
@@ -30,12 +36,8 @@ contract mina {
         p = _p;
     }
 
-    function set_inclusion_proof(
-        uint256 acc,
-        bytes calldata blob,
-        uint256[] calldata init_params,
-        int256[][] calldata columns_rotations
-    ) public {
+    function set_inclusion_proof(uint256 acc, bytes calldata blob,
+        uint256[] calldata init_params, int256[][] calldata columns_rotations) public {
         if (verifier.verify(blob, init_params, columns_rotations)) {
             mina_account_inclusion_proofs[acc] = true;
         }

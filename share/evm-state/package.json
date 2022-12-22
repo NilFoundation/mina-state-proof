@@ -8,7 +8,8 @@
     "eth-gas-reporter": "^0.2.24",
     "ethereumjs-wallet": "^1.0.2",
     "web3": "^1.7.0",
-    "@nilfoundation/evm-placeholder-verification": "^1.0.0"
+    "@nilfoundation/evm-placeholder-verification": "^1.0.1",
+    "@openzeppelin/contracts": "^2.5.1"
   },
   "directories": {
     "src": "src",
