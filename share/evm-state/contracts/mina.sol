@@ -1,5 +1,7 @@
 pragma solidity ^0.8.0;
 
+import "@nilfoundation/evm-placeholder-verification/verifier.sol";
+
 import "./state.sol";
 import "./mina_state.sol";
 
@@ -9,15 +11,16 @@ contract mina {
         uint256[] values;
     }
 
-    constructor() public {
-
-    }
-
+    IVerifier verifier;
     state.protocol p;
 
     mapping(uint256 => account) mina_accounts;
     mapping(uint256 => bool) mina_account_inclusion_proofs;
     mapping(uint256 => bool) checklist;
+
+    constructor(address verifier) public {
+        verifier = verifier;
+    }
 
     function poseidon_hash(uint256 input) public view returns (uint256) {
         return 0;
@@ -33,8 +36,7 @@ contract mina {
         uint256[] calldata init_params,
         int256[][] calldata columns_rotations
     ) public {
-        mina_state ver_lib = mina_state(address(0x58dF6763A14BC13B2D26e6dfe6DC7eAcBe986711));
-        if (ver_lib.verify(blob, init_params, columns_rotations)) {
+        if (verifier.verify(blob, init_params, columns_rotations)) {
             mina_account_inclusion_proofs[acc] = true;
         }
     }
