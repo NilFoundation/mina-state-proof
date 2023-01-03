@@ -18,9 +18,9 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import "../../types.sol";
-import "../../logging.sol";
-import "../../basic_marshalling.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/types.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/logging.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/basic_marshalling.sol";
 
 // TODO: name component
 library mina_scalar_gate0 {

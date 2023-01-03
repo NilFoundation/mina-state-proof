@@ -18,8 +18,8 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import "../../types.sol";
-import "../../logging.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/types.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/logging.sol";
 
 // TODO: name component
 library mina_base_gate18 {

@@ -18,7 +18,7 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import "../../types.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/types.sol";
 
 // TODO: name component
 library mina_scalar_gate19 {

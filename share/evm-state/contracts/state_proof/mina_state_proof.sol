@@ -18,18 +18,18 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import "@nilfoundation/evm-placeholder-verification/interfaces/verifier.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/interfaces/verifier.sol";
 
 import "@nilfoundation/evm-placeholder-verification/contracts/types.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/logging.sol";
-import "@nilfoundation/evm-placeholder-verification/cryptography/transcript.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/cryptography/transcript.sol";
 
-import "@nilfoundation/evm-placeholder-verification/placeholder/proof_map_parser.sol";
-import "@nilfoundation/evm-placeholder-verification/placeholder/placeholder_verifier.sol";
-import "@nilfoundation/evm-placeholder-verification/placeholder/init_vars.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/proof_map_parser.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/placeholder_verifier.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/init_vars.sol";
 
-import "../components/mina_base_split_gen.sol";
-import "../components/mina_scalar_split_gen.sol";
+import "./components/mina_base_split_gen.sol";
+import "./components/mina_scalar_split_gen.sol";
 
 contract MinaStateProof is IVerifier {
     event gas_usage_emit(uint256 gas_usage);
