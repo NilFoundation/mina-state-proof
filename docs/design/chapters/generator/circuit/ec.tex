@@ -1,3 +1,5 @@
+%!TEX root = ../../../main.tex
+
 \section{Elliptic Curve Arithmetic}
 \label{section:ec}
 
@@ -55,8 +57,8 @@ For point doubling $R = P + P = 2P$:
 
 
 \subsection{Variable Base Scalar Multiplication}
-For $R  = [r]T$, $k = \frac{r - 2^{255} - 1}{2}$, $k = [k_0, k_1, \dots, k_{n - 1}]$, $n = 255$:
-\footnote{Using the results from \url{https://arxiv.org/pdf/math/0208038.pdf}}
+For $R  = [r]T$, $k = \frac{r - 2^{255} - 1}{2}$, $k = [k_0, k_1, \dots, k_{n - 1}]$, $n = 255$\footnote{Using the results from \url{https://arxiv.org/pdf/math/0208038.pdf}}, \\$t_q = 45560315531419706090280762371685220353$,
+$~~u=k- 2^{254} - t_q+2^{130}$, if $k_0 = 1$ and $u = 0$, if $k_0 = 0$, $u = [u_0, u_1, \dots, u_{43}]$, $u=\sum_{i=0}^{42}u_i\cdot 2^{127-i \cdot 3} + u_{43}$, $u_i \in \{0,\dots, 7\}, i=0,\dots, 42$, $u_{43} \in \{0,1\}$:
 \begin{enumerate}
     \item $P = [2]T$
     \item for $i$ from $n - 1$ to $0$:
@@ -72,8 +74,8 @@ The first step of the alforithm are verified by the complete addition circuit.
     \begin{table}[H]
         \begin{tabular}{llllllllllllllll}
             Row     & 0        & 1        & 2        & 3        & 4        & 5        & 6        & 7        & 8        & 9        & 10       & 11       & 12       & 13       & 14       \\
-            $i$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n = 0$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
-            $i + 1$   & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $--$ & $--$ & $--$ \\
+            $i$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n = 0$    & $n'$    & $u'$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
+            $i + 1$   & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $u_0$ & $u_1$ & $u''$ \\
             $\vdots$  & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
             $i + 100$ & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
             $i + 101$ & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $--$ & $--$ & $--$ \\
@@ -135,6 +137,32 @@ Constraints:
     \item $w_5 = 32 \cdot (w_4) + 16 \cdot \texttt{next}(w_{2}) + 8 \cdot \texttt{next}(w_{3}) + 4 \cdot \texttt{next}(w_{4}) + 2 \cdot \texttt{next}(w_{5}) + \texttt{next}(w_{6})$
     \end{itemize}
 
+Additional constraints for range check:
+
+for rows $i, i+2, \dots, i+40$:
+\begin{itemize}
+    \item $\texttt{next}(w_{12}) \cdot (\texttt{next}(w_{12}) - 1) \cdot (\texttt{next}(w_{12}) - 2) \cdot (\texttt{next}(w_{12}) - 3) \cdot (\texttt{next}(w_{12}) - 4) \cdot (\texttt{next}(w_{12}) - 5) \cdot (\texttt{next}(w_{12}) - 6) \cdot (\texttt{next}(w_{12}) - 7)= 0$
+    \item $\texttt{next}(w_{13}) \cdot (\texttt{next}(w_{13}) - 1) \cdot (\texttt{next}(w_{13}) - 2) \cdot (\texttt{next}(w_{13}) - 3) \cdot (\texttt{next}(w_{13}) - 4) \cdot (\texttt{next}(w_{13}) - 5) \cdot (\texttt{next}(w_{13}) - 6) \cdot (\texttt{next}(w_{13}) - 7)= 0$
+    \item $\texttt{next}(w_{14}) = 2^6\cdot w_6 + 2^3 \cdot \texttt{next}(w_{12}) + \texttt{next}(w_{13})$
+\end{itemize}
+
+for row $i+42$:
+\begin{itemize}
+    \item $\texttt{next}(w_{12}) \cdot (\texttt{next}(w_{12}) - 1) \cdot (\texttt{next}(w_{12}) - 2) \cdot (\texttt{next}(w_{12}) - 3) \cdot (\texttt{next}(w_{12}) - 4) \cdot (\texttt{next}(w_{12}) - 5) \cdot (\texttt{next}(w_{12}) - 6) \cdot (\texttt{next}(w_{12}) - 7)= 0$
+    \item $\texttt{next}(w_{13}) \cdot (\texttt{next}(w_{13}) - 1) = 0$
+    \item $\texttt{next}(w_{14}) = 2^4\cdot w_6 + 2 \cdot \texttt{next}(w_{12}) + \texttt{next}(w_{13})$
+\end{itemize}
+
+for row $i+44$:
+\begin{itemize}
+    \item $\texttt{next}(w_{12}) \cdot (w_6-\texttt{prev}(w_{14})) = 0$
+\end{itemize}
+
+for row $i+46$:
+\begin{itemize}
+    \item $\texttt{prev}(w_{12}) \cdot (2\cdot \texttt{prev}(w_{14}) + \texttt{prev}(w_{13}) -2^{123}) = 0$
+\end{itemize}
+
 Constraints for the last $3$ rows:
 \begin{itemize}
     \item $w_2 \cdot (w_2 - 1) = 0$
@@ -179,7 +207,13 @@ Constraints for the last $3$ rows:
     \item $n = 0$ in row $i$ is copy-constrained with the zero value
     \item $n$ in the row $j, j \neq i$ is copy contrained with $n'$ in the row $j-2$
     \item $n'$ in the row $i + 102$ is copy constrained with $n'$ in the row $i + 100$
-    \item $k$ is copy constrained with $n'$ in the row $i + 100$.
+    \item $k$ is copy constrained with $n'$ in the row $i + 100$
+    \item $u' = 0$ in row $i$ is copy-constrained with the zero value
+    \item $u'$ in the row $j, i < j \leq i+42 $ is copy contrained with $u''$ in the row $j-1$
+    \item $u$ is copy constrained with $u'$ in the row $i + 44$
+    \item $b_0$ in row $i+1$ is copy-constrained with $w_{12}$ in row $i + 45$
+    \item $b_0$ in row $i+53$ is copy-constrained with $w_{13}$ in row $i + 45$
+    \item $w_5$ in row $i+50$ is copy-constrained with $w_{14}$ in row $i + 45$.
 \end{itemize}
 
 \subsection{Variable Base Endo-Scalar Multiplication}
