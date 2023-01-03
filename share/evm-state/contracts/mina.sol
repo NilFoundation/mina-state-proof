@@ -2,7 +2,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 
-import "@nilfoundation/evm-placeholder-verification/contracts/verifier.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/interfaces/verifier.sol";
 
 import "./state.sol";
 import "./mina_state.sol";
