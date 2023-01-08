@@ -74,8 +74,12 @@ The first step of the alforithm are verified by the complete addition circuit.
     \begin{table}[H]
         \begin{tabular}{llllllllllllllll}
             Row     & 0        & 1        & 2        & 3        & 4        & 5        & 6        & 7        & 8        & 9        & 10       & 11       & 12       & 13       & 14       \\
-            $i$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n = 0$    & $n'$    & $u'$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
+            $i$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n = 0$    & $n'$    & $u'=0$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
             $i + 1$   & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $u_0$ & $u_1$ & $u''$ \\
+            $\vdots$  & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+            $i+44$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $u$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
+            $i + 45$   & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $e_1$ & $e_2$ & $--$ \\
+            $i+46$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
             $\vdots$  & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
             $i + 100$ & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
             $i + 101$ & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $--$ & $--$ & $--$ \\
@@ -137,8 +141,16 @@ Constraints:
     \item $w_5 = 32 \cdot (w_4) + 16 \cdot \texttt{next}(w_{2}) + 8 \cdot \texttt{next}(w_{3}) + 4 \cdot \texttt{next}(w_{4}) + 2 \cdot \texttt{next}(w_{5}) + \texttt{next}(w_{6})$
     \end{itemize}
 
-Additional constraints for range check:
+Additional range checks.\\
 
+Evaluations:
+\begin{itemize}
+    \item $u_i$ are triplets of bits of the $u$, first $u_0$ is the most significant triplet, $u''$ is an accumulator of $u_i$ (and $u'$ is its previous value)
+    \item $e_1= k_0$
+    \item $e_2=\sum_{j=254}^{130} k_{254-j} \cdot 2^{j-130}  $
+\end{itemize}
+
+Constraints:
 for rows $i, i+2, \dots, i+40$:
 \begin{itemize}
     \item $\texttt{next}(w_{12}) \cdot (\texttt{next}(w_{12}) - 1) \cdot (\texttt{next}(w_{12}) - 2) \cdot (\texttt{next}(w_{12}) - 3) \cdot (\texttt{next}(w_{12}) - 4) \cdot (\texttt{next}(w_{12}) - 5) \cdot (\texttt{next}(w_{12}) - 6) \cdot (\texttt{next}(w_{12}) - 7)= 0$
@@ -156,12 +168,13 @@ for row $i+42$:
 for row $i+44$:
 \begin{itemize}
     \item $\texttt{next}(w_{12}) \cdot (w_6-\texttt{prev}(w_{14})) = 0$
+    \item $\texttt{next}(w_{12}) \cdot (\texttt{next}(w_{13}) -2^{124}) = 0$
 \end{itemize}
 
-for row $i+46$:
-\begin{itemize}
-    \item $\texttt{prev}(w_{12}) \cdot (2\cdot \texttt{prev}(w_{14}) + \texttt{prev}(w_{13}) -2^{123}) = 0$
-\end{itemize}
+% for row $i+46$:
+% \begin{itemize}
+%     \item $\texttt{prev}(w_{12}) \cdot (2\cdot \texttt{prev}(w_{14}) + \texttt{prev}(w_{13}) -2^{123}) = 0$
+% \end{itemize}
 
 Constraints for the last $3$ rows:
 \begin{itemize}
@@ -212,8 +225,8 @@ Constraints for the last $3$ rows:
     \item $u'$ in the row $j, i < j \leq i+42 $ is copy contrained with $u''$ in the row $j-1$
     \item $u$ is copy constrained with $u'$ in the row $i + 44$
     \item $b_0$ in row $i+1$ is copy-constrained with $w_{12}$ in row $i + 45$
-    \item $b_0$ in row $i+53$ is copy-constrained with $w_{13}$ in row $i + 45$
-    \item $w_5$ in row $i+50$ is copy-constrained with $w_{14}$ in row $i + 45$.
+    %\item $b_0$ in row $i+53$ is copy-constrained with $w_{13}$ in row $i + 45$
+    \item $w_5$ in row $i+48$ is copy-constrained with $w_{13}$ in row $i + 45$.
 \end{itemize}
 
 \subsection{Variable Base Endo-Scalar Multiplication}
