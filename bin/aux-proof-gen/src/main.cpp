@@ -35,11 +35,11 @@
 #include <nil/crypto3/algebra/curves/params/multiexp/alt_bn128.hpp>
 #include <nil/crypto3/algebra/curves/params/wnaf/alt_bn128.hpp>
 
-#include <nil/crypto3/zk/blueprint/plonk.hpp>
-#include <nil/crypto3/zk/assignment/plonk.hpp>
-#include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/verifier_base_field.hpp>
-#include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/verify_scalar.hpp>
-#include <nil/crypto3/zk/components/systems/snark/plonk/kimchi/proof_system/circuit_description.hpp>
+#include <nil/blueprint_mc/assignment/plonk.hpp>
+#include <nil/blueprint_mc/components/systems/snark/plonk/kimchi/verifier_base_field.hpp>
+#include <nil/blueprint_mc/components/systems/snark/plonk/kimchi/verify_scalar.hpp>
+#include <nil/blueprint_mc/components/systems/snark/plonk/kimchi/proof_system/circuit_description.hpp>
+
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/detail.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/proof.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier_index.hpp>
@@ -479,7 +479,7 @@ pallas_verifier_index_type make_verify_index(boost::property_tree::ptree root, b
 template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType, std::size_t EvalRounds>
 void prepare_proof_scalar(
     zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &original_proof,
-    zk::components::kimchi_proof_scalar<BlueprintFieldType, KimchiParamsType, EvalRounds> &circuit_proof,
+    nil::blueprint_mc::components::kimchi_proof_scalar<BlueprintFieldType, KimchiParamsType, EvalRounds> &circuit_proof,
     std::vector<typename BlueprintFieldType::value_type> &public_input) {
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
 
@@ -542,10 +542,10 @@ void prepare_proof_scalar(
 
 template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType, std::size_t EvalRounds>
 void prepare_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &original_proof,
-                        zk::components::kimchi_proof_base<BlueprintFieldType, KimchiParamsType> &circuit_proof,
+                        nil::blueprint_mc::components::kimchi_proof_base<BlueprintFieldType, KimchiParamsType> &circuit_proof,
                         std::vector<typename BlueprintFieldType::value_type> &public_input) {
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
-    using kimchi_constants = zk::components::kimchi_inner_constants<KimchiParamsType>;
+    using kimchi_constants = nil::blueprint_mc::components::kimchi_inner_constants<KimchiParamsType>;
 
     // COMMITMENTS
     for (std::size_t i = 0; i < original_proof.commitments.w_comm.size(); i++) {
@@ -653,7 +653,7 @@ void prepare_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::pal
 
 template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType>
 void prepare_index_base(pallas_verifier_index_type &original_index,
-                        zk::components::kimchi_verifier_index_base<CurveType, KimchiParamsType> &circuit_index,
+                        nil::blueprint_mc::components::kimchi_verifier_index_base<CurveType, KimchiParamsType> &circuit_index,
                         std::vector<typename BlueprintFieldType::value_type> &public_input) {
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
 
@@ -832,7 +832,7 @@ void prepare_index_base(pallas_verifier_index_type &original_index,
 
 template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsType>
 void prepare_index_scalar(pallas_verifier_index_type &original_index,
-                          zk::components::kimchi_verifier_index_scalar<BlueprintFieldType> &circuit_index,
+                          nil::blueprint_mc::components::kimchi_verifier_index_scalar<BlueprintFieldType> &circuit_index,
                           std::vector<typename BlueprintFieldType::value_type> &public_input) {
     using var = zk::snark::plonk_variable<BlueprintFieldType>;
 
@@ -861,12 +861,12 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
 
     zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams> desc;
 
-    zk::blueprint<ArithmetizationType> bp(desc);
-    zk::blueprint_private_assignment_table<ArithmetizationType> private_assignment(desc);
-    zk::blueprint_public_assignment_table<ArithmetizationType> public_assignment(desc);
-    zk::blueprint_assignment_table<ArithmetizationType> assignment_bp(private_assignment, public_assignment);
+    nil::blueprint_mc::blueprint<ArithmetizationType> bp(desc);
+    nil::blueprint_mc::blueprint_private_assignment_table<ArithmetizationType> private_assignment(desc);
+    nil::blueprint_mc::blueprint_public_assignment_table<ArithmetizationType> public_assignment(desc);
+    nil::blueprint_mc::blueprint_assignment_table<ArithmetizationType> assignment_bp(private_assignment, public_assignment);
 
-    std::size_t start_row = zk::components::allocate<component_type>(bp);
+    std::size_t start_row = nil::blueprint_mc::components::allocate<component_type>(bp);
     if (public_input.size() > component_type::rows_amount) {
         bp.allocate_rows(public_input.size() - component_type::rows_amount);
     }
@@ -875,7 +875,7 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
         auto allocated_pi = assignment_bp.allocate_public_input(public_input[i]);
     }
 
-    zk::components::generate_circuit<component_type>(bp, public_assignment, params, start_row);
+    nil::blueprint_mc::components::generate_circuit<component_type>(bp, public_assignment, params, start_row);
     typename component_type::result_type component_result =
         component_type::generate_assignments(assignment_bp, params, start_row);
 
@@ -935,7 +935,7 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
     using ArithmetizationParams =
         zk::snark::plonk_arithmetization_params<WitnessColumns, PublicInputColumns, ConstantColumns, SelectorColumns>;
     using ArithmetizationType = zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams>;
-    using AssignmentType = zk::blueprint_assignment_table<ArithmetizationType>;
+    using AssignmentType = nil::blueprint_mc::blueprint_assignment_table<ArithmetizationType>;
     using hash_type = nil::crypto3::hashes::keccak_1600<256>;
     constexpr std::size_t Lambda = 1;
 
@@ -955,31 +955,31 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
 
     constexpr static const std::size_t prev_chal_size = 0;
 
-    using commitment_params = zk::components::kimchi_commitment_params_type<eval_rounds, max_poly_size, srs_len>;
-    using index_terms_list = zk::components::index_terms_scalars_list_ec_test<ArithmetizationType>;
+    using commitment_params = nil::blueprint_mc::components::kimchi_commitment_params_type<eval_rounds, max_poly_size, srs_len>;
+    using index_terms_list = nil::blueprint_mc::components::index_terms_scalars_list_ec_test<ArithmetizationType>;
     using circuit_description =
-        zk::components::kimchi_circuit_description<index_terms_list, witness_columns, perm_size>;
-    using kimchi_params = zk::components::kimchi_params_type<curve_type, commitment_params, circuit_description,
+        nil::blueprint_mc::components::kimchi_circuit_description<index_terms_list, witness_columns, perm_size>;
+    using kimchi_params = nil::blueprint_mc::components::kimchi_params_type<curve_type, commitment_params, circuit_description,
                                                              public_input_size, prev_chal_size>;
 
-    using component_type = zk::components::base_field<ArithmetizationType, curve_type, kimchi_params, commitment_params,
+    using component_type = nil::blueprint_mc::components::base_field<ArithmetizationType, curve_type, kimchi_params, commitment_params,
                                                       batch_size, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14>;
 
     using fq_output_type =
-        typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_sponge_output;
+        typename nil::blueprint_mc::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_sponge_output;
 
-    using fr_data_type = typename zk::components::binding<ArithmetizationType, BlueprintFieldType,
+    using fr_data_type = typename nil::blueprint_mc::components::binding<ArithmetizationType, BlueprintFieldType,
                                                           kimchi_params>::template fr_data<var, batch_size>;
 
     using fq_data_type =
-        typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::template fq_data<var>;
+        typename nil::blueprint_mc::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::template fq_data<var>;
 
     std::vector<typename BlueprintFieldType::value_type> public_input = {};
 
-    std::array<zk::components::kimchi_proof_base<BlueprintFieldType, kimchi_params>, batch_size> proofs;
+    std::array<nil::blueprint_mc::components::kimchi_proof_base<BlueprintFieldType, kimchi_params>, batch_size> proofs;
 
     for (std::size_t batch_id = 0; batch_id < batch_size; batch_id++) {
-        zk::components::kimchi_proof_base<BlueprintFieldType, kimchi_params> proof;
+        nil::blueprint_mc::components::kimchi_proof_base<BlueprintFieldType, kimchi_params> proof;
 
         prepare_proof_base<curve_type, BlueprintFieldType, kimchi_params, eval_rounds>(pickles_proof, proof,
                                                                                        public_input);
@@ -987,7 +987,7 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
         proofs[batch_id] = proof;
     }
 
-    zk::components::kimchi_verifier_index_base<curve_type, kimchi_params> verifier_index;
+    nil::blueprint_mc::components::kimchi_verifier_index_base<curve_type, kimchi_params> verifier_index;
     prepare_index_base<curve_type, BlueprintFieldType, kimchi_params>(pickles_index, verifier_index, public_input);
 
     fr_data_type fr_data_public;
@@ -1063,7 +1063,7 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
     using ArithmetizationParams =
         zk::snark::plonk_arithmetization_params<WitnessColumns, PublicInputColumns, ConstantColumns, SelectorColumns>;
     using ArithmetizationType = zk::snark::plonk_constraint_system<BlueprintFieldType, ArithmetizationParams>;
-    using AssignmentType = zk::blueprint_assignment_table<ArithmetizationType>;
+    using AssignmentType = nil::blueprint_mc::blueprint_assignment_table<ArithmetizationType>;
     using hash_type = nil::crypto3::hashes::keccak_1600<256>;
     constexpr std::size_t Lambda = 1;
 
@@ -1082,32 +1082,32 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
 
     constexpr static const std::size_t prev_chal_size = 0;
 
-    using commitment_params = zk::components::kimchi_commitment_params_type<eval_rounds, max_poly_size, srs_len>;
-    using index_terms_list = zk::components::index_terms_scalars_list_ec_test<ArithmetizationType>;
+    using commitment_params = nil::blueprint_mc::components::kimchi_commitment_params_type<eval_rounds, max_poly_size, srs_len>;
+    using index_terms_list = nil::blueprint_mc::components::index_terms_scalars_list_ec_test<ArithmetizationType>;
     using circuit_description =
-        zk::components::kimchi_circuit_description<index_terms_list, witness_columns, perm_size>;
-    using kimchi_params = zk::components::kimchi_params_type<curve_type, commitment_params, circuit_description,
+        nil::blueprint_mc::components::kimchi_circuit_description<index_terms_list, witness_columns, perm_size>;
+    using kimchi_params = nil::blueprint_mc::components::kimchi_params_type<curve_type, commitment_params, circuit_description,
                                                              public_input_size, prev_chal_size>;
 
     using component_type =
-        zk::components::verify_scalar<ArithmetizationType, curve_type, kimchi_params, commitment_params, batch_size, 0,
+        nil::blueprint_mc::components::verify_scalar<ArithmetizationType, curve_type, kimchi_params, commitment_params, batch_size, 0,
                                       1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14>;
 
     using fq_output_type =
-        typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_sponge_output;
+        typename nil::blueprint_mc::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_sponge_output;
 
-    using fr_data_type = typename zk::components::binding<ArithmetizationType, BlueprintFieldType,
+    using fr_data_type = typename nil::blueprint_mc::components::binding<ArithmetizationType, BlueprintFieldType,
                                                           kimchi_params>::template fr_data<var, batch_size>;
 
     using fq_data_type =
-        typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::template fq_data<var>;
+        typename nil::blueprint_mc::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::template fq_data<var>;
 
     std::vector<typename BlueprintFieldType::value_type> public_input = {0};
 
-    std::array<zk::components::kimchi_proof_scalar<BlueprintFieldType, kimchi_params, eval_rounds>, batch_size> proofs;
+    std::array<nil::blueprint_mc::components::kimchi_proof_scalar<BlueprintFieldType, kimchi_params, eval_rounds>, batch_size> proofs;
 
     for (std::size_t batch_id = 0; batch_id < batch_size; batch_id++) {
-        zk::components::kimchi_proof_scalar<BlueprintFieldType, kimchi_params, eval_rounds> proof;
+        nil::blueprint_mc::components::kimchi_proof_scalar<BlueprintFieldType, kimchi_params, eval_rounds> proof;
 
         prepare_proof_scalar<curve_type, BlueprintFieldType, kimchi_params, eval_rounds>(pickles_proof, proof,
                                                                                          public_input);
@@ -1115,12 +1115,12 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
         proofs[batch_id] = proof;
     }
 
-    zk::components::kimchi_verifier_index_scalar<BlueprintFieldType> verifier_index;
+    nil::blueprint_mc::components::kimchi_verifier_index_scalar<BlueprintFieldType> verifier_index;
     prepare_index_scalar<curve_type, BlueprintFieldType, kimchi_params>(pickles_index, verifier_index, public_input);
     verifier_index.domain_size = max_poly_size;
 
     using fq_output_type =
-        typename zk::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_sponge_output;
+        typename nil::blueprint_mc::components::binding<ArithmetizationType, BlueprintFieldType, kimchi_params>::fq_sponge_output;
 
     fr_data_type fr_data_public;
     fq_data_type fq_data_public;
@@ -1283,12 +1283,14 @@ int main(int argc, char *argv[]) {
     zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> proof = make_proof(root);
     pallas_verifier_index_type ver_index = make_verify_index(root, const_root);
 
-    constexpr const std::size_t eval_rounds = 15;
+    constexpr const std::size_t eval_rounds = 1;
 
     if (generate_base) {
         std::cout << std::string(generate_proof_base<eval_rounds>(proof, ver_index, fri_max_step, output)) << std::endl;
     }
     if (generate_scalar) {
+        std::cout << "generate_proof_scalar" << std::endl;
+        std::cout << "Write proof to output=" << output << std::endl;
         std::cout << std::string(generate_proof_scalar<eval_rounds>(proof, ver_index, fri_max_step, output))
                   << std::endl;
     }

@@ -34,10 +34,11 @@
 #include <nil/crypto3/zk/snark/arithmetization/plonk/constraint_system.hpp>
 #include <nil/crypto3/zk/snark/arithmetization/plonk/params.hpp>
 
-#include <nil/crypto3/zk/blueprint/plonk.hpp>
-#include <nil/crypto3/zk/assignment/plonk.hpp>
+#include <nil/blueprint_mc/blueprint/plonk.hpp>
+#include <nil/blueprint_mc/assignment/plonk.hpp>
+
 #include <nil/crypto3/zk/snark/systems/plonk/placeholder/params.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/placeholder/preprocessor.hpp>"
+#include <nil/crypto3/zk/snark/systems/plonk/placeholder/preprocessor.hpp>
 
 namespace nil {
     namespace crypto3 {
@@ -225,7 +226,7 @@ namespace nil {
                 print_argument_evaluation(os);
             }
 
-            static void process(std::ostream &os, const zk::blueprint<ArithmetizationType> &bp,
+            static void process(std::ostream &os, const nil::blueprint_mc::blueprint<ArithmetizationType> &bp,
                                 const preprocessed_public_data_type &public_preprocessed_data) {
                 for (const auto &gate : bp.gates()) {
                     print_gate(os, gate, public_preprocessed_data);
