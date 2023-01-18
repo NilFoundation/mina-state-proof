@@ -1,7 +1,10 @@
+%!TEX root = ../../../main.tex
+
 \section{Elliptic Curve Arithmetic}
 \label{section:ec}
 
 \subsection{Complete Addition and Doubling}
+\label{subs:complete_addition}
 
 \begin{center}
     \begin{table}[H]
@@ -23,24 +26,24 @@ Evaluations:
 
 Constraints ($\textbf{max degree} = 3$):
 \begin{itemize}
-\item $(w_2 - w_0)\cdot((w_2 - w_0) \cdot w_{10}- (w_3 - w_1))$
-\item $(1 - (w_2- w_0)\cdot w_8)\cdot (2w_1\cdot w_10 - 3w_0 \cdot w_0)$
-\item $(w_0 \cdot w_2\cdot w_2 - w_0 \cdot w_2\cdot w_0) \cdot (w_{10} \cdot w_{10} - w_0 - w_2 - w_4))$
-\item $(w_0 \cdot w_2 \cdot w_2 - w_0 \cdot w_2 \cdot w_0) \cdot (w_{10}\cdot (w_0- w_4) - w_1 - w_5))$
-\item $(w_0 \cdot w_2\cdot w_3 + w_0 \cdot w_2\cdot w_1) \cdot w_{10} \cdot w_{10} - w_0 - w_2  - w_4))$
-\item $ (w_0 \cdot w_2\cdot w_3 + w_0 \cdot w_2\cdot w_1) \cdot(w_{10} \cdot (w_0 - w_4) - w_1 - w_5))$
-\item $(1 - w_0\cdot w_6)\cdot(w_4 -w_2)$
-\item $(1 - w_0 \cdot w_6)\cdot(w_5 - w_3)$
-\item $(1 - w_2 \cdot w_7)\cdot(w_4 - w_0)$
-\item$ (1 - w_2 \cdot w_7)\cdot(w_5 - w_1)$
-\item $(1 - (w_2 - w_0)\cdot w_8 - (w_3 + w_1)\cdot w_9) \cdot w_4$
-\item $(1 - (w_2 - w_0)\cdot w_8 - (w_3 + w_1) \cdot w_9) \cdot w_5$
+    \item $(w_2 - w_0)\cdot((w_2 - w_0) \cdot w_{10}- (w_3 - w_1))$
+    \item $(1 - (w_2- w_0)\cdot w_8)\cdot (2w_1\cdot w_{10} - 3w_0 \cdot w_0)$
+    \item $(w_0 \cdot w_2\cdot w_2 - w_0 \cdot w_2\cdot w_0) \cdot (w_{10} \cdot w_{10} - w_0 - w_2 - w_4)$
+    \item $(w_0 \cdot w_2 \cdot w_2 - w_0 \cdot w_2 \cdot w_0) \cdot (w_{10}\cdot (w_0- w_4) - w_1 - w_5)$
+    \item $(w_0 \cdot w_2\cdot w_3 + w_0 \cdot w_2\cdot w_1) \cdot (w_{10} \cdot w_{10} - w_0 - w_2  - w_4)$
+    \item $ (w_0 \cdot w_2\cdot w_3 + w_0 \cdot w_2\cdot w_1) \cdot(w_{10} \cdot (w_0 - w_4) - w_1 - w_5)$
+    \item $(1 - w_0\cdot w_6)\cdot(w_4 -w_2)$
+    \item $(1 - w_0 \cdot w_6)\cdot(w_5 - w_3)$
+    \item $(1 - w_2 \cdot w_7)\cdot(w_4 - w_0)$
+    \item$ (1 - w_2 \cdot w_7)\cdot(w_5 - w_1)$
+    \item $(1 - (w_2 - w_0)\cdot w_8 - (w_3 + w_1)\cdot w_9) \cdot w_4$
+    \item $(1 - (w_2 - w_0)\cdot w_8 - (w_3 + w_1) \cdot w_9) \cdot w_5$
 \end{itemize}
 
 \paragraph{Details.}
 
-The gate uses basic group law formulae. 
-Let $P = (x_1, y_1), Q = (x_2, y_2), R = (x_3, y_3)$ and $R = P + Q$. Then: 
+The gate uses basic group law formulae.
+Let $P = (x_1, y_1), Q = (x_2, y_2), R = (x_3, y_3)$ and $R = P + Q$. Then:
 \begin{itemize}
     \item $(x_2 - x_1) \cdot s = y_2 - y_1$
     \item $s^2 = x_1 + x_2 + x_3$
@@ -55,8 +58,8 @@ For point doubling $R = P + P = 2P$:
 
 
 \subsection{Variable Base Scalar Multiplication}
-For $R  = [r]T$, $k = \frac{r - 2^{255} - 1}{2}$, $k = [k_0, k_1, \dots, k_{n - 1}]$, $n = 255$:
-\footnote{Using the results from \url{https://arxiv.org/pdf/math/0208038.pdf}}
+For $R  = [r]T$, $k = \frac{r - 2^{255} - 1}{2}$, $k = [k_0, k_1, \dots, k_{n - 1}]$, $n = 255$\footnote{Using the results from \url{https://arxiv.org/pdf/math/0208038.pdf}}, \\$t_q = 45560315531419706090280762371685220353$,
+$~~u=k- 2^{254} - t_q+2^{130}$, if $k_0 = 1$ and $u = 0$, if $k_0 = 0$, $u = [u_0, u_1, \dots, u_{43}]$, $u=\sum_{i=0}^{42}u_i\cdot 2^{127-i \cdot 3} + u_{43}$, $u_i \in \{0,\dots, 7\}, i=0,\dots, 42$, $u_{43} \in \{0,1\}$:
 \begin{enumerate}
     \item $P = [2]T$
     \item for $i$ from $n - 1$ to $0$:
@@ -66,23 +69,54 @@ For $R  = [r]T$, $k = \frac{r - 2^{255} - 1}{2}$, $k = [k_0, k_1, \dots, k_{n - 
     \end{enumerate}
 \end{enumerate}
 
-The first step of the alforithm are verified by the complete addition circuit. 
+The first step of the alforithm are verified by the complete addition circuit.
 
 \begin{center}
     \begin{table}[H]
         \begin{tabular}{llllllllllllllll}
             Row     & 0        & 1        & 2        & 3        & 4        & 5        & 6        & 7        & 8        & 9        & 10       & 11       & 12       & 13       & 14       \\
-            $i$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n = 0$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
-            $i + 1$   & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $--$ & $--$ & $--$ \\
+            $i$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n = 0$    & $n'$    & $u'=0$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
+            $i + 1$   & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $u_0$ & $u_1$ & $u''$ \\
             $\vdots$  & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
-            $i + 100$ & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
-            $i + 101$ & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $--$ & $--$ & $--$ \\
-            $i + 102$ & $x_5$    & $y_5$    & $t_0$    & $t_1$    & $t_2$    & $n'$    & $x_T$      & $y_T$    & $m$    & $x$    & $y$    & $--$    & $--$ & $--$ & $--$ \\
+            $i+44$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $u$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
+            $i + 45$   & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $e_1$ & $e_2$ & $--$ \\
+            $i+46$    & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
+            $\vdots$  & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+            $i + 98$ & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $x_3$    & $y_3$ & $x_4$ & $y_4$ \\
+            $i + 99$ & $x_5$    & $y_5$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $s_2$    & $s_3$    & $s_4$    & $--$ & $--$ & $--$ \\
+            $i + 100$ & $x_T$    & $y_T$    & $x_0$    & $y_0$    & $n$    & $n'$    & $--$    & $x_1$    & $y_1$    & $x_2$    & $y_2$    & $--$    & $--$ & $--$ & $--$ \\
+            $i + 101$ & $--$    & $--$    & $b_0$    & $b_1$    & $b_2$    & $b_3$    & $b_4$      & $s_0$    & $s_1$    & $--$    & $--$    & $--$    & $--$ & $--$ & $--$ \\
+            \\
+            $i + 102$ & $x_0$    & $y_0$    & $x_T$    & $y_1$    & $x_R$    & $y_R$  & $\texttt{inv}_{x_0}$    & $\texttt{inv}_{x_T}$    & $\texttt{inv}_{x_T-x_0}$    & $\delta_1$    & $\lambda_1$   & $b_0$ & $n$ & $n'$ & $y_T$\\
+            $i + 103$ & $x_0$    & $y_0$    & $x_R$    & $y_R$    & $x_S$    & $y_S$    & $\texttt{inv}_{x_0}$      & $\texttt{inv}_{x_R}$    & $\texttt{inv}_{x_R-x_0}$    & $\delta_2$    & $\lambda_2$    & $-$    & $-$ & $-$ & $-$ \\
+            $i + 104$ & $x_0$    & $y_0$    & $x_T$    & $y_1$    & $x_R$    & $y_R$  & $\texttt{inv}_{x_0}$    & $\texttt{inv}_{x_T}$    & $\texttt{inv}_{x_T-x_0}$    & $\delta_1$    & $\lambda_1$   & $b_0$ & $n$ & $n'$ & $y_T$\\
+            $i + 105$ & $x_0$    & $y_0$    & $x_R$    & $y_R$    & $x_S$    & $y_S$    & $\texttt{inv}_{x_0}$      & $\texttt{inv}_{x_R}$    & $\texttt{inv}_{x_R-x_0}$    & $\delta_2$    & $\lambda_2$    & $-$    & $-$ & $-$ & $-$ \\
+            $i + 106$ & $x_0$    & $y_0$    & $x_T$    & $y_1$    & $x_R$    & $y_R$  & $\texttt{inv}_{x_0}$    & $\texttt{inv}_{x_T}$    & $\texttt{inv}_{x_T-x_0}$    & $\delta_1$    & $\lambda_1$   & $b_0$ & $n$ & $n'$ & $y_T$\\
+            $i + 107$ & $x_0$    & $y_0$    & $x_R$    & $y_R$    & $x_S$    & $y_S$    & $\texttt{inv}_{x_0}$      & $\texttt{inv}_{x_R}$    & $\texttt{inv}_{x_R-x_0}$    & $\delta_2$    & $\lambda_2$    & $-$    & $-$ & $-$ & $-$ \\
+            \\
+            $i + 108$ & $x_5$    & $y_5$    & $t_0$    & $t_1$    & $t_2$    & $n'$    & $x_T$      & $y_T$    & $m$    & $x$    & $y$    & $--$    & $--$ & $--$ & $--$ \\
         \end{tabular}
     \end{table}
 \end{center}
 
-Let $a_{-1} = 0x224698fc0994a8dd8c46eb2100000000$ be a circuit's value for a scalar $-1$, $a_0 = 0x200000000000000000000000000000003369e57a0e5efd4c526a60b180000001$ for $0$ and $a_1 = 0x224698fc0994a8dd8c46eb2100000001$ for $1$. 
+% for rowas
+% \begin{itemize}
+%     \item $(w_2 - w_0)\cdot((w_2 - w_0) \cdot w_{10}- (w_3(2w_{11}-1) - w_1))$
+%     \item $(1 - (w_2- w_0)\cdot w_8)\cdot (2w_1\cdot w_10 - 3w_0 \cdot w_0)$
+%     \item $(w_0 \cdot w_2\cdot w_2 - w_0 \cdot w_2\cdot w_0) \cdot (w_{10} \cdot w_{10} - w_0 - w_2 - w_4))$
+%     \item $(w_0 \cdot w_2 \cdot w_2 - w_0 \cdot w_2 \cdot w_0) \cdot (w_{10}\cdot (w_0- w_4) - w_1 - w_5))$
+%     \item $(w_0 \cdot w_2\cdot w_3(2w_{11}-1) + w_0 \cdot w_2\cdot w_1) \cdot w_{10} \cdot w_{10} - w_0 - w_2  - w_4))$
+%     \item $ (w_0 \cdot w_2\cdot w_3(2w_{11}-1) + w_0 \cdot w_2\cdot w_1) \cdot(w_{10} \cdot (w_0 - w_4) - w_1 - w_5))$
+%     \item $(1 - w_0\cdot w_6)\cdot(w_4 -w_2)$
+%     \item $(1 - w_0 \cdot w_6)\cdot(w_5 - w_3(2w_{11}-1))$
+%     \item $(1 - w_2 \cdot w_7)\cdot(w_4 - w_0)$
+%     \item$ (1 - w_2 \cdot w_7)\cdot(w_5 - w_1)$
+%     \item $(1 - (w_2 - w_0)\cdot w_8 - (w_3(2w_{11}-1) + w_1)\cdot w_9) \cdot w_4$
+%     \item $(1 - (w_2 - w_0)\cdot w_8 - (w_3 (2w_{11}-1)+ w_1) \cdot w_9) \cdot w_5$
+% \end{itemize}
+
+
+Let $a_{-1} = 0x224698fc0994a8dd8c46eb2100000000$ be a circuit's value for a scalar $-1$, $a_0 = 0x200000000000000000000000000000003369e57a0e5efd4c526a60b180000001$ for $0$ and $a_1 = 0x224698fc0994a8dd8c46eb2100000001$ for $1$.
 Evaluations:
 \begin{itemize}
 	\item $b_i$ are bits of the $k$, first $b_1$ is the most significant bit of $k$, $n$ is an accumulator of $b_i$.
@@ -101,7 +135,7 @@ Evaluations:
      \item $t_1 = \texttt{inv}_(n' - a_{-1})$
      \item $t_2 = \texttt{inv}_(n'- a_1)$
      \item $(x,y)$ - is the circuit's result.
-	
+
 \end{itemize}
 
 Constraints:
@@ -117,25 +151,119 @@ Constraints:
     \item $(w_{9} - w_{0}) \cdot \texttt{next}(w_9) = w_{10} - (2 \cdot \texttt{next}(w_{4}) - 1) \cdot w_1$
     \item $(w_{11} - w_{0}) \cdot \texttt{next}(w_{10}) = w_{12} - (2 \cdot \texttt{next}(w_{5}) - 1) \cdot w_1$
     \item $(w_{13} - w_{0}) \cdot \texttt{next}(w_{11}) = w_{14} - (2 \cdot \texttt{next}(w_{6}) - 1) \cdot w_1$ \\
-    
-    
+
+
     \item $(2\cdot w_{3} - \texttt{next}(w_7) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}))^2 =  (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0})^2 \cdot (w_7 - w_0 + \texttt{next}(w_7)^2)$
     \item $(2\cdot w_{8} - \texttt{next}(w_8) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}))^2 =  (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0})^2 \cdot (w_9 - w_0 + \texttt{next}(w_8)^2)$
     \item $(2\cdot w_{10} - \texttt{next}(w_9) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}))^2 =  (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0})^2 \cdot (w_{11} - w_0 + \texttt{next}(w_9)^2)$
     \item $(2\cdot w_{12} - \texttt{next}(w_{10}) \cdot (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}))^2 =  (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0})^2 \cdot (w_{13} - w_0 + \texttt{next}(w_{10})^2)$
     \item $(2\cdot w_{14} - \texttt{next}(w_{11}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}))^2 =  (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0})^2 \cdot (\texttt{next}(w_0) - w_0 + \texttt{next}(w_{11})^2)$ \\
-    
+
     \item $(w_{8} + w_{3}) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}) = (w_2 - w_7) \cdot (2\cdot w_{3} - \texttt{next}(w_7) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}))$
     \item $(w_{10} + w_{8}) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}) = (w_7 - w_9) \cdot (2\cdot w_{8} - \texttt{next}(w_8) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}))$
     \item $(w_{12} + w_{10}) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}) = (w_9 - w_{11}) \cdot (2\cdot w_{10} - \texttt{next}(w_9) \cdot (2 \cdot w_9 - \texttt{next}(w_9)^2 + w_{0}))$
     \item $(w_{14} + w_{12}) \cdot  (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}) = (w_{11} - w_{13}) \cdot (2\cdot w_{12} - \texttt{next}(w_{10}) \cdot (2 \cdot w_{11} - \texttt{next}(w_{10})^2 + w_{0}))$
     \item $(\texttt{next}(w_{1}) + w_{14}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}) = (w_{13} - \texttt{next}(w_{0})) \cdot (2\cdot w_{14} - \texttt{next}(w_{11}) \cdot (2 \cdot w_{13} - \texttt{next}(w_{11})^2 + w_{0}))$ \\
-    
-    
+
+
     \item $w_5 = 32 \cdot (w_4) + 16 \cdot \texttt{next}(w_{2}) + 8 \cdot \texttt{next}(w_{3}) + 4 \cdot \texttt{next}(w_{4}) + 2 \cdot \texttt{next}(w_{5}) + \texttt{next}(w_{6})$
     \end{itemize}
 
-Constraints for the last $3$ rows:
+
+\textbf{Additional range checks.}
+\begin{itemize}
+    \item Evaluations:
+    \begin{itemize}
+        \item $u_i$ are triplets of bits of the $u$, first $u_0$ is the most significant triplet, $u''$ is an accumulator of $u_i$ (and $u'$ is its previous value)
+        \item $e_1= k_0$
+        \item $e_2=\sum_{j=254}^{130} k_{254-j} \cdot 2^{j-130}  $
+    \end{itemize}
+
+    \item Constraints:
+    for rows $i, i+2, \dots, i+40$:
+    \begin{itemize}
+        \item $\texttt{next}(w_{12}) \cdot (\texttt{next}(w_{12}) - 1) \cdot (\texttt{next}(w_{12}) - 2) \cdot (\texttt{next}(w_{12}) - 3) \cdot (\texttt{next}(w_{12}) - 4) \cdot (\texttt{next}(w_{12}) - 5) \cdot (\texttt{next}(w_{12}) - 6) \cdot (\texttt{next}(w_{12}) - 7)= 0$
+        \item $\texttt{next}(w_{13}) \cdot (\texttt{next}(w_{13}) - 1) \cdot (\texttt{next}(w_{13}) - 2) \cdot (\texttt{next}(w_{13}) - 3) \cdot (\texttt{next}(w_{13}) - 4) \cdot (\texttt{next}(w_{13}) - 5) \cdot (\texttt{next}(w_{13}) - 6) \cdot (\texttt{next}(w_{13}) - 7)= 0$
+        \item $\texttt{next}(w_{14}) = 2^6\cdot w_6 + 2^3 \cdot \texttt{next}(w_{12}) + \texttt{next}(w_{13})$
+    \end{itemize}
+
+    for row $i+42$:
+    \begin{itemize}
+        \item $\texttt{next}(w_{12}) \cdot (\texttt{next}(w_{12}) - 1) \cdot (\texttt{next}(w_{12}) - 2) \cdot (\texttt{next}(w_{12}) - 3) \cdot (\texttt{next}(w_{12}) - 4) \cdot (\texttt{next}(w_{12}) - 5) \cdot (\texttt{next}(w_{12}) - 6) \cdot (\texttt{next}(w_{12}) - 7)= 0$
+        \item $\texttt{next}(w_{13}) \cdot (\texttt{next}(w_{13}) - 1) = 0$
+        \item $\texttt{next}(w_{14}) = 2^4\cdot w_6 + 2 \cdot \texttt{next}(w_{12}) + \texttt{next}(w_{13})$
+    \end{itemize}
+
+    for row $i+44$:
+    \begin{itemize}
+        \item $\texttt{next}(w_{12}) \cdot (w_6-\texttt{prev}(w_{14})) = 0$
+        \item $\texttt{next}(w_{12}) \cdot (\texttt{next}(w_{13}) -2^{124}) = 0$
+    \end{itemize}
+\end{itemize}
+
+\textbf{Row $(i+100)$.}
+\begin{itemize}
+    \item $\texttt{next}(w_2) \cdot (\texttt{next}(w_2) - 1) = 0$
+    \item $\texttt{next}(w_3) \cdot (\texttt{next}(w_3) - 1) = 0$
+    \item $\texttt{next}(w_4) \cdot (\texttt{next}(w_4) - 1) = 0$
+    \item $\texttt{next}(w_5) \cdot (\texttt{next}(w_5) - 1) = 0$
+    \item $\texttt{next}(w_6) \cdot (\texttt{next}(w_6) - 1) = 0$ \\
+
+    \item $(w_{2} - w_{0}) \cdot \texttt{next}(w_7) = w_3 - (2 \cdot \texttt{next}(w_{2}) - 1) \cdot w_1$
+    \item $(w_{7} - w_{0}) \cdot \texttt{next}(w_8) = w_8 - (2 \cdot \texttt{next}(w_{3}) - 1) \cdot w_1$
+
+    \item $(2\cdot w_{3} - \texttt{next}(w_7) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}))^2 =  (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0})^2 \cdot (w_7 - w_0 + \texttt{next}(w_7)^2)$
+    \item $(2\cdot w_{8} - \texttt{next}(w_8) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}))^2 =  (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0})^2 \cdot (w_9 - w_0 + \texttt{next}(w_8)^2)$
+
+    \item $(w_{8} + w_{3}) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}) = (w_2 - w_7) \cdot (2\cdot w_{3} - \texttt{next}(w_7) \cdot (2 \cdot w_2 - \texttt{next}(w_7)^2 + w_{0}))$
+    \item $(w_{10} + w_{8}) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}) = (w_7 - w_9) \cdot (2\cdot w_{8} - \texttt{next}(w_8) \cdot (2 \cdot w_7 - \texttt{next}(w_8)^2 + w_{0}))$
+
+
+    \item $w_5 = 4 \cdot (w_4) + 2 \cdot \texttt{next}(w_{2}) + \texttt{next}(w_{3})$
+\end{itemize}
+
+\textbf{Last 3 iterations.}
+\begin{itemize}
+    \item Evaluations
+    \begin{itemize}
+        \item $\delta_1 = \texttt{inv}(y_0 + y_1)$
+        \item $\delta_2 = \texttt{inv}(y_0 + y_R)$
+    \end{itemize}
+    \item Copy constraints:
+    \begin{itemize}
+        \item $b_0$ in row $i+102$ is copy constrained with $b_2$ in the row $i + 101$
+        \item $b_0$ in row $i+104$ is copy constrained with $b_3$ in the row $i + 101$
+        \item $b_0$ in row $i+106$ is copy constrained with $b_4$ in the row $i + 101$
+        \item $(x_T,y_T)$ in row $j$ are copy constrained with $(x_T,y_T)$ in row $i$ (for $j \in \{i+102, i+104, i+106\}$)
+        \item $n$ in row $i+102$ is copy constrained with $n'$ in the row $i + 100$
+        \item $n$ in the rows $j = i+104, i+106$ is copy contrained with $n'$ in the row $j-2$
+        \item $(x_0, y_0)$ in the row $i+102$ are copy contrained with $(x_2,y_2)$ in row $i+100$
+        \item $(x_0, y_0)$ in the rows $j = i+104, i+106$ are copy contrained with $(x_S, y_S)$ in the row $j-1$
+        \item $(x_0,y_0)$ in row $j$ are copy constrained with $(x_0,y_0)$ in row $j-1$ (for $j \in \{i+103, i+105, i+107\}$)
+        \item $(x_R,y_R)$ in row $j$ are copy constrained with $(x_R,y_R)$ in row $j-1$ (for $j \in \{i+103, i+105, i+107\}$)
+    \end{itemize}
+    \item Constraints:
+    \begin{itemize}
+        % \item $w_{11}(w_{11}-1)$
+        \item $w_{13} = 2 \cdot w_{12} + w_{11}$
+        \item $w_{3} = (2 \cdot w_{11} - 1)w_{14}$
+        \item $(w_0 \cdot w_6 - 1)w_0$
+        \item $(w_2 \cdot w_7 - 1)w_2$
+        \item $((w_2-w_0) \cdot w_8 - 1) \cdot (w_2-w_0)$
+        \item $((w_1+w_3) \cdot w_9 - 1) \cdot (w_1+w_3)$
+        \item $(\texttt{next}(w_0) \cdot \texttt{next}(w_6) - 1) \texttt{next}(w_0)$
+        \item $(\texttt{next}(w_2) \cdot \texttt{next}(w_7) - 1)\texttt{next}(w_2)$
+        \item $((\texttt{next}(w_2)-\texttt{next}(w_0)) \cdot \texttt{next}(w_8) - 1) \cdot (\texttt{next}(w_2)-\texttt{next}(w_0))$
+        \item $((\texttt{next}(w_1)+\texttt{next}(w_3)) \cdot \texttt{next}(w_9) - 1) \cdot (\texttt{next}(w_1)+\texttt{next}(w_3))$
+    \end{itemize}
+    \item Complete addition (see \ref{subs:complete_addition})\\
+        applied to rows $j \in \{i+102, \dots, i+107\}$)
+\end{itemize}
+
+\textbf{Constraints for the last $3$ rows:}
+\begin{remark}
+There is a need to check whether these lines are necessary
+\end{remark}
 \begin{itemize}
     \item $w_2 \cdot (w_2 - 1) = 0$
     \item $w_3 \cdot (w_3 - 1) = 0$
@@ -148,14 +276,14 @@ Constraints for the last $3$ rows:
     \item $(\texttt{prev}(w_{9}) - \texttt{prev}(w_{0})) \cdot w_9 = \texttt{prev}(w_{10}) - (2 \cdot w_{4} - 1) \cdot \texttt{prev}(w_1)$
     \item $(\texttt{prev}(w_{11}) - \texttt{prev}(w_{0})) \cdot w_{10} = \texttt{prev}(w_{12}) - (2 \cdot w_{5} - 1) \cdot \texttt{prev}(w_1)$
     \item $(\texttt{prev}(w_{13}) - \texttt{prev}(w_{0})) \cdot w_{11} = \texttt{prev}(w_{14}) - (2 \cdot w_{6} - 1) \cdot \texttt{prev}(w_1)$ \\
-    
-    
+
+
     \item $(2\cdot \texttt{prev}(w_{3}) - w_7 \cdot (2 \cdot \texttt{prev}(w_2) - (w_7)^2 + \texttt{prev}(w_{0})))^2           =  (2 \cdot \texttt{prev}(w_2) - (w_7)^2 + \texttt{prev}(w_{0}))^2 \cdot (\texttt{prev}(w_7) - \texttt{prev}(w_0) + (w_7)^2)$
     \item $(2\cdot \texttt{prev}(w_{8}) - w_8 \cdot (2 \cdot \texttt{prev}(w_7) - (w_8)^2 + \texttt{prev}(w_{0})))^2           =  (2 \cdot \texttt{prev}(w_7) - (w_8)^2 + \texttt{prev}(w_{0}))^2 \cdot (\texttt{prev}(w_9) - \texttt{prev}(w_0) + (w_8)^2)$
     \item $(2\cdot \texttt{prev}(w_{10}) - w_9 \cdot (2 \cdot \texttt{prev}(w_9) - (w_9)^2 + \texttt{prev}(w_{0})))^2          =  (2 \cdot \texttt{prev}(w_9) - (w_9)^2 + \texttt{prev}(w_{0}))^2 \cdot (\texttt{prev}(w_{11}) - \texttt{prev}(w_0) + (w_9)^2)$
     \item $\biggl( \bigl(2\cdot \texttt{prev}(w_{12}) - w_{10} \cdot (2 \cdot \texttt{prev}(w_{11}) - (w_{10})^2 + \texttt{prev}(w_{0}))\bigr)^2 - \bigl((2 \cdot \texttt{prev}(w_{11}) - (w_{10})^2 + \texttt{prev}(w_{0}))^2 \cdot (\texttt{prev}(w_{13}) - \texttt{prev}(w_0) + (w_{10})^2)\bigr)\biggr) \cdot (\texttt{next}(w_8) \cdot \texttt{next}(w_2)) = 0$
     \item $\biggl( \bigl(2\cdot \texttt{prev}(w_{14}) - w_{11} \cdot (2 \cdot \texttt{prev}(w_{13}) - (w_{11})^2 + \texttt{prev}(w_{0}))\bigr)^2 - \bigl(2 \cdot \texttt{prev}(w_{13}) - (w_{11})^2 + \texttt{prev}(w_{0}))^2 \cdot (w_0 - \texttt{prev}(w_0) + (w_{11})^2)\bigr) \biggr) \cdot (\texttt{next}(w_8) \cdot \texttt{next}(w_2)) = 0$\\
-    
+
     \item $(\texttt{prev}(w_{8}) + \texttt{prev}(w_{3})) \cdot (2 \cdot \texttt{prev}(w_2) - (w_7)^2 + \texttt{prev}(w_{0})) = (\texttt{prev}(w_2) - \texttt{prev}(w_7)) \cdot (2 \cdot \texttt{prev}(w_{3}) - w_7 \cdot (2 \cdot \texttt{prev}(w_2) - (w_7)^2 + \texttt{prev}(w_{0})))$
     \item $(\texttt{prev}(w_{10}) + \texttt{prev}(w_{8})) \cdot (2 \cdot \texttt{prev}(w_7) - (w_8)^2 + \texttt{prev}(w_{0})) = (\texttt{prev}(w_7) - \texttt{prev}(w_9)) \cdot (2 \cdot \texttt{prev}(w_{8}) - w_8 \cdot (2 \cdot \texttt{prev}(w_7) - (w_8)^2 + \texttt{prev}(w_{0})))$
     \item $(\texttt{prev}(w_{12}) + \texttt{prev}(w_{10})) \cdot (2 \cdot \texttt{prev}(w_9) - (w_9)^2 + \texttt{prev}(w_{0})) = (\texttt{prev}(w_9) - \texttt{prev}(w_{11})) \cdot (2 \cdot \texttt{prev}(w_{10}) - w_9 \cdot (2 \cdot \texttt{prev}(w_9) - (w_9)^2 + \texttt{prev}(w_{0})))$
@@ -169,17 +297,23 @@ Constraints for the last $3$ rows:
     \item $((\texttt{next}(w_5) - a_1) \cdot \texttt{next}(w_4) - 1) \cdot (\texttt{next}(w_5) - a_1)$
 	\item $(\texttt{next}(W_8) \cdot \texttt{next}(w_2) \cdot w_0) + ((\texttt{next}(w_5) - a_{-1}) \cdot \texttt{next}(w_3) - (\texttt{next}(w_5) - a_1) \cdot \texttt{next}(w_4)) \cdot ((\texttt{next}(w_5) - a_{-1}) \cdot \texttt{next}(w_3) - (\texttt{next}(w_5) - a_1) \cdot \texttt{next}(w_4)) \cdot \texttt{next}(w_6) - \texttt{next}(w_0) = 0$
     \item $(\texttt{next}(w_8)\cdot \texttt{next}(w_2) \cdot w_1) +((\texttt{next}(w_5) - a_{-1}) \cdot \texttt{next}(w_3) - (\texttt{next}(w_5) - a_1) \cdot \texttt{next}(w_4)) \cdot \texttt{next}(w_7) - \texttt{next}(w_1) = 0$
-    \item $\texttt{next}(w_8) - ((\texttt{next}(w_5) - a_{-1}) \cdot (\texttt{next}(w_5) - a_0) \cdot (\texttt{next}(w_5) - a_1))$ 
-\end{itemize}    
+    \item $\texttt{next}(w_8) - ((\texttt{next}(w_5) - a_{-1}) \cdot (\texttt{next}(w_5) - a_0) \cdot (\texttt{next}(w_5) - a_1))$
+\end{itemize}
     Copy constraints:
     \begin{itemize}
     \item $(x_T,y_T)$ in row $j$ are copy constrained with $(x_T,y_T)$ in row $j + 2$ (for $j \in \{i, i + 2, i + 4, \dots, i + 98\}$) and with last row.
     \item $(x_0,y_0)$ in row $i$ are copy constrained with values from the first doubling circuit
-    \item $(x_0,y_0)$ in row $j, j \neq i$ are copy constrained with $(x_5,y_5)$ in row $j - 1$ 
+    \item $(x_0,y_0)$ in row $j, j \neq i$ are copy constrained with $(x_5,y_5)$ in row $j - 1$
     \item $n = 0$ in row $i$ is copy-constrained with the zero value
     \item $n$ in the row $j, j \neq i$ is copy contrained with $n'$ in the row $j-2$
     \item $n'$ in the row $i + 102$ is copy constrained with $n'$ in the row $i + 100$
-    \item $k$ is copy constrained with $n'$ in the row $i + 100$.
+    \item $k$ is copy constrained with $n'$ in the row $i + 100$
+    \item $u' = 0$ in row $i$ is copy-constrained with the zero value
+    \item $u'$ in the row $j, i < j \leq i+42 $ is copy contrained with $u''$ in the row $j-1$
+    \item $u$ is copy constrained with $u'$ in the row $i + 44$
+    \item $b_0$ in row $i+1$ is copy-constrained with $w_{12}$ in row $i + 45$
+    %\item $b_0$ in row $i+53$ is copy-constrained with $w_{13}$ in row $i + 45$
+    \item $w_5$ in row $i+48$ is copy-constrained with $w_{13}$ in row $i + 45$.
 \end{itemize}
 
 \subsection{Variable Base Endo-Scalar Multiplication}
@@ -194,7 +328,7 @@ For $R  = [b]T$, where $b = [b_n ... b_0]$ and $b_i \in \{0, 1\}$:
         \item $R - P = P + Q$
     \end{enumerate}
 \end{enumerate}
-The first step of the alforithm are verified by the doubling and unified addition circuit. 
+The first step of the alforithm are verified by the doubling and unified addition circuit.
 
 \begin{center}
     \begin{table}[H]
@@ -236,6 +370,6 @@ Constraints:
 
     Copy constraints:
     \begin{itemize}
-    \item $(x_T,y_T)$ in row $j$ are copy constrained with $(x_T,y_T)$ in row $j + 1$ 
+    \item $(x_T,y_T)$ in row $j$ are copy constrained with $(x_T,y_T)$ in row $j + 1$
     \item $(x_P,y_P)$ in row $i$ are copy constrained with values from the first doubling circuit
     \end{itemize}
