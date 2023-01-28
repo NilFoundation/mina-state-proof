@@ -2,7 +2,7 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 import "./constants.sol";
-import {consensus} from "./state.sol";
+import "./state.sol";
 
 library selection {
     /// Top level API to select between chains during a fork.

@@ -55,7 +55,7 @@ library state {
         uint256 body_reference;
     }
 
-    struct consensus {
+    struct consensus_t {
         /// Height of block
         uint256 blockchain_length;
         /// Epoch number
@@ -94,9 +94,9 @@ library state {
         /// Ledger related state
         commitlog blockchain_state;
         /// Consensus related state
-        consensus consensus_state;
+        consensus_t consensus_state;
         /// Consensus constants
-        consensus_constants constants;
+        consensus_t constants;
     }
 
     /// This structure can be thought of like the block header. It contains the most essential information of a block.
