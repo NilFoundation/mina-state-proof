@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/interfaces/verifier.sol";
 
 import "./state.sol";
-import "./mina_state.sol";
 
 contract mina is Ownable {
     struct account {
@@ -16,8 +15,8 @@ contract mina is Ownable {
     IVerifier verifier;
     state.protocol p;
 
-    mapping(uint256 => account) mina_accounts;
-    mapping(uint256 => bool) mina_account_inclusion_proofs;
+    mapping(uint256 => account) accounts;
+    mapping(uint256 => bool) account_inclusion_proofs;
     mapping(uint256 => bool) checklist;
 
     constructor(address ver) public {
