@@ -9,7 +9,7 @@
     "ethereumjs-wallet": "^1.0.2",
     "web3": "^1.7.0",
     "@nilfoundation/evm-placeholder-verification": "1.0.2",
-    "@openzeppelin/contracts": "^2.5.1"
+    "@openzeppelin/contracts": ">=4.7.2"
   },
   "directories": {
     "src": "src",

@@ -25,6 +25,7 @@ import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/proof_
 import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/placeholder_verifier.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/init_vars.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/containers/merkle_verifier.sol";
+
 import "../contracts/state-proof/components/mina_base_split_gen.sol";
 import "../contracts/state-proof/components/mina_scalar_split_gen.sol";
 import "../contracts/state-proof/mina_state_proof.sol";
