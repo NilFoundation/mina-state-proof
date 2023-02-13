@@ -1,9 +1,3 @@
-from placeholder_verification import base_path, do_placeholder_verification_test_via_transact_simple
-
-test_contract_name = 'MinaStateProof'
-test_contract_path = '../contracts/state-proof/mina_state_proof.sol'
-
-linked_proofs_libs_names = []
 linked_mina_state_libs_names = [
     "mina_scalar_gate0",
     "mina_scalar_gate1",
@@ -48,14 +42,9 @@ linked_mina_state_libs_names = [
     "placeholder_verifier",
 ]
 
-
-# Concatenated
-#   generated_eval1_step1_base.data
-#   generated_eval1_step1_scalar.data
-def init_test1():
+def init_placeholder_params(proof_path):
     params = dict()
-    params['_test_name'] = "Placeholder proof verification for base and scalar mina proofs at once"
-    f = open(base_path + '/test/data/generated_base_eval10_step1_scalar_eval15_step1.data')
+    f = open(proof_path)
     params["proof"] = f.read()
     f.close()
 
@@ -143,8 +132,3 @@ def init_test1():
 
     params['log_file'] = 'logs/mina_state_proof.json'
     return params
-
-
-if __name__ == '__main__':
-    do_placeholder_verification_test_via_transact_simple(test_contract_name, test_contract_path,
-                                                         linked_mina_state_libs_names, init_test1)

@@ -52,7 +52,7 @@ def deploy_link_libs(w3, compiled, contract_bytecode, linked_libs_names):
 
 if __name__ == '__main__':
     contract_name = 'MinaStateProof'
-    contract_path = '/state_proof/mina_state_proof.sol'
+    contract_path = '/state-proof/mina_state_proof.sol'
 
     linked_gates_libs_names = [
         "mina_scalar_gate0",
