@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "@nilfoundation/evm-placeholder-verification": "github:NilFoundation/evm-placeholder-verification#17-calldata-gas-marshalling-reduce",
+    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.2.2",
+    "@openzeppelin/contracts": "^4.8.2",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.13.0",
+    "hardhat-deploy": "^0.11.25",
+    "hardhat-deploy-ethers": "^0.4.0-next.1"
+  }
+}
