@@ -1,13 +1,26 @@
-# Sample Hardhat Project
+# Mina State proof verification in EVM
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+This repository presents the solidity smart contracts required to verify Mina ledger proof in EVM. 
+The repository uses Hardhat as development environment for compilation, testing and deployment tasks.
 
-Try running some of the following tasks:
+## Dependencies
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.js
+- [Hardhat](https://hardhat.org/)
+- [nodejs](https://nodejs.org/en/) >= 16.0
+
+## Compile 
 ```
+npx hardhat compile
+```
+
+## Test
+```
+npx hardhat test #Execute tests
+REPORT_GAS=true npx hardhat test # Test with gas reporting
+```
+
+## Deploy
+TODO
+
+## Usage
+TODO
