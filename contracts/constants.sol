@@ -31,3 +31,4 @@ library consensus_constants {
     /// Number of slots before minimum density is used in chain selection
     uint256 constant GRACE_PERIOD_END = 1440;
 }
+

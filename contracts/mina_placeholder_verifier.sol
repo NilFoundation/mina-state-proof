@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0.
 //---------------------------------------------------------------------------//
+// Copyright (c) 2023 Haresh G <hgedia@nil.foundation>
 // Copyright (c) 2023 Amit Sagar <asagar@nil.foundation>
 // Copyright (c) 2023 Ilia Shirobokov <i.shirobokov@nil.foundation>
 //
@@ -24,32 +25,28 @@ import "@nilfoundation/evm-placeholder-verification/contracts/logging.sol";
 import "./state.sol";
 import "./mina.sol";
 import "./constants.sol";
-
 import "./state-proof/mina_state_proof.sol";
-
 import "./interfaces/IMinaPlaceholderVerifier.sol";
 
-contract MinaBridgeEndpoint is IMinaPlaceholderVerifier {
+contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
 
     MinaStateProof mina_state_proof;
-
-    // logging.gas_usage_emit events will be thrown too.
-    event gas_usage_emit(uint8 command, string function_name, uint256 gas_usage);
-
     state.protocol s;
     state.commitlog c;
     uint256 ledger_hash;
     string current_ledger_hash;
 
-    function setState(state.protocol memory _s) external {
-        s = _s;
-    }
+//TODO : Clean up
+//    function setState(state.protocol memory _s) external {
+//        s = _s;
+//    }
+//
+//    function getState() external returns (uint256) {
+//        ledger_hash = s.previous_state_hash;
+//    }
 
-    function getState() external returns (uint256) {
-        ledger_hash = s.previous_state_hash;
-    }
-
-    function verify_ledger_state(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,
+    function verify_ledger_state(string calldata ledger_hash,
+        bytes calldata proof, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external returns (bool) {
             if (keccak256(bytes(current_ledger_hash)) == keccak256(bytes(ledger_hash))) {
                 return true;
@@ -58,13 +55,20 @@ contract MinaBridgeEndpoint is IMinaPlaceholderVerifier {
             return true;
     }
 
-    function update_ledger_state(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,
-        int256[][][] calldata columns_rotations) external  {
-            require(this.verify_ledger_state(ledger_hash, proof, init_params, columns_rotations), "Proof is not correct");
-            current_ledger_hash = ledger_hash;
+    function verify_account_state(state.account_state calldata account_state,string calldata ledger_hash ,
+        bytes calldata ledger_proof, bytes calldata account_state_proof,
+        uint256[][] calldata init_params, int256[][][] calldata columns_rotations
+        ) external returns (bool){
+        if (keccak256(bytes(current_ledger_hash)) == keccak256(bytes(ledger_hash))) {
+            return true;
+        }
+        require(mina_state_proof.verify(ledger_proof, init_params, columns_rotations), "Proof is not correct");
+        return true;
     }
 
-    function verify_account(string calldata account_hash, bytes calldata proof, bytes calldata account_state) external returns (bool) {
-        return true;
+    function update_ledger_state(string calldata ledger_hash,
+        bytes calldata proof, uint256[][] calldata init_params,int256[][][] calldata columns_rotations) external  {
+            require(this.verify_ledger_state(ledger_hash, proof, init_params, columns_rotations), "Proof is not correct");
+            current_ledger_hash = ledger_hash;
     }
 }

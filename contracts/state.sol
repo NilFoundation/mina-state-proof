@@ -106,4 +106,10 @@ library state {
         /// The body of the protocol state
         protocol_body body;
     }
+
+    struct account_state {
+        string public_key;
+        uint256 balance;
+        bytes[8] zkapp_state;
+    }
 }

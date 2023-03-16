@@ -31,6 +31,8 @@ import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/init_v
 import "./components/mina_base_split_gen.sol";
 import "./components/mina_scalar_split_gen.sol";
 
+import "hardhat/console.sol";
+
 contract MinaStateProof is IVerifier{
     // event renamed to prevent conflicts with logging system
     event mina_gas_usage_emit(uint256 gas_usage);
@@ -117,6 +119,7 @@ contract MinaStateProof is IVerifier{
 
     function verify(bytes calldata blob, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) public returns (bool) {
+
         gas_usage memory gas_usage;
         gas_usage.start = gasleft();
         test_local_vars memory vars;
@@ -146,7 +149,7 @@ contract MinaStateProof is IVerifier{
         // 3. append variable commitments to transcript
         transcript.update_transcript_b32_by_offset_calldata(vars.tr_state, blob, basic_marshalling.skip_length(vars.proof_map.variable_values_commitment_offset));
 
-        // 4. prepare evaluaitons of the polynomials that are copy-constrained
+        // 4. prepare evaluations of the polynomials that are copy-constrained
         // 5. permutation argument
         local_vars.permutation_argument = permutation_argument.verify_eval_be(blob, vars.tr_state,
             vars.proof_map, vars.fri_params,
@@ -197,5 +200,6 @@ contract MinaStateProof is IVerifier{
 
         gas_usage.end = gasleft();
         emit mina_gas_usage_emit(gas_usage.start - gas_usage.end);
+
     }
 }
