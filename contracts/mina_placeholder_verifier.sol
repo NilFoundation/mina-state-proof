@@ -29,46 +29,41 @@ import "./state-proof/mina_state_proof.sol";
 import "./interfaces/IMinaPlaceholderVerifier.sol";
 
 contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
-
     MinaStateProof mina_state_proof;
-    state.protocol s;
-    state.commitlog c;
-    uint256 ledger_hash;
-    string current_ledger_hash;
+    mapping(bytes32=>bool) validatedLedgers;
 
-//TODO : Clean up
-//    function setState(state.protocol memory _s) external {
-//        s = _s;
-//    }
-//
-//    function getState() external returns (uint256) {
-//        ledger_hash = s.previous_state_hash;
-//    }
+    constructor(){
+        mina_state_proof = new MinaStateProof();
+    }
+
+    function isValidatedLedger(string calldata ledger_hash) internal returns (bool) {
+        if(validatedLedgers[keccak256(bytes(ledger_hash))])
+            return true;
+       return false;
+    }
 
     function verify_ledger_state(string calldata ledger_hash,
         bytes calldata proof, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external returns (bool) {
-            if (keccak256(bytes(current_ledger_hash)) == keccak256(bytes(ledger_hash))) {
+            if(isValidatedLedger(ledger_hash))
                 return true;
-            }
-            require(mina_state_proof.verify(proof, init_params, columns_rotations), "Proof is not correct");
+            mina_state_proof.verify(proof, init_params, columns_rotations);
             return true;
     }
 
     function verify_account_state(state.account_state calldata account_state,string calldata ledger_hash ,
-        bytes calldata ledger_proof, bytes calldata account_state_proof,
+        bytes calldata account_state_proof,
         uint256[][] calldata init_params, int256[][][] calldata columns_rotations
         ) external returns (bool){
-        if (keccak256(bytes(current_ledger_hash)) == keccak256(bytes(ledger_hash))) {
+        if(isValidatedLedger(ledger_hash))
             return true;
-        }
-        require(mina_state_proof.verify(ledger_proof, init_params, columns_rotations), "Proof is not correct");
         return true;
     }
 
-    function update_ledger_state(string calldata ledger_hash,
-        bytes calldata proof, uint256[][] calldata init_params,int256[][][] calldata columns_rotations) external  {
+    function update_ledger_proof(string calldata ledger_hash,
+        bytes calldata proof, uint256[][] calldata init_params,int256[][][] calldata columns_rotations
+        ) external  {
             require(this.verify_ledger_state(ledger_hash, proof, init_params, columns_rotations), "Proof is not correct");
-            current_ledger_hash = ledger_hash;
+            validatedLedgers[keccak256(bytes(ledger_hash))] = true;
     }
 }

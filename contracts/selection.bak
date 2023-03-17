@@ -6,7 +6,7 @@ import "./state.sol";
 
 library selection {
     /// Top level API to select between chains during a fork.
-    function select_secure_chain(selection[] candidates) {
+    function select_secure_chain(protocol[] candidates, new_candidate) tip {
         for (uint256 itr = 0; itr < candidates.length; itr++) {
             if (is_short_range(candidate)) {
                 // short-range fork, select longer chain

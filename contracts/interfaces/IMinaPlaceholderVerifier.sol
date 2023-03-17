@@ -21,19 +21,15 @@ import "../state.sol";
 
 interface IMinaPlaceholderVerifier {
 
-//    function setState(state.protocol memory _s) external;
-//
-//    function getState() external returns (uint256);
-
     function verify_ledger_state(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external returns (bool);
 
-    function verify_account_state(state.account_state calldata account_state,string calldata ledger_hash ,
-        bytes calldata ledger_proof,bytes calldata account_state_proof,
+    function verify_account_state(state.account_state calldata account_state,
+        string calldata ledger_hash ,bytes calldata account_state_proof,
         uint256[][] calldata init_params, int256[][][] calldata columns_rotations
         ) external returns (bool);
 
-    function update_ledger_state(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,
+    function update_ledger_proof(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external;
 
 }
