@@ -18,10 +18,6 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import "@nilfoundation/evm-placeholder-verification/contracts/logging.sol";
-//TODO : Check if can be moved out
-//import "@nilfoundation/evm-placeholder-verification/contracts/profiling.sol";
-
 import "./state.sol";
 import "./mina.sol";
 import "./constants.sol";
@@ -36,18 +32,17 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
         mina_state_proof = new MinaStateProof();
     }
 
-    function isValidatedLedger(string calldata ledger_hash) internal returns (bool) {
-        if(validatedLedgers[keccak256(bytes(ledger_hash))])
-            return true;
-       return false;
+
+    function is_validated_ledger_hash(string calldata ledger_hash) external view returns (bool) {
+        return validatedLedgers[keccak256(bytes(ledger_hash))];
     }
+
 
     function verify_ledger_state(string calldata ledger_hash,
         bytes calldata proof, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external returns (bool) {
-            if(isValidatedLedger(ledger_hash))
-                return true;
-            mina_state_proof.verify(proof, init_params, columns_rotations);
+            if(!this.is_validated_ledger_hash(ledger_hash))
+                return mina_state_proof.verify(proof, init_params, columns_rotations);
             return true;
     }
 
@@ -55,9 +50,7 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
         bytes calldata account_state_proof,
         uint256[][] calldata init_params, int256[][][] calldata columns_rotations
         ) external returns (bool){
-        if(isValidatedLedger(ledger_hash))
-            return true;
-        return true;
+        return this.is_validated_ledger_hash(ledger_hash);
     }
 
     function update_ledger_proof(string calldata ledger_hash,

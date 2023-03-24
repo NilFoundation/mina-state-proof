@@ -72,14 +72,18 @@ contract MinaStateProof is IVerifier{
         vars.fri_params.D_omegas = new uint256[](init_params[idx++]);
         for (uint256 i = 0; i < vars.fri_params.D_omegas.length;) {
             vars.fri_params.D_omegas[i] = init_params[idx];
-        unchecked{i++;
-            idx++;}
+            unchecked{
+                i++;
+                idx++;
+            }
         }
         vars.fri_params.q = new uint256[](init_params[idx++]);
         for (uint256 i = 0; i < vars.fri_params.q.length;) {
             vars.fri_params.q[i] = init_params[idx];
-        unchecked{i++;
-            idx++;}
+            unchecked{
+                i++;
+                idx++;
+            }
         }
 
         vars.fri_params.step_list = new uint256[](init_params[idx++]);
@@ -88,21 +92,24 @@ contract MinaStateProof is IVerifier{
             vars.fri_params.step_list[i] = init_params[idx];
             if (vars.fri_params.step_list[i] > vars.fri_params.max_step)
                 vars.fri_params.max_step = vars.fri_params.step_list[i];
-        unchecked{i++;
-            idx++;}
+
+            unchecked{
+                i++;
+                idx++;
+            }
         }
 
-    unchecked{
-        idx++;
-        // arithmetization_params length;
-        vars.arithmetization_params.witness_columns = init_params[idx++];
-        vars.arithmetization_params.public_input_columns = init_params[idx++];
-        vars.arithmetization_params.constant_columns = init_params[idx++];
-        vars.arithmetization_params.selector_columns = init_params[idx++];
-        vars.arithmetization_params.permutation_columns = vars.arithmetization_params.witness_columns
-        + vars.arithmetization_params.public_input_columns
-        + vars.arithmetization_params.constant_columns;
-    }
+        unchecked{
+            idx++;
+            // arithmetization_params length;
+            vars.arithmetization_params.witness_columns = init_params[idx++];
+            vars.arithmetization_params.public_input_columns = init_params[idx++];
+            vars.arithmetization_params.constant_columns = init_params[idx++];
+            vars.arithmetization_params.selector_columns = init_params[idx++];
+            vars.arithmetization_params.permutation_columns = vars.arithmetization_params.witness_columns
+            + vars.arithmetization_params.public_input_columns
+            + vars.arithmetization_params.constant_columns;
+        }
     }
 
     function allocate_all(test_local_vars memory vars, uint256 max_step, uint256 max_batch) internal view {

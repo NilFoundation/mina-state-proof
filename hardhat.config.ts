@@ -22,5 +22,9 @@ module.exports = {
     hardhat: {
       blockGasLimit: 100_000_000,
     },
+    sepolia: {
+      blockGasLimit: 100_000_000,
+      url : "0"
+    },
   }
 };
