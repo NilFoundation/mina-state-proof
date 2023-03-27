@@ -175,7 +175,7 @@ describe('Mina state proof validation tests', function(){
 
             const accountData = {
                 public_key: "B62qre3ersHfzQckNuibViWTGyyKwZseztqrjPjBv6SQF384Rg6ESAy",
-                balance : BigInt(500000),
+                balance : 500000n,
                 state : [
                         "0x0000000000000000000000000000000000000000000000000000000000000001" ,
                         "0x0000000000000000000000000000000000000000000000000000000000000002",
@@ -208,7 +208,34 @@ describe('Mina state proof validation tests', function(){
             await deployments.fixture(['minaPlaceholderVerifierFixture'])
             let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            expect(await minaPlaceholderVerifierIF.verify_ledger_state("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 })).to.be.revertedWith("Proof is not correct!")
+            expect(await minaPlaceholderVerifierIF.verify_ledger_state("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 }))
+                .to.be.revertedWith("Proof is not correct!")
+        });
+    })
+
+    describe('Account Proof - Failures',  function(){
+        it("Should fail if incorrect ledger hash provided along with proof " ,async function(){
+            let params = getVerifierParams();
+            await deployments.fixture(['minaPlaceholderVerifierFixture']);
+            let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
+            let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
+            const accountData = {
+                public_key: "B62qre3ersHfzQckNuibViWTGyyKwZseztqrjPjBv6SQF384Rg6ESAy",
+                balance : 500000n,
+                state : [
+                    "0x0000000000000000000000000000000000000000000000000000000000000001" ,
+                    "0x0000000000000000000000000000000000000000000000000000000000000002",
+                    "0x0000000000000000000000000000000000000000000000000000000000000003",
+                    "0x0000000000000000000000000000000000000000000000000000000000000004",
+                    "0x0000000000000000000000000000000000000000000000000000000000000005" ,
+                    "0x0000000000000000000000000000000000000000000000000000000000000006",
+                    "0x0000000000000000000000000000000000000000000000000000000000000007",
+                    "0x0000000000000000000000000000000000000000000000000000000000000008"
+                ],
+            };
+            const dummyAccountProof = "0x112233445566778899";
+            await expect( minaPlaceholderVerifierIF.verify_account_state(accountData,"helloWorld",dummyAccountProof, params['init_params'],params['columns_rotations']))
+                .to.be.revertedWith("Invalid ledger hash");
         });
     })
 })

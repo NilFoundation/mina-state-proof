@@ -50,7 +50,8 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
         bytes calldata account_state_proof,
         uint256[][] calldata init_params, int256[][][] calldata columns_rotations
         ) external returns (bool){
-        return this.is_validated_ledger_hash(ledger_hash);
+        require(this.is_validated_ledger_hash(ledger_hash), "Invalid ledger hash");
+        return true;
     }
 
     function update_ledger_proof(string calldata ledger_hash,
