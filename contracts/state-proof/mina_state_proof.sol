@@ -127,8 +127,6 @@ contract MinaStateProof is IVerifier{
     function verify(bytes calldata blob, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) public returns (bool) {
 
-        gas_usage memory gas_usage;
-        gas_usage.start = gasleft();
         test_local_vars memory vars;
         uint256 max_step;
         uint256 max_batch;
@@ -203,10 +201,7 @@ contract MinaStateProof is IVerifier{
         require( placeholder_verifier.verify_proof_be(
             blob, vars.tr_state, vars.proof_map, vars.fri_params,
             vars.common_data, local_vars_scalar, vars.arithmetization_params
-        ), "Proof is not correct");
-
-        gas_usage.end = gasleft();
-        emit mina_gas_usage_emit(gas_usage.start - gas_usage.end);
+        ), "Proof is not correct!");
         return true;
     }
 }

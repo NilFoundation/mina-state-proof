@@ -11,7 +11,7 @@ const {BigNumber} = require("ethers");
 const { getNamedAccounts } = hre
 /* global BigInt */
 
-describe('Mina state proof - Interface - Full ledger validation', function(){
+describe('Mina state proof validation tests', function(){
     const {deployments, getNamedAccounts} = hre;
     const {deploy} = deployments;
 
@@ -165,6 +165,33 @@ describe('Mina state proof - Interface - Full ledger validation', function(){
         });
     })
 
+    describe('Account Proof - Success',  function(){
+        it("Should validate correct proof " ,async function(){
+            let params = getVerifierParams();
+            await deployments.fixture(['minaPlaceholderVerifierFixture']);
+            let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
+            let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
+            await minaPlaceholderVerifierIF.update_ledger_proof("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 })
+
+            const accountData = {
+                public_key: "B62qre3ersHfzQckNuibViWTGyyKwZseztqrjPjBv6SQF384Rg6ESAy",
+                balance : BigInt(500000),
+                state : [
+                        "0x0000000000000000000000000000000000000000000000000000000000000001" ,
+                        "0x0000000000000000000000000000000000000000000000000000000000000002",
+                        "0x0000000000000000000000000000000000000000000000000000000000000003",
+                        "0x0000000000000000000000000000000000000000000000000000000000000004",
+                        "0x0000000000000000000000000000000000000000000000000000000000000005" ,
+                        "0x0000000000000000000000000000000000000000000000000000000000000006",
+                        "0x0000000000000000000000000000000000000000000000000000000000000007",
+                        "0x0000000000000000000000000000000000000000000000000000000000000008"
+                ],
+            };
+            const dummyAccountProof = "0x112233445566778899";
+            await minaPlaceholderVerifierIF.verify_account_state(accountData,"helloWorld",dummyAccountProof, params['init_params'],params['columns_rotations']);
+        });
+    })
+
     describe("Ledger Proof - Failures",  function(){
         it("Should revert incorrect proof" ,async function(){
             let params = getVerifierParams();
@@ -172,7 +199,7 @@ describe('Mina state proof - Interface - Full ledger validation', function(){
             params['proof'] = '0x4554480000000000000000000000000000000000000000000000000000000000'
             let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            expect(await minaPlaceholderVerifierIF.verify_ledger_state("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 }))
+            await expect(minaPlaceholderVerifierIF.verify_ledger_state("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 }))
                 .to.be.revertedWith("Proof is not correct!")
         } );
 
@@ -181,8 +208,7 @@ describe('Mina state proof - Interface - Full ledger validation', function(){
             await deployments.fixture(['minaPlaceholderVerifierFixture'])
             let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            expect(await minaPlaceholderVerifierIF.verify_ledger_state("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 }))
-                .to.be.revertedWith("Proof is not correct!")
+            expect(await minaPlaceholderVerifierIF.verify_ledger_state("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 })).to.be.revertedWith("Proof is not correct!")
         });
     })
 })

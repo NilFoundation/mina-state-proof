@@ -108,8 +108,11 @@ library state {
     }
 
     struct account_state {
+        /// Public key identifier of the account (user or zkApp)
         string public_key;
+        /// Balance of MINA
         uint256 balance;
-        bytes[8] zkapp_state;
+        /// Sate of the zkApp (8 FieldElems of 32 bytes)
+        bytes32[8] state;
     }
 }
