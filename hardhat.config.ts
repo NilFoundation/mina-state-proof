@@ -26,5 +26,9 @@ module.exports = {
       blockGasLimit: 100_000_000,
       url : "0"
     },
+    ganache: {
+      url: "http://127.0.0.1:8545",
+      // accounts: [privateKey1, privateKey2, ...]
+    }
   }
 };

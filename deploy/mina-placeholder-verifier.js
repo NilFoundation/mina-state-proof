@@ -1,7 +1,7 @@
 const hre = require('hardhat')
 const { getNamedAccounts } = hre
 
-module.exports = async function () {
+module.exports = async function() {
     const {deployments, getNamedAccounts} = hre;
     const {deploy} = deployments;
     const {deployer, tokenOwner} = await getNamedAccounts();
@@ -65,6 +65,8 @@ module.exports = async function () {
         log : true,
     })
 }
+
+
 
 
 module.exports.tags = ['minaPlaceholderVerifierFixture']
