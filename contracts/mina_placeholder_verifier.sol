@@ -19,7 +19,6 @@
 pragma solidity >=0.8.4;
 
 import "./state.sol";
-import "./mina.sol";
 import "./constants.sol";
 import "./state-proof/mina_state_proof.sol";
 import "./interfaces/IMinaPlaceholderVerifier.sol";
