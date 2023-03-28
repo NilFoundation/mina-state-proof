@@ -18,8 +18,8 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import "./state.sol";
-import "./constants.sol";
+import "./protocol/state.sol";
+import "./protocol/constants.sol";
 import "./state-proof/mina_state_proof.sol";
 import "./interfaces/IMinaPlaceholderVerifier.sol";
 
@@ -30,7 +30,6 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
     constructor(){
         mina_state_proof = new MinaStateProof();
     }
-
 
     function is_validated_ledger_hash(string calldata ledger_hash) external view returns (bool) {
         return validatedLedgers[keccak256(bytes(ledger_hash))];

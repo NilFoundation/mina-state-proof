@@ -17,7 +17,7 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import "../state.sol";
+import "../protocol/state.sol";
 
 interface IMinaPlaceholderVerifier {
 
