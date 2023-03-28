@@ -1,6 +1,7 @@
 import {task} from "hardhat/config";
 import fs from "fs";
 import path from "path";
+import {BigNumber} from "ethers";
 
 function getProofFromFile(filePath) {
     return fs.readFileSync(filePath,'utf8');
@@ -151,10 +152,28 @@ task("validate_ledger_state", "Validate entire mina ledger state")
 
 task("validate_account_state", "Validate entire mina ledger state")
     .addParam("proof")
-    .addParam("pubkey")
+    .addParam("publickey")
     .addParam("balance")
     .addParam("state")
-    .setAction(async (taskArgs, hre) => {
+    .setAction(async ({proof, publickey, balance, state}, hre) => {
+        // @ts-ignore
         const ethers = hre.ethers;
+        // @ts-ignore
+        const { deployer } = await hre.getNamedAccounts();
 
+        let params = getVerifierParams();
+        let account_state = state.split(",");
+        const accountData = {
+            public_key: publickey,
+            balance : balance,
+            state : account_state
+        };
+        const dummyAccountProof = "0x112233445566778899";
+        let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
+        let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
+        let tx = await minaPlaceholderVerifierIF.verify_account_state(accountData,"helloWorld",dummyAccountProof, params['init_params'],params['columns_rotations'], { gasLimit: 40_500_000 });
+        const receipt = await tx.wait()
+        console.log(receipt)
     });
+
+
