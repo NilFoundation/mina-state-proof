@@ -9,11 +9,14 @@ const fs = require("fs");
 const path = require("path");
 const {BigNumber} = require("ethers");
 const { getNamedAccounts } = hre
+
 /* global BigInt */
 
 describe('Mina state proof validation tests', function(){
     const {deployments, getNamedAccounts} = hre;
     const {deploy} = deployments;
+
+
 
     function getVerifierParams() {
         let params = {}
@@ -202,6 +205,16 @@ describe('Mina state proof validation tests', function(){
             await expect(minaPlaceholderVerifierIF.verify_ledger_state("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 }))
                 .to.be.revertedWith("Proof is not correct!")
         } );
+
+        it("Should fail to update and store incorrect proof " ,async function(){
+            let params = getVerifierParams();
+            await deployments.fixture(['minaPlaceholderVerifierFixture']);
+            params['proof'] = '0x4554480000000000000000000000000000000000000000000000000000000000'
+            let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
+            let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
+            await expect(minaPlaceholderVerifierIF.update_ledger_proof("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 }))
+                .to.be.revertedWith("Proof is not correct!")
+        });
 
         it.skip("Should fail for incorrect hash" ,async function(){
             let params = getVerifierParams();

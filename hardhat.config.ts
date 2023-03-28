@@ -1,7 +1,10 @@
+
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomiclabs/hardhat-ethers");
 require("hardhat-deploy");
 require('hardhat-deploy-ethers')
+import './tasks/mina-validate-proof-task'
+
 
 
 /** @type import('hardhat/config').HardhatUserConfig */
