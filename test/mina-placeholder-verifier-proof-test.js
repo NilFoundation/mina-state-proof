@@ -178,7 +178,10 @@ describe('Mina state proof validation tests', function(){
 
             const accountData = {
                 public_key: "B62qre3ersHfzQckNuibViWTGyyKwZseztqrjPjBv6SQF384Rg6ESAy",
-                balance : 500000n,
+                balance : {
+                    liquid : 5000n,
+                    locked : 0n
+                },
                 state : [
                         "0x0000000000000000000000000000000000000000000000000000000000000001" ,
                         "0x0000000000000000000000000000000000000000000000000000000000000002",
@@ -234,7 +237,10 @@ describe('Mina state proof validation tests', function(){
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             const accountData = {
                 public_key: "B62qre3ersHfzQckNuibViWTGyyKwZseztqrjPjBv6SQF384Rg6ESAy",
-                balance : 500000n,
+                balance : {
+                    liquid : 5000n,
+                    locked : 0n
+                },
                 state : [
                     "0x0000000000000000000000000000000000000000000000000000000000000001" ,
                     "0x0000000000000000000000000000000000000000000000000000000000000002",
