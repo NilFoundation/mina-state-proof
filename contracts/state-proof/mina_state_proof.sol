@@ -27,22 +27,14 @@ import "@nilfoundation/evm-placeholder-verification/contracts/cryptography/trans
 import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/proof_map_parser.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/placeholder_verifier.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/init_vars.sol";
-
 import "./components/mina_base_split_gen.sol";
 import "./components/mina_scalar_split_gen.sol";
 
-import "hardhat/console.sol";
 
 contract MinaStateProof is IVerifier{
-    // event renamed to prevent conflicts with logging system
-    event mina_gas_usage_emit(uint256 gas_usage);
 
-    struct gas_usage {
-        uint256 start;
-        uint256 end;
-    }
-
-    struct test_local_vars {
+    //TODO - Looks a lot like "placeholder/init_vars" refactor out
+    struct vars_t {
         types.fri_params_type fri_params;
         uint256 proofs_num;
         uint256 ind;
@@ -55,7 +47,7 @@ contract MinaStateProof is IVerifier{
         types.arithmetization_params arithmetization_params;
     }
 
-    function init_vars(test_local_vars memory vars, uint256[] memory init_params, int256[][] memory columns_rotations) internal view {
+    function init_vars(vars_t memory vars, uint256[] memory init_params, int256[][] memory columns_rotations) internal view {
         uint256 idx = 0;
         vars.fri_params.modulus = init_params[idx++];
         vars.fri_params.r = init_params[idx++];
@@ -112,7 +104,7 @@ contract MinaStateProof is IVerifier{
         }
     }
 
-    function allocate_all(test_local_vars memory vars, uint256 max_step, uint256 max_batch) internal view {
+    function allocate_all(vars_t memory vars, uint256 max_step, uint256 max_batch) internal view {
         uint256 max_coset = 1 << (vars.fri_params.max_step - 1);
 
         vars.fri_params.s_indices = new uint256[](max_coset);
@@ -127,11 +119,14 @@ contract MinaStateProof is IVerifier{
     function verify(bytes calldata blob, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) public returns (bool) {
 
-        test_local_vars memory vars;
+        vars_t memory vars;
         uint256 max_step;
         uint256 max_batch;
 
-        require(blob.length == init_params[0][1], "Proof is not correct!");
+        // TODO: emit error?
+        if(blob.length != init_params[0][1]){
+            return false;
+        }
 
         for (vars.ind = 0; vars.ind < 2;) {
             init_vars(vars, init_params[vars.ind + 1], columns_rotations[vars.ind]);
@@ -145,8 +140,11 @@ contract MinaStateProof is IVerifier{
         vars.proof_offset = 0;
         (vars.proof_map, vars.proof_size) = placeholder_proof_map_parser.parse_be(blob, vars.proof_offset);
 
-        require(vars.proof_size <= blob.length, "Proof is not correct!");
-        require(vars.proof_size == init_params[0][0], "Proof is not correct!");
+        //TODO emit error?
+        if (vars.proof_size > blob.length || vars.proof_size != init_params[0][0]){
+            return false;
+        }
+
         init_vars(vars, init_params[1], columns_rotations[0]);
         transcript.init_transcript(vars.tr_state, hex"");
 
@@ -169,14 +167,20 @@ contract MinaStateProof is IVerifier{
 
         local_vars.gate_argument = mina_base_split_gen.evaluate_gates_be(blob, gate_params, vars.arithmetization_params, vars.common_data.columns_rotations);
 
-        require(placeholder_verifier.verify_proof_be(blob, vars.tr_state, vars.proof_map, vars.fri_params,
-            vars.common_data, local_vars, vars.arithmetization_params),
-            "Proof is not correct!");
+        if (!(placeholder_verifier.verify_proof_be(blob, vars.tr_state, vars.proof_map, vars.fri_params,
+            vars.common_data, local_vars, vars.arithmetization_params))) {
+            return false;
+        }
 
         vars.proof_offset += vars.proof_size;
 
         (vars.proof_map, vars.proof_size) = placeholder_proof_map_parser.parse_be(blob, vars.proof_offset);
-        require(vars.proof_size <= blob.length, "Proof is not correct!");
+
+       //TODO emit log?
+       if (!(vars.proof_size <= blob.length)){
+           return false;
+       }
+
         init_vars(vars, init_params[2], columns_rotations[1]);
         transcript.init_transcript(vars.tr_state, hex"");
 
@@ -198,10 +202,9 @@ contract MinaStateProof is IVerifier{
 
         local_vars_scalar.gate_argument = mina_split_gen.evaluate_gates_be(blob, gate_params, vars.arithmetization_params, vars.common_data.columns_rotations);
 
-        require( placeholder_verifier.verify_proof_be(
+        return placeholder_verifier.verify_proof_be(
             blob, vars.tr_state, vars.proof_map, vars.fri_params,
             vars.common_data, local_vars_scalar, vars.arithmetization_params
-        ), "Proof is not correct!");
-        return true;
+        );
     }
 }

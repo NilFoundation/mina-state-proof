@@ -21,6 +21,14 @@ import "../protocol/state.sol";
 
 interface IMinaPlaceholderVerifier {
 
+    event LedgerProofValidationFailed();
+
+    event AccountProofValidationFailed();
+
+    event InvalidLedgerHash();
+
+    event LedgerProofValidatedAndUpdated();
+
     function is_validated_ledger_hash(string calldata ledger_hash) external view returns (bool);
 
     function verify_ledger_state(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,

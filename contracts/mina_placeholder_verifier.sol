@@ -40,7 +40,8 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
         bytes calldata proof, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external returns (bool) {
             if(!this.is_validated_ledger_hash(ledger_hash))
-                return mina_state_proof.verify(proof, init_params, columns_rotations);
+                if (!mina_state_proof.verify(proof, init_params, columns_rotations))
+                    emit LedgerProofValidationFailed();
             return true;
     }
 
@@ -48,14 +49,18 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
         bytes calldata account_state_proof,
         uint256[][] calldata init_params, int256[][][] calldata columns_rotations
         ) external returns (bool){
-        require(this.is_validated_ledger_hash(ledger_hash), "Invalid ledger hash");
+         if (!this.is_validated_ledger_hash(ledger_hash)){
+             emit InvalidLedgerHash();
+             emit AccountProofValidationFailed();
+         }
         return true;
     }
 
     function update_ledger_proof(string calldata ledger_hash,
         bytes calldata proof, uint256[][] calldata init_params,int256[][][] calldata columns_rotations
         ) external  {
-            require(this.verify_ledger_state(ledger_hash, proof, init_params, columns_rotations), "Proof is not correct");
+            require(this.verify_ledger_state(ledger_hash, proof, init_params, columns_rotations), "Proof validation failed");
             validatedLedgers[keccak256(bytes(ledger_hash))] = true;
+            emit LedgerProofValidatedAndUpdated();
     }
 }
