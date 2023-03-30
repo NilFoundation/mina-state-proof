@@ -22,7 +22,9 @@ import "./protocol/state.sol";
 import "./protocol/constants.sol";
 import "./state-proof/mina_state_proof.sol";
 import "./interfaces/IMinaPlaceholderVerifier.sol";
-
+/**
+ * @dev Interface implementation of IMinaPlaceholderVerifier.
+ */
 contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
     MinaStateProof mina_state_proof;
     mapping(bytes32=>bool) validatedLedgers;
@@ -31,11 +33,12 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
         mina_state_proof = new MinaStateProof();
     }
 
+    /// @inheritdoc IMinaPlaceholderVerifier
     function is_validated_ledger_hash(string calldata ledger_hash) external view returns (bool) {
         return validatedLedgers[keccak256(bytes(ledger_hash))];
     }
 
-
+    /// @inheritdoc IMinaPlaceholderVerifier
     function verify_ledger_state(string calldata ledger_hash,
         bytes calldata proof, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external returns (bool) {
@@ -45,6 +48,7 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
             return true;
     }
 
+    /// @inheritdoc IMinaPlaceholderVerifier
     function verify_account_state(state.account_state calldata account_state,string calldata ledger_hash ,
         bytes calldata account_state_proof,
         uint256[][] calldata init_params, int256[][][] calldata columns_rotations
@@ -56,6 +60,7 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
         return true;
     }
 
+    /// @inheritdoc IMinaPlaceholderVerifier
     function update_ledger_proof(string calldata ledger_hash,
         bytes calldata proof, uint256[][] calldata init_params,int256[][][] calldata columns_rotations
         ) external  {
