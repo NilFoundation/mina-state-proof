@@ -17,9 +17,11 @@ describe('Mina state proof validation tests', function(){
     const {deploy} = deployments;
 
 
-
+    //TODO : Refactor
     function getVerifierParams() {
         let params = {}
+
+        //TODO refactor
         params['proof'] = fs.readFileSync(path.resolve(__dirname, "./data/proof_v.data"),'utf8');
 
         params['init_params'] = [[200920, 416992], [], []];
