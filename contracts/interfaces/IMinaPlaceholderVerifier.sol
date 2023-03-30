@@ -19,6 +19,8 @@ pragma solidity >=0.8.4;
 
 import "../protocol/state.sol";
 
+// TODO - Check if functions verify_ledger_state/verify_account_state can be changed to view
+
 /**
  * @dev Interface class to verify MINA ledger state proof (full ledger) and account
  * state proofs (user balance/zkApp state)
