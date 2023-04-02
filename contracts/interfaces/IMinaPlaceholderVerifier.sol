@@ -52,7 +52,7 @@ interface IMinaPlaceholderVerifier {
      * @param ledger_hash The ledger hash to check if it was validated previously.
      * @return Boolean true is hash was validated and stored previously, false otherwise.
      */
-    function is_validated_ledger_hash(string calldata ledger_hash) external view returns (bool);
+    function isValidatedLedgerHash(string calldata ledger_hash) external view returns (bool);
 
     /**
      * @dev Validates ledger proof
@@ -62,7 +62,7 @@ interface IMinaPlaceholderVerifier {
      * @param columns_rotations - to remove
      * @return Boolean true if ledger hash/proof is passes placeholder proof validation , false otherwise.
      */
-    function verify_ledger_state(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,
+    function verifyLedgerState(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external returns (bool);
 
     /**
@@ -74,7 +74,7 @@ interface IMinaPlaceholderVerifier {
      * @param columns_rotations - to remove
      * @return Boolean true if account hash/proof is passes placeholder proof validation , false otherwise.
      */
-    function verify_account_state(state.account_state calldata account_state,
+    function verifyAccountState(state.account_state calldata account_state,
         string calldata ledger_hash ,bytes calldata account_state_proof,
         uint256[][] calldata init_params, int256[][][] calldata columns_rotations
         ) external returns (bool);
@@ -86,7 +86,7 @@ interface IMinaPlaceholderVerifier {
      * @param init_params - to remove
      * @param columns_rotations - to remove
      */
-    function update_ledger_proof(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,
+    function updateLedgerProof(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external;
 
 }

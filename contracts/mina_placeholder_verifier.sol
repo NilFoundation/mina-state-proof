@@ -42,26 +42,26 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
     }
 
     /// @inheritdoc IMinaPlaceholderVerifier
-    function is_validated_ledger_hash(string calldata ledger_hash) external view returns (bool) {
+    function isValidatedLedgerHash(string calldata ledger_hash) external view returns (bool) {
         return validatedLedgers[keccak256(bytes(ledger_hash))];
     }
 
     /// @inheritdoc IMinaPlaceholderVerifier
-    function verify_ledger_state(string calldata ledger_hash,
+    function verifyLedgerState(string calldata ledger_hash,
         bytes calldata proof, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external returns (bool) {
-            if(!this.is_validated_ledger_hash(ledger_hash))
+            if(!this.isValidatedLedgerHash(ledger_hash))
                 if (!mina_state_proof.verify(proof, init_params, columns_rotations))
                     emit LedgerProofValidationFailed();
             return true;
     }
 
     /// @inheritdoc IMinaPlaceholderVerifier
-    function verify_account_state(state.account_state calldata account_state,string calldata ledger_hash ,
+    function verifyAccountState(state.account_state calldata account_state,string calldata ledger_hash ,
         bytes calldata account_state_proof,
         uint256[][] calldata init_params, int256[][][] calldata columns_rotations
         ) external returns (bool){
-         if (!this.is_validated_ledger_hash(ledger_hash)){
+         if (!this.isValidatedLedgerHash(ledger_hash)){
              emit InvalidLedgerHash();
              emit AccountProofValidationFailed();
          }
@@ -69,10 +69,10 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
     }
 
     /// @inheritdoc IMinaPlaceholderVerifier
-    function update_ledger_proof(string calldata ledger_hash,
+    function updateLedgerProof(string calldata ledger_hash,
         bytes calldata proof, uint256[][] calldata init_params,int256[][][] calldata columns_rotations
         ) external  {
-            require(this.verify_ledger_state(ledger_hash, proof, init_params, columns_rotations), "Proof validation failed");
+            require(this.verifyLedgerState(ledger_hash, proof, init_params, columns_rotations), "Proof validation failed");
             validatedLedgers[keccak256(bytes(ledger_hash))] = true;
             emit LedgerProofValidatedAndUpdated();
     }

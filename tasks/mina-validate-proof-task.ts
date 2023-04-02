@@ -9,7 +9,6 @@ function getFileContents(filePath) {
 
 function getVerifierParams() {
     let params = {}
-    params['proof'] = fs.readFileSync("/home/hgedia/Development/nil/mina-state-proof/test/data/proof_v.data",'utf8');
 
     params['init_params'] = [[200920, 416992], [], []];
     params['columns_rotations'] = [[], []]
@@ -146,7 +145,7 @@ task("validate_ledger_state", "Validate entire mina ledger state")
         let inputProof = getFileContents(proof);
         let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
         let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-        const tx = await minaPlaceholderVerifierIF.update_ledger_proof(ledger,inputProof, params['init_params'], params['columns_rotations'],{ gasLimit: 40_500_000 })
+        const tx = await minaPlaceholderVerifierIF.updateLedgerProof(ledger,inputProof, params['init_params'], params['columns_rotations'],{ gasLimit: 40_500_000 })
         const receipt = await tx.wait()
         console.log(receipt)
     });
@@ -166,7 +165,7 @@ task("validate_account_state", "Validate entire mina ledger state")
         const dummyAccountProof = "0x112233445566778899";
         let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
         let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-        let tx = await minaPlaceholderVerifierIF.verify_account_state(accountState,ledger,dummyAccountProof, params['init_params'],params['columns_rotations'], { gasLimit: 40_500_000 });
+        let tx = await minaPlaceholderVerifierIF.verifyAccountState(accountState,ledger,dummyAccountProof, params['init_params'],params['columns_rotations'], { gasLimit: 40_500_000 });
         const receipt = await tx.wait()
         console.log(receipt)
     });

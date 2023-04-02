@@ -151,7 +151,7 @@ describe('Mina state proof validation tests', function(){
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            await minaPlaceholderVerifierIF.verify_ledger_state("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 })
+            await minaPlaceholderVerifierIF.verifyLedgerState("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 })
         });
 
         it("Should update and store proof " ,async function(){
@@ -159,14 +159,14 @@ describe('Mina state proof validation tests', function(){
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            await minaPlaceholderVerifierIF.update_ledger_proof("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 })
+            await minaPlaceholderVerifierIF.updateLedgerProof("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 })
         });
 
         it("Should validate previously updated & stored correct proof " ,async function(){
             let params = getVerifierParams();
             let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            expect(await minaPlaceholderVerifierIF.is_validated_ledger_hash("helloWorld",{ gasLimit: 30_500_000 })).to.equal(true);
+            expect(await minaPlaceholderVerifierIF.isValidatedLedgerHash("helloWorld",{ gasLimit: 30_500_000 })).to.equal(true);
         });
     })
 
@@ -176,7 +176,7 @@ describe('Mina state proof validation tests', function(){
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            await minaPlaceholderVerifierIF.update_ledger_proof("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 })
+            await minaPlaceholderVerifierIF.updateLedgerProof("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 })
 
             const accountData = {
                 public_key: "B62qre3ersHfzQckNuibViWTGyyKwZseztqrjPjBv6SQF384Rg6ESAy",
@@ -196,7 +196,7 @@ describe('Mina state proof validation tests', function(){
                 ],
             };
             const dummyAccountProof = "0x112233445566778899";
-            await minaPlaceholderVerifierIF.verify_account_state(accountData,"helloWorld",dummyAccountProof, params['init_params'],params['columns_rotations']);
+            await minaPlaceholderVerifierIF.verifyAccountState(accountData,"helloWorld",dummyAccountProof, params['init_params'],params['columns_rotations']);
         });
     })
 
@@ -207,7 +207,7 @@ describe('Mina state proof validation tests', function(){
             params['proof'] = '0x4554480000000000000000000000000000000000000000000000000000000000'
             let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            await expect(minaPlaceholderVerifierIF.verify_ledger_state("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 }))
+            await expect(minaPlaceholderVerifierIF.verifyLedgerState("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 }))
                 .to.emit(minaPlaceholderVerifierIF,"LedgerProofValidationFailed");
         } );
 
@@ -217,7 +217,7 @@ describe('Mina state proof validation tests', function(){
             params['proof'] = '0x4554480000000000000000000000000000000000000000000000000000000000'
             let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            expect(await minaPlaceholderVerifierIF.update_ledger_proof("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 }))
+            expect(await minaPlaceholderVerifierIF.updateLedgerProof("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 }))
                 .to.be.revertedWith("Proof validation failed")
         });
 
@@ -226,7 +226,7 @@ describe('Mina state proof validation tests', function(){
             await deployments.fixture(['minaPlaceholderVerifierFixture'])
             let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            expect(await minaPlaceholderVerifierIF.verify_ledger_state("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 }))
+            expect(await minaPlaceholderVerifierIF.verifyLedgerState("helloWorld",params['proof'], params['init_params'], params['columns_rotations'],{ gasLimit: 30_500_000 }))
                 .to.be.revertedWith("Proof is not correct!")
         });
     })
@@ -255,7 +255,7 @@ describe('Mina state proof validation tests', function(){
                 ],
             };
             const dummyAccountProof = "0x112233445566778899";
-            await expect(await minaPlaceholderVerifierIF.verify_account_state(accountData,"helloWorld",dummyAccountProof, params['init_params'],params['columns_rotations']))
+            await expect(await minaPlaceholderVerifierIF.verifyAccountState(accountData,"helloWorld",dummyAccountProof, params['init_params'],params['columns_rotations']))
                 .to.emit(minaPlaceholderVerifierIF,"InvalidLedgerHash");;
         });
     })
