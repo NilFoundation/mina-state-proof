@@ -20,7 +20,6 @@ pragma solidity >=0.8.4;
 import "@nilfoundation/evm-placeholder-verification/contracts/types.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/basic_marshalling.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/commitments/batched_lpc_verifier.sol";
-//TODO : Changed
 import "@nilfoundation/evm-placeholder-verification/contracts/interfaces/gate_argument.sol";
 
 import "./mina_scalar/mina_scalar_gate0.sol";

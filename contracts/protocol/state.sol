@@ -107,11 +107,11 @@ library state {
         protocol_body body;
     }
 
-    /// This structure stores the balance parameters of user/zkApp
+    /// Balance parameters of user or zkApp
     struct balance {
         // Liquid balance
         uint256 liquid;
-        // Locked balance of user
+        // Locked balance
         uint256 locked;
     }
 
@@ -120,7 +120,7 @@ library state {
         string public_key;
         /// Balance of MINA
         balance balance;
-        /// Sate of the zkApp (8 FieldElems of 32 bytes)
+        /// State of the zkApp (8 FieldElems of 32 bytes)
         bytes32[8] state;
     }
 }

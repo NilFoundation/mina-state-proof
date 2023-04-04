@@ -23,12 +23,7 @@ import "./protocol/constants.sol";
 import "./state-proof/mina_state_proof.sol";
 import "./interfaces/IMinaPlaceholderVerifier.sol";
 
-
-/// TODO - rename functions to camel case
 /// TODO - Update event logic/description
-
-
-
 
 /**
  * @dev Interface implementation of IMinaPlaceholderVerifier.
