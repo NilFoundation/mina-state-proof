@@ -36,9 +36,9 @@ Hardhat re-uses old deployments, to force re-deploy add the `--reset` flag above
 
 ## Usage
 
-Below two tasks execute flows to validate ledger state and validate account state. 
-Please note , these work against the above deployment, hence , you must run the deploy before
-executing the following.
+Below are two tasks that execute flows to validate the ledger state and validate the account state. 
+Please note, these work against the above deployment, hence, you must run the deployment before executing
+the following.
 
 ### Validate Ledger State
 ```
