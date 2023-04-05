@@ -45,6 +45,8 @@
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier_index.hpp>
 #include <nil/crypto3/zk/snark/systems/plonk/pickles/verifier.hpp>
 
+#include <nil/crypto3/zk/snark/systems/plonk/placeholder/profiling.hpp>
+
 #include <nil/crypto3/math/algorithms/calculate_domain_set.hpp>
 
 #include <nil/crypto3/hash/algorithm/hash.hpp>
@@ -84,7 +86,8 @@ using pallas_verifier_index_type = zk::snark::verifier_index<
 
 inline std::vector<std::size_t> generate_step_list(const std::size_t r, const int max_step) {
     std::vector<std::size_t> step_list;
-    std::size_t steps_sum = 0;
+    step_list.emplace_back(1);
+    std::size_t steps_sum = 1;
     while (steps_sum != r) {
         if (r - steps_sum <= max_step) {
             while (r - steps_sum != 1) {
@@ -134,6 +137,7 @@ void print_hex_byteblob(std::ostream &os, TIter iter_begin, TIter iter_end, bool
 
 template<typename Endianness, typename Proof>
 void proof_print(const Proof &proof, std::string output_file) {
+    std::cout << output_file << std::endl;
     using namespace nil::crypto3::marshalling;
 
     using TTypeBase = nil::marshalling::field_type<Endianness>;
@@ -331,14 +335,13 @@ pallas_verifier_index_type make_verify_index(boost::property_tree::ptree root, b
 
     auto d_gen = multiprecision::cpp_int(const_root.get<std::string>("verify_index.domain.group_gen"));
     auto d_size = const_root.get<std::size_t>("verify_index.domain.log_size_of_group");
-    // std::cout << d_gen << " " << d_size << std::endl;
+
     ver_index.domain = nil::crypto3::math::basic_radix2_domain<typename curve_type::scalar_field_type>(d_size + 1);
-    // std::cout << ver_index.domain.omega.data << std::endl;
     ver_index.domain.omega = d_gen;
 
     ver_index.max_poly_size = root.get<std::size_t>("data.blockchainVerificationKey.index.max_poly_size");
     ver_index.max_quot_size = root.get<std::size_t>("data.blockchainVerificationKey.index.max_quot_size");
-    //    ver_index.srs = root.get<std::string>("data.blockchainVerificationKey.index.srs");    // TODO: null
+
     i = 0;
     for (auto &row : root.get_child("data.blockchainVerificationKey.commitments.sigma_comm")) {
         auto it = row.second.begin();
@@ -893,7 +896,7 @@ auto prepare_component(typename ComponentType::params_type params, const PublicI
     using types = zk::snark::detail::placeholder_policy<BlueprintFieldType, placeholder_params>;
 
     using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename placeholder_params::merkle_hash_type,
-                                                   typename placeholder_params::transcript_hash_type, 2, 1>;
+                                                   typename placeholder_params::transcript_hash_type, Lambda, 2, 4>;
 
     std::size_t table_rows_log = std::ceil(std::log2(desc.rows_amount));
 
@@ -926,6 +929,9 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
                                 pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step,
                                 std::string output_path) {
 #endif
+    std::string output_path_full = output_path.erase(output_path.find_last_not_of(" \n\r\t")-1) + "_base";
+    std::cout << output_path_full<< std::endl;
+
     using curve_type = algebra::curves::pallas;
     using BlueprintFieldType = typename curve_type::base_field_type;
     constexpr std::size_t WitnessColumns = 15;
@@ -1026,12 +1032,23 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
 
     profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::process_split(
         std::cout, bp, public_preprocessed_data);
-    profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::initialize_parameters(
-        fri_params, proof, public_preprocessed_data);
-    std::string output_path_full = output_path + "_base";
+//    profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::initialize_parameters(
+//        fri_params, public_preprocessed_data);
+
+    using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename placeholder_params::merkle_hash_type,
+                                                   typename placeholder_params::transcript_hash_type, Lambda, 2, 4>;
+    using columns_rotations_type = std::array<std::vector<int>, ArithmetizationParams::total_columns>;
+    nil::crypto3::zk::snark::print_placeholder_params<  
+        fri_type, 
+        zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams>,
+        columns_rotations_type,
+        ArithmetizationParams
+    >(
+        fri_params, desc, public_preprocessed_data.common_data.columns_rotations, "../params_base.json"
+    );
     proof_print<nil::marshalling::option::big_endian>(proof, output_path_full);
 
-    // std::string st = marshalling_to_blob<Endianness>(proof);
+//    std::string st = marshalling_to_blob<Endianness>(proof);
     std::string st;
 #ifdef __EMSCRIPTEN__
     char *writable = new char[st.size() + 1];
@@ -1054,6 +1071,10 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
                                   pallas_verifier_index_type &pickles_index, const std::size_t fri_max_step,
                                   std::string output_path) {
 #endif
+    std::cout << "generate proof scalar" << std::endl;
+    std::string output_path_full = output_path.erase(output_path.find_last_not_of(" \n\r\t")-1) + "_scalar";
+    std::cout << "output_path " << output_path_full << std::endl;
+
     using curve_type = algebra::curves::pallas;
     using BlueprintFieldType = typename curve_type::scalar_field_type;
     constexpr std::size_t WitnessColumns = 15;
@@ -1107,6 +1128,7 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
     std::array<nil::blueprint_mc::components::kimchi_proof_scalar<BlueprintFieldType, kimchi_params, eval_rounds>, batch_size> proofs;
 
     for (std::size_t batch_id = 0; batch_id < batch_size; batch_id++) {
+        std::cout << "batch_id=" << batch_id << std::endl;
         nil::blueprint_mc::components::kimchi_proof_scalar<BlueprintFieldType, kimchi_params, eval_rounds> proof;
 
         prepare_proof_scalar<curve_type, BlueprintFieldType, kimchi_params, eval_rounds>(pickles_proof, proof,
@@ -1139,6 +1161,7 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
         prepare_component<component_type, BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>(
             params, public_input, fri_max_step, result_check);
 
+    std::cout << "prepare_component added!" << std::endl;
     auto proof = zk::snark::placeholder_prover<BlueprintFieldType, placeholder_params>::process(
         public_preprocessed_data, private_preprocessed_data, desc, bp, assignments, fri_params);
 
@@ -1153,16 +1176,25 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
 
     profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::process_split(
         std::cout, bp, public_preprocessed_data);
-    profiling_plonk_circuit<BlueprintFieldType, ArithmetizationParams, hash_type, Lambda>::initialize_parameters(
-        fri_params, proof, public_preprocessed_data);
-    std::string output_path_full = output_path + "_scalar";
+
+    using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename placeholder_params::merkle_hash_type,
+                                                   typename placeholder_params::transcript_hash_type, Lambda, 2, 4>;
+    using columns_rotations_type = std::array<std::vector<int>, ArithmetizationParams::total_columns>;
+    nil::crypto3::zk::snark::print_placeholder_params<  
+        fri_type, 
+        zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams>,
+        columns_rotations_type,
+        ArithmetizationParams
+    >(
+        fri_params, desc, public_preprocessed_data.common_data.columns_rotations, "../params_scalar.json"
+    );
     proof_print<nil::marshalling::option::big_endian>(proof, output_path_full);
 
-    // std::string st = marshalling_to_blob<Endianness>(proof);
+//    std::string st = marshalling_to_blob<Endianness>(proof);
     std::string st;
 #ifdef __EMSCRIPTEN__
     char *writable = new char[st.size() + 1];
-    std::copy(st.begin(), st.end(), writable);
+    std::copy(st.begin(), st.end(-), writable);
     return writable;
 #else
     return st;
@@ -1240,7 +1272,7 @@ int main(int argc, char *argv[]) {
             ("scalar_proof", boost::program_options::bool_switch(&generate_scalar)->default_value(false), "Generate scalar part of the circuit")
             ("base_proof", boost::program_options::bool_switch(&generate_base)->default_value(false), "Generate base part of the circuit")
             ("heterogenous_proof", boost::program_options::bool_switch(&generate_heterogenous)->default_value(false), "Generate mina state proof")
-            ("max_step", boost::program_options::value<std::size_t>(&fri_max_step)->default_value(3), "Step for FRI folding (default 3)");
+            ("max_step", boost::program_options::value<std::size_t>(&fri_max_step)->default_value(3), "Step for folding (default 3)");
     // clang-format on
 
     boost::program_options::positional_options_description p;

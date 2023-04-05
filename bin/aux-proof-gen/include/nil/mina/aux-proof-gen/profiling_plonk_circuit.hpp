@@ -49,9 +49,9 @@ namespace nil {
             using ArithmetizationType = zk::snark::plonk_constraint_system<FieldType, ArithmetizationParams>;
             using preprocessed_public_data_type = typename zk::snark::placeholder_public_preprocessor<
                     FieldType, placeholder_params>::preprocessed_data_type;
-
-            template<typename FriType, typename ProofType>
-            static void initialize_parameters(const FriType &fri_params, const ProofType &proof, const preprocessed_public_data_type &public_preprocessed_data) {
+/*
+            template<typename FriType>
+            static void initialize_parameters(const FriType &fri_params, const preprocessed_public_data_type &public_preprocessed_data) {
                 std::cout << "modulus = " << FieldType::modulus << std::endl;
                 std::cout << "fri_params.r = " << fri_params.r << std::endl;
                 std::cout << "fri_params.max_degree = " << fri_params.max_degree << std::endl;
@@ -77,10 +77,10 @@ namespace nil {
                           << std::endl;
                 std::cout << "max_leaf_size = "
                           << std::max({
-                                proof.eval_proof.variable_values.z.size(),
-                                proof.eval_proof.fixed_values.z.size(),
-                                proof.eval_proof.permutation.z.size(),
-                                proof.eval_proof.quotient.z.size(),
+                                proof.eval_proof.combined_value.z[0].size(),
+                                proof.eval_proof.combined_value.z[1].size(),
+                                proof.eval_proof.combined_value.z[2].size(),
+                                proof.eval_proof.combined_value.z[3].size(),
                              })
                           << std::endl;
                 std::cout << "common_data.rows_amount = " << public_preprocessed_data.common_data.rows_amount << std::endl;
@@ -96,7 +96,7 @@ namespace nil {
                 }
                 std::cout << "}" << std::endl;
             }
-
+*/
             template<typename Container, typename ContainerIt>
             static bool is_last_element(const Container &c, ContainerIt it) {
                 return it == (std::cend(c) - 1);
@@ -112,69 +112,44 @@ namespace nil {
                 os << "get_eval_i_by_rotation_idx(" << var.index << "," << rotation_idx
                    << ", mload(add(gate_params, ";
                 if (zk::snark::plonk_variable<FieldType>::column_type::witness == var.type) {
-                    os << "WITNESS_EVALUATIONS_OFFSET";
+                    os << "get_witness_i_by_rotation_idx(" << var.index << "," << rotation_idx << ", gate_params)";
                 }
                 if (zk::snark::plonk_variable<FieldType>::column_type::constant == var.type) {
-                    os << "CONSTANT_EVALUATIONS_OFFSET";
+                    os << "get_constant_i_by_rotation_idx(" << var.index << "," << rotation_idx << ", gate_params)";
                 }
                 if (zk::snark::plonk_variable<FieldType>::column_type::public_input == var.type) {
-                    os << "PUBLIC_INPUT_EVALUATIONS_OFFSET";
+                    os << "get_public_input_i(" << var.index << "," << rotation_idx << ", gate_params)";
                 }
                 if (zk::snark::plonk_variable<FieldType>::column_type::selector == var.type) {
-                    os << "SELECTOR_EVALUATIONS_OFFSET";
+                    os << "get_selector_i("<< var.index << ", gate_params)";
                 }
                 os << ")))";
             }
 
-            template<typename Vars, typename VarsIt>
-            static typename std::enable_if<
-                std::is_same<nil::crypto3::zk::snark::plonk_variable<FieldType>,
-                             typename std::iterator_traits<typename Vars::iterator>::value_type>::value>::type
-                print_term(std::ostream &os,
+            template<typename Vars>
+            static void print_term(std::ostream &os,
                            const Vars &vars,
-                           VarsIt it,
                            const preprocessed_public_data_type &public_preprocessed_data) {
-                if (it != std::cend(vars)) {
-                    if (!is_last_element(vars, it)) {
-                        os << "mulmod(";
-                    }
+                for( auto it = std::cbegin(vars); it != std::end(vars); it++){
+                    os << "terms:=mulmod(terms, ";
                     print_variable(os, *it, public_preprocessed_data);
-                    if (!is_last_element(vars, it)) {
-                        os << ",";
-                        print_term(os, vars, it + 1, public_preprocessed_data);
-                        os << ", modulus)";
-                    }
+                    os << ", modulus)" << std::endl;
                 }
             }
 
-            template<typename Terms, typename TermsIt>
-            static typename std::enable_if<
-                std::is_same<nil::crypto3::math::non_linear_term<nil::crypto3::zk::snark::plonk_variable<FieldType>>,
-                             typename std::iterator_traits<typename Terms::iterator>::value_type>::value>::type
-                print_terms(std::ostream &os,
+            template<typename Terms>
+            static void print_terms(std::ostream &os,
                             const Terms &terms,
-                            TermsIt it,
                             const preprocessed_public_data_type &public_preprocessed_data) {
-                if (it != std::cend(terms)) {
+                for( auto it = std::cbegin(terms); it != std::cend(terms); it++ ){
+                    os << "terms:=0x" << std::hex << it->coeff.data << std::dec << std::endl;
+                    print_term(os, it->vars, public_preprocessed_data);
                     os << "mstore("
                           "add(gate_params, CONSTRAINT_EVAL_OFFSET),"
                           "addmod("
                           "mload(add(gate_params, CONSTRAINT_EVAL_OFFSET)),";
-//                    if (it->coeff != FieldType::value_type::one()) {
-                    if (it->vars.size()) {
-                        os << "mulmod(0x" << std::hex << it->coeff.data << std::dec << ",";
-                    } else {
-                        os << "0x" << std::hex << it->coeff.data << std::dec;
-                    }
-//                    }
-                    print_term(os, it->vars, std::cbegin(it->vars), public_preprocessed_data);
-//                    if (it->coeff != FieldType::value_type::one()) {
-                        if (it->vars.size()) {
-                            os << ",modulus)";
-                        }
-//                    }
+                    os << "terms";
                     os << ",modulus))" << std::endl;
-                    print_terms(os, terms, it + 1, public_preprocessed_data);
                 }
             }
 
@@ -183,7 +158,7 @@ namespace nil {
                                  const typename nil::crypto3::zk::snark::plonk_constraint<FieldType> &constraint,
                                  const preprocessed_public_data_type &public_preprocessed_data) {
                 os << "mstore(add(gate_params, CONSTRAINT_EVAL_OFFSET), 0)" << std::endl;
-                print_terms(os, constraint.terms, std::cbegin(constraint.terms), public_preprocessed_data);
+                print_terms(os, constraint.terms, public_preprocessed_data);
             }
 
             static void print_gate_evaluation(std::ostream &os) {
