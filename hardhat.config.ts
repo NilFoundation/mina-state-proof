@@ -5,7 +5,9 @@ require("hardhat-deploy");
 require('hardhat-deploy-ethers')
 import './tasks/mina-validate-proof-task'
 
-
+const SEPOLIA_PRIVATE_KEY="SEPOLIA_PRIVATE_KEY"
+const SEPOLIA_ALCHEMY_KEY="SEPOLIA_ALCHEMY_KEY"
+const ETHERSCAN_KEY = "ETHERSCAN_KEY"
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -26,12 +28,14 @@ module.exports = {
       blockGasLimit: 100_000_000,
     },
     sepolia: {
-      blockGasLimit: 100_000_000,
-      url : "0"
+      url: `https://eth-sepolia.g.alchemy.com/v2/${SEPOLIA_ALCHEMY_KEY}`,
+      accounts: [SEPOLIA_PRIVATE_KEY]
     },
     ganache: {
       url: "http://127.0.0.1:8545",
-      // accounts: [privateKey1, privateKey2, ...]
     }
-  }
+  },
+  etherscan: {
+    apiKey: ETHERSCAN_KEY,
+  },
 };
