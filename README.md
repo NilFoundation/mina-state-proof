@@ -81,8 +81,8 @@ See `examples/data/account_data.json` for examples.
 
 ## Community
 
-Issue reports are preferred to be done with Github Issues in here: https://github.com/nilfoundation/evm-mina-verification/issues.
+Issue reports are preferred to be done with Github Issues in here: https://github.com/nilfoundation/mina-state-proof/issues.
 
-Forum-alike discussion topics are better to be done with Discussions section in here: https://github.com/NilFoundation/evm-mina-verification/discussions
+Forum-alike discussion topics are better to be done with Discussions section in here: https://github.com/NilFoundation/mina-state-proof/discussions
 
-Usage and development questions a preferred to be asked in a Telegram chat: https://t.me/nilfoundation
+Usage and development questions are preferred to be asked in a Telegram chat: https://t.me/nilfoundation
