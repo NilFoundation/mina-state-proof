@@ -116,3 +116,4 @@ artifacts
 deployments
 
 .idea/
+.secret
