@@ -1,7 +1,6 @@
-# Mina State proof verification in EVM
+# In-EVM Mina State Verification
 
-This repository presents the solidity smart contracts required to verify Mina ledger proof in EVM. 
-The repository uses Hardhat as development environment for compilation, testing and deployment tasks.
+This repository contains In-EVM Mina State verification project. 
 
 ## Dependencies
 
@@ -78,4 +77,12 @@ Inputs
 }
 
 ```
-See `examples/data/account_data.json` for example contents.
+See `examples/data/account_data.json` for examples.
+
+## Community
+
+Issue reports are preferred to be done with Github Issues in here: https://github.com/nilfoundation/evm-mina-verification/issues.
+
+Forum-alike discussion topics are better to be done with Discussions section in here: https://github.com/NilFoundation/evm-mina-verification/discussions
+
+Usage and development questions a preferred to be asked in a Telegram chat: https://t.me/nilfoundation
