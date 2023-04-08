@@ -1,5 +1,9 @@
 # In-EVM Mina State Verification
 
+[![Discord](https://img.shields.io/discord/969303013749579846.svg?logo=discord&style=flat-square)](https://discord.gg/KmTAEjbmM3)
+[![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=flat-square&logo=telegram&logoColor=dark)](https://t.me/nilfoundation)
+[![Twitter](https://img.shields.io/twitter/follow/nil_foundation)](https://twitter.com/nil_foundation)
+
 This repository contains In-EVM Mina State verification project. 
 
 ## Dependencies
@@ -85,4 +89,4 @@ Issue reports are preferred to be done with Github Issues in here: https://githu
 
 Forum-alike discussion topics are better to be done with Discussions section in here: https://github.com/NilFoundation/mina-state-proof/discussions
 
-Usage and development questions are preferred to be asked in a Telegram chat: https://t.me/nilfoundation
+Usage and development questions are preferred to be asked in a Telegram chat: https://t.me/nilfoundation or in Discord (https://discord.gg/KmTAEjbmM3)
