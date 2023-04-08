@@ -4,7 +4,7 @@ import path from "path";
 import {BigNumber} from "ethers";
 
 function getFileContents(filePath) {
-    return fs.readFileSync(filePath,'utf8');
+    return fs.readFileSync(filePath, 'utf8');
 }
 
 function getVerifierParams() {
@@ -46,26 +46,26 @@ function getVerifierParams() {
     params['init_params'][1].push(...q)
 
     params['columns_rotations'][0] = []
-    params['columns_rotations'][0] = [[0, 1, -1, ],
-        [0, 1, -1, ],
-        [0, 1, -1, ],
-        [0, 1, -1, ],
-        [0, 1, -1, ],
-        [0, 1, -1, ],
-        [0, 1, ],
-        [0, 1, -1, ],
-        [0, 1, -1, ],
-        [0, 1, -1, ],
-        [0, 1, -1, ],
-        [0, 1, -1, ],
-        [0, -1, ],
-        [0, -1, ],
-        [0, -1, ],
-        [0, ], [0, ], [0, ], [0, ], [0, ], [0, ], [0, ], [0, ], [0, ], [0, ], [0, ],
-        [0, ],
-        [0, ], [0, ], [0, ], [0, ], [0, ], [0, ], [0, ], [0, ], [0, ], [0, ], [0, ],
-        [0, ],
-        [0, ], [0, ], [0, ], [0, ], [0, ], [0, ], [0, ], [0, ]]
+    params['columns_rotations'][0] = [[0, 1, -1,],
+        [0, 1, -1,],
+        [0, 1, -1,],
+        [0, 1, -1,],
+        [0, 1, -1,],
+        [0, 1, -1,],
+        [0, 1,],
+        [0, 1, -1,],
+        [0, 1, -1,],
+        [0, 1, -1,],
+        [0, 1, -1,],
+        [0, 1, -1,],
+        [0, -1,],
+        [0, -1,],
+        [0, -1,],
+        [0,], [0,], [0,], [0,], [0,], [0,], [0,], [0,], [0,], [0,], [0,],
+        [0,],
+        [0,], [0,], [0,], [0,], [0,], [0,], [0,], [0,], [0,], [0,], [0,],
+        [0,],
+        [0,], [0,], [0,], [0,], [0,], [0,], [0,], [0,]]
 
     let step_list = Array(16).fill(1)
     params['init_params'][1].push(step_list.length)
@@ -119,7 +119,7 @@ function getVerifierParams() {
     params['init_params'][2].push(arithmetization_params.length)
     params['init_params'][2].push(...arithmetization_params)
 
-    for (let i=0; i<47;++i){
+    for (let i = 0; i < 47; ++i) {
         params['columns_rotations'][1].push([0])
     }
 
@@ -139,13 +139,13 @@ task("validate_ledger_state", "Validate entire mina ledger state")
         // @ts-ignore
         const ethers = hre.ethers;
         // @ts-ignore
-        const { deployer } = await hre.getNamedAccounts();
+        const {deployer} = await hre.getNamedAccounts();
         console.log(ledger)
         let params = getVerifierParams();
         let inputProof = getFileContents(proof);
         let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
         let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-        const tx = await minaPlaceholderVerifierIF.updateLedgerProof(ledger,inputProof, params['init_params'], params['columns_rotations'],{ gasLimit: 40_500_000 })
+        const tx = await minaPlaceholderVerifierIF.updateLedgerProof(ledger, inputProof, params['init_params'], params['columns_rotations'], {gasLimit: 40_500_000})
         const receipt = await tx.wait()
         console.log(receipt)
     });
@@ -158,14 +158,14 @@ task("validate_account_state", "Validate entire mina ledger state")
         // @ts-ignore
         const ethers = hre.ethers;
         // @ts-ignore
-        const { deployer } = await hre.getNamedAccounts();
+        const {deployer} = await hre.getNamedAccounts();
         let params = getVerifierParams();
         let accountState = JSON.parse(getFileContents(state));
         accountState.state = accountState.state.split(",");
         const dummyAccountProof = "0x112233445566778899";
         let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
         let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-        let tx = await minaPlaceholderVerifierIF.verifyAccountState(accountState,ledger,dummyAccountProof, params['init_params'],params['columns_rotations'], { gasLimit: 40_500_000 });
+        let tx = await minaPlaceholderVerifierIF.verifyAccountState(accountState, ledger, dummyAccountProof, params['init_params'], params['columns_rotations'], {gasLimit: 40_500_000});
         const receipt = await tx.wait()
         console.log(receipt)
     });

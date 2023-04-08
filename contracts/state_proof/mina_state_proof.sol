@@ -19,19 +19,18 @@
 pragma solidity >=0.8.4;
 
 import '@nilfoundation/evm-placeholder-verification/contracts/interfaces/verifier.sol';
-
 import "@nilfoundation/evm-placeholder-verification/contracts/types.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/logging.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/cryptography/transcript.sol";
-
 import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/proof_map_parser.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/placeholder_verifier.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/init_vars.sol";
+
 import "./components/mina_base_split_gen.sol";
 import "./components/mina_scalar_split_gen.sol";
 
 
-contract MinaStateProof is IVerifier{
+contract MinaStateProof is IVerifier {
 
     //TODO - Looks a lot like "placeholder/init_vars" refactor out
     struct vars_t {
@@ -64,18 +63,18 @@ contract MinaStateProof is IVerifier{
         vars.fri_params.D_omegas = new uint256[](init_params[idx++]);
         for (uint256 i = 0; i < vars.fri_params.D_omegas.length;) {
             vars.fri_params.D_omegas[i] = init_params[idx];
-            unchecked{
-                i++;
-                idx++;
-            }
+        unchecked{
+            i++;
+            idx++;
+        }
         }
         vars.fri_params.q = new uint256[](init_params[idx++]);
         for (uint256 i = 0; i < vars.fri_params.q.length;) {
             vars.fri_params.q[i] = init_params[idx];
-            unchecked{
-                i++;
-                idx++;
-            }
+        unchecked{
+            i++;
+            idx++;
+        }
         }
 
         vars.fri_params.step_list = new uint256[](init_params[idx++]);
@@ -85,26 +84,26 @@ contract MinaStateProof is IVerifier{
             if (vars.fri_params.step_list[i] > vars.fri_params.max_step)
                 vars.fri_params.max_step = vars.fri_params.step_list[i];
 
-            unchecked{
-                i++;
-                idx++;
-            }
+        unchecked{
+            i++;
+            idx++;
+        }
         }
 
-        unchecked{
-            idx++;
-            // arithmetization_params length;
-            vars.arithmetization_params.witness_columns = init_params[idx++];
-            vars.arithmetization_params.public_input_columns = init_params[idx++];
-            vars.arithmetization_params.constant_columns = init_params[idx++];
-            vars.arithmetization_params.selector_columns = init_params[idx++];
-            vars.arithmetization_params.permutation_columns = vars.arithmetization_params.witness_columns
-            + vars.arithmetization_params.public_input_columns
-            + vars.arithmetization_params.constant_columns;
-        }
+    unchecked{
+        idx++;
+        // arithmetization_params length;
+        vars.arithmetization_params.witness_columns = init_params[idx++];
+        vars.arithmetization_params.public_input_columns = init_params[idx++];
+        vars.arithmetization_params.constant_columns = init_params[idx++];
+        vars.arithmetization_params.selector_columns = init_params[idx++];
+        vars.arithmetization_params.permutation_columns = vars.arithmetization_params.witness_columns
+        + vars.arithmetization_params.public_input_columns
+        + vars.arithmetization_params.constant_columns;
+    }
     }
 
-    function allocate_all(vars_t memory vars, uint256 max_step, uint256 max_batch) internal view {
+    function allocate_all(vars_t memory vars, uint256 max_step, uint256 max_batch) internal pure {
         uint256 max_coset = 1 << (vars.fri_params.max_step - 1);
 
         vars.fri_params.s_indices = new uint256[](max_coset);
@@ -117,14 +116,14 @@ contract MinaStateProof is IVerifier{
     }
 
     function verify(bytes calldata blob, uint256[][] calldata init_params,
-        int256[][][] calldata columns_rotations) public returns (bool) {
+        int256[][][] calldata columns_rotations, address gate_argument) public returns (bool) {
 
         vars_t memory vars;
         uint256 max_step;
         uint256 max_batch;
 
         // TODO: emit error?
-        if(blob.length != init_params[0][1]){
+        if (blob.length != init_params[0][1]) {
             return false;
         }
 
@@ -141,7 +140,7 @@ contract MinaStateProof is IVerifier{
         (vars.proof_map, vars.proof_size) = placeholder_proof_map_parser.parse_be(blob, vars.proof_offset);
 
         //TODO emit error?
-        if (vars.proof_size > blob.length || vars.proof_size != init_params[0][0]){
+        if (vars.proof_size > blob.length || vars.proof_size != init_params[0][0]) {
             return false;
         }
 
@@ -176,10 +175,10 @@ contract MinaStateProof is IVerifier{
 
         (vars.proof_map, vars.proof_size) = placeholder_proof_map_parser.parse_be(blob, vars.proof_offset);
 
-       //TODO emit log?
-       if (!(vars.proof_size <= blob.length)){
-           return false;
-       }
+        //TODO emit log?
+        if (!(vars.proof_size <= blob.length)) {
+            return false;
+        }
 
         init_vars(vars, init_params[2], columns_rotations[1]);
         transcript.init_transcript(vars.tr_state, hex"");

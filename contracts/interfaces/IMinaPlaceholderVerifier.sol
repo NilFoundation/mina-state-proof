@@ -26,13 +26,13 @@ import "../protocol/state.sol";
  * state proofs (user balance/zkApp state)
    */
 interface IMinaPlaceholderVerifier {
-   /**
-   * @dev Emitted when Ledger proof validation fails
+    /**
+    * @dev Emitted when Ledger proof validation fails
    */
     event LedgerProofValidationFailed();
 
-   /**
-    * @dev Emitted when Account (user balance/zkApp state) proof validation fails
+    /**
+     * @dev Emitted when Account (user balance/zkApp state) proof validation fails
     */
     event AccountProofValidationFailed();
 
@@ -75,9 +75,9 @@ interface IMinaPlaceholderVerifier {
      * @return Boolean true if account hash/proof is passes placeholder proof validation , false otherwise.
      */
     function verifyAccountState(state.account_state calldata account_state,
-        string calldata ledger_hash ,bytes calldata account_state_proof,
+        string calldata ledger_hash, bytes calldata account_state_proof,
         uint256[][] calldata init_params, int256[][][] calldata columns_rotations
-        ) external returns (bool);
+    ) external returns (bool);
 
     /**
      * @dev Validates and updates valid ledger proof
