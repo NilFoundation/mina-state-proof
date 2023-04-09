@@ -8,11 +8,11 @@
     "eth-gas-reporter": "^0.2.24",
     "ethereumjs-wallet": "^1.0.2",
     "web3": "^1.7.0",
-    "@nilfoundation/evm-placeholder-verification": "^1.0.7",
+    "@nilfoundation/evm-placeholder-verification": "^1.0.10",
     "@openzeppelin/contracts": ">=4.7.2"
   },
   "devDependencies": {
-    "@nilfoundation/evm-placeholder-verification": "^1.0.7",
+    "@nilfoundation/evm-placeholder-verification": "^1.0.10",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "@openzeppelin/contracts": "^4.8.2",

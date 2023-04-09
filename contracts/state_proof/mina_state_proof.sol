@@ -24,23 +24,23 @@ import "@nilfoundation/evm-placeholder-verification/contracts/logging.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/cryptography/transcript.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/proof_map_parser.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/placeholder_verifier.sol";
-import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/init_vars.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/verifier_state.sol";
 
 import "./components/mina_base_split_gen.sol";
 import "./components/mina_scalar_split_gen.sol";
 
 
-contract MinaStateProof is IVerifier {
+contract MinaStateProof is IPlaceholderVerifier {
 
     //TODO - Looks a lot like "placeholder/init_vars" refactor out
     struct vars_t {
-        types.fri_params_type fri_params;
+        uint256 proof_offset;
+        uint256 proof_size;
         uint256 proofs_num;
         uint256 ind;
 
+        types.fri_params_type fri_params;
         types.placeholder_proof_map proof_map;
-        uint256 proof_offset;
-        uint256 proof_size;
         types.transcript_data tr_state;
         types.placeholder_common_data common_data;
         types.arithmetization_params arithmetization_params;
@@ -147,7 +147,7 @@ contract MinaStateProof is IVerifier {
         init_vars(vars, init_params[1], columns_rotations[0]);
         transcript.init_transcript(vars.tr_state, hex"");
 
-        types.placeholder_local_variables memory local_vars;
+        types.placeholder_state_type memory local_vars;
         // 3. append variable commitments to transcript
         transcript.update_transcript_b32_by_offset_calldata(vars.tr_state, blob, basic_marshalling.skip_length(vars.proof_map.variable_values_commitment_offset));
 
@@ -157,7 +157,7 @@ contract MinaStateProof is IVerifier {
             vars.proof_map, vars.fri_params,
             vars.common_data, local_vars, vars.arithmetization_params);
         // 7. gate argument specific for circuit
-        types.gate_argument_local_vars memory gate_params;
+        types.gate_argument_state_type memory gate_params;
         gate_params.modulus = vars.fri_params.modulus;
         gate_params.theta = transcript.get_field_challenge(vars.tr_state, vars.fri_params.modulus);
         gate_params.eval_proof_witness_offset = vars.proof_map.eval_proof_variable_values_offset;
@@ -183,7 +183,7 @@ contract MinaStateProof is IVerifier {
         init_vars(vars, init_params[2], columns_rotations[1]);
         transcript.init_transcript(vars.tr_state, hex"");
 
-        types.placeholder_local_variables memory local_vars_scalar;
+        types.placeholder_state_type memory local_vars_scalar;
         // 3. append variable_values commitments to transcript
         transcript.update_transcript_b32_by_offset_calldata(vars.tr_state, blob, basic_marshalling.skip_length(vars.proof_map.variable_values_commitment_offset));
 

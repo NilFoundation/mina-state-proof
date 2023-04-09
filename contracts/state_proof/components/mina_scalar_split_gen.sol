@@ -49,12 +49,10 @@ library mina_split_gen {
     uint256 constant GATES_N = 23;
 
     // TODO: columns_rotations could be hard-coded
-    function evaluate_gates_be(
-        bytes calldata blob,
-        types.gate_argument_local_vars memory gate_params,
+    function evaluate_gates_be(bytes calldata blob,
+        types.gate_argument_state_type memory gate_params,
         types.arithmetization_params memory ar_params,
-        int256[][] memory columns_rotations
-    ) internal returns (uint256 gates_evaluation) {
+        int256[][] memory columns_rotations) internal returns (uint256 gates_evaluation) {
         // TODO: check witnesses number in proof
         profiling.start_block("mina_scalar_split_gen::evaluate_gates_be");
 
