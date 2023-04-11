@@ -19,7 +19,7 @@ git clone git@github.com:NilFoundation/mina-state-proof.git
 cd mina-state-proof
 ```
 
-## Install dependency packagages
+## Install dependency packages
 ```
 npm i
 ```
