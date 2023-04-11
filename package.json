@@ -1,6 +1,6 @@
 {
   "name": "evm-mina-state",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "dependencies": {
     "@nilfoundation/evm-placeholder-verification": "^1.0.10",
     "@openzeppelin/contracts": ">=4.7.2",
