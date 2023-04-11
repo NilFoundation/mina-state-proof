@@ -1,6 +1,6 @@
 {
   "name": "evm-mina-state",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "dependencies": {
     "@openzeppelin/contracts": ">=4.7.2",
     "@truffle/hdwallet-provider": "^2.0.1",
