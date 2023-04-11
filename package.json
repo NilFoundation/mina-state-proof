@@ -1,6 +1,6 @@
 {
   "name": "evm-mina-state",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "dependencies": {
     "@truffle/hdwallet-provider": "^2.0.1",
     "as-table": "1.0.55",
