@@ -12,7 +12,19 @@ This repository contains In-EVM Mina State verification project.
 - [nodejs](https://nodejs.org/en/) >= 16.0
 - [Ganache CLI](https://github.com/trufflesuite/ganache)
 
-## Compile 
+
+## Clone
+```
+git clone git@github.com:NilFoundation/mina-state-proof.git
+cd mina-state-proof
+```
+
+## Install dependency packages
+```
+npm i
+```
+
+## Compile contracts 
 ```
 npx hardhat compile
 ```
