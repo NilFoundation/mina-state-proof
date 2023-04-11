@@ -1,5 +1,5 @@
 {
-  "name": "evm-mina-state",
+  "name": "@nilfoundation/evm-mina-state",
   "version": "1.0.3",
   "dependencies": {
     "@nilfoundation/evm-placeholder-verification": "^1.0.10",
