@@ -1,15 +1,6 @@
 {
   "name": "evm-mina-state",
   "version": "1.0.0",
-  "dependencies": {
-    "@openzeppelin/contracts": ">=4.7.2",
-    "@truffle/hdwallet-provider": "^2.0.1",
-    "as-table": "1.0.55",
-    "bip39": "^3.0.4",
-    "eth-gas-reporter": "^0.2.24",
-    "ethereumjs-wallet": "^1.0.2",
-    "web3": "^1.7.0"
-  },
   "devDependencies": {
     "@nilfoundation/evm-placeholder-verification": "^1.0.10",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
@@ -19,7 +10,14 @@
     "ethers": "^5.7.2",
     "hardhat": "^2.13.0",
     "hardhat-deploy": "^0.11.25",
-    "hardhat-deploy-ethers": "^0.4.0-next.1"
+    "hardhat-deploy-ethers": "^0.4.0-next.1",
+    "@openzeppelin/contracts": ">=4.7.2",
+    "@truffle/hdwallet-provider": "^2.0.1",
+    "as-table": "1.0.55",
+    "bip39": "^3.0.4",
+    "eth-gas-reporter": "^0.2.24",
+    "ethereumjs-wallet": "^1.0.2",
+    "web3": "^1.7.0"
   },
   "directories": {
     "src": "src",
