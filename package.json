@@ -3,20 +3,22 @@
   "version": "1.0.4",
   "dependencies": {
     "@nilfoundation/evm-placeholder-verification": "^1.0.10",
-    "@openzeppelin/contracts": "^4.8.2",
+    "@openzeppelin/contracts": ">=4.7.2",
     "@truffle/hdwallet-provider": "^2.0.1",
     "as-table": "1.0.55",
     "bip39": "^3.0.4",
     "eth-gas-reporter": "^0.2.24",
     "ethereumjs-wallet": "^1.0.2",
-    "hardhat": "^2.13.0",
-    "hardhat-deploy": "^0.11.25",
-    "hardhat-deploy-ethers": "^0.4.0-next.1",
-    "web3": "^1.7.0",
+    "web3": "^1.7.0"
+  },
+  "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.2.2",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2",
-    "@nomiclabs/hardhat-ethers": "^2.2.2"
+    "hardhat": "^2.13.0",
+    "hardhat-deploy": "^0.11.25",
+    "hardhat-deploy-ethers": "^0.4.0-next.1"
   },
   "directories": {
     "src": "src",
