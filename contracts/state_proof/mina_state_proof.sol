@@ -46,7 +46,7 @@ contract MinaStateProof is IPlaceholderVerifier {
         types.arithmetization_params arithmetization_params;
     }
 
-    function init_vars(vars_t memory vars, uint256[] memory init_params, int256[][] memory columns_rotations) internal view {
+    function init_vars(vars_t memory vars, uint256[] memory init_params, int256[][] memory columns_rotations) internal pure {
         uint256 idx = 0;
         vars.fri_params.modulus = init_params[idx++];
         vars.fri_params.r = init_params[idx++];
