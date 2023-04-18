@@ -19,33 +19,32 @@
 pragma solidity >=0.8.4;
 
 import "@nilfoundation/evm-placeholder-verification/contracts/types.sol";
+import "./gate_argument.sol";
 
-// TODO: name component
 library mina_base_gate16 {
     uint256 constant MODULUS_OFFSET = 0x0;
     uint256 constant THETA_OFFSET = 0x20;
-    uint256 constant CONSTRAINT_EVAL_OFFSET = 0x40;
-    uint256 constant GATE_EVAL_OFFSET = 0x60;
-    uint256 constant WITNESS_EVALUATIONS_OFFSET_OFFSET = 0x80;
-    uint256 constant SELECTOR_EVALUATIONS_OFFSET = 0xa0;
-    uint256 constant EVAL_PROOF_WITNESS_OFFSET_OFFSET = 0xc0;
-    uint256 constant EVAL_PROOF_SELECTOR_OFFSET_OFFSET = 0xe0;
-    uint256 constant GATES_EVALUATION_OFFSET = 0x100;
-    uint256 constant THETA_ACC_OFFSET = 0x120;
-    uint256 constant SELECTOR_EVALUATIONS_OFFSET_OFFSET = 0x140;
-    uint256 constant OFFSET_OFFSET = 0x160;
-    uint256 constant WITNESS_EVALUATIONS_OFFSET = 0x180;
-    uint256 constant CONSTANT_EVALUATIONS_OFFSET = 0x1a0;
-    uint256 constant PUBLIC_INPUT_EVALUATIONS_OFFSET = 0x1c0;
+
+    uint256 constant CONSTRAINT_EVAL_OFFSET = 0x00;
+    uint256 constant GATE_EVAL_OFFSET = 0x20;
+    uint256 constant GATES_EVALUATIONS_OFFSET = 0x40;
+    uint256 constant THETA_ACC_OFFSET = 0x60;
+    uint256 constant WITNESS_EVALUATIONS_OFFSET = 0x80;
+    uint256 constant CONSTANT_EVALUATIONS_OFFSET = 0xa0;
+    uint256 constant SELECTOR_EVALUATIONS_OFFSET =0xc0;
 
     // TODO: columns_rotations could be hard-coded
-    function evaluate_gate_be(types.gate_argument_state_type memory gate_params)
-    external pure returns (uint256 gates_evaluation, uint256 theta_acc) {
-        gates_evaluation = gate_params.gates_evaluation;
-        theta_acc = gate_params.theta_acc;
+    function evaluate_gate_be(
+        types.gate_argument_params memory gate_params,
+        mina_base_split_gen.local_vars_type memory local_vars
+    ) external pure returns (uint256 gates_evaluation, uint256 theta_acc) {
+        gates_evaluation = local_vars.gates_evaluation;
+        theta_acc = local_vars.theta_acc;
         assembly {
             let modulus := mload(gate_params)
-            mstore(add(gate_params, GATE_EVAL_OFFSET), 0)
+            let theta:= mload(add(gate_params, THETA_OFFSET))
+
+            mstore(add(local_vars, GATE_EVAL_OFFSET), 0)
 
             function get_eval_i_by_rotation_idx(idx, rot_idx, ptr) -> result {
                 result := mload(
@@ -61,74 +60,74 @@ library mina_base_gate16 {
             }
 
             // TODO: insert generated code for gate argument evaluation here
-            let x1 := add(gate_params, CONSTRAINT_EVAL_OFFSET)
-            let x2 := add(gate_params, WITNESS_EVALUATIONS_OFFSET)
-            mstore(add(gate_params, GATE_EVAL_OFFSET), 0)
+            let x1 := add(local_vars, CONSTRAINT_EVAL_OFFSET)
+            let x2 := add(local_vars, WITNESS_EVALUATIONS_OFFSET)
+            mstore(add(local_vars, GATE_EVAL_OFFSET), 0)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(2,0, mload(x2)),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(2,0, mload(x2)),get_eval_i_by_rotation_idx(2,0, mload(x2)), modulus),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(3,0, mload(x2)),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(3,0, mload(x2)),get_eval_i_by_rotation_idx(3,0, mload(x2)), modulus),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(4,0, mload(x2)),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(4,0, mload(x2)),get_eval_i_by_rotation_idx(4,0, mload(x2)), modulus),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(5,0, mload(x2)),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(5,0, mload(x2)),get_eval_i_by_rotation_idx(5,0, mload(x2)), modulus),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(6,0, mload(x2)),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(6,0, mload(x2)),get_eval_i_by_rotation_idx(6,0, mload(x2)), modulus),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(7,0, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(2,2, mload(x2)),get_eval_i_by_rotation_idx(7,0, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(2,0, mload(x2)),get_eval_i_by_rotation_idx(1,2, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(1,2, mload(x2)),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(3,2, mload(x2)),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(8,0, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(7,2, mload(x2)),get_eval_i_by_rotation_idx(8,0, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(3,0, mload(x2)),get_eval_i_by_rotation_idx(1,2, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(1,2, mload(x2)),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(8,2, mload(x2)),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(9,0, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(9,2, mload(x2)),get_eval_i_by_rotation_idx(9,0, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(4,0, mload(x2)),get_eval_i_by_rotation_idx(1,2, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(1,2, mload(x2)),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(10,2, mload(x2)),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(10,0, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(11,2, mload(x2)),get_eval_i_by_rotation_idx(10,0, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(5,0, mload(x2)),get_eval_i_by_rotation_idx(1,2, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(1,2, mload(x2)),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(12,1, mload(x2)),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(11,0, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(13,1, mload(x2)),get_eval_i_by_rotation_idx(11,0, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(6,0, mload(x2)),get_eval_i_by_rotation_idx(1,2, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(1,2, mload(x2)),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(14,1, mload(x2)),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x4,mulmod(get_eval_i_by_rotation_idx(3,2, mload(x2)),get_eval_i_by_rotation_idx(3,2, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ecfffffffd,mulmod(get_eval_i_by_rotation_idx(3,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(2,2, mload(x2)),get_eval_i_by_rotation_idx(7,0, mload(x2)), modulus), modulus),modulus),modulus))
@@ -173,8 +172,8 @@ library mina_base_gate16 {
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(0,2, mload(x2)), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(7,2, mload(x2)), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(7,0, mload(x2)),get_eval_i_by_rotation_idx(7,0, mload(x2)), modulus), modulus), modulus),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x4,mulmod(get_eval_i_by_rotation_idx(8,2, mload(x2)),get_eval_i_by_rotation_idx(8,2, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ecfffffffd,mulmod(get_eval_i_by_rotation_idx(8,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(7,2, mload(x2)),get_eval_i_by_rotation_idx(8,0, mload(x2)), modulus), modulus),modulus),modulus))
@@ -219,8 +218,8 @@ library mina_base_gate16 {
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(0,2, mload(x2)), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(9,2, mload(x2)), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,0, mload(x2)),get_eval_i_by_rotation_idx(8,0, mload(x2)), modulus), modulus), modulus),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x4,mulmod(get_eval_i_by_rotation_idx(10,2, mload(x2)),get_eval_i_by_rotation_idx(10,2, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ecfffffffd,mulmod(get_eval_i_by_rotation_idx(10,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(9,2, mload(x2)),get_eval_i_by_rotation_idx(9,0, mload(x2)), modulus), modulus),modulus),modulus))
@@ -265,8 +264,8 @@ library mina_base_gate16 {
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(0,2, mload(x2)), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(11,2, mload(x2)), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(9,0, mload(x2)),get_eval_i_by_rotation_idx(9,0, mload(x2)), modulus), modulus), modulus),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x4,mulmod(get_eval_i_by_rotation_idx(12,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(12,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ecfffffffd,mulmod(get_eval_i_by_rotation_idx(12,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(10,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
@@ -311,8 +310,8 @@ library mina_base_gate16 {
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(13,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(10,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(10,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus), modulus),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x4,mulmod(get_eval_i_by_rotation_idx(14,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(14,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ecfffffffd,mulmod(get_eval_i_by_rotation_idx(14,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(13,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
@@ -357,8 +356,8 @@ library mina_base_gate16 {
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus), modulus),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(3,2, mload(x2)),get_eval_i_by_rotation_idx(2,2, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(3,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(7,0, mload(x2)),get_eval_i_by_rotation_idx(7,0, mload(x2)), modulus), modulus),modulus),modulus))
@@ -374,8 +373,8 @@ library mina_base_gate16 {
             mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(2,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(2,2, mload(x2)),get_eval_i_by_rotation_idx(7,0, mload(x2)), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(2,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(7,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(7,0, mload(x2)),get_eval_i_by_rotation_idx(7,0, mload(x2)), modulus), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(2,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(7,0, mload(x2)), modulus), modulus),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
             mstore(x1, 0)
             mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(8,2, mload(x2)),get_eval_i_by_rotation_idx(7,2, mload(x2)), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(8,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,0, mload(x2)),get_eval_i_by_rotation_idx(8,0, mload(x2)), modulus), modulus),modulus),modulus))
@@ -391,8 +390,8 @@ library mina_base_gate16 {
             mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(7,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(7,2, mload(x2)),get_eval_i_by_rotation_idx(8,0, mload(x2)), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(7,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,0, mload(x2)),get_eval_i_by_rotation_idx(8,0, mload(x2)), modulus), modulus), modulus),modulus),modulus))
             mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(7,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(8,0, mload(x2)), modulus), modulus),modulus),modulus))
-            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+            theta_acc := mulmod(theta_acc,theta,modulus)
 //            mstore(x1, 0)
 //            mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(10,2, mload(x2)),get_eval_i_by_rotation_idx(9,2, mload(x2)), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(10,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(9,0, mload(x2)),get_eval_i_by_rotation_idx(9,0, mload(x2)), modulus), modulus),modulus),modulus))
@@ -408,8 +407,8 @@ library mina_base_gate16 {
 //            mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(9,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(9,2, mload(x2)),get_eval_i_by_rotation_idx(9,0, mload(x2)), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(9,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(9,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(9,0, mload(x2)),get_eval_i_by_rotation_idx(9,0, mload(x2)), modulus), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(9,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),get_eval_i_by_rotation_idx(9,0, mload(x2)), modulus), modulus),modulus),modulus))
-//            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-//            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+//            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+//            theta_acc := mulmod(theta_acc,theta,modulus)
 //            mstore(x1, 0)
 //            mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(12,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(12,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(10,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(10,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
@@ -425,8 +424,8 @@ library mina_base_gate16 {
 //            mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(11,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(10,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(11,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(10,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(10,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(10,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(11,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(10,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
-//            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-//            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+//            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+//            theta_acc := mulmod(theta_acc,theta,modulus)
 //            mstore(x1, 0)
 //            mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(14,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(13,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(14,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
@@ -442,8 +441,8 @@ library mina_base_gate16 {
 //            mstore(x1,addmod(mload(x1),mulmod(0x2,mulmod(get_eval_i_by_rotation_idx(13,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(13,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(13,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(13,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(0,2, mload(x2)),mulmod(get_eval_i_by_rotation_idx(11,0, mload(x2)),mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),get_eval_i_by_rotation_idx(2,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
-//            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-//            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+//            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+//            theta_acc := mulmod(theta_acc,theta,modulus)
 //            mstore(x1, 0)
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ecffffffe1,get_eval_i_by_rotation_idx(4,2, mload(x2)),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ecfffffff1,get_eval_i_by_rotation_idx(2,0, mload(x2)),modulus),modulus))
@@ -452,13 +451,13 @@ library mina_base_gate16 {
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ecffffffff,get_eval_i_by_rotation_idx(5,0, mload(x2)),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(6,0, mload(x2)),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x1,get_eval_i_by_rotation_idx(5,2, mload(x2)),modulus),modulus))
-//            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-//            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+//            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+//            theta_acc := mulmod(theta_acc,theta,modulus)
 //            mstore(x1, 0)
 //            mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(2,1, mload(x2)),get_eval_i_by_rotation_idx(8,1, mload(x2)), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(8,1, mload(x2)),modulus),modulus))
-//            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-//            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+//            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+//            theta_acc := mulmod(theta_acc,theta,modulus)
 //            mstore(x1, 0)
 //            mstore(x1,addmod(mload(x1),0x224698fc0994a8dd8c46eb2100000000,modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(5,1, mload(x2)),modulus),modulus))
@@ -466,8 +465,8 @@ library mina_base_gate16 {
 //            mstore(x1,addmod(mload(x1),mulmod(0x3fffffffffffffffffffffffffffffffffffffffffb8503e0ce645cc00000001,mulmod(get_eval_i_by_rotation_idx(3,1, mload(x2)),get_eval_i_by_rotation_idx(5,1, mload(x2)), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x3fffffffffffffffffffffffffffffffffffffffffb8503e0ce645cc00000001,mulmod(get_eval_i_by_rotation_idx(5,1, mload(x2)),get_eval_i_by_rotation_idx(3,1, mload(x2)), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(5,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(3,1, mload(x2)),get_eval_i_by_rotation_idx(5,1, mload(x2)), modulus), modulus),modulus),modulus))
-//            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-//            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+//            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+//            theta_acc := mulmod(theta_acc,theta,modulus)
 //            mstore(x1, 0)
 //            mstore(x1,addmod(mload(x1),0x224698fc0994a8dd8c46eb2100000001,modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(5,1, mload(x2)),modulus),modulus))
@@ -475,8 +474,8 @@ library mina_base_gate16 {
 //            mstore(x1,addmod(mload(x1),mulmod(0x3fffffffffffffffffffffffffffffffffffffffffb8503e0ce645cc00000000,mulmod(get_eval_i_by_rotation_idx(4,1, mload(x2)),get_eval_i_by_rotation_idx(5,1, mload(x2)), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x3fffffffffffffffffffffffffffffffffffffffffb8503e0ce645cc00000000,mulmod(get_eval_i_by_rotation_idx(5,1, mload(x2)),get_eval_i_by_rotation_idx(4,1, mload(x2)), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(5,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(4,1, mload(x2)),get_eval_i_by_rotation_idx(5,1, mload(x2)), modulus), modulus),modulus),modulus))
-//            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-//            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+//            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+//            theta_acc := mulmod(theta_acc,theta,modulus)
 //            mstore(x1, 0)
 //            mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(2,1, mload(x2)),get_eval_i_by_rotation_idx(0,0, mload(x2)), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x496d41af7ccfdaa97fae231004ccf58c412ebcb86019a410000000000000000,mulmod(get_eval_i_by_rotation_idx(3,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(3,1, mload(x2)),get_eval_i_by_rotation_idx(6,1, mload(x2)), modulus), modulus),modulus),modulus))
@@ -496,8 +495,8 @@ library mina_base_gate16 {
 //            mstore(x1,addmod(mload(x1),mulmod(0x3fffffffffffffffffffffffffffffffffffffffffb8503e0ce645cc00000000,mulmod(get_eval_i_by_rotation_idx(5,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(4,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(4,1, mload(x2)),get_eval_i_by_rotation_idx(6,1, mload(x2)), modulus), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(5,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(4,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(5,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(4,1, mload(x2)),get_eval_i_by_rotation_idx(6,1, mload(x2)), modulus), modulus), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(0,1, mload(x2)),modulus),modulus))
-//            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-//            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+//            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+//            theta_acc := mulmod(theta_acc,theta,modulus)
 //            mstore(x1, 0)
 //            mstore(x1,addmod(mload(x1),mulmod(0x1,mulmod(get_eval_i_by_rotation_idx(8,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(2,1, mload(x2)),get_eval_i_by_rotation_idx(1,0, mload(x2)), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x3fffffffffffffffffffffffffffffffffffffffffb8503e0ce645cc00000001,mulmod(get_eval_i_by_rotation_idx(3,1, mload(x2)),get_eval_i_by_rotation_idx(7,1, mload(x2)), modulus),modulus),modulus))
@@ -505,8 +504,8 @@ library mina_base_gate16 {
 //            mstore(x1,addmod(mload(x1),mulmod(0x224698fc0994a8dd8c46eb2100000001,mulmod(get_eval_i_by_rotation_idx(4,1, mload(x2)),get_eval_i_by_rotation_idx(7,1, mload(x2)), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(5,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(4,1, mload(x2)),get_eval_i_by_rotation_idx(7,1, mload(x2)), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,get_eval_i_by_rotation_idx(1,1, mload(x2)),modulus),modulus))
-//            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-//            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
+//            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+//            theta_acc := mulmod(theta_acc,theta,modulus)
 //            mstore(x1, 0)
 //            mstore(x1,addmod(mload(x1),0x2a1a93d689e9f8b44bf04c0fd60a0f9af9d508bd2e179c458fd2678ffbb69a75,modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x3b692be5082e35c713e4bee4711f3ce0b48cd2bd5745ac11d309bb5c80000001,get_eval_i_by_rotation_idx(5,1, mload(x2)),modulus),modulus))
@@ -517,12 +516,12 @@ library mina_base_gate16 {
 //            mstore(x1,addmod(mload(x1),mulmod(0x224698fc0994a8dd8c46eb2100000001,mulmod(get_eval_i_by_rotation_idx(5,1, mload(x2)),get_eval_i_by_rotation_idx(5,1, mload(x2)), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x40000000000000000000000000000000224698fc094cf91b992d30ed00000000,mulmod(get_eval_i_by_rotation_idx(5,1, mload(x2)),mulmod(get_eval_i_by_rotation_idx(5,1, mload(x2)),get_eval_i_by_rotation_idx(5,1, mload(x2)), modulus), modulus),modulus),modulus))
 //            mstore(x1,addmod(mload(x1),mulmod(0x1,get_eval_i_by_rotation_idx(8,1, mload(x2)),modulus),modulus))
-//            mstore(add(gate_params, GATE_EVAL_OFFSET),addmod(mload(add(gate_params, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
-//            theta_acc := mulmod(theta_acc,mload(add(gate_params, THETA_OFFSET)),modulus)
-//            mstore(add(gate_params, GATE_EVAL_OFFSET),mulmod(mload(add(gate_params, GATE_EVAL_OFFSET)),get_selector_i(16,mload(add(gate_params, SELECTOR_EVALUATIONS_OFFSET))),modulus))
-//            gates_evaluation := addmod(gates_evaluation,mload(add(gate_params, GATE_EVAL_OFFSET)),modulus)
+//            mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(x1),theta_acc,modulus),modulus))
+//            theta_acc := mulmod(theta_acc,theta,modulus)
+//            mstore(add(local_vars, GATE_EVAL_OFFSET),mulmod(mload(add(local_vars, GATE_EVAL_OFFSET)),get_selector_i(16,mload(add(local_vars, SELECTOR_EVALUATIONS_OFFSET))),modulus))
+//            gates_evaluation := addmod(gates_evaluation,mload(add(local_vars, GATE_EVAL_OFFSET)),modulus)
 
-            gates_evaluation := mload(add(gate_params, GATE_EVAL_OFFSET))
+            gates_evaluation := mload(add(local_vars, GATE_EVAL_OFFSET))
         }
     }
 }

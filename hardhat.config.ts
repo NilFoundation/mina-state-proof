@@ -3,6 +3,7 @@ require("@nomicfoundation/hardhat-toolbox");
 require("@nomiclabs/hardhat-ethers");
 require("hardhat-deploy");
 require('hardhat-deploy-ethers')
+require("hardhat-contract-sizer");
 
 import './tasks/mina-validate-proof-task'
 
@@ -17,7 +18,7 @@ module.exports = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 1200,
+        runs: 200,
       },
     },
   },
@@ -33,10 +34,12 @@ module.exports = {
     //   accounts: [SEPOLIA_PRIVATE_KEY]
     // },
     ganache: {
+      blockGasLimit: 100_000_000,
       url: "http://127.0.0.1:8545",
     }
   },
   etherscan: {
     apiKey: ETHERSCAN_KEY,
   },
+  allowUnlimitedContractSize:true
 };
