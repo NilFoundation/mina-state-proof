@@ -32,7 +32,7 @@ module.exports = {
     //   url: `https://eth-sepolia.g.alchemy.com/v2/${SEPOLIA_ALCHEMY_KEY}`,
     //   accounts: [SEPOLIA_PRIVATE_KEY]
     // },
-    ganache: {
+    localhost: {
       url: "http://127.0.0.1:8545",
     }
   },
