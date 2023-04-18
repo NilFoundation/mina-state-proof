@@ -1,7 +1,8 @@
 {
   "name": "@nilfoundation/evm-mina-state",
-  "version": "1.0.4",
-  "dependencies": {
+  "version": "1.0.6",
+  "devDependencies": {
+    "@nilfoundation/evm-placeholder-verification": "^1.0.10",
     "@openzeppelin/contracts": ">=4.7.2",
     "@truffle/hdwallet-provider": "^2.0.1",
     "as-table": "1.0.55",
@@ -15,7 +16,6 @@
     "@nilfoundation/evm-placeholder-verification": "github:NilFoundation/evm-placeholder-verification#37-merge-33-and-17",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
-    "@openzeppelin/contracts": "^4.8.2",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2",
     "hardhat": "^2.13.0",

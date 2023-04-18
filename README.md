@@ -4,13 +4,12 @@
 [![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=flat-square&logo=telegram&logoColor=dark)](https://t.me/nilfoundation)
 [![Twitter](https://img.shields.io/twitter/follow/nil_foundation)](https://twitter.com/nil_foundation)
 
-This repository contains In-EVM Mina State verification project. 
+This repository contains In-EVM Mina State verification project.
 
 ## Dependencies
 
 - [Hardhat](https://hardhat.org/)
 - [nodejs](https://nodejs.org/en/) >= 16.0
-- [Ganache CLI](https://github.com/trufflesuite/ganache)
 
 
 ## Clone
@@ -24,7 +23,7 @@ cd mina-state-proof
 npm i
 ```
 
-## Compile contracts 
+## Compile contracts
 ```
 npx hardhat compile
 ```
@@ -37,21 +36,21 @@ REPORT_GAS=true npx hardhat test # Test with gas reporting
 
 ## Deploy
 
-Launch ganache using the following
+Launch a local-network using the following
 ```
-ganache-cli -l 900000000 -m 'test test test test test test test test test test test junk' -g 20000 --verbose
+npx hardhat node
 ```
- 
+
 To deploy to test environment (ex: Ganache)
 ```
-npx hardhat deploy  --network ganache 
+npx hardhat deploy  --network localhost 
 ```
 
 Hardhat re-uses old deployments, to force re-deploy add the `--reset` flag above
 
 ## Usage
 
-Below are two tasks that execute flows to validate the ledger state and validate the account state. 
+Below are two tasks that execute flows to validate the ledger state and validate the account state.
 Please note, these work against the above deployment, hence, you must run the deployment before executing
 the following.
 
@@ -59,7 +58,7 @@ the following.
 ```
 npx hardhat validate_ledger_state --proof ./test/data/proof_v.data \ 
 --ledger jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB \  
---network ganache
+--network localhost
 ```
 Inputs
 - _proof : File path with the full Mina ledger state proof retrieved from proof market._
@@ -72,7 +71,7 @@ Inputs
 npx hardhat validate_account_state --proof dummyFlag \  
 --state ./examples/data/account_data.json \
 --ledger jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB \ 
---network ganache
+--network localhost
 ```
 Inputs
 - _proof : File path of the account state proof retrieved from the proof market._

@@ -36,6 +36,9 @@ module.exports = {
     ganache: {
       blockGasLimit: 100_000_000,
       url: "http://127.0.0.1:8545",
+    },
+    localhost: {
+      url: "http://127.0.0.1:8545",
     }
   },
   etherscan: {

@@ -19,7 +19,6 @@
 pragma solidity >=0.8.4;
 
 import '@nilfoundation/evm-placeholder-verification/contracts/interfaces/verifier.sol';
-
 contract MinaStateProof {
     function verify(bytes calldata blob, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations, address verifier_address,
