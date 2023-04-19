@@ -2,18 +2,7 @@
   "name": "@nilfoundation/evm-mina-state",
   "version": "1.0.6",
   "devDependencies": {
-    "@nilfoundation/evm-placeholder-verification": "^1.0.10",
-    "@openzeppelin/contracts": ">=4.7.2",
-    "@truffle/hdwallet-provider": "^2.0.1",
-    "as-table": "1.0.55",
-    "bip39": "^3.0.4",
-    "eth-gas-reporter": "^0.2.24",
-    "ethereumjs-wallet": "^1.0.2",
-    "lossless-json": "^2.0.8",
-    "web3": "^1.7.0"
-  },
-  "devDependencies": {
-    "@nilfoundation/evm-placeholder-verification": "github:NilFoundation/evm-placeholder-verification#37-merge-33-and-17",
+    "@nilfoundation/evm-placeholder-verification": "github:NilFoundation/evm-placeholder-verification#17-calldata-gas-marshalling-reduce",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "dotenv": "^16.0.3",
@@ -40,5 +29,9 @@
     "url": "https://github.com/nilfoundation/mina-state-proof/issues"
   },
   "homepage": "https://github.com/nilfoundation/mina-state-proof#readme",
-  "description": "In-EVM Mina State Management"
+  "description": "In-EVM Mina State Management",
+  "dependencies": {
+    "lossless-json": "^2.0.8",
+    "tarball": "^0.0.5"
+  }
 }
