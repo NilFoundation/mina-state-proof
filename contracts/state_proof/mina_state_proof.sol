@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0.
 //---------------------------------------------------------------------------//
-// Copyright (c) 2022 Mikhail Komarov <nemo@nil.foundation>
+// Copyright (c) 2023 Mikhail Komarov <nemo@nil.foundation>
 // Copyright (c) 2022 Ilias Khairullin <ilias@nil.foundation>
 // Copyright (c) 2022 Aleksei Moskvin <alalmoskvin@nil.foundation>
 //
@@ -18,24 +18,45 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 import '@nilfoundation/evm-placeholder-verification/contracts/interfaces/verifier.sol';
-contract MinaStateProof {
+
+contract MinaStateProof is Ownable {
+    address _verifier;
+
+    address _base_gates;
+    address _scalar_gates;
+
+    constructor(address verifier, address base_gates, address scalar_gates) {
+        _verifier = verifier;
+        _base_gates = base_gates;
+        _scalar_gates = scalar_gates;
+    }
+
+    function setVerifier(address verifier) onlyOwner {
+        _verifier = verifier;
+    }
+
+    function setBaseGates(address base_gates) onlyOwner {
+        _base_gates = base_gates;
+    }
+
+    function setScalarGates(address scalar_gates) onlyOwner {
+        _scalar_gates = scalar_gates;
+    }
+
     function verify(bytes calldata blob, uint256[][] calldata init_params,
-        int256[][][] calldata columns_rotations, address verifier_address,
-        address[2] calldata gate_arguments
-    ) external view returns (bool) {
+        int256[][][] calldata columns_rotations) external view returns (bool) {
         uint256 size1 = init_params[0][0];
         uint256 size2 = init_params[0][1];
 
-        if( size1 + size2 != blob.length) {
-            return false;
-        }
+        IVerifier v = IVerifier(_verifier);
 
-        // Base proof verification
-        if( !IVerifier(verifier_address).verify(blob[0:init_params[0][0]], init_params[1], columns_rotations[0], gate_arguments[0]) ) return false;
-        // Scalar proof verification
-        if( !IVerifier(verifier_address).verify(blob[init_params[0][0]: blob.length], init_params[2], columns_rotations[1], gate_arguments[1]) ) return false;
-
-        return true;
+        return size1 + size2 == blob.length &&
+        v.verify(blob[0 : size1],
+            init_params[1], columns_rotations[0], base_gates) &&
+        v.verify(blob[size1 : blob.length],
+            init_params[2], columns_rotations[1], scalar_gates);
     }
 }

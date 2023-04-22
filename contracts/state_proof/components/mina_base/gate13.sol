@@ -19,6 +19,7 @@
 pragma solidity >=0.8.4;
 
 import "@nilfoundation/evm-placeholder-verification/contracts/types.sol";
+
 import "./gate_argument.sol";
 
 library mina_base_gate13 {

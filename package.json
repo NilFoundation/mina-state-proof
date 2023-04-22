@@ -2,7 +2,7 @@
   "name": "@nilfoundation/evm-mina-state",
   "version": "1.0.6",
   "devDependencies": {
-    "@nilfoundation/evm-placeholder-verification": "github:NilFoundation/evm-placeholder-verification#17-calldata-gas-marshalling-reduce",
+    "@nilfoundation/evm-placeholder-verification": "^1.0.11",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "dotenv": "^16.0.3",

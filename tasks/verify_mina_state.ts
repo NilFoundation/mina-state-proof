@@ -132,7 +132,7 @@ function getVerifierParams() {
     return params;
 }
 
-task("validate_ledger_state", "Validate entire mina ledger state")
+task("validate_ledger_state", "Validate Mina's state proof")
     .addParam("proof")
     .addParam("ledger")
     .setAction(async ({proof, ledger: ledger}, hre) => {
@@ -143,14 +143,18 @@ task("validate_ledger_state", "Validate entire mina ledger state")
         console.log(ledger)
         let params = getVerifierParams();
         let inputProof = getFileContents(proof);
-        let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
-        let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-        const tx = await minaPlaceholderVerifierIF.updateLedgerProof(ledger, inputProof, params['init_params'], params['columns_rotations'], {gasLimit: 40_500_000})
-        const receipt = await tx.wait()
-        console.log(receipt)
+        let placeholderVerifier = await ethers.getContract('PlaceholderVerifier');
+        let baseGates = await ethers.getContract('mina_base_split_gen');
+        let scalarGates = await ethers.getContract('mina_scalar_split_gen');
+        let minaStateProof = await ethers.getContractAt("MinaStateProof",
+            placeholderVerifier.address, baseGates.address, scalarGates.address);
+        let minaPlaceholderVerifier = await ethers.getContractAt('IMinaPlaceholderVerifier', minaStateProof.address);
+        const tx = await minaPlaceholderVerifier.updateLedgerProof(ledger, inputProof, params['init_params'], params['columns_rotations'], {gasLimit: 40_500_000});
+        const receipt = await tx.wait();
+        console.log(receipt);
     });
 
-task("validate_account_state", "Validate entire mina ledger state")
+task("validate_account_state", "Validate Mina's account state")
     .addParam("proof")
     .addParam("ledger")
     .addParam("state")
@@ -163,9 +167,15 @@ task("validate_account_state", "Validate entire mina ledger state")
         let accountState = JSON.parse(getFileContents(state));
         accountState.state = accountState.state.split(",");
         const dummyAccountProof = "0x112233445566778899";
-        let minaPlaceholderVerifier = await ethers.getContract('MinaPlaceholderVerifier');
-        let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-        let tx = await minaPlaceholderVerifierIF.verifyAccountState(accountState, ledger, dummyAccountProof, params['init_params'], params['columns_rotations'], {gasLimit: 40_500_000});
+        let placeholderVerifier = await ethers.getContract('PlaceholderVerifier');
+        let baseGates = await ethers.getContract('mina_base_split_gen');
+        let scalarGates = await ethers.getContract('mina_scalar_split_gen');
+        let minaStateProof = await ethers.getContractAt("MinaStateProof",
+            placeholderVerifier.address, baseGates.address, scalarGates.address);
+        let minaPlaceholderVerifier = await ethers.getContractAt('IMinaPlaceholderVerifier',
+            minaStateProof.address);
+        let tx = await minaPlaceholderVerifier.verifyAccountState(accountState, ledger,
+            dummyAccountProof, params['init_params'], params['columns_rotations'], {gasLimit: 40_500_000});
         const receipt = await tx.wait()
         console.log(receipt)
     });

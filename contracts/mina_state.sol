@@ -28,12 +28,17 @@ import "./state_proof/mina_state_proof.sol";
 /**
  * @dev Interface implementation of IMinaPlaceholderVerifier.
  */
-contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
-    MinaStateProof mina_state_proof;
+contract MinaState is IMinaPlaceholderVerifier, Ownable {
+    MinaStateProof _state_proof;
+
     mapping(bytes32 => bool) validatedLedgers;
 
-    constructor() {
-        mina_state_proof = new MinaStateProof();
+    constructor(address state_proof) {
+        _state_proof = MinaStateProof(state_proof);
+    }
+
+    function setStateProofVerifier(address state_proof) onlyOwner {
+        _state_proof = MinaStateProof(state_proof);
     }
 
     /// @inheritdoc IMinaPlaceholderVerifier
@@ -44,24 +49,21 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
     /// @inheritdoc IMinaPlaceholderVerifier
     function verifyLedgerState(string calldata ledger_hash,
         bytes calldata proof, uint256[][] calldata init_params,
-        int256[][][] calldata columns_rotations, 
-        address verifier_address, address[2] calldata gate_arguments
-    ) external returns (bool) {
-        if (!this.isValidatedLedgerHash(ledger_hash)){
-            if (!mina_state_proof.verify(proof, init_params, columns_rotations, verifier_address, gate_arguments)){
+        int256[][][] calldata columns_rotations) external returns (bool) {
+        if (!this.isValidatedLedgerHash(ledger_hash)) {
+            if (!_state_proof.verify(proof, init_params, columns_rotations)) {
                 emit LedgerProofValidationFailed();
                 return false;
-            }                
-        } 
+            }
+        }
         emit LedgerProofValidationAccepted();
         return true;
     }
 
     /// @inheritdoc IMinaPlaceholderVerifier
     function verifyAccountState(state.account_state calldata account_state, string calldata ledger_hash,
-        bytes calldata account_state_proof,
-        uint256[][] calldata init_params, int256[][][] calldata columns_rotations
-    ) external returns (bool) {
+        bytes calldata account_state_proof, uint256[][] calldata init_params,
+        int256[][][] calldata columns_rotations) external returns (bool) {
         if (!this.isValidatedLedgerHash(ledger_hash)) {
             emit InvalidLedgerHash();
             emit AccountProofValidationFailed();
@@ -70,18 +72,12 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
     }
 
     /// @inheritdoc IMinaPlaceholderVerifier
-    function updateLedgerProof(
-        string calldata ledger_hash, 
-        bytes calldata proof, 
+    function updateLedgerProof(string calldata ledger_hash,
+        bytes calldata proof,
         uint256[][] calldata init_params,
-        int256[][][] calldata columns_rotations, 
-        address verifier_address,
-        address[2] calldata gate_arguments
-    ) external{
-        if(this.verifyLedgerState(
-            ledger_hash, proof, init_params, columns_rotations, 
-            verifier_address, gate_arguments
-        )) {
+        int256[][][] calldata columns_rotations) external {
+        if (this.verifyLedgerState(
+                ledger_hash, proof, init_params, columns_rotations)) {
             validatedLedgers[keccak256(bytes(ledger_hash))] = true;
             emit LedgerProofValidatedAndUpdated();
         }

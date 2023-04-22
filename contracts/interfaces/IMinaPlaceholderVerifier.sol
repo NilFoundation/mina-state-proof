@@ -68,10 +68,7 @@ interface IMinaPlaceholderVerifier {
      * @return Boolean true if ledger hash/proof is passes placeholder proof validation , false otherwise.
      */
     function verifyLedgerState(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,
-        int256[][][] calldata columns_rotations, 
-        address verifier_address,
-        address[2] calldata gate_arguments
-    ) external returns (bool);
+        int256[][][] calldata columns_rotations) external returns (bool);
 
     /**
      * @dev Validates account state proof
@@ -98,8 +95,5 @@ interface IMinaPlaceholderVerifier {
         string calldata ledger_hash, 
         bytes calldata proof, 
         uint256[][] calldata init_params,
-        int256[][][] calldata columns_rotations, 
-        address verifier_address,
-        address[2] calldata gate_arguments
-    ) external;
+        int256[][][] calldata columns_rotations) external;
 }
