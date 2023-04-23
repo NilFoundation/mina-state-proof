@@ -21,6 +21,7 @@ pragma solidity >=0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import '@nilfoundation/evm-placeholder-verification/contracts/interfaces/verifier.sol';
+import '@nilfoundation/evm-placeholder-verification/contracts/verifier.sol';
 
 contract MinaStateProof is Ownable {
     address _verifier;
@@ -34,15 +35,15 @@ contract MinaStateProof is Ownable {
         _scalar_gates = scalar_gates;
     }
 
-    function setVerifier(address verifier) onlyOwner {
+    function setVerifier(address verifier) external onlyOwner {
         _verifier = verifier;
     }
 
-    function setBaseGates(address base_gates) onlyOwner {
+    function setBaseGates(address base_gates) external onlyOwner {
         _base_gates = base_gates;
     }
 
-    function setScalarGates(address scalar_gates) onlyOwner {
+    function setScalarGates(address scalar_gates) external onlyOwner {
         _scalar_gates = scalar_gates;
     }
 
@@ -55,8 +56,8 @@ contract MinaStateProof is Ownable {
 
         return size1 + size2 == blob.length &&
         v.verify(blob[0 : size1],
-            init_params[1], columns_rotations[0], base_gates) &&
+            init_params[1], columns_rotations[0], _base_gates) &&
         v.verify(blob[size1 : blob.length],
-            init_params[2], columns_rotations[1], scalar_gates);
+            init_params[2], columns_rotations[1], _scalar_gates);
     }
 }

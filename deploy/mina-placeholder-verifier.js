@@ -1,8 +1,7 @@
 const hre = require('hardhat')
-const { getNamedAccounts } = hre
+const {getNamedAccounts} = hre
 
-
-module.exports = async function() {
+module.exports = async function () {
     const {deployments, getNamedAccounts} = hre;
     const {deploy} = deployments;
     const {deployer, tokenOwner} = await getNamedAccounts();
@@ -19,7 +18,7 @@ module.exports = async function() {
     ]
 
     let deployedLib = {}
-    for (let lib of libs){
+    for (let lib of libs) {
         await deploy(lib, {
             from: deployer,
             log: true,
@@ -29,9 +28,9 @@ module.exports = async function() {
 
     await deploy('mina_base_split_gen', {
         from: deployer,
-        libraries : deployedLib,
-        log : true,
-    })
+        libraries: deployedLib,
+        log: true,
+    });
 
     libs = [
         "mina_scalar_gate0",
@@ -46,7 +45,7 @@ module.exports = async function() {
     ]
 
     deployedLib = {}
-    for (let lib of libs){
+    for (let lib of libs) {
         await deploy(lib, {
             from: deployer,
             log: true,
@@ -56,33 +55,41 @@ module.exports = async function() {
 
     await deploy('mina_scalar_split_gen', {
         from: deployer,
-        libraries : deployedLib,
-        log : true,
-    })
+        libraries: deployedLib,
+        log: true,
+    });
 
-    
     libs = [
         "placeholder_verifier"
     ]
     deployedLib = {}
-    for (let lib of libs){
+    for (let lib of libs) {
         await deploy(lib, {
             from: deployer,
             log: true,
         });
-       deployedLib[lib] = (await hre.deployments.get(lib)).address
+        deployedLib[lib] = (await hre.deployments.get(lib)).address
     }
+
     await deploy('PlaceholderVerifier', {
         from: deployer,
-        libraries : deployedLib,
-        log : true,
-    })
-    
-    await deploy(
-        'MinaPlaceholderVerifier', {
-        from: deployer,
-        log : true,
-    })
+        libraries: deployedLib,
+        log: true,
+    });
+
+    const MinaStateProofFactory = await hre.ethers.getContractFactory("MinaStateProof");
+    const MinaStateProof = await MinaStateProofFactory.deploy((await hre.deployments.get('PlaceholderVerifier')).address,
+        (await hre.deployments.get('mina_base_split_gen')).address,
+        (await hre.deployments.get('mina_scalar_split_gen')).address);
+    await MinaStateProof.deployed();
+
+    console.log(`MinaStateProof is deployed to ${MinaStateProof.address}`);
+
+    const MinaStateFactory = await hre.ethers.getContractFactory("MinaState");
+    const MinaState = await MinaStateFactory.deploy(MinaStateProof.address);
+    await MinaState.deployed();
+
+    console.log(`MinaState is deployed to ${MinaState.address}`);
 }
 
 module.exports.tags = ['minaPlaceholderVerifierFixture']

@@ -37,7 +37,7 @@ contract MinaState is IMinaPlaceholderVerifier, Ownable {
         _state_proof = MinaStateProof(state_proof);
     }
 
-    function setStateProofVerifier(address state_proof) onlyOwner {
+    function setStateProofVerifier(address state_proof) external onlyOwner {
         _state_proof = MinaStateProof(state_proof);
     }
 
