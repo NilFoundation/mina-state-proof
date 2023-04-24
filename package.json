@@ -2,7 +2,7 @@
   "name": "@nilfoundation/evm-mina-state",
   "version": "1.0.6",
   "devDependencies": {
-    "@nilfoundation/evm-placeholder-verification": "^1.0.10",
+    "@nilfoundation/evm-placeholder-verification": "^1.0.11",
     "@openzeppelin/contracts": ">=4.7.2",
     "@truffle/hdwallet-provider": "^2.0.1",
     "as-table": "1.0.55",

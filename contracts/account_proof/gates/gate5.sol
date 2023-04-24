@@ -19,8 +19,7 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import "../contracts/types.sol";
-import "../contracts/logging.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/types.sol";
 
 // TODO: name component
 library gate5{
@@ -36,7 +35,7 @@ library gate5{
     uint256 constant PUBLIC_INPUT_EVALUATIONS_OFFSET =0x120;
 
     function evaluate_gate_be(
-        types.gate_argument_local_vars memory gate_params
+        types.gate_argument_state_type memory gate_params
     ) external pure returns (uint256 gates_evaluation, uint256 theta_acc) {
         gates_evaluation = gate_params.gates_evaluation;
         theta_acc = gate_params.theta_acc;

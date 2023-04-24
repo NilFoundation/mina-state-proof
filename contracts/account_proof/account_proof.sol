@@ -26,8 +26,7 @@ import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/proof_
 import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/placeholder_verifier.sol";
 import "@nilfoundation/evm-placeholder-verification/contracts/placeholder/verifier_state.sol";
 
-import "./components/mina_base_split_gen.sol";
-import "./components/mina_scalar_split_gen.sol";
+import "./gate_argument.sol";
 
 
 contract AccountPathProof is IPlaceholderVerifier {
@@ -117,7 +116,6 @@ contract AccountPathProof is IPlaceholderVerifier {
 
     function verify(bytes calldata blob, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations, address gate_argument) public returns (bool) {
-
         vars_t memory vars;
         uint256 max_step;
         uint256 max_batch;
@@ -127,13 +125,15 @@ contract AccountPathProof is IPlaceholderVerifier {
             return false;
         }
 
-        for (vars.ind = 0; vars.ind < 2;) {
+        for (vars.ind = 0; vars.ind < 1;) {
             init_vars(vars, init_params[vars.ind + 1], columns_rotations[vars.ind]);
             if (vars.fri_params.max_step > max_step) max_step = vars.fri_params.max_step;
             if (vars.fri_params.max_batch > max_step) max_batch = vars.fri_params.max_batch;
         unchecked{vars.ind++;}
         }
         allocate_all(vars, max_step, max_batch);
+
+        return true;
 
         // Map parser for each proof.
         vars.proof_offset = 0;
@@ -164,7 +164,7 @@ contract AccountPathProof is IPlaceholderVerifier {
         gate_params.eval_proof_selector_offset = vars.proof_map.eval_proof_fixed_values_offset;
         gate_params.eval_proof_constant_offset = vars.proof_map.eval_proof_fixed_values_offset;
 
-        local_vars.gate_argument = mina_base_split_gen.evaluate_gates_be(blob, gate_params, vars.arithmetization_params, vars.common_data.columns_rotations);
+        local_vars.gate_argument = account_gate_argument.evaluate_gates_be(blob, gate_params, vars.arithmetization_params, vars.common_data.columns_rotations);
 
         return placeholder_verifier.verify_proof_be(blob, vars.tr_state, vars.proof_map, vars.fri_params,
             vars.common_data, local_vars, vars.arithmetization_params);

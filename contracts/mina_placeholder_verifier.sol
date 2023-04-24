@@ -22,6 +22,7 @@ import "./protocol/state.sol";
 import "./protocol/constants.sol";
 import "./interfaces/IMinaPlaceholderVerifier.sol";
 import "./state_proof/mina_state_proof.sol";
+import "./account_proof/account_proof.sol";
 
 /// TODO - Update event logic/description
 
@@ -30,10 +31,12 @@ import "./state_proof/mina_state_proof.sol";
  */
 contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
     MinaStateProof mina_state_proof;
+    AccountPathProof account_proof;
     mapping(bytes32 => bool) validatedLedgers;
 
     constructor() {
         mina_state_proof = new MinaStateProof();
+        account_proof = new AccountPathProof();
     }
 
     /// @inheritdoc IMinaPlaceholderVerifier
@@ -46,8 +49,10 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
         bytes calldata proof, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external returns (bool) {
         if (!this.isValidatedLedgerHash(ledger_hash))
-            if (!mina_state_proof.verify(proof, init_params, columns_rotations, address(this)))
+            if (!mina_state_proof.verify(proof, init_params, columns_rotations, address(this))) {
                 emit LedgerProofValidationFailed();
+                return false;
+            }
         return true;
     }
 
@@ -56,9 +61,9 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
         bytes calldata account_state_proof,
         uint256[][] calldata init_params, int256[][][] calldata columns_rotations
     ) external returns (bool) {
-        if (!this.isValidatedLedgerHash(ledger_hash)) {
-            emit InvalidLedgerHash();
+        if (!this.isValidatedLedgerHash(ledger_hash) || !account_proof.verify(account_state_proof, init_params, columns_rotations, address(this))) {
             emit AccountProofValidationFailed();
+            return false;
         }
         return true;
     }

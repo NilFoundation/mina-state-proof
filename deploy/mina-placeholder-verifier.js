@@ -48,6 +48,17 @@ module.exports = async function() {
         "mina_base_gate17",
         "mina_base_gate18",
         "placeholder_verifier",
+        "gate0",
+        "gate1",
+        "gate2",
+        "gate3",
+        "gate4",
+        "gate5",
+        "gate6",
+        "gate7",
+        "gate8",
+        "gate9",
+        "gate10",
     ]
 
     let deployedLib = {}

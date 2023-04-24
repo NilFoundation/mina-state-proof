@@ -19,11 +19,10 @@
 //---------------------------------------------------------------------------//
 pragma solidity >=0.8.4;
 
-import "@nilfoundation/evm-placeholder-verification//contracts/types.sol";
-import "@nilfoundation/evm-placeholder-verification//contracts/profiling.sol";
-import "@nilfoundation/evm-placeholder-verification//contracts/basic_marshalling.sol";
-import "@nilfoundation/evm-placeholder-verification//contracts/commitments/batched_lpc_verifier.sol";
-import "@nilfoundation/evm-placeholder-verification//contracts/gate_argument_interface.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/types.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/basic_marshalling.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/commitments/batched_lpc_verifier.sol";
+import "@nilfoundation/evm-placeholder-verification/contracts/interfaces/gate_argument.sol";
 
 import "./gates/gate0.sol";
 import "./gates/gate1.sol";
@@ -35,54 +34,53 @@ import "./gates/gate6.sol";
 import "./gates/gate7.sol";
 import "./gates/gate8.sol";
 import "./gates/gate9.sol";
-import "./gates/sgate10.sol";
+import "./gates/gate10.sol";
 
 
-contract account_gate_argument  is IGateArgument{
+library account_gate_argument {
     // TODO: specify constants
     uint256 constant GATES_N = 11;
 
     // TODO: columns_rotations could be hard-coded
     function evaluate_gates_be(
         bytes calldata blob,
-        types.gate_argument_local_vars memory gate_params,
-        uint256 eval_proof_combined_value_offset,
+        types.gate_argument_state_type memory gate_params,
         types.arithmetization_params memory ar_params,
-        int256[][] calldata columns_rotations
-    ) external view returns (uint256 gates_evaluation) {
+        int256[][] memory columns_rotations
+    ) internal returns (uint256 gates_evaluation) {
         // TODO: check witnesses number in proof
         gate_params.witness_evaluations = new uint256[][](ar_params.witness_columns);
-        for (uint256 i = 0; i < ar_params.witness_columns;) {
+        gate_params.offset = batched_lpc_verifier.skip_to_z(blob,  gate_params.eval_proof_witness_offset);
+        for (uint256 i = 0; i < ar_params.witness_columns; i++) {
             gate_params.witness_evaluations[i] = new uint256[](columns_rotations[i].length);
-            for (uint256 j = 0; j < columns_rotations[i].length;) {
-                gate_params.witness_evaluations[i][j] = batched_lpc_verifier.get_variable_values_z_i_j_from_proof_be(
-                    blob, eval_proof_combined_value_offset, i, j
-                );
-                unchecked{j++;}
+            for (uint256 j = 0; j < columns_rotations[i].length; j++) {
+                gate_params.witness_evaluations[i][j] = basic_marshalling.get_i_j_uint256_from_vector_of_vectors(blob, gate_params.offset, i, j);
             }
-            unchecked{i++;}
         }
 
         gate_params.selector_evaluations = new uint256[](GATES_N);
-        for (uint256 i = 0; i < GATES_N;) {
-            gate_params.selector_evaluations[i] = batched_lpc_verifier.get_fixed_values_z_i_j_from_proof_be(
-                    blob,
-                    eval_proof_combined_value_offset,
-                    i + ar_params.permutation_columns + ar_params.permutation_columns + ar_params.constant_columns,
-                    0
+        gate_params.offset = batched_lpc_verifier.skip_to_z(blob,  gate_params.eval_proof_selector_offset);
+        for (uint256 i = 0; i < GATES_N; i++) {
+            gate_params.selector_evaluations[i] = basic_marshalling.get_i_j_uint256_from_vector_of_vectors(
+                blob, 
+                gate_params.offset, 
+                i + ar_params.permutation_columns + ar_params.permutation_columns + ar_params.constant_columns, 
+                0
             );
-            unchecked{i++;}
         }
 
-        gate_params.constant_evaluations = new uint256[](ar_params.constant_columns);
-        for (uint256 i = 0; i < ar_params.constant_columns;) {
-            gate_params.constant_evaluations[i] = batched_lpc_verifier.get_fixed_values_z_i_j_from_proof_be(
-                    blob,
-                    eval_proof_combined_value_offset,
-                    i + ar_params.permutation_columns + ar_params.permutation_columns,
-                    0
-            );
-            unchecked{i++;}
+        gate_params.constant_evaluations = new uint256[][](ar_params.constant_columns);
+        gate_params.offset = batched_lpc_verifier.skip_to_z(blob,  gate_params.eval_proof_constant_offset);
+        for (uint256 i = 0; i < ar_params.constant_columns; i++) {
+            gate_params.constant_evaluations[i] = new uint256[](columns_rotations[i].length);
+            for (uint256 j = 0; j < columns_rotations[i].length; j++) {
+                gate_params.constant_evaluations[i][j] = basic_marshalling.get_i_j_uint256_from_vector_of_vectors(
+                    blob, 
+                    gate_params.offset, 
+                    i + ar_params.permutation_columns + ar_params.permutation_columns, 
+                    j
+                );
+            }
         }
 
         gate_params.theta_acc = 1;
