@@ -26,6 +26,11 @@ import "../protocol/state.sol";
  * state proofs (user balance/zkApp state)
    */
 interface IMinaPlaceholderVerifier {
+
+    /**
+    * @dev Emitted when Ledger proof validation is successful
+   */
+    event LedgerProofValidated();
     /**
     * @dev Emitted when Ledger proof validation fails
    */
