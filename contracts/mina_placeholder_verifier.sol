@@ -48,11 +48,13 @@ contract MinaPlaceholderVerifier is IMinaPlaceholderVerifier {
     function verifyLedgerState(string calldata ledger_hash,
         bytes calldata proof, uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external returns (bool) {
-        if (!this.isValidatedLedgerHash(ledger_hash))
+        if (!this.isValidatedLedgerHash(ledger_hash)){
             if (!mina_state_proof.verify(proof, init_params, columns_rotations, address(this))) {
                 emit LedgerProofValidationFailed();
                 return false;
             }
+        }
+        emit LedgerProofValidated();
         return true;
     }
 
