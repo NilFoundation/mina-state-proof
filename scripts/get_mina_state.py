@@ -86,7 +86,7 @@ def get_mina_account_state(args):
           liquid
           locked
           stateHash
-        }}    
+            }}    
         leafHash
         receiptChainHash
         merklePath {{
@@ -116,8 +116,10 @@ def get_mina_account_state(args):
             input_str += node["left"] + "\n"
         elif (node["right"] is not None):
             input_str += node["right"] + "\n"
+    input_str = input_str[:-2]
     input["input"] = input_str
-    write_output_file(input, args.output)
+    write_output_file(input, "pm_" + args.output)
+    write_output_file(request_res,args.output)
     return
 
 
