@@ -24,7 +24,7 @@ describe('Mina state proof validation tests', function () {
         //TODO refactor
         params['proof'] = fs.readFileSync(path.resolve(__dirname, "./data/proof_v.data"), 'utf8');
 
-        params['init_params'] = [[200920, 416992], [], []];
+        params['init_params'] = [[185992, 343344], [], []];
         params['columns_rotations'] = [[], []]
 
         // For proof 1

@@ -10,7 +10,7 @@ function getFileContents(filePath) {
 function getVerifierParamsLedger() {
     let params = {}
 
-    params['init_params'] = [[157480, 301248], [], []];
+    params['init_params'] = [[185992, 343344], [], []];
     params['columns_rotations'] = [[], []]
 
     // For proof 1
