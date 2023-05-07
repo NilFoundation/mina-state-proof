@@ -1,6 +1,6 @@
 {
   "name": "@nilfoundation/evm-mina-state",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "devDependencies": {
     "@nilfoundation/evm-placeholder-verification": "^1.0.11",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
