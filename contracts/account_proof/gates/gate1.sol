@@ -35,7 +35,7 @@ library gate1{
     uint256 constant PUBLIC_INPUT_EVALUATIONS_OFFSET =0x120;
 
     function evaluate_gate_be(
-        types.gate_argument_state_type memory gate_params
+        types.gate_argument_params memory gate_params
     ) external pure returns (uint256 gates_evaluation, uint256 theta_acc) {
         gates_evaluation = gate_params.gates_evaluation;
         theta_acc = gate_params.theta_acc;
