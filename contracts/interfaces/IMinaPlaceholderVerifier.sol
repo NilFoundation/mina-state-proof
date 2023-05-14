@@ -37,6 +37,11 @@ interface IMinaPlaceholderVerifier {
     event LedgerProofValidationFailed();
 
     /**
+    * @dev Emitted when Ledger proof validation accepted
+    */
+    event LedgerProofValidationAccepted();
+
+    /**
      * @dev Emitted when Account (user balance/zkApp state) proof validation fails
     */
     event AccountProofValidationFailed();
@@ -91,7 +96,9 @@ interface IMinaPlaceholderVerifier {
      * @param init_params - to remove
      * @param columns_rotations - to remove
      */
-    function updateLedgerProof(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,
+    function updateLedgerProof(
+        string calldata ledger_hash, 
+        bytes calldata proof, 
+        uint256[][] calldata init_params,
         int256[][][] calldata columns_rotations) external;
-
 }
