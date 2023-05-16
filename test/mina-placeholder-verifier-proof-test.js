@@ -55,19 +55,19 @@ describe('Mina state proof validation tests', function () {
     function getVerifierParams() {
         let params = {}
 
-        params['proof'] = fs.readFileSync(path.resolve(__dirname, "./data/proof_eval10.bin"), 'utf8');
+        params['proof'] = fs.readFileSync(path.resolve(__dirname, "./data/proof_state.bin"), 'utf8');
 
-        params['init_params'] = [[26048, 22920], [], []];
+        params['init_params'] = [[24760, 21744], [], []];
 
         params['columns_rotations'] = [[], []]
 
         // For proof 1
-        let base_params = loadParamsFromFile(path.resolve(__dirname, "./data/base_eval10_params.json"));
+        let base_params = loadParamsFromFile(path.resolve(__dirname, "./data/verifier_params_state_base.json"));
         params['init_params'][1] = base_params.init_params;
         params['columns_rotations'][0] = base_params.columns_rotations;
 
         // For proof 2
-        let scalar_params = loadParamsFromFile(path.resolve(__dirname, "./data/scalar_eval10_params.json"));
+        let scalar_params = loadParamsFromFile(path.resolve(__dirname, "./data/verifier_params_state_scalar.json"));
         params['init_params'][2] = scalar_params.init_params;
         params['columns_rotations'][1] = scalar_params.columns_rotations;
 
@@ -75,93 +75,11 @@ describe('Mina state proof validation tests', function () {
     }
 
     function getVerifierParamsAccount() {
-        let params = {}
-    
-        params['init_params'] = [[85340, 85340], [], []];
-        params['columns_rotations'] = [[], []]
-    
-        // For proof 1
-        params['init_params'][1].push(28948022309329048855892746252171976963363056481941560715954676764349967630337n)
-        params['init_params'][1].push(9)
-        params['init_params'][1].push(1023)
-        params['init_params'][1].push(1)
-        params['init_params'][1].push(1024)
-        params['init_params'][1].push(21138537593338818067112636105753818200833244613779330379839660864802343411573n)
-        params['init_params'][1].push(67)
-        let D_omegas = [
-            21138537593338818067112636105753818200833244613779330379839660864802343411573n,
-            22954361264956099995527581168615143754787441159030650146191365293282410739685n,
-            23692685744005816481424929253249866475360293751445976741406164118468705843520n,
-            7356716530956153652314774863381845254278968224778478050456563329565810467774n,
-            17166126583027276163107155648953851600645935739886150467584901586847365754678n,
-            3612152772817685532768635636100598085437510685224817206515049967552954106764n,
-            14450201850503471296781915119640920297985789873634237091629829669980153907901n,
-            199455130043951077247265858823823987229570523056509026484192158816218200659n,
-            24760239192664116622385963963284001971067308018068707868888628426778644166363n,
-        ]
-        params['init_params'][1].push(D_omegas.length)
-        params['init_params'][1].push(...D_omegas)
-        let q = [0, 0, 1]
-        params['init_params'][1].push(q.length)
-        params['init_params'][1].push(...q)
-    
-        params['columns_rotations'][0] = []
-        params['columns_rotations'][0] = [
-            [0,1],
-            [0,1],
-            [0,1],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0]]
-    
-        let step_list = [1,1,1,1,1,1,1,1,1]
-        params['init_params'][1].push(step_list.length)
-        params['init_params'][1].push(...step_list)
-    
-        let arithmetization_params = [15, 5, 5, 20]
-        params['init_params'][1].push(arithmetization_params.length)
-        params['init_params'][1].push(...arithmetization_params)
-    
-        return params;
+        let account_path_params = loadParamsFromFile(path.resolve(__dirname, './data/verifier_params_account.json'));
+
+        account_path_params['proof'] = fs.readFileSync(path.resolve(__dirname, "./data/proof_account.bin"), 'utf8');
+
+        return account_path_params;
     }
 
     describe('Ledger Proof - Success', function () {
@@ -174,7 +92,7 @@ describe('Mina state proof validation tests', function () {
 
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            await expect(minaPlaceholderVerifierIF.verifyLedgerState("helloWorld",
+            await expect(minaPlaceholderVerifierIF.verifyLedgerState("jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB",
                 params['proof'], params['init_params'], params['columns_rotations'],
                 {gasLimit: 30_500_000}
             )).to.emit(minaPlaceholderVerifierIF, "LedgerProofValidationAccepted");
@@ -190,7 +108,7 @@ describe('Mina state proof validation tests', function () {
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             await minaPlaceholderVerifierIF.updateLedgerProof(
-                "helloWorld",
+                "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB",
                 params['proof'], params['init_params'], params['columns_rotations'],
                 {gasLimit: 30_500_000})
         });
@@ -199,7 +117,7 @@ describe('Mina state proof validation tests', function () {
             let params = getVerifierParams();
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            expect(await minaPlaceholderVerifierIF.isValidatedLedgerHash("helloWorld", {gasLimit: 30_500_000})).to.equal(true);
+            expect(await minaPlaceholderVerifierIF.isValidatedLedgerHash("jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", {gasLimit: 30_500_000})).to.equal(true);
         });
     })
 
@@ -213,7 +131,7 @@ describe('Mina state proof validation tests', function () {
 
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            await minaPlaceholderVerifierIF.updateLedgerProof("helloWorld",
+            await minaPlaceholderVerifierIF.updateLedgerProof("jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB",
                 params['proof'], params['init_params'], params['columns_rotations'],
                 {gasLimit: 30_500_000}
             )
@@ -235,8 +153,7 @@ describe('Mina state proof validation tests', function () {
                     "0x0000000000000000000000000000000000000000000000000000000000000008"
                 ],
             };
-            const dummyAccountProof = "0x112233445566778899";
-            await minaPlaceholderVerifierIF.verifyAccountState(accountData, "helloWorld", dummyAccountProof,
+            await minaPlaceholderVerifierIF.verifyAccountState(accountData, "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", params['proof'],
                 params['init_params'], params['columns_rotations']
             );
         });
@@ -254,7 +171,7 @@ describe('Mina state proof validation tests', function () {
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             await expect(minaPlaceholderVerifierIF.verifyLedgerState(
-                "helloWorld",
+                "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB",
                 params['proof'], params['init_params'], params['columns_rotations'],
                 {gasLimit: 30_500_000}
             )).to.emit(minaPlaceholderVerifierIF, "LedgerProofValidationFailed");
@@ -271,7 +188,7 @@ describe('Mina state proof validation tests', function () {
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             expect(await minaPlaceholderVerifierIF.updateLedgerProof(
-                "helloWorld", params['proof'], params['init_params'], params['columns_rotations'],
+                "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", params['proof'], params['init_params'], params['columns_rotations'],
                 {gasLimit: 30_500_000}
             )).to.emit(minaPlaceholderVerifierIF, "LedgerProofValidationFailed");
         });
@@ -286,7 +203,7 @@ describe('Mina state proof validation tests', function () {
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             expect(await minaPlaceholderVerifierIF.verifyLedgerState(
-                "helloWorld", params['proof'], params['init_params'], params['columns_rotations'],
+                "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", params['proof'], params['init_params'], params['columns_rotations'],
                 {gasLimit: 30_500_000})
             ).to.emit(minaPlaceholderVerifierIF, "InvalidLedgerHash");
         });
@@ -316,7 +233,7 @@ describe('Mina state proof validation tests', function () {
                 ],
             };
             const dummyAccountProof = "0x112233445566778899";
-            await expect(await minaPlaceholderVerifierIF.verifyAccountState(accountData, "helloWorld", dummyAccountProof, params['init_params'], params['columns_rotations']))
+            await expect(await minaPlaceholderVerifierIF.verifyAccountState(accountData, "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", params['proof'], params['init_params'], params['columns_rotations']))
                 .to.emit(minaPlaceholderVerifierIF, "InvalidLedgerHash");
             ;
         });

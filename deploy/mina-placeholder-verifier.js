@@ -132,27 +132,15 @@ module.exports = async function () {
     })
 
     state_proof_address = (await hre.deployments.get('MinaStateProof')).address;
-    await deploy('MinaState',{
+    account_proof_address = (await hre.deployments.get('AccountPathProof')).address;
+    MinaState = await deploy('MinaState',{
         from:deployer,
         args:[
-            state_proof_address
+            state_proof_address,
+            account_proof_address,
         ],
         log:true
     })
-/*    const MinaStateProofFactory = await hre.ethers.getContractFactory("MinaStateProof");
-    const MinaStateProof = await MinaStateProofFactory.deploy(
-        (await hre.deployments.get('PlaceholderVerifier')).address,
-        (await hre.deployments.get('mina_base_split_gen')).address,
-        (await hre.deployments.get('mina_scalar_split_gen')).address);
-    await MinaStateProof.deployed();
-
-    console.log(`MinaStateProof is deployed to ${MinaStateProof.address}`);
-
-    const MinaStateFactory = await hre.ethers.getContractFactory("MinaState");
-    const MinaState = await MinaStateFactory.deploy(MinaStateProof.address);
-    await MinaState.deployed();
-
-    console.log(`MinaState is deployed to ${MinaState.address}`);*/
 }
 
 module.exports.tags = ['minaPlaceholderVerifierFixture']
