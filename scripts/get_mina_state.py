@@ -118,8 +118,17 @@ def get_mina_account_state(args):
             input_str += node["right"] + "\n"
     input_str = input_str[:-2]
     input["input"] = input_str
+    evm_res = {}
+    evm_res["public_key"] = args.address
+    evm_res["balance"] = {}
+    evm_res["balance"]["liquid"] = acc_data["balance"]["liquid"]
+    evm_res["balance"]["locked"] = acc_data["balance"]["locked"]
+    evm_res["state"] = ""
+    for i in range(0, len(acc_data["zkappState"])):
+        evm_res["state"] = evm_res["state"] + "0x" + format(int(acc_data["zkappState"][i]), '064x') + ","
+    evm_res["state"] = evm_res["state"][:-1]
     write_output_file(input, "pm_" + args.output)
-    write_output_file(request_res,args.output)
+    write_output_file(evm_res, args.output)
     return
 
 
