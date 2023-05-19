@@ -1037,7 +1037,7 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
 
     using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename placeholder_params::merkle_hash_type,
                                                    typename placeholder_params::transcript_hash_type, Lambda, 2, 4>;
-    using columns_rotations_type = std::array<std::vector<int>, ArithmetizationParams::total_columns>;
+    using columns_rotations_type = std::array<std::set<int>, ArithmetizationParams::total_columns>;
     nil::crypto3::zk::snark::print_placeholder_params<  
         fri_type, 
         zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams>,
@@ -1179,7 +1179,7 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
 
     using fri_type = typename zk::commitments::fri<BlueprintFieldType, typename placeholder_params::merkle_hash_type,
                                                    typename placeholder_params::transcript_hash_type, Lambda, 2, 4>;
-    using columns_rotations_type = std::array<std::vector<int>, ArithmetizationParams::total_columns>;
+    using columns_rotations_type = std::array<std::set<int>, ArithmetizationParams::total_columns>;
     nil::crypto3::zk::snark::print_placeholder_params<  
         fri_type, 
         zk::snark::plonk_table_description<BlueprintFieldType, ArithmetizationParams>,

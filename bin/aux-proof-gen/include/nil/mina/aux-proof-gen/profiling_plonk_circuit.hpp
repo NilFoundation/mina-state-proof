@@ -31,6 +31,7 @@
 #include <fstream>
 #include <sstream>
 
+#include <nil/crypto3/zk/math/expression_visitors.hpp>
 #include <nil/crypto3/zk/snark/arithmetization/plonk/constraint_system.hpp>
 #include <nil/crypto3/zk/snark/arithmetization/plonk/params.hpp>
 
@@ -104,11 +105,9 @@ namespace nil {
 
             static void print_variable(std::ostream &os, const nil::crypto3::zk::snark::plonk_variable<FieldType> &var,
                                        const preprocessed_public_data_type &public_preprocessed_data) {
-                std::size_t rotation_idx =
-                    std::find(std::cbegin(public_preprocessed_data.common_data.columns_rotations.at(var.index)),
-                              std::cend(public_preprocessed_data.common_data.columns_rotations.at(var.index)),
-                              var.rotation) -
-                    std::begin(public_preprocessed_data.common_data.columns_rotations.at(var.index));
+                std::size_t rotation_idx = std::distance(
+                    public_preprocessed_data.common_data.columns_rotations.at(var.index).find(var.rotation), 
+                    public_preprocessed_data.common_data.columns_rotations.at(var.index).begin());
                 os << "get_eval_i_by_rotation_idx(" << var.index << "," << rotation_idx
                    << ", mload(add(gate_params, ";
                 if (zk::snark::plonk_variable<FieldType>::column_type::witness == var.type) {
@@ -158,7 +157,10 @@ namespace nil {
                                  const typename nil::crypto3::zk::snark::plonk_constraint<FieldType> &constraint,
                                  const preprocessed_public_data_type &public_preprocessed_data) {
                 os << "mstore(add(gate_params, CONSTRAINT_EVAL_OFFSET), 0)" << std::endl;
-                print_terms(os, constraint.terms, public_preprocessed_data);
+                // Convert constraint expression to non_linear_combination.
+                math::expression_to_non_linear_combination_visitor<nil::crypto3::zk::snark::plonk_variable<FieldType>> visitor;
+                auto comb = visitor.convert(constraint);
+                print_terms(os, comb.terms, public_preprocessed_data);
             }
 
             static void print_gate_evaluation(std::ostream &os) {
