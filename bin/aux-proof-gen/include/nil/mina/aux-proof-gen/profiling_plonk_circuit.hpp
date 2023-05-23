@@ -106,8 +106,8 @@ namespace nil {
             static void print_variable(std::ostream &os, const nil::crypto3::zk::snark::plonk_variable<FieldType> &var,
                                        const preprocessed_public_data_type &public_preprocessed_data) {
                 std::size_t rotation_idx = std::distance(
-                    public_preprocessed_data.common_data.columns_rotations.at(var.index).find(var.rotation), 
-                    public_preprocessed_data.common_data.columns_rotations.at(var.index).begin());
+                    public_preprocessed_data.common_data.columns_rotations.at(var.index).begin(),
+                    public_preprocessed_data.common_data.columns_rotations.at(var.index).find(var.rotation));
                 os << "get_eval_i_by_rotation_idx(" << var.index << "," << rotation_idx
                    << ", mload(add(gate_params, ";
                 if (zk::snark::plonk_variable<FieldType>::column_type::witness == var.type) {
