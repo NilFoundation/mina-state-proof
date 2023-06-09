@@ -51,6 +51,9 @@ describe('Mina state proof validation tests', function () {
         return params;
     }
 
+    function loadPublicInputsFromFiles(file1, file2){
+        return [[],[]];
+    }
 
     function getVerifierParams() {
         let params = {}
@@ -67,13 +70,16 @@ describe('Mina state proof validation tests', function () {
         let base_params = loadParamsFromFile(path.resolve(__dirname, "./data/verifier_params_state_base.json"));
         params['init_params'][1] = base_params.init_params;
         params['columns_rotations'][0] = base_params.columns_rotations;
-        params['public_inputs'][0] = [];
 
         // For proof 2
         let scalar_params = loadParamsFromFile(path.resolve(__dirname, "./data/verifier_params_state_scalar.json"));
         params['init_params'][2] = scalar_params.init_params;
         params['columns_rotations'][1] = scalar_params.columns_rotations;
-        params['public_inputs'][1] = [];
+
+        params['public_inputs'] = loadPublicInputsFromFiles(
+            path.resolve(__dirname, "./data/kimchi.json"),
+            path.resolve(__dirname, "./data/kimchi_const.json")
+        )
 
         return params;
     }
@@ -126,9 +132,9 @@ describe('Mina state proof validation tests', function () {
         });
     })
 
-    describe.skip('Account Proof - Success', function () {
+    describe('Account Proof - Success', function () {
         it("Should validate correct proof ", async function () {
-            let params = getVerifierParamsAccount();
+            let params = getVerifierParams();
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let mina_base_gate_argument_contract = await ethers.getContract('mina_base_split_gen');
             let mina_scalar_gate_argument_contract = await ethers.getContract('mina_scalar_split_gen');
@@ -136,10 +142,12 @@ describe('Mina state proof validation tests', function () {
 
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
-            await minaPlaceholderVerifierIF.updateLedgerProof("jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB",
+            await expect(minaPlaceholderVerifierIF.updateLedgerProof("jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB",
                 params['proof'], params['init_params'], params['columns_rotations'], params['public_inputs'],
                 {gasLimit: 30_500_000}
-            )
+            )).to.emit(minaPlaceholderVerifierIF, "LedgerProofValidationAccepted");
+
+            params = getVerifierParamsAccount();
 
             const accountData = {
                 public_key: "B62qre3ersHfzQckNuibViWTGyyKwZseztqrjPjBv6SQF384Rg6ESAy",
@@ -158,11 +166,12 @@ describe('Mina state proof validation tests', function () {
                     "0x0000000000000000000000000000000000000000000000000000000000000008"
                 ],
             };
-            await minaPlaceholderVerifierIF.verifyAccountState(accountData, "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", params['proof'],
+            await expect(minaPlaceholderVerifierIF.verifyAccountState(accountData, "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", params['proof'],
                 params['init_params'], params['columns_rotations'], params['public_inputs'],
-            );
+                {gasLimit: 30_500_000}
+            )).to.emit(minaPlaceholderVerifierIF, "AccountProofValidationAccepted");
         });
-    })
+    });
 
     describe("Ledger Proof - Failures", function () {
         it("Should emit event on incorrect proof validation", async function () {
@@ -216,12 +225,54 @@ describe('Mina state proof validation tests', function () {
         });
     })
 
-    describe.skip('Account Proof - Failures', function () {
+    describe('Account Proof - Failures', function () {
         it("Should fail if incorrect ledger hash provided along with proof ", async function () {
             let params = getVerifierParamsAccount();
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
+
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
+
+            const accountData = {
+                public_key: "B62qre3ersHfzQckNuibViWTGyyKwZseztqrjPjBv6SQF384Rg6ESAy",
+                balance: {
+                    liquid: 5000n,
+                    locked: 0n
+                },
+                state: [
+                    "0x0000000000000000000000000000000000000000000000000000000000000001",
+                    "0x0000000000000000000000000000000000000000000000000000000000000002",
+                    "0x0000000000000000000000000000000000000000000000000000000000000003",
+                    "0x0000000000000000000000000000000000000000000000000000000000000004",
+                    "0x0000000000000000000000000000000000000000000000000000000000000005",
+                    "0x0000000000000000000000000000000000000000000000000000000000000006",
+                    "0x0000000000000000000000000000000000000000000000000000000000000007",
+                    "0x0000000000000000000000000000000000000000000000000000000000000008"
+                ],
+            };
+            await expect(minaPlaceholderVerifierIF.verifyAccountState(
+                accountData, "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcA", 
+                params['proof'], params['init_params'], params['columns_rotations'], params['public_inputs'],
+                {gasLimit: 30_500_000}
+            )).to.emit(minaPlaceholderVerifierIF, "InvalidLedgerHash");
+        });
+
+        it("Should fail with correct hash and incorrect proof ", async function () {
+            let params = getVerifierParams();
+            await deployments.fixture(['minaPlaceholderVerifierFixture']);
+            let mina_base_gate_argument_contract = await ethers.getContract('mina_base_split_gen');
+            let mina_scalar_gate_argument_contract = await ethers.getContract('mina_scalar_split_gen');
+            let placeholder_verifier_contract = await ethers.getContract('PlaceholderVerifier');
+
+            let minaPlaceholderVerifier = await ethers.getContract('MinaState');
+            let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
+            await expect(minaPlaceholderVerifierIF.updateLedgerProof("jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB",
+                params['proof'], params['init_params'], params['columns_rotations'], params['public_inputs'],
+                {gasLimit: 30_500_000}
+            )).to.emit(minaPlaceholderVerifierIF, "LedgerProofValidationAccepted");
+
+            params = getVerifierParamsAccount();
+
             const accountData = {
                 public_key: "B62qre3ersHfzQckNuibViWTGyyKwZseztqrjPjBv6SQF384Rg6ESAy",
                 balance: {
@@ -240,10 +291,13 @@ describe('Mina state proof validation tests', function () {
                 ],
             };
             const dummyAccountProof = "0x112233445566778899";
-            await expect(await minaPlaceholderVerifierIF.verifyAccountState(
-                accountData, "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", params['proof'], params['init_params'], params['columns_rotations'], params['public_inputs']))
-                .to.emit(minaPlaceholderVerifierIF, "InvalidLedgerHash");
-            ;
+            
+            // TODO: We should process proof parsing errors better.
+            await expect(minaPlaceholderVerifierIF.verifyAccountState(accountData, "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", 
+                dummyAccountProof,
+                params['init_params'], params['columns_rotations'], params['public_inputs'],
+                {gasLimit: 30_500_000}
+            )).to.be.reverted;
         });
     })
 })

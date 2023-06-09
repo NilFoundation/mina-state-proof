@@ -24,6 +24,8 @@ import "./interfaces/IMinaPlaceholderVerifier.sol";
 import "./state_proof/mina_state_proof.sol";
 import "./account_proof/account_proof.sol";
 
+import "hardhat/console.sol";
+
 /// TODO - Update event logic/description
 
 /**
@@ -78,6 +80,7 @@ contract MinaState is IMinaPlaceholderVerifier, Ownable {
             emit AccountProofValidationFailed();
             return false;
         }
+        emit AccountProofValidationAccepted();
         return true;
     }
 
