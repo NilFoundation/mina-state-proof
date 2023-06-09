@@ -70,10 +70,16 @@ interface IMinaPlaceholderVerifier {
      * @param proof Ledger proof retrieved from proof market
      * @param init_params - to remove
      * @param columns_rotations - to remove
+     * @param public_inputs - public input retrieved from proof market
      * @return Boolean true if ledger hash/proof is passes placeholder proof validation , false otherwise.
      */
-    function verifyLedgerState(string calldata ledger_hash, bytes calldata proof, uint256[][] calldata init_params,
-        int256[][][] calldata columns_rotations) external returns (bool);
+    function verifyLedgerState(
+        string calldata ledger_hash, 
+        bytes calldata proof, 
+        uint256[][] calldata init_params,
+        int256[][][] calldata columns_rotations,
+        uint256[][] calldata public_inputs
+    ) external returns (bool);
 
     /**
      * @dev Validates account state proof
@@ -82,11 +88,15 @@ interface IMinaPlaceholderVerifier {
      * @param account_state_proof Account state proof retrieved from proof market
      * @param init_params - to remove
      * @param columns_rotations - to remove
+     * @param public_inputs - public input retrieved from proof market
      * @return Boolean true if account hash/proof is passes placeholder proof validation , false otherwise.
      */
     function verifyAccountState(state.account_state calldata account_state,
-        string calldata ledger_hash, bytes calldata account_state_proof,
-        uint256[] calldata init_params, int256[][] calldata columns_rotations
+        string calldata ledger_hash, 
+        bytes calldata account_state_proof,
+        uint256[] calldata init_params, 
+        int256[][] calldata columns_rotations,
+        uint256[] calldata public_inputs
     ) external returns (bool);
 
     /**
@@ -95,10 +105,13 @@ interface IMinaPlaceholderVerifier {
      * @param proof Ledger proof retrieved from proof market
      * @param init_params - to remove
      * @param columns_rotations - to remove
+     * @param public_inputs - public input retrieved from proof market
      */
     function updateLedgerProof(
         string calldata ledger_hash, 
         bytes calldata proof, 
         uint256[][] calldata init_params,
-        int256[][][] calldata columns_rotations) external;
+        int256[][][] calldata columns_rotations,
+        uint256[][] calldata public_inputs
+    ) external;
 }

@@ -29,14 +29,19 @@ contract MinaStateProof is Ownable {
     address _base_gates;
     address _scalar_gates;
 
+    IVerifier v;
+
     constructor(address verifier, address base_gates, address scalar_gates) {
         _verifier = verifier;
         _base_gates = base_gates;
         _scalar_gates = scalar_gates;
+
+        v = IVerifier(_verifier);
     }
 
     function setVerifier(address verifier) external onlyOwner {
         _verifier = verifier;
+        v = IVerifier(_verifier);
     }
 
     function setBaseGates(address base_gates) external onlyOwner {
@@ -48,16 +53,16 @@ contract MinaStateProof is Ownable {
     }
 
     function verify(bytes calldata blob, uint256[][] calldata init_params,
-        int256[][][] calldata columns_rotations) external view returns (bool) {
+        int256[][][] calldata columns_rotations, uint256[][] calldata public_inputs) external view returns (bool) {
         uint256 size1 = init_params[0][0];
         uint256 size2 = init_params[0][1];
 
-        IVerifier v = IVerifier(_verifier);
-
         return size1 + size2 == blob.length &&
-        v.verify(blob[0 : size1],
-            init_params[1], columns_rotations[0], _base_gates) &&
-        v.verify(blob[size1 : blob.length],
-            init_params[2], columns_rotations[1], _scalar_gates);
+        v.verify(
+            blob[0 : size1], init_params[1], columns_rotations[0], public_inputs[0], _base_gates
+        ) &&
+        v.verify(
+            blob[size1 : blob.length],  init_params[2], columns_rotations[1], public_inputs[1], _scalar_gates
+        );
     }
 }

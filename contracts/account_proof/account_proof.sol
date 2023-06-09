@@ -46,10 +46,10 @@ contract AccountPathProof is Ownable {
     }
 
     function verify(bytes calldata blob, uint256[] calldata init_params,
-        int256[][] calldata columns_rotations) external view returns (bool) {
+        int256[][] calldata columns_rotations, uint256[] calldata public_input) external view returns (bool) {
 
         IVerifier v = IVerifier(_verifier);
 
-        return v.verify(blob, init_params, columns_rotations, _gates);
+        return v.verify(blob, init_params, columns_rotations, public_input, _gates);
     }
 }

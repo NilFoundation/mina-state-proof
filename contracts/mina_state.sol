@@ -52,9 +52,10 @@ contract MinaState is IMinaPlaceholderVerifier, Ownable {
     /// @inheritdoc IMinaPlaceholderVerifier
     function verifyLedgerState(string calldata ledger_hash,
         bytes calldata proof, uint256[][] calldata init_params,
-        int256[][][] calldata columns_rotations) external returns (bool) {
+        int256[][][] calldata columns_rotations,
+        uint256[][] calldata public_inputs) external returns (bool) {
         if (!this.isValidatedLedgerHash(ledger_hash)) {
-            if (!_state_proof.verify(proof, init_params, columns_rotations)) {
+            if (!_state_proof.verify(proof, init_params, columns_rotations, public_inputs)) {
                 emit LedgerProofValidationFailed();
                 return false;
             }
@@ -66,13 +67,14 @@ contract MinaState is IMinaPlaceholderVerifier, Ownable {
     /// @inheritdoc IMinaPlaceholderVerifier
     function verifyAccountState(state.account_state calldata account_state, string calldata ledger_hash,
         bytes calldata account_state_proof, uint256[] calldata init_params,
-        int256[][] calldata columns_rotations) external returns (bool) {
+        int256[][] calldata columns_rotations,
+        uint256[] calldata public_input) external returns (bool) {
         if (!this.isValidatedLedgerHash(ledger_hash)) {
             emit InvalidLedgerHash();
             emit AccountProofValidationFailed();
             return false;
         }
-        if (!_account_proof.verify(account_state_proof, init_params, columns_rotations)) {
+        if (!_account_proof.verify(account_state_proof, init_params, columns_rotations, public_input)) {
             emit AccountProofValidationFailed();
             return false;
         }
@@ -83,9 +85,10 @@ contract MinaState is IMinaPlaceholderVerifier, Ownable {
     function updateLedgerProof(string calldata ledger_hash,
         bytes calldata proof,
         uint256[][] calldata init_params,
-        int256[][][] calldata columns_rotations) external {
+        int256[][][] calldata columns_rotations,
+        uint256[][] calldata public_inputs) external {
         if (this.verifyLedgerState(
-                ledger_hash, proof, init_params, columns_rotations)) {
+                ledger_hash, proof, init_params, columns_rotations, public_inputs)) {
             validatedLedgers[keccak256(bytes(ledger_hash))] = true;
             emit LedgerProofValidatedAndUpdated();
         }
