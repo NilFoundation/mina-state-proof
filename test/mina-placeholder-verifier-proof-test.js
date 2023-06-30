@@ -169,6 +169,7 @@ describe('Mina state proof validation tests', function () {
             public_input.push(point[0]);
             public_input.push(point[1]);
         }
+        public_input.push(BigInt(3));
             
         return public_input;
     }
@@ -229,6 +230,13 @@ describe('Mina state proof validation tests', function () {
             losslessJSON.parse(fs.readFileSync(path.resolve(__dirname, "./data/kimchi.json"),"utf8")),
             losslessJSON.parse(fs.readFileSync(path.resolve(__dirname, "./data/kimchi_const.json"),"utf8"))
         );
+        public_input_json = "[\n";
+        for( i = 0; i < params['public_inputs'][0].length; i++ ){
+            if(i != 0) public_input_json += ",\n";            
+            public_input_json += params['public_inputs'][0][i].toString();
+        }
+        public_input_json += "]";
+        fs.writeFileSync("public_input_base.json", public_input_json)
 
         // For proof 2
         let scalar_params = loadParamsFromFile(path.resolve(__dirname, "./data/verifier_params_state_scalar.json"));
@@ -238,6 +246,13 @@ describe('Mina state proof validation tests', function () {
             losslessJSON.parse(fs.readFileSync(path.resolve(__dirname, "./data/kimchi.json"),"utf8")),
             losslessJSON.parse(fs.readFileSync(path.resolve(__dirname, "./data/kimchi_const.json"),"utf8"))
         );
+        public_input_json = "[\n";
+        for( i = 0; i < params['public_inputs'][1].length; i++ ){
+            if(i != 0) public_input_json += ",\n";            
+            public_input_json += params['public_inputs'][1][i].toString();
+        }
+        public_input_json += "]";
+        fs.writeFileSync("public_input_scalar.json", public_input_json)
 
         return params;
     }
