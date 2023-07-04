@@ -117,3 +117,5 @@ deployments
 
 .idea/
 .secret
+
+./examples/mina-add-zkapp/keys/

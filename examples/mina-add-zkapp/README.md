@@ -14,11 +14,7 @@ Configuration is set-up to be deployed on `BERKELEY` testnet.
 
 
 ## Setup
-### Clone the repository 
-```
-git clone git@github.com:NilFoundation/mina-zkapp-demo.git
-cd mina-zkapp-demo
-```
+
 ### Install project dependencies
 ```
 npm install -g zkapp-cli
@@ -55,7 +51,7 @@ User should copy the
 - `zkApp` key pair to `keys/berkeley.json`
 - `user` key pair to `keys/user.json`
 
-Both wallets **must** be funded by requesting faucet funds on `BERKELEY` network here 
+**Only** user wallet must be funded by requesting faucet funds on `BERKELEY` network here 
 by providing the public key:
 
 ```

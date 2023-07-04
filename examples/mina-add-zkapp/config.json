@@ -6,6 +6,7 @@
       "keyPath": "keys/berkeley.json",
       "fee": "0.1",
       "feepayerKeyPath": "./keys/user.json",
+      "feepayerAlias": "user",
       "smartContract": "Add"
     }
   }
