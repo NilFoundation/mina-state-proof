@@ -5,6 +5,7 @@
       "url": "https://proxy.berkeley.minaexplorer.com/graphql",
       "keyPath": "keys/berkeley.json",
       "fee": "0.1",
+      "feepayerKeyPath": "./keys/user.json",
       "smartContract": "Add"
     }
   }

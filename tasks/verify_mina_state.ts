@@ -99,11 +99,15 @@ task("validate_account_state", "Validate Mina's account state")
         const {deployer} = await hre.getNamedAccounts();
         let params = getVerifierParamsAccount();
         let inputProof = getFileContents(proof);
+        inputProof = inputProof.substring(2);
         let accountState = JSON.parse(getFileContents(state));
+        let hexlifiedExtension = ethers.utils.hexlify(Buffer.from(accountState.proof_extension, "utf8"));
+        let extendedProof = hexlifiedExtension + inputProof;
+        delete accountState.proof_extension;
         accountState.state = accountState.state.split(",");
         let minaStateProof = await ethers.getContract("MinaState");
         let minaPlaceholderVerifier = await ethers.getContractAt('IMinaPlaceholderVerifier', minaStateProof.address);
-        let tx = await minaPlaceholderVerifier.verifyAccountState(accountState, ledger, inputProof, params['init_params'], params['columns_rotations'], {gasLimit: 40_500_000});
+        let tx = await minaPlaceholderVerifier.verifyAccountState(accountState, ledger, extendedProof, params['init_params'], params['columns_rotations'], {gasLimit: 40_500_000});
         const receipt = await tx.wait()
         console.log(receipt)
     });

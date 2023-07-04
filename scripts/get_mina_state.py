@@ -5,6 +5,27 @@ import argparse
 import base58
 
 
+def write_output_file(data, output_path):
+    with open(output_path, 'w') as f:
+        sys.stdout = f
+        print(json.dumps(data, indent=4))
+
+def get_ledger_hash(args): 
+    query = """
+    query MyQuery {
+    bestChain {
+        protocolState {
+        blockchainState {
+            stagedLedgerHash
+        }
+        }
+    }
+    }
+    """
+    request_res = requests.post(args.url, json={"query": query}).json()
+    ledger_hash = request_res["data"]["bestChain"][0]["protocolState"]["blockchainState"]["stagedLedgerHash"]
+    return ledger_hash
+
 def get_mina_ledger_state(args):
     query = """
     query MyQuery {
@@ -66,13 +87,6 @@ def get_mina_ledger_state(args):
     write_output_file(request_res, args.output)
     return
 
-
-
-def write_output_file(data, output_path):
-    with open(output_path, 'w') as f:
-        sys.stdout = f
-        print(json.dumps(data, indent=4))
-
 def decode(s):
     return str(base58.b58decode_int(s))
 
@@ -127,6 +141,10 @@ def get_mina_account_state(args):
     for i in range(0, len(acc_data["zkappState"])):
         evm_res["state"] = evm_res["state"] + "0x" + format(int(acc_data["zkappState"][i]), '064x') + ","
     evm_res["state"] = evm_res["state"][:-1]
+    
+    ledger_hash = get_ledger_hash(args)
+    evm_res["proof_extension"] = ledger_hash
+
     write_output_file(input, "pm_" + args.output)
     write_output_file(evm_res, args.output)
     return

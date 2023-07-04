@@ -72,7 +72,23 @@ contract MinaState is IMinaPlaceholderVerifier, Ownable {
             emit AccountProofValidationFailed();
             return false;
         }
-        if (!_account_proof.verify(account_state_proof, init_params, columns_rotations)) {
+
+        require(account_state_proof.length >= 51, "account_state_proof is too short");
+        bytes memory ledger_hash_bytes = new bytes(51);
+        for(uint i = 0; i < 51; i++) {
+            ledger_hash_bytes[i] = account_state_proof[i];
+        }
+        string memory ledger_hash_from_proof = string(ledger_hash_bytes);
+        if (!(keccak256(abi.encodePacked((ledger_hash_from_proof))) == keccak256(abi.encodePacked((ledger_hash))))) {
+            emit AccountProofValidationFailed();
+            return false;
+        }
+        bytes memory remaining_proof = new bytes(account_state_proof.length - 51);
+        for(uint i = 51; i < account_state_proof.length; i++) {
+            remaining_proof[i - 51] = account_state_proof[i];
+        }
+
+        if (!_account_proof.verify(remaining_proof, init_params, columns_rotations)) {
             emit AccountProofValidationFailed();
             return false;
         }
