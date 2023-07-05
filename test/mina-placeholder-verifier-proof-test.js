@@ -86,25 +86,17 @@ describe('Mina state proof validation tests', function () {
         it("Should validate correct proof ", async function () {
             let params = getVerifierParams();
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
-            let mina_base_gate_argument_contract = await ethers.getContract('mina_base_split_gen');
-            let mina_scalar_gate_argument_contract = await ethers.getContract('mina_scalar_split_gen');
-            let placeholder_verifier_contract = await ethers.getContract('PlaceholderVerifier');
-
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             await expect(minaPlaceholderVerifierIF.verifyLedgerState("jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB",
                 params['proof'], params['init_params'], params['columns_rotations'],
                 {gasLimit: 30_500_000}
-            )).to.emit(minaPlaceholderVerifierIF, "LedgerProofValidationAccepted");
+            )).to.emit(minaPlaceholderVerifierIF, "LedgerProofValidated");
         });
 
         it("Should update and store proof ", async function () {
             let params = getVerifierParams();
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
-            let mina_base_gate_argument_contract = await ethers.getContract('mina_base_split_gen');
-            let mina_scalar_gate_argument_contract = await ethers.getContract('mina_scalar_split_gen');
-            let placeholder_verifier_contract = await ethers.getContract('PlaceholderVerifier');
-
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             await minaPlaceholderVerifierIF.updateLedgerProof(
@@ -125,10 +117,6 @@ describe('Mina state proof validation tests', function () {
         it("Should validate correct proof ", async function () {
             let params = getVerifierParamsAccount();
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
-            let mina_base_gate_argument_contract = await ethers.getContract('mina_base_split_gen');
-            let mina_scalar_gate_argument_contract = await ethers.getContract('mina_scalar_split_gen');
-            let placeholder_verifier_contract = await ethers.getContract('PlaceholderVerifier');
-
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             await minaPlaceholderVerifierIF.updateLedgerProof("jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB",
@@ -163,10 +151,6 @@ describe('Mina state proof validation tests', function () {
         it("Should emit event on incorrect proof validation", async function () {
             let params = getVerifierParams();
             await deployments.fixture(['minaPlaceholderVerifierFixture'])
-            let mina_base_gate_argument_contract = await ethers.getContract('mina_base_split_gen');
-            let mina_scalar_gate_argument_contract = await ethers.getContract('mina_scalar_split_gen');
-            let placeholder_verifier_contract = await ethers.getContract('PlaceholderVerifier');
-
             params['proof'] = '0x4554480000000000000000000000000000000000000000000000000000000000'
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
@@ -180,10 +164,6 @@ describe('Mina state proof validation tests', function () {
         it("Should fail to update and store incorrect proof ", async function () {
             let params = getVerifierParams();
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
-            let mina_base_gate_argument_contract = await ethers.getContract('mina_base_split_gen');
-            let mina_scalar_gate_argument_contract = await ethers.getContract('mina_scalar_split_gen');
-            let placeholder_verifier_contract = await ethers.getContract('PlaceholderVerifier');
-
             params['proof'] = '0x4554480000000000000000000000000000000000000000000000000000000000'
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
@@ -196,10 +176,6 @@ describe('Mina state proof validation tests', function () {
         it("Should fail for incorrect hash", async function () {
             let params = getVerifierParams();
             await deployments.fixture(['minaPlaceholderVerifierFixture'])
-            let mina_base_gate_argument_contract = await ethers.getContract('mina_base_split_gen');
-            let mina_scalar_gate_argument_contract = await ethers.getContract('mina_scalar_split_gen');
-            let placeholder_verifier_contract = await ethers.getContract('PlaceholderVerifier');
-
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             expect(await minaPlaceholderVerifierIF.verifyLedgerState(

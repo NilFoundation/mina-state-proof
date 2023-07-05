@@ -64,9 +64,7 @@ function getVerifierParamsLedger() {
 
 function getVerifierParamsAccount() {
     let params_file = path.join(__dirname, '/params/verifier_params_account.json');
-
     let account_path_params = loadParamsFromFile(params_file)
-
     return account_path_params;
 }
 
