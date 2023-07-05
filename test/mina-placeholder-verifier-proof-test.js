@@ -10,14 +10,14 @@ const path = require("path");
 const losslessJSON = require("lossless-json")
 const {BigNumber} = require("ethers");
 const {getNamedAccounts} = hre
-const {loadParamsFromFile, getVerifierParams, getVerifierParamsAccount} = require("./utils/utils")
+const {loadParamsFromFile, getVerifierParams, getVerifierParamsAccount, getFileContents} = require("./utils/utils")
 
 const stateProofFile = path.resolve(__dirname, "./data/proof_state.bin");
 const baseParamsFile = path.resolve(__dirname, "./data/verifier_params_state_base.json");
 const scalarParamsFile = path.resolve(__dirname, "./data/verifier_params_state_scalar.json");
 const accountParamsFile = path.resolve(__dirname, './data/verifier_params_account.json');
 const accountProofFile = path.resolve(__dirname, "./data/proof_account.bin");
-
+//let proof = getFileContents(stateProofFile);
 /* global BigInt */
 
 describe('Mina state proof validation tests', function () {
@@ -25,29 +25,31 @@ describe('Mina state proof validation tests', function () {
     const {deploy} = deployments;
     describe('Ledger Proof - Success', function () {
         it("Should validate correct proof ", async function () {
-            let params = getVerifierParams(stateProofFile,baseParamsFile,scalarParamsFile);
+            let params = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let proof = getFileContents(stateProofFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             await expect(minaPlaceholderVerifierIF.verifyLedgerState("jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB",
-                params['proof'], params['init_params'], params['columns_rotations'],
+                proof, params['init_params'], params['columns_rotations'],
                 {gasLimit: 30_500_000}
             )).to.emit(minaPlaceholderVerifierIF, "LedgerProofValidated");
         });
 
         it("Should update and store proof ", async function () {
-            let params = getVerifierParams(stateProofFile,baseParamsFile,scalarParamsFile);
+            let params = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let proof = getFileContents(stateProofFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             await minaPlaceholderVerifierIF.updateLedgerProof(
                 "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB",
-                params['proof'], params['init_params'], params['columns_rotations'],
+               proof, params['init_params'], params['columns_rotations'],
                 {gasLimit: 30_500_000})
         });
 
         it("Should validate previously updated & stored correct proof ", async function () {
-            let params = getVerifierParams(stateProofFile,baseParamsFile,scalarParamsFile);
+            let params = getVerifierParams(baseParamsFile,scalarParamsFile);
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             expect(await minaPlaceholderVerifierIF.isValidatedLedgerHash("jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", {gasLimit: 30_500_000})).to.equal(true);
@@ -56,14 +58,15 @@ describe('Mina state proof validation tests', function () {
 
     describe('Account Proof - Success', function () {
         it("Should validate correct proof ", async function () {
-            let params_state = getVerifierParams(stateProofFile,baseParamsFile,scalarParamsFile);
+            let params_state = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let stateProof = getFileContents(stateProofFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let ledger_hash = 'jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB';
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             await minaPlaceholderVerifierIF.updateLedgerProof(
                 ledger_hash,
-                params_state['proof'], params_state['init_params'], params_state['columns_rotations'],
+                stateProof, params_state['init_params'], params_state['columns_rotations'],
                 {gasLimit: 30_500_000})
 
 
@@ -100,37 +103,38 @@ describe('Mina state proof validation tests', function () {
 
     describe("Ledger Proof - Failures", function () {
         it("Should emit event on incorrect proof validation", async function () {
-            let params = getVerifierParams(stateProofFile,baseParamsFile,scalarParamsFile);
+            let params = getVerifierParams(baseParamsFile,scalarParamsFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture'])
-            params['proof'] = '0x4554480000000000000000000000000000000000000000000000000000000000'
+            let invalidProof = '0x4554480000000000000000000000000000000000000000000000000000000000'
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             await expect(minaPlaceholderVerifierIF.verifyLedgerState(
                 "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB",
-                params['proof'], params['init_params'], params['columns_rotations'],
+                invalidProof, params['init_params'], params['columns_rotations'],
                 {gasLimit: 30_500_000}
             )).to.emit(minaPlaceholderVerifierIF, "LedgerProofValidationFailed");
         });
 
         it("Should fail to update and store incorrect proof ", async function () {
-            let params = getVerifierParams(stateProofFile,baseParamsFile,scalarParamsFile);
+            let params = getVerifierParams(baseParamsFile,scalarParamsFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
-            params['proof'] = '0x4554480000000000000000000000000000000000000000000000000000000000'
+            let invalidProof = '0x4554480000000000000000000000000000000000000000000000000000000000'
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             expect(await minaPlaceholderVerifierIF.updateLedgerProof(
-                "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", params['proof'], params['init_params'], params['columns_rotations'],
+                "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", invalidProof, params['init_params'], params['columns_rotations'],
                 {gasLimit: 30_500_000}
             )).to.emit(minaPlaceholderVerifierIF, "LedgerProofValidationFailed");
         });
 
         it("Should fail for incorrect hash", async function () {
-            let params = getVerifierParams(stateProofFile,baseParamsFile,scalarParamsFile);
+            let params = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let proof = getFileContents(stateProofFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture'])
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             expect(await minaPlaceholderVerifierIF.verifyLedgerState(
-                "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", params['proof'], params['init_params'], params['columns_rotations'],
+                "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", proof, params['init_params'], params['columns_rotations'],
                 {gasLimit: 30_500_000})
             ).to.emit(minaPlaceholderVerifierIF, "InvalidLedgerHash");
         });
@@ -138,14 +142,15 @@ describe('Mina state proof validation tests', function () {
 
     describe('Account Proof - Failures', function () {
         it("Should reject invalid ledger hash", async function () {
-            let params_state = getVerifierParams(stateProofFile,baseParamsFile,scalarParamsFile);
+            let params_state = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let proof = getFileContents(stateProofFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let ledger_hash = 'jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB';
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             await minaPlaceholderVerifierIF.updateLedgerProof(
                 ledger_hash,
-                params_state['proof'], params_state['init_params'], params_state['columns_rotations'],
+                proof, params_state['init_params'], params_state['columns_rotations'],
                 {gasLimit: 30_500_000})
 
 
