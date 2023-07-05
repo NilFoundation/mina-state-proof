@@ -63,9 +63,8 @@ function getVerifierParams(baseParamsFile,scalarParamsFile) {
     return params;
 }
 
-function getVerifierParamsAccount(verifierParamsFile, accountProofFile) {
+function getVerifierParamsAccount(verifierParamsFile) {
     let account_path_params = loadParamsFromFile(verifierParamsFile);
-    account_path_params['proof'] = fs.readFileSync(accountProofFile, 'utf8');
     return account_path_params;
 }
 

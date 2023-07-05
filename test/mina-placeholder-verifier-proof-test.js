@@ -70,7 +70,8 @@ describe('Mina state proof validation tests', function () {
                 {gasLimit: 30_500_000})
 
 
-            let params_account = getVerifierParamsAccount(accountParamsFile,accountProofFile);
+            let params_account = getVerifierParamsAccount(accountParamsFile);
+            let accountProof = getFileContents(accountProofFile);
 
             const accountData = {
                 public_key: "B62qre3ersHfzQckNuibViWTGyyKwZseztqrjPjBv6SQF384Rg6ESAy",
@@ -90,8 +91,8 @@ describe('Mina state proof validation tests', function () {
                 ],
             };
 
-            let inputProof = params_account['proof'];
-            inputProof = inputProof.substring(2);
+
+            let inputProof = accountProof.substring(2);
             let hexlifiedExtension = ethers.utils.hexlify(Buffer.from(ledger_hash));
             let extendedProof = hexlifiedExtension + inputProof;
 
@@ -154,7 +155,8 @@ describe('Mina state proof validation tests', function () {
                 {gasLimit: 30_500_000})
 
 
-            let params_account = getVerifierParamsAccount(accountParamsFile,accountProofFile);
+            let params_account = getVerifierParamsAccount(accountParamsFile);
+            let accountProof = getFileContents(accountProofFile);
 
             const accountData = {
                 public_key: "B62qre3ersHfzQckNuibViWTGyyKwZseztqrjPjBv6SQF384Rg6ESAy",
@@ -174,8 +176,7 @@ describe('Mina state proof validation tests', function () {
                 ],
             };
 
-            let inputProof = params_account['proof'];
-            inputProof = inputProof.substring(2);
+            let inputProof = accountProof.substring(2);
             let hexlifiedExtension = ethers.utils.hexlify(Buffer.from(ledger_hash));
             let extendedProof = hexlifiedExtension + inputProof;
             let invalid_ledger_hash  = "jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcd"
