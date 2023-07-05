@@ -59,7 +59,7 @@ contract MinaState is IMinaPlaceholderVerifier, Ownable {
                 return false;
             }
         }
-        emit LedgerProofValidationAccepted();
+        emit LedgerProofValidated();
         return true;
     }
 
@@ -92,6 +92,7 @@ contract MinaState is IMinaPlaceholderVerifier, Ownable {
             emit AccountProofValidationFailed();
             return false;
         }
+        emit AccountProofValidated();
         return true;
     }
 
