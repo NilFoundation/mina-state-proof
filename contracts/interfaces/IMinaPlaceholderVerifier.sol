@@ -36,16 +36,15 @@ interface IMinaPlaceholderVerifier {
    */
     event LedgerProofValidationFailed();
 
-   /**
-     * @dev Emitted when Account (user balance/zkApp state) proof validation fails
-    */
-    event AccountProofValidationFailed();
-
     /**
     * @dev Emitted when Account (user balance/zkApp state) proof validation succeeds
     */
     event AccountProofValidated();
 
+    /**
+      * @dev Emitted when Account (user balance/zkApp state) proof validation fails
+    */
+    event AccountProofValidationFailed();
 
     /**
      * @dev Emitted when an account proof validation is attempted against a ledger has not previously
