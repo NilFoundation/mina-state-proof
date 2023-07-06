@@ -89,6 +89,7 @@ Inputs
     "locked" : Locked/Staked balance in MINA 
   },
   "state": 8 byte state of zkApp/user account
+  "proof_extension": Ledger hash for account state        
 }
 
 ```
