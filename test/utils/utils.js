@@ -1,15 +1,7 @@
-// const {
-//     time,
-//     loadFixture,
-// } = require("@nomicfoundation/hardhat-network-helpers");
-// const {anyValue} = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
-// const {expect} = require("chai");
-// const hre = require('hardhat')
 const fs = require("fs");
 const path = require("path");
 const losslessJSON = require("lossless-json")
 const {BigNumber} = require("ethers");
-// const {getNamedAccounts} = hre
 
 
 function loadParamsFromFile(jsonFile) {
@@ -46,7 +38,7 @@ function loadParamsFromFile(jsonFile) {
     return params;
 }
 
-function getVerifierParams(baseParamsFile,scalarParamsFile) {
+function getStateVerifierParams(baseParamsFile, scalarParamsFile) {
     let params = {}
     params['init_params'] = [[24760, 21744], [], []];
     params['columns_rotations'] = [[], []]
@@ -63,7 +55,7 @@ function getVerifierParams(baseParamsFile,scalarParamsFile) {
     return params;
 }
 
-function getVerifierParamsAccount(verifierParamsFile) {
+function getAccountVerifierParams(verifierParamsFile) {
     let account_path_params = loadParamsFromFile(verifierParamsFile);
     return account_path_params;
 }
@@ -72,4 +64,4 @@ function getFileContents(filePath) {
     return fs.readFileSync(filePath, 'utf8');
 }
 
-module.exports = {loadParamsFromFile, getVerifierParams ,getVerifierParamsAccount,getFileContents};
+module.exports = { getStateVerifierParams , getAccountVerifierParams,getFileContents};
