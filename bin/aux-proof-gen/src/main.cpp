@@ -484,7 +484,7 @@ void prepare_proof_scalar(
     zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &original_proof,
     nil::blueprint_mc::components::kimchi_proof_scalar<BlueprintFieldType, KimchiParamsType, EvalRounds> &circuit_proof,
     std::vector<typename BlueprintFieldType::value_type> &public_input) {
-    using var = zk::snark::plonk_variable<BlueprintFieldType>;
+    using var = zk::snark::plonk_variable<typename BlueprintFieldType::value_type>;
 
     // eval_proofs
     for (std::size_t point_idx = 0; point_idx < 2; point_idx++) {
@@ -547,7 +547,7 @@ template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsT
 void prepare_proof_base(zk::snark::proof_type<nil::crypto3::algebra::curves::pallas> &original_proof,
                         nil::blueprint_mc::components::kimchi_proof_base<BlueprintFieldType, KimchiParamsType> &circuit_proof,
                         std::vector<typename BlueprintFieldType::value_type> &public_input) {
-    using var = zk::snark::plonk_variable<BlueprintFieldType>;
+    using var = zk::snark::plonk_variable<typename BlueprintFieldType::value_type>;
     using kimchi_constants = nil::blueprint_mc::components::kimchi_inner_constants<KimchiParamsType>;
 
     // COMMITMENTS
@@ -658,7 +658,7 @@ template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsT
 void prepare_index_base(pallas_verifier_index_type &original_index,
                         nil::blueprint_mc::components::kimchi_verifier_index_base<CurveType, KimchiParamsType> &circuit_index,
                         std::vector<typename BlueprintFieldType::value_type> &public_input) {
-    using var = zk::snark::plonk_variable<BlueprintFieldType>;
+    using var = zk::snark::plonk_variable<typename BlueprintFieldType::value_type>;
 
     // COMMITMENTS
     for (std::size_t i = 0; i < original_index.sigma_comm.size(); i++) {
@@ -837,7 +837,7 @@ template<typename CurveType, typename BlueprintFieldType, typename KimchiParamsT
 void prepare_index_scalar(pallas_verifier_index_type &original_index,
                           nil::blueprint_mc::components::kimchi_verifier_index_scalar<BlueprintFieldType> &circuit_index,
                           std::vector<typename BlueprintFieldType::value_type> &public_input) {
-    using var = zk::snark::plonk_variable<BlueprintFieldType>;
+    using var = zk::snark::plonk_variable<typename BlueprintFieldType::value_type>;
 
     circuit_index.domain_size = original_index.domain.m;
 
@@ -945,7 +945,7 @@ std::string generate_proof_base(zk::snark::proof_type<nil::crypto3::algebra::cur
     using hash_type = nil::crypto3::hashes::keccak_1600<256>;
     constexpr std::size_t Lambda = 1;
 
-    using var = zk::snark::plonk_variable<BlueprintFieldType>;
+    using var = zk::snark::plonk_variable<typename BlueprintFieldType::value_type>;
 
     constexpr static std::size_t public_input_size = 0;
     constexpr static std::size_t max_poly_size = 1 << EvalRounds;    // 32768 in json
@@ -1088,7 +1088,7 @@ std::string generate_proof_scalar(zk::snark::proof_type<nil::crypto3::algebra::c
     using hash_type = nil::crypto3::hashes::keccak_1600<256>;
     constexpr std::size_t Lambda = 1;
 
-    using var = zk::snark::plonk_variable<BlueprintFieldType>;
+    using var = zk::snark::plonk_variable<typename BlueprintFieldType::value_type>;
 
     constexpr static std::size_t public_input_size = 1;
     constexpr static std::size_t max_poly_size = 1 << EvalRounds;    // 32768 in json

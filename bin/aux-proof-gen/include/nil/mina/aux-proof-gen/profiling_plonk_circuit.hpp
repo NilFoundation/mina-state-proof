@@ -103,23 +103,23 @@ namespace nil {
                 return it == (std::cend(c) - 1);
             }
 
-            static void print_variable(std::ostream &os, const nil::crypto3::zk::snark::plonk_variable<FieldType> &var,
+            static void print_variable(std::ostream &os, const nil::crypto3::zk::snark::plonk_variable<typename FieldType::value_type> &var,
                                        const preprocessed_public_data_type &public_preprocessed_data) {
                 std::size_t rotation_idx = std::distance(
                     public_preprocessed_data.common_data.columns_rotations.at(var.index).begin(),
                     public_preprocessed_data.common_data.columns_rotations.at(var.index).find(var.rotation));
                 os << "get_eval_i_by_rotation_idx(" << var.index << "," << rotation_idx
                    << ", mload(add(gate_params, ";
-                if (zk::snark::plonk_variable<FieldType>::column_type::witness == var.type) {
+                if (zk::snark::plonk_variable<typename FieldType::value_type>::column_type::witness == var.type) {
                     os << "get_witness_i_by_rotation_idx(" << var.index << "," << rotation_idx << ", gate_params)";
                 }
-                if (zk::snark::plonk_variable<FieldType>::column_type::constant == var.type) {
+                if (zk::snark::plonk_variable<typename FieldType::value_type>::column_type::constant == var.type) {
                     os << "get_constant_i_by_rotation_idx(" << var.index << "," << rotation_idx << ", gate_params)";
                 }
-                if (zk::snark::plonk_variable<FieldType>::column_type::public_input == var.type) {
+                if (zk::snark::plonk_variable<typename FieldType::value_type>::column_type::public_input == var.type) {
                     os << "get_public_input_i(" << var.index << "," << rotation_idx << ", gate_params)";
                 }
-                if (zk::snark::plonk_variable<FieldType>::column_type::selector == var.type) {
+                if (zk::snark::plonk_variable<typename FieldType::value_type>::column_type::selector == var.type) {
                     os << "get_selector_i("<< var.index << ", gate_params)";
                 }
                 os << ")))";
@@ -158,7 +158,7 @@ namespace nil {
                                  const preprocessed_public_data_type &public_preprocessed_data) {
                 os << "mstore(add(gate_params, CONSTRAINT_EVAL_OFFSET), 0)" << std::endl;
                 // Convert constraint expression to non_linear_combination.
-                math::expression_to_non_linear_combination_visitor<nil::crypto3::zk::snark::plonk_variable<FieldType>> visitor;
+                math::expression_to_non_linear_combination_visitor<nil::crypto3::zk::snark::plonk_variable<typename FieldType::value_type>> visitor;
                 auto comb = visitor.convert(constraint);
                 print_terms(os, comb.terms, public_preprocessed_data);
             }
