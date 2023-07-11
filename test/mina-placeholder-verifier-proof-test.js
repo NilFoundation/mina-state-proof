@@ -10,7 +10,7 @@ const path = require("path");
 const losslessJSON = require("lossless-json")
 const {BigNumber} = require("ethers");
 const {getNamedAccounts} = hre
-const {loadParamsFromFile, getVerifierParams, getVerifierParamsAccount, getFileContents} = require("./utils/utils")
+const {loadParamsFromFile, getStateVerifierParams, getAccountVerifierParams, getFileContents} = require("./utils/utils")
 
 const stateProofFile = path.resolve(__dirname, "./data/proof_state.bin");
 const baseParamsFile = path.resolve(__dirname, "./data/verifier_params_state_base.json");
@@ -25,7 +25,7 @@ describe('Mina state proof validation tests', function () {
     const {deploy} = deployments;
     describe('Ledger Proof - Success', function () {
         it("Should validate correct proof ", async function () {
-            let params = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let params = getStateVerifierParams(baseParamsFile,scalarParamsFile);
             let proof = getFileContents(stateProofFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
@@ -37,7 +37,7 @@ describe('Mina state proof validation tests', function () {
         });
 
         it("Should update and store proof ", async function () {
-            let params = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let params = getStateVerifierParams(baseParamsFile,scalarParamsFile);
             let proof = getFileContents(stateProofFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
@@ -49,7 +49,7 @@ describe('Mina state proof validation tests', function () {
         });
 
         it("Should validate previously updated & stored correct proof ", async function () {
-            let params = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let params = getStateVerifierParams(baseParamsFile,scalarParamsFile);
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
             let minaPlaceholderVerifierIF = await ethers.getContractAt("IMinaPlaceholderVerifier", minaPlaceholderVerifier.address);
             expect(await minaPlaceholderVerifierIF.isValidatedLedgerHash("jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB", {gasLimit: 30_500_000})).to.equal(true);
@@ -58,7 +58,7 @@ describe('Mina state proof validation tests', function () {
 
     describe('Account Proof - Success', function () {
         it("Should validate correct proof ", async function () {
-            let params_state = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let params_state = getStateVerifierParams(baseParamsFile,scalarParamsFile);
             let stateProof = getFileContents(stateProofFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let ledger_hash = 'jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB';
@@ -70,7 +70,7 @@ describe('Mina state proof validation tests', function () {
                 {gasLimit: 30_500_000})
 
 
-            let params_account = getVerifierParamsAccount(accountParamsFile);
+            let params_account = getAccountVerifierParams(accountParamsFile);
             let accountProof = getFileContents(accountProofFile);
 
             const accountData = {
@@ -104,7 +104,7 @@ describe('Mina state proof validation tests', function () {
 
     describe("Ledger Proof - Failures", function () {
         it("Should emit event on incorrect proof validation", async function () {
-            let params = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let params = getStateVerifierParams(baseParamsFile,scalarParamsFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture'])
             let invalidProof = '0x4554480000000000000000000000000000000000000000000000000000000000'
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
@@ -117,7 +117,7 @@ describe('Mina state proof validation tests', function () {
         });
 
         it("Should fail to update and store incorrect proof ", async function () {
-            let params = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let params = getStateVerifierParams(baseParamsFile,scalarParamsFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let invalidProof = '0x4554480000000000000000000000000000000000000000000000000000000000'
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
@@ -129,7 +129,7 @@ describe('Mina state proof validation tests', function () {
         });
 
         it("Should fail for incorrect hash", async function () {
-            let params = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let params = getStateVerifierParams(baseParamsFile,scalarParamsFile);
             let proof = getFileContents(stateProofFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture'])
             let minaPlaceholderVerifier = await ethers.getContract('MinaState');
@@ -143,7 +143,7 @@ describe('Mina state proof validation tests', function () {
 
     describe('Account Proof - Failures', function () {
         it("Should reject invalid ledger hash", async function () {
-            let params_state = getVerifierParams(baseParamsFile,scalarParamsFile);
+            let params_state = getStateVerifierParams(baseParamsFile,scalarParamsFile);
             let proof = getFileContents(stateProofFile);
             await deployments.fixture(['minaPlaceholderVerifierFixture']);
             let ledger_hash = 'jwYPLbRQa4X86tSJs1aTzusf3TNdVTj58oyWJQB132sEGUtKHcB';
@@ -155,7 +155,7 @@ describe('Mina state proof validation tests', function () {
                 {gasLimit: 30_500_000})
 
 
-            let params_account = getVerifierParamsAccount(accountParamsFile);
+            let params_account = getAccountVerifierParams(accountParamsFile);
             let accountProof = getFileContents(accountProofFile);
 
             const accountData = {
