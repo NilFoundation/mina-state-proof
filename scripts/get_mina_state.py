@@ -88,7 +88,7 @@ def get_mina_ledger_state(args):
     return
 
 def decode(s):
-    return str(base58.b58decode_int(s))
+    return str(base58.b58decode_int(s) % 2**255)
 
 def get_mina_account_state(args):
     query = '''
@@ -113,25 +113,23 @@ def get_mina_account_state(args):
     request_res = requests.post(args.url, json={"query": query}).json()
     input = {}
     acc_data = request_res["data"]["account"]
-    input_str = str(acc_data["index"]) + "\n"
+    input_data = [str(acc_data["index"])]
     if (acc_data["zkappState"] is None):
-        for _ in range(0, 8):
-            input_str += "0\n"
-    else:
-        for x in acc_data["zkappState"]:
-            input_str += str(x) + "\n"
-    input_str += acc_data["balance"]["liquid"] + "\n"
-    input_str += acc_data["balance"]["locked"] + "\n"
-    input_str += decode(acc_data["balance"]["stateHash"])+ "\n"
-    input_str += acc_data["leafHash"] + "\n"
-    input_str += decode(acc_data["receiptChainHash"]) + "\n"
+        acc_data["zkappState"] = ['0'] * 8
+    for x in acc_data["zkappState"]:
+        input_data.append(str(x))
+    input_data.append(str(acc_data["balance"]["liquid"]))
+    input_data.append(str(acc_data["balance"]["locked"]))
+    input_data.append(str(decode(acc_data["balance"]["stateHash"])))
+    input_data.append(str(acc_data["leafHash"]))
+    input_data.append(str(decode(acc_data["receiptChainHash"])))
     for node in acc_data["merklePath"]:
         if (node["left"] is not None):
-            input_str += node["left"] + "\n"
+            input_data.append(str(node["left"]))
         elif (node["right"] is not None):
-            input_str += node["right"] + "\n"
-    input_str = input_str[:-2]
-    input["input"] = input_str
+            input_data.append(str(node["right"]))
+    input["array"] = input_data
+    input = [input]
     evm_res = {}
     evm_res["public_key"] = args.address
     evm_res["balance"] = {}
