@@ -80,6 +80,7 @@ contract MinaState is IMinaPlaceholderVerifier, Ownable {
         }
         string memory ledger_hash_from_proof = string(ledger_hash_bytes);
         if (!(keccak256(abi.encodePacked((ledger_hash_from_proof))) == keccak256(abi.encodePacked((ledger_hash))))) {
+            emit InvalidLedgerHash();
             emit AccountProofValidationFailed();
             return false;
         }

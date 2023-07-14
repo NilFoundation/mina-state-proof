@@ -71,6 +71,8 @@ module.exports = async function () {
         "account_gate8",
         "account_gate9",
         "account_gate10",
+        "account_gate11",
+        "account_gate12"
     ]
     deployedLib = {}
     for (let lib of libs) {
