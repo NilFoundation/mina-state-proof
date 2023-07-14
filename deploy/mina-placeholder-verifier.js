@@ -71,6 +71,8 @@ module.exports = async function () {
         "account_gate8",
         "account_gate9",
         "account_gate10",
+        "account_gate11",
+        "account_gate12",
     ]
     deployedLib = {}
     for (let lib of libs) {
@@ -81,7 +83,7 @@ module.exports = async function () {
         deployedLib[lib] = (await hre.deployments.get(lib)).address
     }
 
-    await deploy('account_proof_split_gen', {
+    await deploy('account_gate_argument_split_gen', {
         from: deployer,
         libraries: deployedLib,
         log: true,
@@ -108,7 +110,7 @@ module.exports = async function () {
     verifier_address = (await hre.deployments.get('PlaceholderVerifier')).address;
     mina_base_split_gen_address = (await hre.deployments.get('mina_base_split_gen')).address;
     mina_scalar_split_gen_address = (await hre.deployments.get('mina_scalar_split_gen')).address;
-    account_split_gen_address = (await hre.deployments.get('account_proof_split_gen')).address;
+    account_split_gen_address = (await hre.deployments.get('account_gate_argument_split_gen')).address;
 
     await deploy('MinaStateProof',{
         from:deployer,

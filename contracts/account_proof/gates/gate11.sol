@@ -23,7 +23,7 @@ pragma solidity >=0.8.4;
 import "@nilfoundation/evm-placeholder-verification/contracts/types.sol";
 import "./gate_argument.sol";
 
-library account_gate3{
+library account_gate11{
     uint256 constant MODULUS_OFFSET = 0x0;
     uint256 constant THETA_OFFSET = 0x20;
 
@@ -62,7 +62,7 @@ library account_gate3{
                 result := mload(add(add(mload(add(ptr, SELECTOR_EVALUATIONS_OFFSET)), 0x20), mul(0x20, idx)))
             }
 
-			//Gate3
+			//Gate11
 			mstore(add(local_vars, GATE_EVAL_OFFSET), 0)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET), 0)
 			terms:=get_witness_i_by_rotation_idx(3,0, local_vars)
@@ -94,7 +94,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(2,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(2,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x11d70af565aa2d16e88bf7cf8d8cbabbe0c86ff1ec4e3d1a19119c1c8d70199e
+			terms:=0x710c54a49e3ee85cb9a5fe8563745b3ffd03f47e96de4c99257678c0b622ba6
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -128,7 +128,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(2,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(2,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x30212072579ab5dd7cefbf3038bbcdb9d72f5a158323fb8b4fa8b0336fd0d7e8
+			terms:=0x66d07c0d9ebc24242cca9fb5e5eb250febbb4bfe4b57525042e8196f5551df2
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -162,7 +162,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(2,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(2,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x3b95c12679c2d28c622743616f58b902812d279938ac3a57be0e018cbd30fb1f
+			terms:=0xafd78688148e37e4ef132fc655266307859145bc64b2deb128f132505e239c9
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -196,7 +196,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(5,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(5,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x1e61f74b9f3cfa4bd798f453547953e18dee91a490799ce57f7eb54b064d128b
+			terms:=0x504a43ed9fdfa79233345cd22fab3267e52e0c73eb680451900e83b25682914
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -230,7 +230,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(5,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(5,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x744c95ed14313b2b178d714bc1c0ed5b412e6fc6806c5a2979fe2dabdb19d37
+			terms:=0x28d483d27181b4f92e7c5da8a486f8b651af8ca772e8f12109d429c08d621990
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -264,7 +264,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(5,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(5,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x21655c01da2ee933042957033251f55666304ef85dce6404943e967ba041211b
+			terms:=0x114ac01c5d8797758fb6ba961ab5f0f2fbad634d4284615ca459c82b0982a81d
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -298,7 +298,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(8,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(8,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x3cf0cc128f25b3d4047bb00e58aa747ea527d5fb2ec657b249ff7c9cb82a0e76
+			terms:=0x3c8a51a94726cef2aac12882bf92123c320d5aa1d7318750aac2d535f874afcc
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -332,7 +332,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(8,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(8,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x3d7d4fbec8cafb6a54be830d3b8c7640ba2a5f05471f5ae48db239904341b450
+			terms:=0x22b65f2ac43d66c340e04a2e256448903ddc28ca336724dbeb6ddc30e83e10c9
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -366,7 +366,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(8,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(8,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x364ead7215d14a42696fa47700fa020c415477fdebb927664fd984540137da11
+			terms:=0x2cd2e8478354928f82205e0fe20e8db54ecd41127f88a9fba2190ab6806acea1
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -400,7 +400,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(11,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(11,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0xff7c2444a154c6cee3857402a1aaa9827c04dc7a096fffb8ada9412fc261090
+			terms:=0x39d25ad7f6b727393b5338195e55bde112a7d782650bb2a698cc72a1198aa07c
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -434,7 +434,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(11,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(11,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x3e815318c309839eeddc6340ae213f190d584aa177712ffafb6bb52e5a432f6d
+			terms:=0x35b4b2a321ab568b15b1a811becd2d54fd35d5fb1733c844dd6e0fcfe5227f08
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -468,7 +468,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(11,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(11,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x850e2170ab8a45e9a46f072a9797c2ad4253b028aba718765bc61abe7bd7f6a
+			terms:=0xca90e04153b6c33548ad48f44127de33dad333a76c82170cbb434f90079b170
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -502,7 +502,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(14,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(14,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x29008a6d7c95bacbf1390d4f0edd8c931e55dc43c939fff8f47289ae5f1990b0
+			terms:=0x3bd8de175633cdaa87ae014f1fe6f3a22651cde07a05259d1ac7f2260075bfa8
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -536,7 +536,7 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(14,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(14,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x25a67a2b4ca62fc219f4d12544e7ac0babb539104868e997f65b60e4b103c028
+			terms:=0x3ac264d9cc000ce35b03a8db3194bbddf0c5702e193461487744c1a53208b750
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
@@ -570,11 +570,11 @@ library account_gate3{
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(14,0, local_vars), modulus)
 			terms:=mulmod(terms, get_witness_i_by_rotation_idx(14,0, local_vars), modulus)
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
-			terms:=0x1aa562b41464a15e754687d4e544d9805c8f25427e96a31e4be69a541e1e068c
+			terms:=0x1982693515021a242c24e0f9974f6332cf1c760be8f864aa2eb4ced304b37fe5
 			mstore(add(local_vars, CONSTRAINT_EVAL_OFFSET),addmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),terms,modulus))
 			mstore(add(local_vars, GATE_EVAL_OFFSET),addmod(mload(add(local_vars, GATE_EVAL_OFFSET)),mulmod(mload(add(local_vars, CONSTRAINT_EVAL_OFFSET)),theta_acc,modulus),modulus))
 			theta_acc := mulmod(theta_acc, theta, modulus)
-			mstore(add(local_vars, GATE_EVAL_OFFSET),mulmod(mload(add(local_vars, GATE_EVAL_OFFSET)),get_selector_i(3,local_vars),modulus))
+			mstore(add(local_vars, GATE_EVAL_OFFSET),mulmod(mload(add(local_vars, GATE_EVAL_OFFSET)),get_selector_i(11,local_vars),modulus))
 			gates_evaluation := addmod(gates_evaluation,mload(add(local_vars, GATE_EVAL_OFFSET)),modulus)
 
         }
