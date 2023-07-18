@@ -19,17 +19,13 @@
 pragma solidity >=0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-
 import '@nilfoundation/evm-placeholder-verification/contracts/interfaces/verifier.sol';
 import '@nilfoundation/evm-placeholder-verification/contracts/verifier.sol';
-
 import "./gates/gate_argument.sol";
 
 
 contract AccountPathProof is Ownable {
-
     address _verifier;
-
     address _gates;
 
     constructor(address verifier, address gates) {
@@ -47,9 +43,7 @@ contract AccountPathProof is Ownable {
 
     function verify(bytes calldata blob, uint256[] calldata init_params,
         int256[][] calldata columns_rotations) external view returns (bool) {
-
         IVerifier v = IVerifier(_verifier);
-
         return v.verify(blob, init_params, columns_rotations, _gates);
     }
 }

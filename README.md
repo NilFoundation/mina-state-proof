@@ -79,21 +79,6 @@ Inputs
 - _ledger: Hash of the ledger against which the account state is validated._
 - _network: Network to run this task against._
 
-### Account state file structure
-
-```JSON
-{
-  "public_key" : public key of zkApp/User Account,
-  "balance" : {
-    "liquid" : Unlocked balance in MINA  ,
-    "locked" : Locked/Staked balance in MINA 
-  },
-  "state": 8 byte state of zkApp/user account
-}
-
-```
-See `examples/data/account_data.json` for examples.
-
 ## Community
 
 Issue reports are preferred to be done with Github Issues in here: https://github.com/nilfoundation/mina-state-proof/issues.

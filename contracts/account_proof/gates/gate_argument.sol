@@ -35,10 +35,12 @@ import "./gate7.sol";
 import "./gate8.sol";
 import "./gate9.sol";
 import "./gate10.sol";
+import "./gate11.sol";
+import "./gate12.sol";
 
 
 contract account_proof_split_gen  is IGateArgument{
-    uint256 constant GATES_N = 11;
+    uint256 constant GATES_N = 13;
 
     struct local_vars_type{
         // 0x0
@@ -103,6 +105,8 @@ contract account_proof_split_gen  is IGateArgument{
 		(local_vars.gates_evaluation, local_vars.theta_acc) = account_gate8.evaluate_gate_be(gate_params, local_vars);
 		(local_vars.gates_evaluation, local_vars.theta_acc) = account_gate9.evaluate_gate_be(gate_params, local_vars);
 		(local_vars.gates_evaluation, local_vars.theta_acc) = account_gate10.evaluate_gate_be(gate_params, local_vars);
+		(local_vars.gates_evaluation, local_vars.theta_acc) = account_gate11.evaluate_gate_be(gate_params, local_vars);
+		(local_vars.gates_evaluation, local_vars.theta_acc) = account_gate12.evaluate_gate_be(gate_params, local_vars);
 
 
         gates_evaluation = local_vars.gates_evaluation;

@@ -8,12 +8,14 @@ module.exports = async function () {
 
     let libs = [
         "mina_base_gate0",
-        "mina_base_gate4",
+        "mina_base_gate3",
+        "mina_base_gate5",
         "mina_base_gate7",
-        "mina_base_gate10",
-        "mina_base_gate13",
-        "mina_base_gate15",
-        "mina_base_gate16",
+        "mina_base_gate9",
+        "mina_base_gate11",
+        "mina_base_gate15_0",
+        "mina_base_gate15_1",
+        "mina_base_gate16_0",
         "mina_base_gate16_1"
     ]
 
@@ -26,7 +28,7 @@ module.exports = async function () {
         deployedLib[lib] = (await hre.deployments.get(lib)).address
     }
 
-    await deploy('mina_base_split_gen', {
+    await deploy('mina_base_gate_argument_split_gen', {
         from: deployer,
         libraries: deployedLib,
         log: true,
@@ -41,7 +43,6 @@ module.exports = async function () {
         "mina_scalar_gate14",
         "mina_scalar_gate16",
         "mina_scalar_gate18",
-        "mina_scalar_gate22",
     ]
 
     deployedLib = {}
@@ -53,7 +54,7 @@ module.exports = async function () {
         deployedLib[lib] = (await hre.deployments.get(lib)).address
     }
 
-    await deploy('mina_scalar_split_gen', {
+    await deploy('mina_scalar_gate_argument_split_gen', {
         from: deployer,
         libraries: deployedLib,
         log: true,
@@ -71,6 +72,8 @@ module.exports = async function () {
         "account_gate8",
         "account_gate9",
         "account_gate10",
+        "account_gate11",
+        "account_gate12"
     ]
     deployedLib = {}
     for (let lib of libs) {
@@ -106,8 +109,8 @@ module.exports = async function () {
     });
 
     verifier_address = (await hre.deployments.get('PlaceholderVerifier')).address;
-    mina_base_split_gen_address = (await hre.deployments.get('mina_base_split_gen')).address;
-    mina_scalar_split_gen_address = (await hre.deployments.get('mina_scalar_split_gen')).address;
+    mina_base_split_gen_address = (await hre.deployments.get('mina_base_gate_argument_split_gen')).address;
+    mina_scalar_split_gen_address = (await hre.deployments.get('mina_scalar_gate_argument_split_gen')).address;
     account_split_gen_address = (await hre.deployments.get('account_proof_split_gen')).address;
 
     await deploy('MinaStateProof',{
