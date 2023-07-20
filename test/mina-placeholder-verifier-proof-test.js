@@ -13,9 +13,9 @@ const {getNamedAccounts} = hre
 const {loadParamsFromFile, getStateVerifierParams, getAccountVerifierParams, getFileContents} = require("./utils/utils")
 
 const stateProofFile = path.resolve(__dirname, "./data/proof_state.bin");
-const baseParamsFile = path.resolve(__dirname, "./data/verifier_params_state_base.json");
-const scalarParamsFile = path.resolve(__dirname, "./data/verifier_params_state_scalar.json");
-const accountParamsFile = path.resolve(__dirname, './data/verifier_params_account.json');
+const baseParamsFile = path.resolve(__dirname, "../circuits/params/verifier_params_state_base.json");
+const scalarParamsFile = path.resolve(__dirname, "../circuits/params/verifier_params_state_scalar.json");
+const accountParamsFile = path.resolve(__dirname, '../circuits/params/verifier_params_account.json');
 const accountProofFile = path.resolve(__dirname, "./data/proof_account.bin");
 //let proof = getFileContents(stateProofFile);
 /* global BigInt */

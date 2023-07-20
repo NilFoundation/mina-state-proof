@@ -4,9 +4,9 @@ import path from "path";
 import losslessJSON from "lossless-json";
 import {getFileContents, getStateVerifierParams,getAccountVerifierParams} from "../test/utils/utils";
 
-const baseParamsFile = path.join(__dirname, "/params/verifier_params_state_base.json");
-const scalarParamsFile =path.join(__dirname, "/params/verifier_params_state_scalar.json");
-const accountParamsFile = path.join(__dirname, '/params/verifier_params_account.json');
+const baseParamsFile = path.join(__dirname, "../circuits/params/verifier_params_state_base.json");
+const scalarParamsFile =path.join(__dirname, "../circuits//params/verifier_params_state_scalar.json");
+const accountParamsFile = path.join(__dirname, '../circuits//params/verifier_params_account.json');
 
 
 task("validate_ledger_state", "Validate entire mina ledger state")
