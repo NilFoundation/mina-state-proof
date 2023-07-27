@@ -1,5 +1,10 @@
+const path = require('path');
 const hre = require('hardhat')
-const {getNamedAccounts} = hre
+const {getNamedAccounts} = hre;
+const {  getStateVerifierParams, getAccountVerifierParams } = require('../test/utils/utils.js');
+const baseParamsFile = path.resolve(__dirname, "../circuits/params/verifier_params_state_base.json");
+const scalarParamsFile = path.resolve(__dirname, "../circuits/params/verifier_params_state_scalar.json");
+const accountParamsFile = path.resolve(__dirname, '../circuits/params/verifier_params_account.json');
 
 module.exports = async function () {
     const {deployments, getNamedAccounts} = hre;
@@ -112,6 +117,32 @@ module.exports = async function () {
     mina_base_split_gen_address = (await hre.deployments.get('mina_base_gate_argument_split_gen')).address;
     mina_scalar_split_gen_address = (await hre.deployments.get('mina_scalar_gate_argument_split_gen')).address;
     account_split_gen_address = (await hre.deployments.get('account_proof_split_gen')).address;
+
+    const account_params = getAccountVerifierParams(accountParamsFile);
+    const state_params = getStateVerifierParams(baseParamsFile, scalarParamsFile);
+
+    await deploy('AccountPathVerifier',{
+        from:deployer,
+        args:[
+            verifier_address,
+            account_split_gen_address,
+            account_params.init_params,
+            account_params.columns_rotations,
+        ],
+        log:true
+    })
+
+    await deploy('MinaStateVerifier',{
+        from:deployer,
+        args:[
+            verifier_address,
+            mina_base_split_gen_address,
+            mina_scalar_split_gen_address,
+            state_params.init_params,
+            state_params.columns_rotations
+        ],
+        log:true
+    })
 
     await deploy('MinaStateProof',{
         from:deployer,
