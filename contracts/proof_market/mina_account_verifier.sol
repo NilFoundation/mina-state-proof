@@ -20,10 +20,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import '@nilfoundation/evm-placeholder-verification/contracts/interfaces/verifier.sol';
-import "../interfaces/ICustomVerifier.sol";
+import "../interfaces/IProofMarketVerifier.sol";
 
 
-contract AccountPathVerifier is ICustomVerifier, Ownable {
+contract AccountPathVerifier is IProofMarketVerifier, Ownable {
 
     address _verifier;
     address _gates;
