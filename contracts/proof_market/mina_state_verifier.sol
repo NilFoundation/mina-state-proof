@@ -62,6 +62,14 @@ contract MinaStateVerifier is ICustomVerifier, Ownable {
         _scalar_gates = scalar_gates;
     }
 
+    function setInitParams(uint256[][] memory init_params) external onlyOwner {
+        _init_params = init_params;
+    }
+
+    function setColumnsRotations(int256[][][] memory columns_rotations) external onlyOwner {
+        _columns_rotations = columns_rotations;
+    }
+
     function verify(
         bytes calldata blob,
         // TODO: add public_inputs

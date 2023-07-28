@@ -50,6 +50,14 @@ contract AccountPathVerifier is ICustomVerifier, Ownable {
         _gates = gates;
     }
 
+    function setInitParams(uint256[] memory init_params) external onlyOwner {
+        _init_params = init_params;
+    }
+
+    function setColumnsRotations(int256[][] memory columns_rotations) external onlyOwner {
+        _columns_rotations = columns_rotations;
+    }
+
     function verify(
         bytes calldata blob,
         uint256[] calldata public_input
