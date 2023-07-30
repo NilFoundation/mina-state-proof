@@ -141,8 +141,8 @@ namespace nil {
                             const Terms &terms,
                             const preprocessed_public_data_type &public_preprocessed_data) {
                 for( auto it = std::cbegin(terms); it != std::cend(terms); it++ ){
-                    os << "terms:=0x" << std::hex << it->coeff.data << std::dec << std::endl;
-                    print_term(os, it->vars, public_preprocessed_data);
+                    os << "terms:=0x" << std::hex << it->get_coeff().data << std::dec << std::endl;
+                    print_term(os, it->get_vars(), public_preprocessed_data);
                     os << "mstore("
                           "add(gate_params, CONSTRAINT_EVAL_OFFSET),"
                           "addmod("
