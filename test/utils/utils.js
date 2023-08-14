@@ -40,7 +40,7 @@ function loadParamsFromFile(jsonFile) {
 
 function getStateVerifierParams(baseParamsFile, scalarParamsFile) {
     let params = {}
-    params['init_params'] = [[26048, 22920], [], []];
+    params['init_params'] = [[24760, 21744], [], []];
     params['columns_rotations'] = [[], []]
     
     // For proof 1
