@@ -4,7 +4,7 @@ const hre = require('hardhat')
 const path = require("path");
 const { getFileContents} = require("./utils/utils")
 
-const stateProofFile = path.resolve(__dirname, "./data/proof_state.bin");
+const stateProofFile = path.resolve(__dirname, "./data/proof_ledger.bin");
 const accountProofFile = path.resolve(__dirname, "./data/proof_account.bin");
 
 describe('Proof Market verifiers - Mina state and account proofs validation tests', function () {
