@@ -64,7 +64,7 @@ contract MinaState is IMinaPlaceholderVerifier, Ownable {
     }
 
     /// @inheritdoc IMinaPlaceholderVerifier
-    function verifyAccountState(state.account_state calldata account_state, string calldata ledger_hash,
+    function verifyAccountState(state.account_state_type calldata account_state, string calldata ledger_hash,
         bytes calldata account_state_proof, uint256[] calldata init_params,
         int256[][] calldata columns_rotations) external returns (bool) {
         if (!this.isValidatedLedgerHash(ledger_hash)) {

@@ -5,12 +5,12 @@ import "./constants.sol";
 import "./consensus.sol";
 
 library state {
-    struct signed_amount {
+    struct signed_amount_type {
         uint256 amount;
         bool signed;
     }
 
-    struct local_state_registers {
+    struct local_state_registers_type {
         /// TODO
         uint256 stack_frame;
         /// TODO
@@ -22,7 +22,7 @@ library state {
         /// TODO
         uint64 token_id;
         /// TODO
-        signed_amount excess;
+        signed_amount_type excess;
         /// TODO
         uint256 ledger;
         /// TODO
@@ -33,29 +33,29 @@ library state {
         uint256[] failure_status_tbl;
     }
 
-    struct state_registers {
+    struct state_registers_type {
         /// TODO
         uint256 ledger;
         /// TODO
         uint256[] pending_coinbase_stack;
         /// TODO
-        local_state_registers local_state;
+        local_state_registers_type local_state;
     }
 
-    struct commitlog {
+    struct commitlog_type {
         /// Hash of the proposed next state of the blockchain
         uint256 staged_ledger_hash;
         /// Hash of the genesis state
         uint256 genesis_ledger_hash;
         /// Registers
-        state_registers registers;
+        state_registers_type registers;
         /// Timestamps for blocks
         uint256 timestamp;
         /// Body reference
         uint256 body_reference;
     }
 
-    struct consensus_t {
+    struct consensus_type {
         /// Height of block
         uint256 blockchain_length;
         /// Epoch number
@@ -88,38 +88,38 @@ library state {
         bool supercharge_coinbase;
     }
 
-    struct protocol_body {
+    struct protocol_body_type {
         /// Genesis protocol state hash (used for hardforks)
         uint256 genesis_state_hash;
         /// Ledger related state
-        commitlog blockchain_state;
+        commitlog_type blockchain_state;
         /// Consensus related state
-        consensus_t consensus_state;
+        consensus_type consensus_state;
         /// Consensus constants
-        consensus_t constants;
+        consensus_type constants;
     }
 
     /// This structure can be thought of like the block header. It contains the most essential information of a block.
-    struct protocol {
+    struct protocol_type {
         /// Commitment to previous block (hash of previous protocol state hash and body hash)
         uint256 previous_state_hash;
         /// The body of the protocol state
-        protocol_body body;
+        protocol_body_type body;
     }
 
     /// Balance parameters of user or zkApp
-    struct balance {
+    struct balance_type {
         // Liquid balance
         uint256 liquid;
         // Locked balance
         uint256 locked;
     }
 
-    struct account_state {
+    struct account_state_type {
         /// Public key identifier of the account (user or zkApp)
         string public_key;
         /// Balance of MINA
-        balance balance;
+        balance_type balance;
         /// State of the zkApp (8 FieldElems of 32 bytes)
         bytes32[8] state;
     }

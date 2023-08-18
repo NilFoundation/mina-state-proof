@@ -30,12 +30,7 @@ contract AccountPathVerifier is IProofMarketVerifier, Ownable {
     uint256[] _init_params;
     int256[][] _columns_rotations;
 
-    constructor(
-        address verifier,
-        address gates,
-        uint256[] memory init_params,
-        int256[][] memory columns_rotations        
-    ) {
+    constructor(address verifier, address gates, uint256[] memory init_params, int256[][] memory columns_rotations) {
         _verifier = verifier;
         _gates = gates;
         _init_params = init_params;
@@ -58,10 +53,7 @@ contract AccountPathVerifier is IProofMarketVerifier, Ownable {
         _columns_rotations = columns_rotations;
     }
 
-    function verify(
-        bytes calldata blob,
-        uint256[] calldata public_input
-    ) external view returns (bool) {
+    function verify(bytes calldata blob, uint256[] calldata public_input) external view returns (bool) {
         IVerifier v = IVerifier(_verifier);
         return v.verify(blob, _init_params, _columns_rotations, _gates);
     }

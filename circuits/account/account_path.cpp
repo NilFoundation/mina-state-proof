@@ -1,46 +1,26 @@
-
 #include <nil/crypto3/hash/algorithm/hash.hpp>
 #include <nil/crypto3/hash/poseidon.hpp>
 
 using namespace nil::crypto3;
-using namespace nil::crypto3::algebra::curves;
 
-[[circuit]] pallas::base_field_type::value_type merkle_tree_poseidon (
-    std::array<typename pallas::base_field_type::value_type, 49> input) {
+constexpr static const std::size_t MERKLE_TREE_DEPTH = 35;
+typedef hashes::poseidon hash_type;
 
-        std::size_t layer_0_start = 14;
-        
-        std::array<typename pallas::base_field_type::value_type, 0x10> layer_1_leaves;
-        std::size_t layer_1_size = 0x10;
-        std::array<typename pallas::base_field_type::value_type, 0x8> layer_2_leaves;
-        std::size_t layer_2_size = 0x8;
-        std::array<typename pallas::base_field_type::value_type, 0x4> layer_3_leaves;
-        std::size_t layer_3_size = 0x4;
-        std::array<typename pallas::base_field_type::value_type, 0x2> layer_4_leaves;
-        std::size_t layer_4_size = 0x2;
-        typename pallas::base_field_type::value_type root;
+bool operator==(typename hash_type::block_type block0,
+                typename hash_type::block_type block1) {
+    return block0[0] == block1[0] && block0[1] == block1[1];
+}
 
-        for (std::size_t leaf_index = 0; leaf_index < layer_1_size; leaf_index++) {
-        layer_1_leaves[leaf_index] =
-            hash<hashes::poseidon>(input[layer_0_start + 2 * leaf_index], input[layer_0_start + 2 * leaf_index + 1]);
+template<std::size_t Depth = MERKLE_TREE_DEPTH, typename HashType = hash_type>
+[[circuit]] bool validate_path(std::array<typename HashType::block_type, Depth> merkle_path,
+                               typename HashType::block_type leaf,
+                               typename HashType::block_type root) {
+
+    typename HashType::block_type subroot = leaf;
+
+    for (int i = 0; i < Depth; i++) {
+        subroot = hash<HashType>(subroot, merkle_path[i]);
     }
 
-    for (std::size_t leaf_index = 0; leaf_index < layer_2_size; leaf_index++) {
-        layer_2_leaves[leaf_index] =
-            hash<hashes::poseidon>(layer_1_leaves[2 * leaf_index], layer_1_leaves[2 * leaf_index + 1]);
-    }
-
-    for (std::size_t leaf_index = 0; leaf_index < layer_3_size; leaf_index++) {
-        layer_3_leaves[leaf_index] =
-            hash<hashes::poseidon>(layer_2_leaves[2 * leaf_index], layer_2_leaves[2 * leaf_index + 1]);
-    }
-
-    for (std::size_t leaf_index = 0; leaf_index < layer_4_size; leaf_index++) {
-        layer_4_leaves[leaf_index] =
-            hash<hashes::poseidon>(layer_3_leaves[2 * leaf_index], layer_3_leaves[2 * leaf_index + 1]);
-    }
-
-    root = hash<hashes::poseidon>(layer_4_leaves[0], layer_4_leaves[1]);
-
-    return root;
+    return subroot == root;
 }

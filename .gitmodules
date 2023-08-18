@@ -1,0 +1,6 @@
+[submodule "circuits/crypto3"]
+	path = circuits/crypto3
+	url = git@github.com:nilfoundation/crypto3.git
+[submodule "cmake/modules"]
+	path = cmake/modules
+	url = git@github.com:BoostCMake/cmake_modules.git

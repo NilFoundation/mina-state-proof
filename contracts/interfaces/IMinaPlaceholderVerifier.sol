@@ -84,7 +84,7 @@ interface IMinaPlaceholderVerifier {
      * @param columns_rotations - to remove
      * @return Boolean true if account hash/proof is passes placeholder proof validation , false otherwise.
      */
-    function verifyAccountState(state.account_state calldata account_state,
+    function verifyAccountState(state.account_state_type calldata account_state,
         string calldata ledger_hash, bytes calldata account_state_proof,
         uint256[] calldata init_params, int256[][] calldata columns_rotations
     ) external returns (bool);
