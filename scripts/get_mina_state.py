@@ -83,7 +83,7 @@ def get_mina_ledger_state(args):
     protocol_state = request_res["data"]["bestChain"][0]
     request_res["data"]["bestChain"] = [protocol_state]
     print("Fetching data for block height: {}".format(protocol_state["protocolState"]["consensusState"]["blockHeight"]))
-    print("Hash: {}".format(protocol_state["protocolState"]["blockchainState"]["snarkedLedgerHash"]))
+    print("Ledger hash: {}".format(protocol_state["protocolState"]["blockchainState"]["stagedLedgerHash"]))
     write_output_file(request_res, args.output)
     return
 
@@ -142,6 +142,7 @@ def get_mina_account_state(args):
     
     ledger_hash = get_ledger_hash(args)
     evm_res["proof_extension"] = ledger_hash
+    print("Ledger hash: "+ledger_hash)
 
     write_output_file(input, "pm_" + args.output)
     write_output_file(evm_res, args.output)
