@@ -12,7 +12,7 @@
  * Build the project: `$ npm run build`
  * Run with node:     `$ node build/src/interact.js <network>`.
  */
-import { Mina, PrivateKey, shutdown } from 'snarkyjs';
+import { Mina, PrivateKey, shutdown } from 'o1js';
 import fs from 'fs/promises';
 import { Add } from './Add.js';
 

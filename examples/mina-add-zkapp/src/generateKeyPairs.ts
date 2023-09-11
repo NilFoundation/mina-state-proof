@@ -1,4 +1,4 @@
-import { isReady,Mina, PrivateKey, shutdown } from 'snarkyjs';
+import { isReady,Mina, PrivateKey, shutdown } from 'o1js';
 
 await isReady;
 

@@ -40,7 +40,8 @@ task("validate_account_state", "Validate Mina's account state")
         let inputProof = getFileContents(proof);
         inputProof = inputProof.substring(2);
         let accountState = JSON.parse(getFileContents(state));
-        let hexlifiedExtension = ethers.utils.hexlify(Buffer.from(accountState.proof_extension, "utf8"));
+        // TODO: extend the proof with accountState.proof_extension
+        let hexlifiedExtension = ethers.utils.hexlify(Buffer.from(ledger));
         let extendedProof = hexlifiedExtension + inputProof;
         delete accountState.proof_extension;
         accountState.state = accountState.state.split(",");
